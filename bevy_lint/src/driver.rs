@@ -3,6 +3,8 @@
 use crate::callback::BevyLintCallback;
 
 /// This is the main entrypoint into the driver, exported so that `bevy_cli` may call it.
+// TODO(BD103): Make this return a proper error type.
+#[allow(clippy::result_unit_err)]
 pub fn main() -> Result<(), ()> {
     let args: Vec<String> = dbg!(std::env::args().skip(1).collect());
 
