@@ -1,0 +1,4 @@
+{
+    // Enables Rust-Analyzer support for `rustc` crates.
+    "rust-analyzer.rustc.source": "discover",
+}

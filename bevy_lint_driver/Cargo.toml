@@ -1,0 +1,10 @@
+[package]
+name = "bevy_lint_driver"
+version = "0.1.0-dev"
+edition = "2021"
+
+[dependencies]
+
+[package.metadata.rust-analyzer]
+# Enables Rust-Analyzer support for `rustc` crates.
+rustc_private = true

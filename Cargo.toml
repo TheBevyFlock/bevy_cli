@@ -1,3 +1,6 @@
+[workspace]
+members = ["bevy_lint_driver"]
+
 [package]
 name = "bevy_cli"
 version = "0.1.0-dev"
