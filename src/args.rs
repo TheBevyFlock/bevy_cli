@@ -18,6 +18,8 @@ pub struct Cli {
 pub enum Subcommands {
     /// Create a new Bevy project from a specified template.
     New(NewArgs),
+    /// Check the current project using Bevy-specific lints.
+    Lint,
 }
 
 /// Arguments for creating a new Bevy project.

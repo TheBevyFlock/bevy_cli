@@ -1,0 +1,10 @@
+use_field_init_shorthand = true
+newline_style = "Unix"
+
+# The following features are unstable and only available on nightly Rust.
+# Because nightly is required in this repository anyways, they are enabled by default.
+unstable_features = true
+imports_granularity = "Crate"
+wrap_comments = true
+comment_width = 100
+normalize_comments = true
