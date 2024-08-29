@@ -4,6 +4,7 @@ use cargo_generate::GenerateArgs;
 use clap::Parser as _;
 
 mod args;
+mod lint;
 
 fn main() -> Result<()> {
     let cli = Cli::parse();
@@ -17,6 +18,7 @@ fn main() -> Result<()> {
                 ..Default::default()
             })?;
         }
+        Subcommands::Lint => lint::lint()?,
     }
 
     Ok(())
