@@ -5,6 +5,6 @@
 // opt-in to `rustc_private`.
 #![feature(rustc_private)]
 
-fn main() {
+fn main() -> Result<(), ()> {
     bevy_lint::driver::main()
 }

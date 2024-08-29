@@ -3,11 +3,11 @@
 use crate::callback::BevyLintCallback;
 
 /// This is the main entrypoint into the driver, exported so that `bevy_cli` may call it.
-pub fn main() {
+pub fn main() -> Result<(), ()> {
     let args: Vec<String> = dbg!(std::env::args().skip(1).collect());
 
     // Call the compiler with our custom callback.
     rustc_driver::RunCompiler::new(&args, &mut BevyLintCallback)
         .run()
-        .unwrap()
+        .map_err(|_| ())
 }
