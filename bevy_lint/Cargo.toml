@@ -1,5 +1,5 @@
 [package]
-name = "bevy_lint_driver"
+name = "bevy_lint"
 version = "0.1.0-dev"
 edition = "2021"
 

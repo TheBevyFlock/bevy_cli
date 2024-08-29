@@ -1,5 +1,5 @@
 [workspace]
-members = ["bevy_lint_driver"]
+members = ["bevy_lint"]
 
 [package]
 name = "bevy_cli"
@@ -10,7 +10,12 @@ edition = "2021"
 name = "bevy"
 path = "src/main.rs"
 
+[[bin]]
+name = "bevy_lint_driver"
+path = "src/lint_driver.rs"
+
 [dependencies]
 anyhow = "1.0.86"
+bevy_lint = { version = "0.1.0-dev", path = "./bevy_lint" }
 cargo-generate = "0.21.3"
 clap = { version = "4.5.16", features = ["derive"] }
