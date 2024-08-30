@@ -1,0 +1,99 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+env:
+  # Keep this in sync with `rust-toolchain.toml`.
+  RUST_TOOLCHAIN: nightly-2024-08-21
+  RUST_COMPONENTS: rustc-dev, llvm-tools-preview
+
+jobs:
+  test:
+    name: Run tests
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ env.RUST_TOOLCHAIN }}
+          components: ${{ env.RUST_COMPONENTS }}
+
+      - name: Cache build artifacts
+        uses: Leafwing-Studios/cargo-cache@v2
+        with:
+          sweep-cache: true
+
+      - name: Run tests
+        run: |
+          cargo test --workspace --all-features --all-targets
+          # Workaround for https://github.com/rust-lang/cargo/issues/6669. `--doc` is incompatible
+          # with `--all-targets`, so we run them separately.
+          cargo test --workspace --all-features --doc
+
+  clippy:
+    name: Check with Clippy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ env.RUST_TOOLCHAIN }}
+          components: '${{ env.RUST_COMPONENTS }}, clippy'
+
+      - name: Cache build artifacts
+        uses: Leafwing-Studios/cargo-cache@v2
+        with:
+          sweep-cache: true
+
+      - name: Run Clippy
+        run: cargo clippy --workspace --all-targets --all-features -- --deny warnings
+
+  rustfmt:
+    name: Check with rustfmt
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ env.RUST_TOOLCHAIN }}
+          components: '${{ env.RUST_COMPONENTS }}, rustfmt'
+
+      - name: Run rustfmt
+        run: cargo fmt --all --check
+
+  docs:
+    name: Build docs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ env.RUST_TOOLCHAIN }}
+          components: ${{ env.RUST_COMPONENTS }}
+
+      - name: Cache build artifacts
+        uses: Leafwing-Studios/cargo-cache@v2
+        with:
+          sweep-cache: true
+
+      - name: Build documentation
+        run: cargo doc --workspace --all-features --document-private-items --no-deps
