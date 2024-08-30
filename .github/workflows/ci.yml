@@ -76,3 +76,24 @@ jobs:
 
       - name: Run rustfmt
         run: cargo fmt --all --check
+
+  docs:
+    name: Build docs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ env.RUST_TOOLCHAIN }}
+          components: ${{ env.RUST_COMPONENTS }}
+
+      - name: Cache build artifacts
+        uses: Leafwing-Studios/cargo-cache@v2
+        with:
+          sweep-cache: true
+
+      - name: Build documentation
+        run: cargo doc --workspace --all-features --document-private-items --no-deps
