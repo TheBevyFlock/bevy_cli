@@ -6,6 +6,7 @@ name = "bevy_cli"
 version = "0.1.0-dev"
 edition = "2021"
 license = "MIT OR Apache-2.0"
+default-run = "bevy"
 
 [[bin]]
 name = "bevy"
