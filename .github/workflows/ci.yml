@@ -6,6 +6,11 @@ on:
   pull_request:
   workflow_dispatch:
 
+env:
+  # Keep this in sync with `rust-toolchain.toml`.
+  RUST_TOOLCHAIN: nightly-2024-08-21
+  RUST_COMPONENTS: rustc-dev, llvm-tools-preview
+
 jobs:
   test:
     name: Run tests
@@ -20,9 +25,8 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@master
         with:
-          # Keep this in sync with `rust-toolchain.toml`.
-          toolchain: nightly-2024-08-21
-          components: rustc-dev, llvm-tools-preview
+          toolchain: ${{ env.RUST_TOOLCHAIN }}
+          components: ${{ env.RUST_COMPONENTS }}
 
       - name: Cache build artifacts
         uses: Leafwing-Studios/cargo-cache@v2
@@ -42,9 +46,8 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@master
         with:
-          # Keep this in sync with `rust-toolchain.toml`.
-          toolchain: nightly-2024-08-21
-          components: clippy, rustc-dev, llvm-tools-preview
+          toolchain: ${{ env.RUST_TOOLCHAIN }}
+          components: ${{ env.RUST_COMPONENTS }}
 
       - name: Cache build artifacts
         uses: Leafwing-Studios/cargo-cache@v2
@@ -64,9 +67,8 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@master
         with:
-          # Keep this in sync with `rust-toolchain.toml`.
-          toolchain: nightly-2024-08-21
-          components: rustfmt, rustc-dev, llvm-tools-preview
+          toolchain: ${{ env.RUST_TOOLCHAIN }}
+          components: ${{ env.RUST_COMPONENTS }}
 
       - name: Cache build artifacts
         uses: Leafwing-Studios/cargo-cache@v2
