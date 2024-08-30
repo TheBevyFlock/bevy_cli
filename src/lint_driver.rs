@@ -5,6 +5,8 @@
 // opt-in to `rustc_private`.
 #![feature(rustc_private)]
 
-fn main() -> Result<(), ()> {
+use std::process::ExitCode;
+
+fn main() -> ExitCode {
     bevy_lint::driver::main()
 }
