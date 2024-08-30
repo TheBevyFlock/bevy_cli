@@ -5,6 +5,7 @@ edition = "2021"
 license = "MIT OR Apache-2.0"
 
 [dependencies]
+clippy_utils = { version = "0.1.82", git = "https://github.com/rust-lang/rust-clippy", rev = "e8ac4ea4187498052849531b86114a1eec5314a1" }
 
 [package.metadata.rust-analyzer]
 # Enables Rust-Analyzer support for `rustc` crates.
