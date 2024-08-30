@@ -1,5 +1,5 @@
-# If you modify this file, please also update `ci.yml` so that Github Actions will install the
-# correct version of Rust.
+# If you modify this file, please also update `.github/workflows/ci.yml` so that Github Actions
+# will install the correct version of Rust.
 
 [toolchain]
 # Writing custom lints requires using nightly Rust. We pin to a specific version of nightly version
