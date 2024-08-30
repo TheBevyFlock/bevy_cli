@@ -70,10 +70,5 @@ jobs:
           toolchain: ${{ env.RUST_TOOLCHAIN }}
           components: ${{ env.RUST_COMPONENTS }}
 
-      - name: Cache build artifacts
-        uses: Leafwing-Studios/cargo-cache@v2
-        with:
-          sweep-cache: true
-
       - name: Run rustfmt
         run: cargo fmt --all --check
