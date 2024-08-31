@@ -1,6 +1,8 @@
 use cargo_generate::TemplatePath;
 use clap::{Args, Parser, Subcommand};
 
+use crate::{build::BuildArgs, run::RunArgs};
+
 /// Command-line interface for the Bevy Game Engine
 ///
 /// This CLI provides tools for Bevy project management,
@@ -18,6 +20,8 @@ pub struct Cli {
 pub enum Subcommands {
     /// Create a new Bevy project from a specified template.
     New(NewArgs),
+    Build(BuildArgs),
+    Run(RunArgs),
     /// Check the current project using Bevy-specific lints.
     Lint,
 }

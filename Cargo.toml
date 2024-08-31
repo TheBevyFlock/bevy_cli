@@ -16,7 +16,12 @@ name = "bevy_lint_driver"
 path = "src/lint_driver.rs"
 
 [dependencies]
+actix-files = { version = "0.6.6", default-features = false }
+actix-web = { version = "4.9.0", default-features = false }
 anyhow = "1.0.86"
 bevy_lint = { version = "0.1.0-dev", path = "./bevy_lint" }
 cargo-generate = "0.21.3"
 clap = { version = "4.5.16", features = ["derive"] }
+dialoguer = "0.11.0"
+fs_extra = "1.3.0"
+toml_edit = "0.22.20"

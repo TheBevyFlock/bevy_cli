@@ -4,7 +4,13 @@ use cargo_generate::GenerateArgs;
 use clap::Parser as _;
 
 mod args;
+mod build;
+mod external_cli;
+mod files;
 mod lint;
+mod mainfest;
+mod run;
+mod web;
 
 fn main() -> Result<()> {
     let cli = Cli::parse();
@@ -18,6 +24,8 @@ fn main() -> Result<()> {
                 ..Default::default()
             })?;
         }
+        Subcommands::Build(args) => build::build(&args)?,
+        Subcommands::Run(args) => run::run(&args)?,
         Subcommands::Lint => lint::lint()?,
     }
 
