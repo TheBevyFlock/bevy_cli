@@ -1,6 +1,5 @@
 use crate::{
     external_cli::{cargo, wasm_bindgen},
-    files::replace_folder,
     mainfest::package_name,
     web,
 };
@@ -23,9 +22,6 @@ pub(crate) fn run(args: &RunArgs) -> anyhow::Result<()> {
         println!("Bundling for the web...");
         wasm_bindgen::bundle(&package_name()?, args.is_release)
             .expect("Failed to bundle for the web");
-
-        println!("Updating assets...");
-        replace_folder("assets", "web")?;
 
         let port = 4000;
         println!("Open your app at <http://127.0.0.1:{port}>");

@@ -6,7 +6,6 @@ use clap::Parser as _;
 mod args;
 mod build;
 mod external_cli;
-mod files;
 mod lint;
 mod mainfest;
 mod run;

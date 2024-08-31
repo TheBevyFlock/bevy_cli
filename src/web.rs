@@ -1,5 +1,7 @@
 //! Utilities for targeting the web.
 
+use std::path::Path;
+
 use actix_web::{rt, App, HttpServer};
 
 use crate::external_cli::{cargo, rustup, wasm_bindgen};
@@ -19,6 +21,10 @@ pub(crate) fn serve(port: u16) -> anyhow::Result<()> {
     rt::System::new().block_on(
         HttpServer::new(|| {
             let mut app = App::new();
+
+            if Path::new("assets").exists() {
+                app = app.service(actix_files::Files::new("/assets", "./assets"))
+            }
 
             app = app.service(actix_files::Files::new("/", "./web").index_file("index.html"));
 

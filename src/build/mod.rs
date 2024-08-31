@@ -1,5 +1,6 @@
 use crate::{
     external_cli::{cargo, wasm_bindgen},
+    mainfest::package_name,
     web,
 };
 
@@ -19,8 +20,8 @@ pub(crate) fn build(args: &BuildArgs) -> anyhow::Result<()> {
         cargo::build().args(cargo_args).status()?;
 
         println!("Bundling for the web...");
-        // FIXME: Properly add package name
-        wasm_bindgen::bundle("bevy_app", args.is_release).expect("Failed to bundle for the web");
+        wasm_bindgen::bundle(&package_name()?, args.is_release)
+            .expect("Failed to bundle for the web");
     } else {
         cargo::build().args(cargo_args).status()?;
     }
