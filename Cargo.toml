@@ -10,11 +10,11 @@ default-run = "bevy"
 
 [[bin]]
 name = "bevy"
-path = "src/main.rs"
+path = "src/bin/main.rs"
 
 [[bin]]
 name = "bevy_lint_driver"
-path = "src/lint_driver.rs"
+path = "src/bin/lint_driver.rs"
 
 [dependencies]
 anyhow = "1.0.86"
