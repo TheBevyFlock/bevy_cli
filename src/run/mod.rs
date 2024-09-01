@@ -25,7 +25,7 @@ pub(crate) fn run(args: &RunArgs) -> anyhow::Result<()> {
 
         let port = 4000;
         println!("Open your app at <http://127.0.0.1:{port}>");
-        web::serve(port)?;
+        web::serve(port, args.is_release)?;
     } else {
         cargo::run().args(cargo_args).status()?;
     }
