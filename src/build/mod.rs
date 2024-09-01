@@ -9,13 +9,13 @@ pub(crate) use self::args::BuildArgs;
 mod args;
 
 pub(crate) fn build(args: &BuildArgs) -> anyhow::Result<()> {
-    if args.is_web {
+    if args.is_web() {
         web::ensure_setup()?;
     }
 
     let cargo_args = args.cargo_args();
 
-    if args.is_web {
+    if args.is_web() {
         println!("Building for WASM...");
         cargo::build().args(cargo_args).status()?;
 

@@ -1,9 +1,13 @@
-use clap::{ArgAction, Args};
+use clap::{ArgAction, Args, Subcommand};
 
 use crate::external_cli::arg_builder::ArgBuilder;
 
 #[derive(Debug, Args)]
 pub struct BuildArgs {
+    /// The subcommands available for the build command.
+    #[clap(subcommand)]
+    pub subcommand: Option<BuildSubcommands>,
+
     /// Package to build (see `cargo help pkgid`).
     #[clap(short = 'p', long = "package", value_name = "SPEC")]
     pub package: Option<String>,
@@ -75,17 +79,18 @@ pub struct BuildArgs {
     /// Path to Cargo.toml.
     #[clap(long = "manifest-path", value_name = "PATH")]
     pub manifest_path: Option<String>,
-
-    /// Build the game for the browser.
-    #[clap(short = 'w', long = "web", action = ArgAction::SetTrue, default_value_t = false)]
-    pub is_web: bool,
 }
 
 impl BuildArgs {
+    /// Determine if the app is being built for the web.
+    pub fn is_web(&self) -> bool {
+        matches!(self.subcommand, Some(BuildSubcommands::Web))
+    }
+
     /// Generate arguments for `cargo`.
     pub fn cargo_args(&self) -> ArgBuilder {
         // --web takes precedence over --target <TRIPLE>
-        let target = if self.is_web {
+        let target = if self.is_web() {
             Some("wasm32-unknown-unknown".to_string())
         } else {
             self.target.clone()
@@ -111,4 +116,10 @@ impl BuildArgs {
             .add_opt_value("--target-dir", &self.target_dir)
             .add_opt_value("--manifest-path", &self.manifest_path)
     }
+}
+
+#[derive(Debug, Subcommand)]
+pub enum BuildSubcommands {
+    /// Build your app for the browser.
+    Web,
 }

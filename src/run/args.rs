@@ -1,9 +1,13 @@
-use clap::{ArgAction, Args};
+use clap::{ArgAction, Args, Subcommand};
 
 use crate::external_cli::arg_builder::ArgBuilder;
 
 #[derive(Debug, Args)]
 pub struct RunArgs {
+    /// The subcommands available for the run command.
+    #[command(subcommand)]
+    pub subcommand: Option<RunSubcommands>,
+
     /// Name of the bin target to run.
     #[clap(long = "bin", value_name = "NAME")]
     pub bin: Option<String>,
@@ -27,17 +31,17 @@ pub struct RunArgs {
     /// Path to Cargo.toml.
     #[clap(long = "manifest-path", value_name = "PATH")]
     pub manifest_path: Option<String>,
-
-    /// Run your game in the browser.
-    #[clap(short = 'w', long = "web", action = ArgAction::SetTrue, default_value_t = false)]
-    pub is_web: bool,
 }
 
 impl RunArgs {
+    pub fn is_web(&self) -> bool {
+        matches!(self.subcommand, Some(RunSubcommands::Web(_)))
+    }
+
     /// Generate arguments for `cargo`.
     pub fn cargo_args(&self) -> ArgBuilder {
-        // --web takes precedence over --target <TRIPLE>
-        let target = if self.is_web {
+        // Web takes precedence over --target <TRIPLE>
+        let target = if self.is_web() {
             Some("wasm32-unknown-unknown".to_string())
         } else {
             self.target.clone()
@@ -51,4 +55,17 @@ impl RunArgs {
             .add_opt_value("--target-dir", &self.target_dir)
             .add_opt_value("--manifest-path", &self.manifest_path)
     }
+}
+
+#[derive(Debug, Subcommand)]
+pub enum RunSubcommands {
+    /// Run your app in the browser.
+    Web(RunWebArgs),
+}
+
+#[derive(Debug, Args)]
+pub struct RunWebArgs {
+    /// The port to run the web server on.
+    #[arg(short, long, default_value_t = 4000)]
+    pub port: u16,
 }
