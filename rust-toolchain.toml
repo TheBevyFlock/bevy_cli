@@ -6,4 +6,4 @@
 # so that builds are reproducible.
 channel = "nightly-2024-08-21"
 # These components are required to use `rustc` crates.
-components = ["rustc-dev", "llvm-tools-preview"]
+components = ["rust-src", "rustc-dev", "llvm-tools-preview"]
