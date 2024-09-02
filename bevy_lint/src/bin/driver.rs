@@ -1,12 +1,17 @@
-//! This is built into the `bevy_lint_driver` executable. This file does not actually contain any
-//! logic, it simply calls [`bevy_lint::driver::main()`] and exits.
-
-// `bevy_lint` uses the `rustc_private` feature, so in order for us to call `bevy_lint` we must also
-// opt-in to `rustc_private`.
+// Enables linking to `rustc` crates.
 #![feature(rustc_private)]
 
-use std::process::ExitCode;
+extern crate rustc_driver;
+extern crate rustc_span;
 
-fn main() -> ExitCode {
-    bevy_lint::driver::main()
+use bevy_lint::BevyLintCallback;
+use rustc_span::ErrorGuaranteed;
+
+fn main() -> Result<(), ErrorGuaranteed> {
+    // The arguments are formatted as `[DRIVER_PATH, RUSTC_PATH, ARGS...]`. We skip the driver path
+    // so that `RunCompiler` just sees `rustc`'s path.
+    let args: Vec<String> = std::env::args().skip(1).collect();
+
+    // Call the compiler with our custom callback.
+    rustc_driver::RunCompiler::new(&args, &mut BevyLintCallback).run()
 }
