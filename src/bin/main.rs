@@ -1,5 +1,18 @@
-use cargo_generate::TemplatePath;
+use anyhow::Result;
 use clap::{Args, Parser, Subcommand};
+
+fn main() -> Result<()> {
+    let cli = Cli::parse();
+
+    match cli.subcommand {
+        Subcommands::New(new) => {
+            bevy_cli::template::generate_template(&new.name, new.template.as_deref())?;
+        }
+        Subcommands::Lint => bevy_cli::lint::lint()?,
+    }
+
+    Ok(())
+}
 
 /// Command-line interface for the Bevy Game Engine
 ///
@@ -40,22 +53,4 @@ pub struct NewArgs {
     /// Can be omitted to use a built-in template.
     #[arg(short, long)]
     pub template: Option<String>,
-}
-
-impl NewArgs {
-    /// The path to the template to use for generating the project.
-    pub fn template_path(&self) -> TemplatePath {
-        if let Some(template) = &self.template {
-            TemplatePath {
-                git: Some(template.clone()),
-                ..Default::default()
-            }
-        } else {
-            TemplatePath {
-                git: Some("https://github.com/TheBevyFlock/bevy_quickstart.git".to_string()),
-                branch: Some("cargo-generate".to_string()),
-                ..Default::default()
-            }
-        }
-    }
 }

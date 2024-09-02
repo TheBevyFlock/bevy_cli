@@ -6,18 +6,28 @@ name = "bevy_cli"
 version = "0.1.0-dev"
 edition = "2021"
 license = "MIT OR Apache-2.0"
+# When no binary is specific, run the main CLI by default.
 default-run = "bevy"
 
+# The main CLI executable
 [[bin]]
 name = "bevy"
-path = "src/main.rs"
+path = "src/bin/main.rs"
 
+# Integrates custom lints with `rustc`
 [[bin]]
 name = "bevy_lint_driver"
-path = "src/lint_driver.rs"
+path = "src/bin/lint_driver.rs"
 
 [dependencies]
-anyhow = "1.0.86"
-bevy_lint = { version = "0.1.0-dev", path = "./bevy_lint" }
-cargo-generate = "0.21.3"
+# CLI argument parsing
 clap = { version = "4.5.16", features = ["derive"] }
+
+# Easy error propagation and contexts
+anyhow = "1.0.86"
+
+# Generates new Bevy projects from templates
+cargo-generate = "0.21.3"
+
+# Bevy-specific lints
+bevy_lint = { version = "0.1.0-dev", path = "./bevy_lint" }
