@@ -1,7 +1,10 @@
 use anyhow::{anyhow, ensure, Context};
 use std::{env, path::PathBuf, process::Command};
 
-/// Runs `bevy_lint` if it is installed with the given arguments.
+/// Runs `bevy_lint`, if it is installed, with the given arguments.
+///
+/// Calling `lint(vec!["--workspace"])` is equivalent to calling `bevy_lint --workspace` in the
+/// terminal. This will run [`find_bevy_lint()`] to locate `bevy_lint`.
 pub fn lint(args: Vec<String>) -> anyhow::Result<()> {
     let bevy_lint_path = find_bevy_lint()?;
 
@@ -16,6 +19,10 @@ pub fn lint(args: Vec<String>) -> anyhow::Result<()> {
 }
 
 /// Tries the find the path to `bevy_lint`, if it is installed.
+///
+/// The current strategy will find a file named `bevy_lint(.exe)` within the same directory as the
+/// current executable, which is usually `~/.cargo/bin` or `target/debug`. It will **not** search
+/// the `PATH`.
 pub fn find_bevy_lint() -> anyhow::Result<PathBuf> {
     let mut bevy_lint_path = env::current_exe()
         .context("Failed to retrieve the path to the current executable.")?
