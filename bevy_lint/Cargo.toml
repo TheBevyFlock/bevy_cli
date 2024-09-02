@@ -3,11 +3,19 @@ name = "bevy_lint"
 version = "0.1.0-dev"
 edition = "2021"
 license = "MIT OR Apache-2.0"
+default-run = "bevy_lint"
+
+[[bin]]
+name = "bevy_lint"
+path = "src/bin/main.rs"
 
 # Integrates custom lints with `rustc`.
 [[bin]]
 name = "bevy_lint_driver"
 path = "src/bin/driver.rs"
+
+[dependencies]
+anyhow = "1.0.86"
 
 # Contains a series of useful utilities when writing lints. The version and commit were chosen to
 # work with the currently pinned nightly Rust version. When the Rust version changes, this too
