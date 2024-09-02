@@ -14,11 +14,6 @@ default-run = "bevy"
 name = "bevy"
 path = "src/bin/main.rs"
 
-# Integrates custom lints with `rustc`
-[[bin]]
-name = "bevy_lint_driver"
-path = "src/bin/lint_driver.rs"
-
 [dependencies]
 # CLI argument parsing
 clap = { version = "4.5.16", features = ["derive"] }
