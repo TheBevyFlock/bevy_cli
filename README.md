@@ -8,7 +8,6 @@ The Bevy CLI includes a [custom linter](bevy_lint) that integrates directly with
 
 However, some components may be still missing due to a [`rustup` bug](https://github.com/rust-lang/rustup/issues/3255). If you get `can't find crate` errors when trying to build, run the following commands to manually add the required components:
 
-```
-rustup component add rustc-dev llvm-tools-preview
-rustup component add --toolchain nightly rustc-dev llvm-tools-preview
+```bash
+rustup component add --toolchain nightly-2024-08-21 rustc-dev llvm-tools-preview
 ```
