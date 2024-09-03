@@ -14,6 +14,11 @@ path = "src/bin/main.rs"
 name = "bevy_lint_driver"
 path = "src/bin/driver.rs"
 
+# UI tests
+[[test]]
+name = "ui"
+harness = false
+
 [dependencies]
 anyhow = "1.0.86"
 
@@ -24,6 +29,9 @@ anyhow = "1.0.86"
 version = "=0.1.82"
 git = "https://github.com/rust-lang/rust-clippy"
 rev = "e8ac4ea4187498052849531b86114a1eec5314a1"
+
+[dev-dependencies]
+ui_test = "0.25.0"
 
 [package.metadata.rust-analyzer]
 # Enables Rust-Analyzer support for `rustc` crates.
