@@ -36,10 +36,15 @@ pub fn find_bevy_lint() -> anyhow::Result<PathBuf> {
     if cfg!(debug_assertions) {
         ensure!(
             bevy_lint_path.exists(),
-            "`bevy_lint` could not be found at {bevy_lint_path:?}. Please run `cargo build -p bevy_lint` first!",
+            "`bevy_lint` could not be found at {}. Please run `cargo build -p bevy_lint` first!",
+            bevy_lint_path.display(),
         );
     } else {
-        ensure!(bevy_lint_path.exists(), "`bevy_lint` could not be found at {bevy_lint_path:?}. Please follow the instructions in the Bevy CLI `README.md` to install it.");
+        ensure!(
+            bevy_lint_path.exists(),
+            "`bevy_lint` could not be found at {}. Please follow the instructions at <https://github.com/TheBevyFlock/bevy_cli> to install it.",
+            bevy_lint_path.display(),
+        );
     }
 
     bevy_lint_path = bevy_lint_path.canonicalize()?;
