@@ -8,7 +8,7 @@ fn main() -> Result<()> {
         Subcommands::New(new) => {
             bevy_cli::template::generate_template(&new.name, new.template.as_deref())?;
         }
-        Subcommands::Lint => bevy_cli::lint::lint()?,
+        Subcommands::Lint { args } => bevy_cli::lint::lint(args)?,
     }
 
     Ok(())
@@ -32,7 +32,16 @@ pub enum Subcommands {
     /// Create a new Bevy project from a specified template.
     New(NewArgs),
     /// Check the current project using Bevy-specific lints.
-    Lint,
+    ///
+    /// This command requires `bevy_lint` to be installed, and will fail if it is not. Please see
+    /// <https://github.com/TheBevyFlock/bevy_cli> for installation instructions.
+    ///
+    /// To see the full list of options, run `bevy lint -- --help`.
+    Lint {
+        /// A list of arguments to be passed to `bevy_lint`.
+        #[arg(trailing_var_arg = true, allow_hyphen_values = true)]
+        args: Vec<String>,
+    },
 }
 
 /// Arguments for creating a new Bevy project.

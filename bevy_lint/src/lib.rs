@@ -7,4 +7,5 @@ extern crate rustc_driver;
 extern crate rustc_interface;
 
 mod callback;
-pub mod driver;
+
+pub use self::callback::BevyLintCallback;

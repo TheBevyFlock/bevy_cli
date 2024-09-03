@@ -1,38 +1,53 @@
 use anyhow::{anyhow, ensure, Context};
-use std::{env, process::Command};
+use std::{env, path::PathBuf, process::Command};
 
-pub fn lint() -> anyhow::Result<()> {
-    // The `bevy` CLI lives in the same folder as `bevy_lint_driver`, so we can easily find it
-    // using the path of the current executable.
-    let mut driver_path = env::current_exe()
+/// Runs `bevy_lint`, if it is installed, with the given arguments.
+///
+/// Calling `lint(vec!["--workspace"])` is equivalent to calling `bevy_lint --workspace` in the
+/// terminal. This will run [`find_bevy_lint()`] to locate `bevy_lint`.
+pub fn lint(args: Vec<String>) -> anyhow::Result<()> {
+    let bevy_lint_path = find_bevy_lint()?;
+
+    let status = Command::new(bevy_lint_path).args(args).status()?;
+
+    ensure!(
+        status.success(),
+        "`bevy_lint` exited with a non-zero exit code."
+    );
+
+    Ok(())
+}
+
+/// Tries the find the path to `bevy_lint`, if it is installed.
+///
+/// The current strategy will find a file named `bevy_lint(.exe)` within the same directory as the
+/// current executable, which is usually `~/.cargo/bin` or `target/debug`. It will **not** search
+/// the `PATH`.
+pub fn find_bevy_lint() -> anyhow::Result<PathBuf> {
+    let mut bevy_lint_path = env::current_exe()
         .context("Failed to retrieve the path to the current executable.")?
         .parent()
         .ok_or(anyhow!("Path to file must have a parent."))?
-        .join("bevy_lint_driver");
+        .join("bevy_lint");
 
     #[cfg(target_os = "windows")]
-    driver_path.set_extension("exe");
+    bevy_lint_path.set_extension("exe");
 
-    ensure!(
-        driver_path.exists(),
-        "Could not find `bevy_lint_driver` at {driver_path:?}, please ensure it is installed!",
-    );
+    if cfg!(debug_assertions) {
+        ensure!(
+            bevy_lint_path.exists(),
+            "`bevy_lint` could not be found at {}. Please run `cargo build -p bevy_lint` first!",
+            bevy_lint_path.display(),
+        );
+    } else {
+        ensure!(
+            bevy_lint_path.exists(),
+            "`bevy_lint` could not be found at {}. Please follow the instructions at <https://github.com/TheBevyFlock/bevy_cli> to install it.",
+            bevy_lint_path.display(),
+        );
+    }
 
-    // Convert the local path to the absolute path. We don't want `rustc` getting
-    // confused! `canonicalize()` requires for the path to exist, so we do it after the nice error
-    // message.
-    driver_path = driver_path.canonicalize()?;
+    bevy_lint_path = bevy_lint_path.canonicalize()?;
 
-    // Run `cargo check`.
-    let status = Command::new("cargo")
-        .arg("check")
-        // This instructs `rustc` to call `bevy_lint_driver` instead of its default routine.
-        // This lets us register custom lints.
-        .env("RUSTC_WORKSPACE_WRAPPER", driver_path)
-        .status()
-        .context("Failed to spawn `cargo check`.")?;
-
-    ensure!(status.success(), "Check failed with non-zero exit code.");
-
-    Ok(())
+    Ok(bevy_lint_path)
 }
