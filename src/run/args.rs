@@ -34,12 +34,12 @@ pub struct RunArgs {
 }
 
 impl RunArgs {
-    pub fn is_web(&self) -> bool {
+    pub(crate) fn is_web(&self) -> bool {
         matches!(self.subcommand, Some(RunSubcommands::Web(_)))
     }
 
     /// Generate arguments for `cargo`.
-    pub fn cargo_args(&self) -> ArgBuilder {
+    pub(crate) fn cargo_args(&self) -> ArgBuilder {
         // Web takes precedence over --target <TRIPLE>
         let target = if self.is_web() {
             Some("wasm32-unknown-unknown".to_string())

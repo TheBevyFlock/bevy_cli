@@ -6,11 +6,11 @@ use crate::{
     web,
 };
 
-pub(crate) use self::args::RunArgs;
+pub use self::args::RunArgs;
 
 mod args;
 
-pub(crate) fn run(args: &RunArgs) -> anyhow::Result<()> {
+pub fn run(args: &RunArgs) -> anyhow::Result<()> {
     if args.is_web() {
         web::ensure_setup()?;
     }

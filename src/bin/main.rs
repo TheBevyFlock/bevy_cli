@@ -1,7 +1,24 @@
-use cargo_generate::TemplatePath;
+use anyhow::Result;
+use bevy_cli::{
+    build::{build, BuildArgs},
+    run::{run, RunArgs},
+};
 use clap::{Args, Parser, Subcommand};
 
-use crate::{build::BuildArgs, run::RunArgs};
+fn main() -> Result<()> {
+    let cli = Cli::parse();
+
+    match cli.subcommand {
+        Subcommands::New(new) => {
+            bevy_cli::template::generate_template(&new.name, new.template.as_deref())?;
+        }
+        Subcommands::Build(args) => build(&args)?,
+        Subcommands::Run(args) => run(&args)?,
+        Subcommands::Lint { args } => bevy_cli::lint::lint(args)?,
+    }
+
+    Ok(())
+}
 
 /// Command-line interface for the Bevy Game Engine
 ///
@@ -23,7 +40,16 @@ pub enum Subcommands {
     Build(BuildArgs),
     Run(RunArgs),
     /// Check the current project using Bevy-specific lints.
-    Lint,
+    ///
+    /// This command requires `bevy_lint` to be installed, and will fail if it is not. Please see
+    /// <https://github.com/TheBevyFlock/bevy_cli> for installation instructions.
+    ///
+    /// To see the full list of options, run `bevy lint -- --help`.
+    Lint {
+        /// A list of arguments to be passed to `bevy_lint`.
+        #[arg(trailing_var_arg = true, allow_hyphen_values = true)]
+        args: Vec<String>,
+    },
 }
 
 /// Arguments for creating a new Bevy project.
@@ -44,22 +70,4 @@ pub struct NewArgs {
     /// Can be omitted to use a built-in template.
     #[arg(short, long)]
     pub template: Option<String>,
-}
-
-impl NewArgs {
-    /// The path to the template to use for generating the project.
-    pub fn template_path(&self) -> TemplatePath {
-        if let Some(template) = &self.template {
-            TemplatePath {
-                git: Some(template.clone()),
-                ..Default::default()
-            }
-        } else {
-            TemplatePath {
-                git: Some("https://github.com/TheBevyFlock/bevy_quickstart.git".to_string()),
-                branch: Some("cargo-generate".to_string()),
-                ..Default::default()
-            }
-        }
-    }
 }

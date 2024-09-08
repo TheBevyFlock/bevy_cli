@@ -83,12 +83,12 @@ pub struct BuildArgs {
 
 impl BuildArgs {
     /// Determine if the app is being built for the web.
-    pub fn is_web(&self) -> bool {
+    pub(crate) fn is_web(&self) -> bool {
         matches!(self.subcommand, Some(BuildSubcommands::Web))
     }
 
     /// Generate arguments for `cargo`.
-    pub fn cargo_args(&self) -> ArgBuilder {
+    pub(crate) fn cargo_args(&self) -> ArgBuilder {
         // --web takes precedence over --target <TRIPLE>
         let target = if self.is_web() {
             Some("wasm32-unknown-unknown".to_string())

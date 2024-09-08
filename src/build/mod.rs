@@ -4,11 +4,11 @@ use crate::{
     web,
 };
 
-pub(crate) use self::args::BuildArgs;
+pub use self::args::BuildArgs;
 
 mod args;
 
-pub(crate) fn build(args: &BuildArgs) -> anyhow::Result<()> {
+pub fn build(args: &BuildArgs) -> anyhow::Result<()> {
     if args.is_web() {
         web::ensure_setup()?;
     }
