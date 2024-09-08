@@ -22,11 +22,11 @@ pub(crate) fn bundle(package_name: &str, is_release: bool) -> anyhow::Result<()>
     let status = command()
         .args(
             ArgBuilder::new()
-                .add("--no-typescript")
+                .arg("--no-typescript")
                 .add_with_value("--out-name", "bevy_app")
                 .add_with_value("--out-dir", &target_folder)
                 .add_with_value("--target", "web")
-                .add(format!("{target_folder}/{package_name}.wasm")),
+                .arg(format!("{target_folder}/{package_name}.wasm")),
         )
         .status()?;
 

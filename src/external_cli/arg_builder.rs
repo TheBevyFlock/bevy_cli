@@ -1,7 +1,7 @@
 #[derive(Debug, Clone)]
 
 /// A helper to make passing arguments to [`std::process::Command`] more convenient.
-pub(crate) struct ArgBuilder(Vec<String>);
+pub struct ArgBuilder(Vec<String>);
 
 impl ArgBuilder {
     /// Create a new builder for command arguments.
@@ -14,10 +14,10 @@ impl ArgBuilder {
     /// # Example
     ///
     /// ```
-    /// # use crate::external_cli::arg_builder::ArgBuilder;
-    /// ArgBuilder::new().add("--release");
+    /// # use bevy_cli::external_cli::arg_builder::ArgBuilder;
+    /// ArgBuilder::new().arg("--release");
     /// ```
-    pub fn add<A>(mut self, arg: A) -> Self
+    pub fn arg<A>(mut self, arg: A) -> Self
     where
         A: Into<String>,
     {
@@ -30,7 +30,7 @@ impl ArgBuilder {
     /// # Example
     ///
     /// ```
-    /// # use crate::external_cli::arg_builder::ArgBuilder;
+    /// # use bevy_cli::external_cli::arg_builder::ArgBuilder;
     /// ArgBuilder::new().add_with_value("--bin", "bevy");
     /// ```
     pub fn add_with_value<A, V>(self, arg: A, value: V) -> Self
@@ -38,7 +38,7 @@ impl ArgBuilder {
         A: Into<String>,
         V: Into<String>,
     {
-        self.add(arg).add(value)
+        self.arg(arg).arg(value)
     }
 
     /// Add a boolean flag with the given name, if `value` is `true`.
@@ -46,16 +46,16 @@ impl ArgBuilder {
     /// # Example
     ///
     /// ```
-    /// # use crate::external_cli::arg_builder::ArgBuilder;
+    /// # use bevy_cli::external_cli::arg_builder::ArgBuilder;
     /// let is_release = true;
-    /// ArgBuilder::new().add_flag("--release", is_release);
+    /// ArgBuilder::new().add_flag_if("--release", is_release);
     /// ```
     pub fn add_flag_if<N>(self, name: N, value: bool) -> Self
     where
         N: Into<String>,
     {
         if value {
-            self.add(name)
+            self.arg(name)
         } else {
             self
         }
@@ -66,9 +66,9 @@ impl ArgBuilder {
     /// # Example
     ///
     /// ```
-    /// # use crate::external_cli::arg_builder::ArgBuilder;
+    /// # use bevy_cli::external_cli::arg_builder::ArgBuilder;
     /// let maybe_name = Some("bevy");
-    /// ArgBuilder::new().add_opt_value("--bin", maybe_name);
+    /// ArgBuilder::new().add_opt_value("--bin", &maybe_name);
     /// ```
     pub fn add_opt_value<N, V>(self, name: N, value: &Option<V>) -> Self
     where
@@ -80,6 +80,12 @@ impl ArgBuilder {
         } else {
             self
         }
+    }
+}
+
+impl Default for ArgBuilder {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
