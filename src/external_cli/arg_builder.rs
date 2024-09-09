@@ -81,6 +81,22 @@ impl ArgBuilder {
             self
         }
     }
+
+    /// Add an argument with multiple values.
+    pub fn add_value_list<N, V>(self, name: N, value_list: Vec<V>) -> Self
+    where
+        N: Into<String>,
+        V: Into<String>,
+    {
+        let values: Vec<String> = value_list.into_iter().map(|val| val.into()).collect();
+        self.add_with_value(name, values.join(","))
+    }
+
+    /// Add all arguments from the other builder to this one.
+    pub fn append(mut self, mut other: ArgBuilder) -> Self {
+        self.0.append(&mut other.0);
+        self
+    }
 }
 
 impl Default for ArgBuilder {
