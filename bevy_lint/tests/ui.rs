@@ -4,50 +4,22 @@
 //! information, see <https://github.com/oli-obk/ui_test>.
 
 use core::str;
-use std::{
-    mem,
-    path::{Path, PathBuf},
-    process::Command,
-};
+use std::{mem, path::PathBuf};
 use ui_test::{
-    color_eyre::{
-        self,
-        eyre::{ensure, eyre},
-    },
+    color_eyre::{self, eyre::ensure},
     run_tests, CommandBuilder, Config,
 };
 
+const TOOLCHAIN: &str = "nightly-2024-08-21";
+
 fn main() -> color_eyre::Result<()> {
     let config = config()?;
-
-    // TODO: Use `bevy_lint_driver` instead of pure `rustc`.
-
     run_tests(config)
 }
 
 fn config() -> color_eyre::Result<Config> {
-    let mut program = CommandBuilder::rustc();
-
-    let driver_path = PathBuf::from("../target/debug/bevy_lint_driver");
-
-    // TODO: Set .exe suffix.
-
-    ensure!(
-        driver_path.exists(),
-        "`bevy_lint_driver` does not exist, please build it with `cargo build -p bevy_lint --bin bevy_lint_driver`.",
-    );
-
-    let rustc = mem::replace(&mut program.program, driver_path);
-
-    program.args.insert(0, rustc.into());
-
-    program.envs.push((
-        "LD_LIBRARY_PATH".into(),
-        Some(locate_toolchain_libraries()?.into()),
-    ));
-
     Ok(Config {
-        program,
+        program: program()?,
         // We set this to an empty string because else it will try auto-detecting the host by
         // calling `bevy_lint_driver -vV`, which is currently not supported and will error. This
         // does break host-specific configuration, but we currently don't use it.
@@ -59,35 +31,36 @@ fn config() -> color_eyre::Result<Config> {
     })
 }
 
-fn locate_toolchain_libraries() -> color_eyre::Result<PathBuf> {
-    let rustup_output = Command::new("rustup").arg("which").arg("rustc").output()?;
+fn program() -> color_eyre::Result<CommandBuilder> {
+    let mut program = CommandBuilder::rustc();
+
+    let mut driver_path = PathBuf::from("../target/debug/bevy_lint_driver");
+
+    if cfg!(target_os = "windows") {
+        driver_path.set_extension("exe");
+    }
 
     ensure!(
-        rustup_output.status.success(),
-        "`rustup which rustc` failed with non-zero exit code."
+        driver_path.exists(),
+        "`bevy_lint_driver` does not exist, please build it with `cargo build -p bevy_lint --bin bevy_lint_driver`.",
     );
 
-    // We're assuming the path to `rustc` is valid UTF-8. If this gives you an error, please report
-    // an issue!
-    let rustc_path = Path::new(str::from_utf8(&rustup_output.stdout)?);
+    // Swap `rustc` for `rustup`.
+    let rustc = mem::replace(&mut program.program, PathBuf::from("rustup"));
 
-    // From `~/.rustup/toolchains/*/bin/rustc`, find `~/.rustup/toolchains/*/lib`.
-    let lib_path = rustc_path
-        .parent()
-        .and_then(|p| p.parent())
-        .ok_or_else(|| {
-            eyre!(
-                "Failed to find toolchain path from `rustc` at {}.",
-                rustc_path.display()
-            )
-        })?
-        .join("lib");
+    // Add `rustup` args to `run TOOLCHAIN driver_path rustc`.
+    let args = vec![
+        "run".into(),
+        TOOLCHAIN.into(),
+        driver_path.into(),
+        rustc.into(),
+    ];
 
-    ensure!(
-        lib_path.exists(),
-        "Toolchain library path does not exist at {}.",
-        lib_path.display()
-    );
+    // Replace existing args with new ones.
+    let mut additional_args = mem::replace(&mut program.args, args);
 
-    Ok(lib_path)
+    // Add the existing args to the end of the new ones.
+    program.args.append(&mut additional_args);
+
+    Ok(program)
 }
