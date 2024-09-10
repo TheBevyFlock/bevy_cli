@@ -1,11 +1,11 @@
 //! This build script hardcodes the path to the current Rust toolchain's libraries into
 //! `bevy_lint_driver` so that it can be called directly, instead of just through `cargo`. There
 //! are a few limitations with this solution:
-//! 
+//!
 //! 1. The hardcoded path is not portable, since it references the name of the user's home
 //!    directory. (E.g. it hardcodes `/Users/appleseedj/...` into the produced binary.)
 //! 2. The produced binary still requires the pinned nightly toolchain to be installed.
-//! 
+//!
 //! For these reasons, consider this more of a hack than an all-encompassing solution.
 
 use std::{
@@ -54,15 +54,26 @@ fn locate_toolchain_libraries() -> PathBuf {
         str::from_utf8(&rustup_output.stdout).expect("`rustup` did not emit valid UTF-8."),
     );
 
-    // From `~/.rustup/toolchains/*/bin/rustc`, find `~/.rustup/toolchains/*/lib`.
-    let library_path = rustc_path
-        .parent()
-        .and_then(|p| p.parent())
-        .expect(&format!(
-            "Failed to find toolchain path from `rustc` at {}",
-            rustc_path.display()
-        ))
-        .join("lib");
+    let library_path = if cfg!(target_os = "windows") {
+        // From `~/.rustup/toolchains/*/bin/rustc`, find `~/.rustup/toolchains/*/bin`.
+        rustc_path
+            .parent()
+            .expect(&format!(
+                "Failed to find toolchain path from `rustc` at {}",
+                rustc_path.display()
+            ))
+            .to_path_buf()
+    } else {
+        // From `~/.rustup/toolchains/*/bin/rustc`, find `~/.rustup/toolchains/*/lib`.
+        rustc_path
+            .parent()
+            .and_then(|p| p.parent())
+            .expect(&format!(
+                "Failed to find toolchain path from `rustc` at {}",
+                rustc_path.display()
+            ))
+            .join("lib")
+    };
 
     assert!(
         library_path.exists(),
