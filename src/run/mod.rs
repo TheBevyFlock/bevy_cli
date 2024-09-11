@@ -26,7 +26,18 @@ pub fn run(args: &RunArgs) -> anyhow::Result<()> {
         wasm_bindgen::bundle(&package_name()?, args.is_release)?;
 
         let port = web_args.port;
-        println!("Open your app at <http://127.0.0.1:{port}>");
+        let url = format!("http://127.0.0.1:{port}");
+
+        if web_args.do_open {
+            if webbrowser::open(&url).is_err() {
+                println!("Failed to open the browser automatically, open the app on <{url}>");
+            } else {
+                println!("Your app is running on <{url}>");
+            }
+        } else {
+            println!("Open your app on <{url}>");
+        }
+
         web::serve(port, args.is_release)?;
     } else {
         // For native builds, wrap `cargo run`

@@ -28,3 +28,4 @@ anyhow = "1.0.86"
 
 # Generates new Bevy projects from templates
 cargo-generate = "0.21.3"
+webbrowser = "1.0.1"

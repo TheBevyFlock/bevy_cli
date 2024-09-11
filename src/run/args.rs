@@ -68,4 +68,8 @@ pub struct RunWebArgs {
     /// The port to run the web server on.
     #[arg(short, long, default_value_t = 4000)]
     pub port: u16,
+
+    /// Open the app in the browser.
+    #[arg(short = 'o', long = "open", action = ArgAction::SetTrue, default_value_t = false)]
+    pub do_open: bool,
 }
