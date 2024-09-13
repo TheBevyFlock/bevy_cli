@@ -24,16 +24,9 @@ impl BuildArgs {
         self.cargo_args.compilation_args.is_release
     }
 
-    /// Generate arguments for `cargo`.
+    /// Generate arguments to forward to `cargo build`.
     pub(crate) fn cargo_args_builder(&self) -> ArgBuilder {
-        let args = &self.cargo_args;
-
-        ArgBuilder::new()
-            .append(args.package_args.args_builder())
-            .append(args.target_args.args_builder())
-            .append(args.feature_args.args_builder())
-            .append(args.compilation_args.args_builder(self.is_web()))
-            .append(args.manifest_args.args_builder())
+        self.cargo_args.args_builder(self.is_web())
     }
 }
 

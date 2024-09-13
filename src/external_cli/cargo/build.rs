@@ -27,6 +27,17 @@ pub struct CargoBuildArgs {
     pub manifest_args: CargoManifestArgs,
 }
 
+impl CargoBuildArgs {
+    pub(crate) fn args_builder(&self, is_web: bool) -> ArgBuilder {
+        ArgBuilder::new()
+            .append(self.package_args.args_builder())
+            .append(self.target_args.args_builder())
+            .append(self.feature_args.args_builder())
+            .append(self.compilation_args.args_builder(is_web))
+            .append(self.manifest_args.args_builder())
+    }
+}
+
 #[derive(Debug, Args)]
 #[command(next_help_heading = "Package Selection")]
 pub struct CargoPackageBuildArgs {

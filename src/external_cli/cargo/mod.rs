@@ -40,10 +40,6 @@ pub struct CargoCompilationArgs {
     #[clap(short = 'r', long = "release", action = ArgAction::SetTrue, default_value_t = false)]
     pub is_release: bool,
 
-    /// Do not activate the `default` feature
-    #[clap(long = "no-default-features", action = ArgAction::SetTrue, default_value_t = false)]
-    pub is_no_default_features: bool,
-
     /// Build artifacts with the specified profile
     #[clap(long = "profile", value_name = "PROFILE-NAME")]
     pub profile: Option<String>,
@@ -76,7 +72,6 @@ impl CargoCompilationArgs {
 
         ArgBuilder::new()
             .add_flag_if("--release", self.is_release)
-            .add_flag_if("--no-default-features", self.is_no_default_features)
             .add_opt_value("--profile", &self.profile)
             .add_opt_value("--jobs", &self.jobs.map(|jobs| jobs.to_string()))
             .add_flag_if("--keep-going", self.is_keep_going)
