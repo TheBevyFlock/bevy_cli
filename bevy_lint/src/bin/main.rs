@@ -26,6 +26,9 @@ fn main() -> anyhow::Result<()> {
     // Run `cargo check`.
     let status = Command::new("cargo")
         .arg("check")
+        // Forward all arguments to `cargo check` except for the first, which is the path to the
+        // current executable.
+        .args(std::env::args().skip(1))
         // This instructs `rustc` to call `bevy_lint_driver` instead of its default routine.
         // This lets us register custom lints.
         .env("RUSTC_WORKSPACE_WRAPPER", driver_path)
