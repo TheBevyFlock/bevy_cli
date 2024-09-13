@@ -2,26 +2,7 @@ use std::process::{exit, Command};
 
 use dialoguer::Confirm;
 
-const PROGRAM: &str = "cargo";
-
-/// Create a new command to execute `cargo`.
-fn command() -> Command {
-    Command::new(PROGRAM)
-}
-
-/// Create a command to run `cargo build`.
-pub(crate) fn build() -> Command {
-    let mut command = command();
-    command.arg("build");
-    command
-}
-
-/// Create a command to run `cargo run`.
-pub(crate) fn run() -> Command {
-    let mut command = command();
-    command.arg("run");
-    command
-}
+use super::PROGRAM;
 
 /// Check if the given program is installed on the system.
 ///
@@ -39,7 +20,7 @@ fn is_installed(program: &str) -> bool {
 /// Checks if the program is installed and installs it if it isn't.
 ///
 /// Returns `true` if the program needed to be installed.
-pub(crate) fn install_if_needed(
+pub(crate) fn if_needed(
     program: &str,
     package: &str,
     ask_user: bool,
@@ -60,7 +41,7 @@ pub(crate) fn install_if_needed(
         exit(1);
     }
 
-    let mut cmd = command();
+    let mut cmd = Command::new(PROGRAM);
     cmd.arg("install").arg(package);
 
     let status = if hidden {
