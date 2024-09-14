@@ -2,15 +2,18 @@
 
 #![expect(dead_code, reason = "Will be used for build/run commands")]
 
-use std::process::Command;
+use std::{env, ffi::OsString, process::Command};
 
 use dialoguer::Confirm;
 
-const PROGRAM: &str = "rustup";
+/// The rustup command can be customized via the `BEVY_CLI_RUSTUP` env
+fn program() -> OsString {
+    env::var_os("BEVY_CLI_RUSTUP").unwrap_or("rustup".into())
+}
 
 /// Given a target triple, determine if it is already installed.
 fn is_target_installed(target: &str) -> bool {
-    let output = Command::new(PROGRAM).arg("target").arg("list").output();
+    let output = Command::new(program()).arg("target").arg("list").output();
 
     // Check if the target list has an entry like this:
     // <target_triple> (installed)
@@ -36,7 +39,7 @@ pub(crate) fn install_target_if_needed(target: &str) -> anyhow::Result<()> {
         anyhow::bail!("User does not want to install target `{target}`.");
     }
 
-    let mut cmd = Command::new(PROGRAM);
+    let mut cmd = Command::new(program());
     cmd.arg("target").arg("add").arg(target);
 
     anyhow::ensure!(
