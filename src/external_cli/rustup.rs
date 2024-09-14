@@ -14,17 +14,12 @@ fn is_target_installed(target: &str) -> bool {
 
     // Check if the target list has an entry like this:
     // <target_triple> (installed)
-    if let Ok(output) = output {
-        if let Ok(list) = String::from_utf8(output.stdout) {
-            for line in list.lines() {
-                if line.contains(target) && line.contains("(installed)") {
-                    return true;
-                }
-            }
-        }
-    }
-
-    false
+    let Ok(output) = output else { return false };
+    let Ok(list) = String::from_utf8(output.stdout) else {
+        return false;
+    };
+    list.lines()
+        .any(|line| line.contains(target) && line.contains("(installed)"))
 }
 
 /// Install a compilation target, if it is not already installed.
