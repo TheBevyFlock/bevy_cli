@@ -2,7 +2,7 @@
 
 #![expect(dead_code, reason = "Will be used for build/run commands")]
 
-use std::process::{exit, Command};
+use std::process::Command;
 
 use dialoguer::Confirm;
 
@@ -33,7 +33,7 @@ pub(crate) fn install_target_if_needed(target: &str) -> anyhow::Result<()> {
         ))
         .interact()?
     {
-        exit(1);
+        anyhow::bail!("User does not want to install target `{target}`.");
     }
 
     let mut cmd = Command::new(PROGRAM);
