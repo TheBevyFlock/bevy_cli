@@ -1,3 +1,5 @@
+use rustc_lint::Lint;
+
 macro_rules! define_lints {
     {
         $(mod $module:ident {
@@ -10,6 +12,10 @@ macro_rules! define_lints {
 
         // Re-export all lint definitions.
         $(pub use self::$module::{$($lint),*};)*
+
+        pub static LINTS: &[&Lint] = &[
+            $($(self::$module::$lint)*,)*
+        ];
     };
 }
 

@@ -14,6 +14,8 @@ impl Callbacks for BevyLintCallback {
             if let Some(previous) = &previous {
                 (previous)(session, store);
             }
+
+            store.register_lints(crate::lints::LINTS);
         }));
     }
 }
