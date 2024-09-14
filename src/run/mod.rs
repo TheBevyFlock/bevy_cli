@@ -15,22 +15,33 @@ pub fn run(args: &RunArgs) -> anyhow::Result<()> {
         web::ensure_setup()?;
     }
 
-    let cargo_args = args.cargo_args();
+    let cargo_args = args.cargo_args_builder();
 
     if let Some(RunSubcommands::Web(web_args)) = &args.subcommand {
         // If targeting the web, run a web server with the WASM build
         println!("Building for WASM...");
-        cargo::build().args(cargo_args).status()?;
+        cargo::build::command().args(cargo_args).status()?;
 
         println!("Bundling for the web...");
-        wasm_bindgen::bundle(&package_name()?, args.is_release)?;
+        wasm_bindgen::bundle(&package_name()?, args.is_release())?;
 
         let port = web_args.port;
-        println!("Open your app at <http://127.0.0.1:{port}>");
-        web::serve(port, args.is_release)?;
+        let url = format!("http://127.0.0.1:{port}");
+
+        if web_args.do_open {
+            if webbrowser::open(&url).is_err() {
+                println!("Failed to open the browser automatically, open the app on <{url}>");
+            } else {
+                println!("Your app is running on <{url}>");
+            }
+        } else {
+            println!("Open your app on <{url}>");
+        }
+
+        web::serve(port, args.is_release())?;
     } else {
         // For native builds, wrap `cargo run`
-        cargo::run().args(cargo_args).status()?;
+        cargo::run::command().args(cargo_args).status()?;
     }
 
     Ok(())

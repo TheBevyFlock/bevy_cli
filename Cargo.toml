@@ -30,3 +30,6 @@ cargo-generate = "0.21.3"
 
 # Better CLI user input
 dialoguer = { version = "0.11.0", default-features = false }
+
+# Opening the app in the browser
+webbrowser = "1.0.1"

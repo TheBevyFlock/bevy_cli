@@ -12,7 +12,7 @@ pub(crate) fn ensure_setup() -> anyhow::Result<()> {
     // `wasm32-unknown-unknown` compilation target
     rustup::install_target_if_needed("wasm32-unknown-unknown")?;
     // `wasm-bindgen-cli` for bundling
-    cargo::install_if_needed(wasm_bindgen::PROGRAM, wasm_bindgen::PACKAGE, true, false)?;
+    cargo::install::if_needed(wasm_bindgen::PROGRAM, wasm_bindgen::PACKAGE, true, false)?;
 
     Ok(())
 }

@@ -13,17 +13,17 @@ pub fn build(args: &BuildArgs) -> anyhow::Result<()> {
         web::ensure_setup()?;
     }
 
-    let cargo_args = args.cargo_args();
+    let cargo_args = args.cargo_args_builder();
 
     if args.is_web() {
         println!("Building for WASM...");
-        cargo::build().args(cargo_args).status()?;
+        cargo::build::command().args(cargo_args).status()?;
 
         println!("Bundling for the web...");
-        wasm_bindgen::bundle(&package_name()?, args.is_release)
+        wasm_bindgen::bundle(&package_name()?, args.is_release())
             .expect("Failed to bundle for the web");
     } else {
-        cargo::build().args(cargo_args).status()?;
+        cargo::build::command().args(cargo_args).status()?;
     }
 
     Ok(())
