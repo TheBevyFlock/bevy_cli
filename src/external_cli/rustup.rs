@@ -15,9 +15,7 @@ fn is_target_installed(target: &str) -> bool {
     // Check if the target list has an entry like this:
     // <target_triple> (installed)
     let Ok(output) = output else { return false };
-    let Ok(list) = String::from_utf8(output.stdout) else {
-        return false;
-    };
+    let list = String::from_utf8_lossy(&output.stdout);
     list.lines()
         .any(|line| line.contains(target) && line.contains("(installed)"))
 }
