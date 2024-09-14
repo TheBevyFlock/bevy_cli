@@ -120,3 +120,89 @@ impl IntoIterator for ArgBuilder {
         self.0.into_iter()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn new_creates_empty_args() {
+        let args = ArgBuilder::new();
+        assert_eq!(
+            args.into_iter().collect::<Vec<String>>(),
+            Vec::<String>::new()
+        );
+    }
+
+    #[test]
+    fn arg_preserves_order() {
+        let args = ArgBuilder::new().arg("one").arg("two").arg("three");
+        assert_eq!(
+            args.into_iter().collect::<Vec<String>>(),
+            vec!["one", "two", "three"]
+        );
+    }
+
+    #[test]
+    fn add_with_value_adds_name_and_value() {
+        let args = ArgBuilder::new().add_with_value("--bin", "bevy");
+        assert_eq!(
+            args.into_iter().collect::<Vec<String>>(),
+            vec!["--bin", "bevy"]
+        );
+    }
+
+    #[test]
+    fn add_opt_value_adds_nothing_for_none() {
+        let args = ArgBuilder::new().add_opt_value("--bin", &None::<String>);
+        assert_eq!(
+            args.into_iter().collect::<Vec<String>>(),
+            Vec::<String>::new()
+        );
+    }
+
+    #[test]
+    fn add_opt_value_adds_name_and_value_for_some() {
+        let args = ArgBuilder::new().add_opt_value("--bin", &Some("bevy"));
+        assert_eq!(
+            args.into_iter().collect::<Vec<String>>(),
+            vec!["--bin", "bevy"]
+        );
+    }
+
+    #[test]
+    fn add_flag_if_adds_flag_for_true() {
+        let args = ArgBuilder::new().add_flag_if("--release", true);
+        assert_eq!(args.into_iter().collect::<Vec<String>>(), vec!["--release"]);
+    }
+
+    #[test]
+    fn add_flag_if_adds_flag_for_false() {
+        let args = ArgBuilder::new().add_flag_if("--release", false);
+        assert_eq!(
+            args.into_iter().collect::<Vec<String>>(),
+            Vec::<String>::new()
+        );
+    }
+
+    #[test]
+    fn add_value_list_concatenates_values() {
+        let args = ArgBuilder::new().add_value_list("--features", ["dev", "file_watcher"]);
+        assert_eq!(
+            args.into_iter().collect::<Vec<String>>(),
+            vec!["--features", "dev,file_watcher"]
+        );
+    }
+
+    #[test]
+    fn append_adds_args_after_self() {
+        let args = ArgBuilder::new()
+            .arg("one")
+            .arg("two")
+            .append(ArgBuilder::new().arg("three").arg("four"));
+        assert_eq!(
+            args.into_iter().collect::<Vec<String>>(),
+            vec!["one", "two", "three", "four"]
+        );
+    }
+}
