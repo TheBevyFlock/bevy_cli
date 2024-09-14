@@ -8,14 +8,13 @@ pub(crate) const PACKAGE: &str = "wasm-bindgen-cli";
 pub(crate) const PROGRAM: &str = "wasm-bindgen";
 
 /// Determine the path to the folder where the Wasm build artifacts are stored.
-pub(crate) fn get_target_folder(is_release: bool) -> String {
-    let profile = if is_release { "release" } else { "debug" };
+pub(crate) fn get_target_folder(profile: &str) -> String {
     format!("target/wasm32-unknown-unknown/{profile}")
 }
 
 /// Bundle the Wasm build for the web.
-pub(crate) fn bundle(package_name: &str, is_release: bool) -> anyhow::Result<()> {
-    let target_folder = get_target_folder(is_release);
+pub(crate) fn bundle(package_name: &str, profile: &str) -> anyhow::Result<()> {
+    let target_folder = get_target_folder(profile);
 
     let status = Command::new(PROGRAM)
         .args(
