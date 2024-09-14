@@ -10,7 +10,7 @@ use crate::external_cli::{
 /// Make sure that the user has installed all tools and set up their repository to target the web.
 pub(crate) fn ensure_setup() -> anyhow::Result<()> {
     // `wasm32-unknown-unknown` compilation target
-    rustup::install_target_if_needed("wasm32-unknown-unknown", true, false)?;
+    rustup::install_target_if_needed("wasm32-unknown-unknown")?;
     // `wasm-bindgen-cli` for bundling
     cargo::install_if_needed(wasm_bindgen::PROGRAM, wasm_bindgen::PACKAGE, true, false)?;
 
