@@ -41,9 +41,9 @@ pub(crate) fn install_target_if_needed(target: &str) -> anyhow::Result<()> {
     let mut cmd = Command::new(PROGRAM);
     cmd.arg("target").arg("add").arg(target);
 
-    if !cmd.output()?.status.success() {
-        Err(anyhow::anyhow!("Failed to install target `{}`.", target))
-    } else {
-        Ok(())
-    }
+    anyhow::ensure!(
+        cmd.output()?.status.success(),
+        "Failed to install target `{target}`."
+    );
+    Ok(())
 }
