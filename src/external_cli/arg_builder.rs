@@ -1,6 +1,5 @@
-#[derive(Debug, Clone)]
-
 /// A helper to make passing arguments to [`Command`](std::process::Command) more convenient.
+#[derive(Debug, Clone)]
 pub struct ArgBuilder(Vec<String>);
 
 impl ArgBuilder {
