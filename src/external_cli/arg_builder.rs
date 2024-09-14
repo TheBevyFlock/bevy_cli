@@ -4,7 +4,7 @@ pub struct ArgBuilder(Vec<String>);
 
 impl ArgBuilder {
     /// Create a new builder for command arguments.
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self(Vec::new())
     }
 
