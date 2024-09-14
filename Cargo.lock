@@ -134,6 +134,7 @@ dependencies = [
  "anyhow",
  "cargo-generate",
  "clap",
+ "dialoguer",
 ]
 
 [[package]]
