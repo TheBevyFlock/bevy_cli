@@ -40,7 +40,7 @@ impl ArgBuilder {
         self.arg(arg).arg(value)
     }
 
-    /// Add a boolean flag with the given name, if `value` is `true`.
+    /// Add a boolean flag with the given name only if `value` is `true`.
     ///
     /// # Example
     ///
@@ -61,6 +61,8 @@ impl ArgBuilder {
     }
 
     /// Add an argument with an optional value.
+    ///
+    /// If value is `&None`, no argument will be added.
     ///
     /// # Example
     ///
