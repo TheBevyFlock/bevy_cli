@@ -2,3 +2,4 @@
 
 pub mod arg_builder;
 pub(crate) mod rustup;
+pub(crate) mod wasm_bindgen;
