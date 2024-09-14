@@ -3,18 +3,14 @@ use rustc_lint::Lint;
 macro_rules! define_lints {
     {
         $(mod $module:ident {
-            lints: [$($lint:ident),+],
-            passes: [],
+            lint: $lint:ident$(,)?
         })*
     } => {
         // Declare all modules as private.
-        $(mod $module;)*
-
-        // Re-export all lint definitions.
-        $(pub use self::$module::{$($lint),*};)*
+        $(pub mod $module;)*
 
         pub static LINTS: &[&Lint] = &[
-            $($(self::$module::$lint)*,)*
+            $(self::$module::$lint,)*
         ];
     };
 }
