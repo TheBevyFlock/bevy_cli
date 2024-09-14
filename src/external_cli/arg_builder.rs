@@ -83,7 +83,15 @@ impl ArgBuilder {
     }
 
     /// Add an argument with multiple values.
-    pub fn add_value_list<N, V>(self, name: N, value_list: Vec<V>) -> Self
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use bevy_cli::external_cli::arg_builder::ArgBuilder;
+    /// let features = ["dev", "file_watcher"];
+    /// ArgBuilder::new().add_value_list("--features", features);
+    /// ```
+    pub fn add_value_list<N, V>(self, name: N, value_list: impl IntoIterator<Item = V>) -> Self
     where
         N: Into<String>,
         V: Into<String>,
