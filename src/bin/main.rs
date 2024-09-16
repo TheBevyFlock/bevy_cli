@@ -6,7 +6,7 @@ fn main() -> Result<()> {
 
     match cli.subcommand {
         Subcommands::New(new) => {
-            bevy_cli::template::generate_template(&new.name, new.template.as_deref())?;
+            bevy_cli::template::generate_template(&new.name, &new.template, &new.branch)?;
         }
         Subcommands::Lint { args } => bevy_cli::lint::lint(args)?,
     }
@@ -60,6 +60,10 @@ pub struct NewArgs {
     /// This can be a GitHub repository (`user/repo`) or a full Git URL.
     ///
     /// Can be omitted to use a built-in template.
-    #[arg(short, long)]
-    pub template: Option<String>,
+    #[arg(short, long, default_value = "default")]
+    pub template: String,
+
+    /// The git branch to use
+    #[arg(short, long, default_value = "main")]
+    pub branch: String,
 }
