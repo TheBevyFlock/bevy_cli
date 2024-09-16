@@ -22,7 +22,7 @@ clap = { version = "4.5.16", features = ["derive"] }
 anyhow = "1.0.86"
 
 # Generates new Bevy projects from templates
-cargo-generate = "0.21.3"
+cargo-generate = "0.22"
 
 # Better CLI user input
 dialoguer = { version = "0.11.0", default-features = false }
