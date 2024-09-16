@@ -15,4 +15,8 @@ macro_rules! define_lints {
     };
 }
 
-define_lints! {}
+define_lints! {
+    mod main_return_without_appexit {
+        lint: MAIN_RETURN_WITHOUT_APPEXIT,
+    }
+}
