@@ -20,8 +20,9 @@ pub fn generate_template(name: &str, git: Option<&str>) -> anyhow::Result<PathBu
 ///
 /// If `git` is [`None`], it will default to `bevy_quickstart`.
 fn template_path(git: Option<&str>) -> TemplatePath {
-    const DEFAULT_REPOSITORY: &str = "https://github.com/TheBevyFlock/bevy_quickstart.git";
-    const DEFAULT_BRANCH: &str = "cargo-generate";
+    // Use a bare-bones template by default
+    const DEFAULT_REPOSITORY: &str = "https://github.com/TheBevyFlock/bevy_new.git";
+    const DEFAULT_BRANCH: &str = "main";
 
     if let Some(template) = git {
         TemplatePath {
