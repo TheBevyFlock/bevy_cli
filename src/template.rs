@@ -23,17 +23,28 @@ fn template_path(git: Option<&str>) -> TemplatePath {
     // Use a minimal template by default.
     const DEFAULT_REPOSITORY: &str = "https://github.com/TheBevyFlock/bevy_new.git";
     const DEFAULT_BRANCH: &str = "main";
+    const QUICKSTART_REPOSITORY: &str = "https://github.com/TheBevyFlock/bevy_quickstart.git";
+    const QUICKSTART_BRANCH: &str = "cargo-generate";
 
-    if let Some(template) = git {
-        TemplatePath {
-            git: Some(template.to_string()),
-            ..Default::default()
-        }
-    } else {
-        TemplatePath {
+    let Some(template) = git else {
+        return TemplatePath {
             git: Some(DEFAULT_REPOSITORY.to_string()),
             branch: Some(DEFAULT_BRANCH.to_string()),
             ..Default::default()
-        }
+        };
+    };
+
+    // Shorthand for the Bevy Quickstart.
+    if template == "2d" {
+        return TemplatePath {
+            git: Some(QUICKSTART_REPOSITORY.to_string()),
+            branch: Some(QUICKSTART_BRANCH.to_string()),
+            ..Default::default()
+        };
+    }
+
+    TemplatePath {
+        git: Some(template.to_string()),
+        ..Default::default()
     }
 }
