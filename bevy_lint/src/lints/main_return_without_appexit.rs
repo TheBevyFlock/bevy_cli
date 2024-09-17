@@ -1,3 +1,32 @@
+//! Checks for `fn main()` entrypoints that call `App::run()` but do not return `AppExit`.
+//!
+//! # Why is this bad?
+//!
+//! `AppExit` is used to determine whether the `App` exited successful or due to an error. Returning
+//! it from `main()` will set the exit code, which allows external processes to detect whether there
+//! was an error.
+//!
+//! # Example
+//!
+//! ```rust
+//! # use bevy::prelude::*;
+//! #
+//! fn main() {
+//!     App::new().run();
+//! }
+//! ```
+//!
+//! Use instead:
+//!
+//! ```rust
+//! # use bevy::prelude::*;
+//! #
+//! fn main() -> AppExit {
+//!     // Note the removed semicolon.
+//!     App::new().run()
+//! }
+//! ```
+
 use clippy_utils::{
     diagnostics::span_lint, is_entrypoint_fn, sym, ty::match_type, visitors::for_each_expr,
 };
