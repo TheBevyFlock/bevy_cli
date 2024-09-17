@@ -31,8 +31,9 @@
 //! ```
 
 use clippy_utils::{
-    diagnostics::span_lint, is_entrypoint_fn, sym, ty::match_type, visitors::for_each_expr,
+    diagnostics::span_lint_and_then, is_entrypoint_fn, sym, ty::match_type, visitors::for_each_expr,
 };
+use rustc_errors::Applicability;
 use rustc_hir::{
     def_id::LocalDefId, intravisit::FnKind, Body, Expr, ExprKind, FnDecl, FnRetTy, Ty, TyKind,
 };
@@ -61,27 +62,37 @@ impl<'tcx> LateLintPass<'tcx> for MainReturnWithoutAppExit {
         _: Span,
         local_def_id: LocalDefId,
     ) {
-        // Look for `fn main()`.
-        if is_entrypoint_fn(cx, local_def_id.into())
+        // Only check `fn main()`.
+        if is_entrypoint_fn(cx, local_def_id.into()) {
             // Ensure the function either returns nothing or the unit type. If the entrypoint
             // returns something else, we're assuming that the user knows what they're doing.
-            && match declaration.output {
+            // Additionally, we collect the span of the return position for better diagnostics.
+            let fn_return_span = match declaration.output {
                 // The function signature is the default `fn main()`.
-                FnRetTy::DefaultReturn(_) => true,
+                FnRetTy::DefaultReturn(span) => span,
                 // The function signature is `fn main() -> ()`.
-                FnRetTy::Return(&Ty { kind: TyKind::Tup(&[]), .. }) => {true},
-                _ => false,
-            }
-        {
+                FnRetTy::Return(&Ty {
+                    kind: TyKind::Tup(&[]),
+                    span,
+                    ..
+                }) => span,
+                // The function returns something else, exit early.
+                _ => return,
+            };
+
             // Iterate over each expression within the entrypoint function, finding and reporting
             // `App::run()` calls.
-            for_each_expr(cx, body, |expr| find_app_run_call(cx, expr));
+            for_each_expr(cx, body, |expr| find_app_run_call(cx, expr, fn_return_span));
         }
     }
 }
 
 /// Finds expressions that call `App::run()` and emits [`MAIN_RETURN_WITHOUT_APPEXIT`].
-fn find_app_run_call<'tcx>(cx: &LateContext<'tcx>, expr: &Expr<'tcx>) -> ControlFlow<()> {
+fn find_app_run_call<'tcx>(
+    cx: &LateContext<'tcx>,
+    expr: &Expr<'tcx>,
+    fn_return_span: Span,
+) -> ControlFlow<()> {
     // Find a method call that matches `.run()`.
     if let ExprKind::MethodCall(path, src, _, span) = expr.kind
         && path.ident.name == sym!(run)
@@ -91,11 +102,19 @@ fn find_app_run_call<'tcx>(cx: &LateContext<'tcx>, expr: &Expr<'tcx>) -> Control
 
         // If `src` is a Bevy `App`, emit the lint.
         if match_type(cx, ty, &["bevy_app", "app", "App"]) {
-            span_lint(
+            span_lint_and_then(
                 cx,
                 MAIN_RETURN_WITHOUT_APPEXIT,
                 span,
                 MAIN_RETURN_WITHOUT_APPEXIT.desc,
+                |diag| {
+                    diag.span_suggestion(
+                        fn_return_span,
+                        "try",
+                        "-> AppExit",
+                        Applicability::MaybeIncorrect,
+                    );
+                },
             );
         }
     }
