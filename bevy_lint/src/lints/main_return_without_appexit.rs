@@ -31,10 +31,11 @@
 //! ```
 
 use clippy_utils::{
-    diagnostics::span_lint, is_entrypoint_fn, sym, ty::match_type, visitors::for_each_expr,
+    diagnostics::span_lint_and_then, is_entrypoint_fn, sym, ty::match_type, visitors::for_each_expr,
 };
+use rustc_errors::Applicability;
 use rustc_hir::{
-    def_id::LocalDefId, intravisit::FnKind, Body, Expr, ExprKind, FnDecl, FnRetTy, Ty, TyKind,
+    def_id::LocalDefId, intravisit::FnKind, Body, ExprKind, FnDecl, FnRetTy, Ty, TyKind,
 };
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_session::{declare_lint_pass, declare_tool_lint};
@@ -69,36 +70,55 @@ impl<'tcx> LateLintPass<'tcx> for MainReturnWithoutAppExit {
                 // The function signature is the default `fn main()`.
                 FnRetTy::DefaultReturn(_) => true,
                 // The function signature is `fn main() -> ()`.
-                FnRetTy::Return(&Ty { kind: TyKind::Tup(&[]), .. }) => {true},
+                FnRetTy::Return(&Ty { kind: TyKind::Tup(&[]), .. }) => true,
                 _ => false,
             }
         {
             // Iterate over each expression within the entrypoint function, finding and reporting
             // `App::run()` calls.
-            for_each_expr(cx, body, |expr| find_app_run_call(cx, expr));
+            for_each_expr(cx, body, |expr| {
+                // Find a method call that matches `.run()`.
+                if let ExprKind::MethodCall(path, src, _, method_span) = expr.kind
+                    && path.ident.name == sym!(run)
+                {
+                    // Get the type of `src` for `src.run()`.
+                    let ty = cx.typeck_results().expr_ty(src);
+
+                    // If `src` is a Bevy `App`, emit the lint.
+                    if match_type(cx, ty, &["bevy_app", "app", "App"]) {
+                        span_lint_and_then(
+                            cx,
+                            MAIN_RETURN_WITHOUT_APPEXIT,
+                            method_span,
+                            MAIN_RETURN_WITHOUT_APPEXIT.desc,
+                            |diag| {
+                                diag.note("`App::run()` returns `AppExit`, which can be used to determine whether the app exited successfully or not");
+                                match declaration.output {
+                                    // When it is just `fn main()`, we need to suggest the `->`.
+                                    FnRetTy::DefaultReturn(fn_return_span) => diag.span_suggestion(
+                                        fn_return_span,
+                                        "try",
+                                        " -> AppExit",
+                                        Applicability::MaybeIncorrect,
+                                    ),
+                                    // When it is `fn main() -> ()`, we just need to override `()`.
+                                    FnRetTy::Return(&Ty {
+                                        span: fn_return_span,
+                                        ..
+                                    }) => diag.span_suggestion(
+                                        fn_return_span,
+                                        "try",
+                                        "AppExit",
+                                        Applicability::MaybeIncorrect,
+                                    ),
+                                };
+                            },
+                        );
+                    }
+                }
+
+                ControlFlow::<()>::Continue(())
+            });
         }
     }
-}
-
-/// Finds expressions that call `App::run()` and emits [`MAIN_RETURN_WITHOUT_APPEXIT`].
-fn find_app_run_call<'tcx>(cx: &LateContext<'tcx>, expr: &Expr<'tcx>) -> ControlFlow<()> {
-    // Find a method call that matches `.run()`.
-    if let ExprKind::MethodCall(path, src, _, span) = expr.kind
-        && path.ident.name == sym!(run)
-    {
-        // Get the type of `src` for `src.run()`.
-        let ty = cx.typeck_results().expr_ty(src);
-
-        // If `src` is a Bevy `App`, emit the lint.
-        if match_type(cx, ty, &["bevy_app", "app", "App"]) {
-            span_lint(
-                cx,
-                MAIN_RETURN_WITHOUT_APPEXIT,
-                span,
-                MAIN_RETURN_WITHOUT_APPEXIT.desc,
-            );
-        }
-    }
-
-    ControlFlow::Continue(())
 }
