@@ -1,5 +1,8 @@
 //! Checks for `fn main()` entrypoints that call `App::run()` but do not return `AppExit`.
 //!
+//! This lint will not be emitted if `fn main()` returns a non-[`unit`] type, even if that type is
+//! not `AppExit`.
+//!
 //! # Why is this bad?
 //!
 //! `AppExit` is used to determine whether the `App` exited successful or due to an error. Returning
@@ -30,7 +33,9 @@
 use clippy_utils::{
     diagnostics::span_lint, is_entrypoint_fn, sym, ty::match_type, visitors::for_each_expr,
 };
-use rustc_hir::{def_id::LocalDefId, intravisit::FnKind, Body, Expr, ExprKind, FnDecl, FnRetTy};
+use rustc_hir::{
+    def_id::LocalDefId, intravisit::FnKind, Body, Expr, ExprKind, FnDecl, FnRetTy, Ty, TyKind,
+};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_session::{declare_lint_pass, declare_tool_lint};
 use rustc_span::Span;
@@ -56,9 +61,17 @@ impl<'tcx> LateLintPass<'tcx> for MainReturnWithoutAppExit {
         _: Span,
         local_def_id: LocalDefId,
     ) {
-        // We're looking for `fn main()` with no return type that calls `App::run()`.
+        // Look for `fn main()`.
         if is_entrypoint_fn(cx, local_def_id.into())
-            && let FnRetTy::DefaultReturn(_) = declaration.output
+            // Ensure the function either returns nothing or the unit type. If the entrypoint
+            // returns something else, we're assuming that the user knows what they're doing.
+            && match declaration.output {
+                // The function signature is the default `fn main()`.
+                FnRetTy::DefaultReturn(_) => true,
+                // The function signature is `fn main() -> ()`.
+                FnRetTy::Return(&Ty { kind: TyKind::Tup(&[]), .. }) => {true},
+                _ => false,
+            }
         {
             // Iterate over each expression within the entrypoint function, finding and reporting
             // `App::run()` calls.
@@ -67,6 +80,7 @@ impl<'tcx> LateLintPass<'tcx> for MainReturnWithoutAppExit {
     }
 }
 
+/// Finds expressions that call `App::run()` and emits [`MAIN_RETURN_WITHOUT_APPEXIT`].
 fn find_app_run_call<'tcx>(cx: &LateContext<'tcx>, expr: &Expr<'tcx>) -> ControlFlow<()> {
     // Find a method call that matches `.run()`.
     if let ExprKind::MethodCall(path, src, _, span) = expr.kind
