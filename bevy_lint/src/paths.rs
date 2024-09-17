@@ -7,3 +7,4 @@
 //! [`match_def_path()`](clippy_utils::match_def_path).
 
 pub const APP: [&str; 3] = ["bevy_app", "app", "App"];
+pub const EVENTS: [&str; 3] = ["bevy_ecs", "event", "Events"];
