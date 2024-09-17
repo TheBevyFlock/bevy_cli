@@ -1,8 +1,10 @@
-use std::ops::ControlFlow;
-use clippy_utils::{diagnostics::span_lint, is_entrypoint_fn, match_def_path, sym, visitors::for_each_expr};
+use clippy_utils::{
+    diagnostics::span_lint, is_entrypoint_fn, sym, ty::match_type, visitors::for_each_expr,
+};
 use rustc_hir::{def_id::LocalDefId, intravisit::FnKind, Body, Expr, ExprKind, FnDecl, FnRetTy};
 use rustc_lint::{LateContext, LateLintPass, Level, Lint, LintPass, LintVec};
 use rustc_span::Span;
+use std::ops::ControlFlow;
 
 pub static MAIN_RETURN_WITHOUT_APPEXIT: &Lint = &Lint {
     name: "bevy::main_return_without_appexit",
@@ -56,14 +58,14 @@ fn find_app_run_call<'tcx>(cx: &LateContext<'tcx>, expr: &Expr<'tcx>) -> Control
         // Get the type of `src` for `src.run()`.
         let ty = cx.typeck_results().expr_ty(src);
 
-        // May not be necessary if `match_ty` is used instead.
-        let Some(adt) = ty.ty_adt_def() else {
-            return ControlFlow::Continue(());
-        };
-
-        // Syms may be incorrect.
-        if match_def_path(cx, adt.did(), &["bevy", "prelude", "App"]) {
-            span_lint(cx, MAIN_RETURN_WITHOUT_APPEXIT, span, "AAA!!");
+        // If `src` is a Bevy `App`, emit the lint.
+        if match_type(cx, ty, &["bevy_app", "app", "App"]) {
+            span_lint(
+                cx,
+                MAIN_RETURN_WITHOUT_APPEXIT,
+                span,
+                MAIN_RETURN_WITHOUT_APPEXIT.desc,
+            );
         }
     }
 
