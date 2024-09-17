@@ -15,5 +15,6 @@ extern crate rustc_span;
 
 mod callback;
 pub mod lints;
+pub mod paths;
 
 pub use self::callback::BevyLintCallback;

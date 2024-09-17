@@ -85,7 +85,7 @@ impl<'tcx> LateLintPass<'tcx> for MainReturnWithoutAppExit {
                     let ty = cx.typeck_results().expr_ty(src);
 
                     // If `src` is a Bevy `App`, emit the lint.
-                    if match_type(cx, ty, &["bevy_app", "app", "App"]) {
+                    if match_type(cx, ty, &crate::paths::APP) {
                         span_lint_and_then(
                             cx,
                             MAIN_RETURN_WITHOUT_APPEXIT,
