@@ -16,10 +16,7 @@ impl Callbacks for BevyLintCallback {
             }
 
             store.register_lints(crate::lints::LINTS);
-
-            store.register_late_pass(|_| {
-                Box::new(crate::lints::main_return_without_appexit::MainReturnWithoutAppExit)
-            });
+            crate::lints::register_passes(store);
         }));
     }
 }
