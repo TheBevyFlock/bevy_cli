@@ -2,31 +2,19 @@ use clippy_utils::{
     diagnostics::span_lint, is_entrypoint_fn, sym, ty::match_type, visitors::for_each_expr,
 };
 use rustc_hir::{def_id::LocalDefId, intravisit::FnKind, Body, Expr, ExprKind, FnDecl, FnRetTy};
-use rustc_lint::{LateContext, LateLintPass, Level, Lint, LintPass, LintVec};
+use rustc_lint::{LateContext, LateLintPass};
+use rustc_session::{declare_lint_pass, declare_tool_lint};
 use rustc_span::Span;
 use std::ops::ControlFlow;
 
-pub static MAIN_RETURN_WITHOUT_APPEXIT: &Lint = &Lint {
-    name: "bevy::main_return_without_appexit",
-    default_level: Level::Warn,
-    desc: "an entrypoint that calls `App::run()` does not return `AppExit`",
-    is_externally_loaded: true,
-    ..Lint::default_fields_for_macro()
-};
-
-#[derive(Clone, Copy, Debug)]
-pub struct MainReturnWithoutAppExit;
-
-impl LintPass for MainReturnWithoutAppExit {
-    fn name(&self) -> &'static str {
-        MAIN_RETURN_WITHOUT_APPEXIT.name
-    }
+declare_tool_lint! {
+    pub bevy::MAIN_RETURN_WITHOUT_APPEXIT,
+    Warn,
+    "an entrypoint that calls `App::run()` does not return `AppExit`"
 }
 
-impl MainReturnWithoutAppExit {
-    pub fn get_lints() -> LintVec {
-        vec![MAIN_RETURN_WITHOUT_APPEXIT]
-    }
+declare_lint_pass! {
+    MainReturnWithoutAppExit => [MAIN_RETURN_WITHOUT_APPEXIT]
 }
 
 impl<'tcx> LateLintPass<'tcx> for MainReturnWithoutAppExit {
