@@ -8,16 +8,16 @@ use rustc_session::{declare_lint_pass, declare_tool_lint};
 use rustc_span::Span;
 
 declare_tool_lint! {
-    pub bevy::INIT_EVENT_RESOURCE,
+    pub bevy::INSERT_EVENT_RESOURCE,
     Deny,
-    "called `App::init_resource::<Events<T>>() instead of `App::add_event::<T>()`"
+    "called `App::insert_resource(Events<T>)` or `App::init_resource::<Events<T>>()` instead of `App::add_event::<T>()`"
 }
 
 declare_lint_pass! {
-    InitEventResource => [INIT_EVENT_RESOURCE]
+    InsertEventResource => [INSERT_EVENT_RESOURCE]
 }
 
-impl<'tcx> LateLintPass<'tcx> for InitEventResource {
+impl<'tcx> LateLintPass<'tcx> for InsertEventResource {
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &Expr<'tcx>) {
         // Find a method call.
         if let ExprKind::MethodCall(path, src, args, method_span) = expr.kind {
@@ -30,18 +30,38 @@ impl<'tcx> LateLintPass<'tcx> for InitEventResource {
                 return;
             }
 
-            // If the method is `App::init_resource()` or `App::insert_resource()`, check it with
+            // If the method is `App::insert_resource()` or `App::init_resource()`, check it with
             // its corresponding function.
             match path.ident.name {
-                symbol if symbol == sym!(init_resource) => {
-                    check_init_resource(cx, path, method_span)
-                }
                 symbol if symbol == sym!(insert_resource) => {
                     check_insert_resource(cx, args, method_span)
+                }
+                symbol if symbol == sym!(init_resource) => {
+                    check_init_resource(cx, path, method_span)
                 }
                 _ => {}
             }
         }
+    }
+}
+
+fn check_insert_resource<'tcx>(cx: &LateContext<'tcx>, args: &[Expr], method_span: Span) {
+    // Extract the argument if there is only 1 (which there should be!), else exit.
+    let [arg] = args else {
+        return;
+    };
+
+    // Find the type of `arg` in `App::insert_resource(arg)`.
+    let ty = cx.typeck_results().expr_ty(arg);
+
+    // If `arg` is `Events<T>`, emit the lint.
+    if match_type(cx, ty, &crate::paths::EVENTS) {
+        span_lint(
+            cx,
+            INSERT_EVENT_RESOURCE,
+            method_span,
+            INSERT_EVENT_RESOURCE.desc,
+        );
     }
 }
 
@@ -62,29 +82,10 @@ fn check_init_resource<'tcx>(cx: &LateContext<'tcx>, path: &PathSegment<'tcx>, m
         if match_type(cx, generic_ty, &crate::paths::EVENTS) {
             span_lint(
                 cx,
-                INIT_EVENT_RESOURCE,
+                INSERT_EVENT_RESOURCE,
                 method_span,
-                INIT_EVENT_RESOURCE.desc,
+                INSERT_EVENT_RESOURCE.desc,
             );
         }
-    }
-}
-
-fn check_insert_resource<'tcx>(cx: &LateContext<'tcx>, args: &[Expr], method_span: Span) {
-    // Extract the argument if there is only 1 (which there should be!), else exit.
-    let [arg] = args else {
-        return;
-    };
-
-    // Find the type of `arg` in `App::insert_resource(arg)`.
-    let ty = cx.typeck_results().expr_ty(arg);
-
-    if match_type(cx, ty, &crate::paths::EVENTS) {
-        span_lint(
-            cx,
-            INIT_EVENT_RESOURCE,
-            method_span,
-            INIT_EVENT_RESOURCE.desc,
-        );
     }
 }
