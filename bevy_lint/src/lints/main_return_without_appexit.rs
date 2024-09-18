@@ -66,13 +66,13 @@ impl<'tcx> LateLintPass<'tcx> for MainReturnWithoutAppExit {
         if is_entrypoint_fn(cx, local_def_id.into())
             // Ensure the function either returns nothing or the unit type. If the entrypoint
             // returns something else, we're assuming that the user knows what they're doing.
-            && match declaration.output {
+            && matches!(
+                declaration.output,
                 // The function signature is the default `fn main()`.
-                FnRetTy::DefaultReturn(_) => true,
+                FnRetTy::DefaultReturn(..)
                 // The function signature is `fn main() -> ()`.
-                FnRetTy::Return(&Ty { kind: TyKind::Tup(&[]), .. }) => true,
-                _ => false,
-            }
+                | FnRetTy::Return(&Ty { kind: TyKind::Tup(&[]), .. })
+            )
         {
             // Iterate over each expression within the entrypoint function, finding and reporting
             // `App::run()` calls.
