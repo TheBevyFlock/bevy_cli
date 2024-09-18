@@ -1,10 +1,7 @@
 //! TODO
 
 use clippy_utils::{
-    diagnostics::{span_lint, span_lint_and_sugg},
-    source::snippet_with_applicability,
-    sym,
-    ty::match_type,
+    diagnostics::span_lint_and_sugg, source::snippet_with_applicability, sym, ty::match_type,
 };
 use rustc_errors::Applicability;
 use rustc_hir::{Expr, ExprKind, GenericArg, GenericArgs, Path, PathSegment, QPath};
@@ -52,6 +49,7 @@ impl<'tcx> LateLintPass<'tcx> for InsertEventResource {
     }
 }
 
+/// Checks if `App::insert_resource()` inserts an `Events<T>`, and emits a diagnostic if so.
 fn check_insert_resource<'tcx>(cx: &LateContext<'tcx>, args: &[Expr], method_span: Span) {
     // Extract the argument if there is only 1 (which there should be!), else exit.
     let [arg] = args else {
@@ -63,15 +61,19 @@ fn check_insert_resource<'tcx>(cx: &LateContext<'tcx>, args: &[Expr], method_spa
 
     // If `arg` is `Events<T>`, emit the lint.
     if match_type(cx, ty, &crate::paths::EVENTS) {
-        span_lint(
+        span_lint_and_sugg(
             cx,
             INSERT_EVENT_RESOURCE,
             method_span,
-            INSERT_EVENT_RESOURCE.desc,
+            "called `App::insert_resource(Events<T>)` instead of `App::add_event::<T>()`",
+            "inserting an `Events` resource does not fully setup that event",
+            format!("init_resource::<T>()"),
+            Applicability::HasPlaceholders,
         );
     }
 }
 
+/// Checks if `App::init_resource()` inserts an `Events<T>`, and emits a diagnostic if so.
 fn check_init_resource<'tcx>(cx: &LateContext<'tcx>, path: &PathSegment<'tcx>, method_span: Span) {
     if let Some(&GenericArgs {
         // `App::init_resource()` has one generic type argument: T.
@@ -95,8 +97,8 @@ fn check_init_resource<'tcx>(cx: &LateContext<'tcx>, path: &PathSegment<'tcx>, m
                 cx,
                 INSERT_EVENT_RESOURCE,
                 method_span,
-                "called `App::init_resource::<Events<T>>()` instead of `App::add_event::<T>()`", /* TODO: customize */
-                "use",
+                "called `App::init_resource::<Events<T>>()` instead of `App::add_event::<T>()`",
+                "inserting an `Events` resource does not fully setup that event",
                 format!("add_event::<{event_ty_snippet}>()"),
                 applicability,
             );
