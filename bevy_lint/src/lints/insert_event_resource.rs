@@ -23,7 +23,7 @@ impl<'tcx> LateLintPass<'tcx> for InsertEventResource {
         if let ExprKind::MethodCall(path, src, args, method_span) = expr.kind {
             // Get the type for `src` in `src.method()`. We peel all references because the type
             // could either be `App` or `&mut App`.
-            let src_ty = peel_middle_ty_refs(cx.typeck_results().expr_ty(src)).0;
+            let src_ty = cx.typeck_results().expr_ty(src).peel_refs();
 
             // If `src` is not a Bevy `App`, exit.
             if !match_type(cx, src_ty, &crate::paths::APP) {
