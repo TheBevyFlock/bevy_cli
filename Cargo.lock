@@ -177,6 +177,7 @@ dependencies = [
  "cargo-generate",
  "clap",
  "dialoguer",
+ "regex",
  "reqwest",
  "serde",
 ]

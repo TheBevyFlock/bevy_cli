@@ -57,10 +57,12 @@ pub struct NewArgs {
 
     /// The name of the template to use for generating the project.
     ///
-    /// This can be a GitHub repository (`user/repo`) or a full Git URL.
+    /// Templates are GitHub repositories. Any repo prefixed with `bevy_new_` will be usable via
+    /// its shortcut form i.e. `2d` will use the template `bevy_new_2d`. Full GitHub URLs can also
+    /// be passed in the template argument.
     ///
     /// Can be omitted to use a built-in template.
-    #[arg(short, long, default_value = "default")]
+    #[arg(short, long, default_value = "minimal")]
     pub template: String,
 
     /// The git branch to use

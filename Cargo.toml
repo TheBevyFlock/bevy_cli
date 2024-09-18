@@ -30,3 +30,4 @@ dialoguer = { version = "0.11.0", default-features = false }
 # API interaction
 serde = { features = ["derive"], version = "1.0.210" }
 reqwest = { features = ["blocking", "json"], version = "0.12.7" }
+regex = "1.10.6"
