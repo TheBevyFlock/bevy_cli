@@ -1,6 +1,6 @@
 //! TODO
 
-use clippy_utils::{diagnostics::span_lint, sym, ty::match_type};
+use clippy_utils::{diagnostics::span_lint, peel_middle_ty_refs, sym, ty::match_type};
 use rustc_hir::{Expr, ExprKind, GenericArg, GenericArgs, PathSegment};
 use rustc_hir_analysis::lower_ty;
 use rustc_lint::{LateContext, LateLintPass};
@@ -21,8 +21,9 @@ impl<'tcx> LateLintPass<'tcx> for InitEventResource {
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &Expr<'tcx>) {
         // Find a method call.
         if let ExprKind::MethodCall(path, src, args, method_span) = expr.kind {
-            // Get the type for `src` in `src.method()`.
-            let src_ty = cx.typeck_results().expr_ty(src);
+            // Get the type for `src` in `src.method()`. We peel all references because the type
+            // could either be `App` or `&mut App`.
+            let src_ty = peel_middle_ty_refs(cx.typeck_results().expr_ty(src)).0;
 
             // If `src` is not a Bevy `App`, exit.
             if !match_type(cx, src_ty, &crate::paths::APP) {
