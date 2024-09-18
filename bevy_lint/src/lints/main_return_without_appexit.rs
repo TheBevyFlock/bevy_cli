@@ -31,8 +31,7 @@
 //! ```
 
 use clippy_utils::{
-    diagnostics::span_lint_and_then, is_entrypoint_fn, peel_middle_ty_refs, sym, ty::match_type,
-    visitors::for_each_expr,
+    diagnostics::span_lint_and_then, is_entrypoint_fn, sym, ty::match_type, visitors::for_each_expr,
 };
 use rustc_errors::Applicability;
 use rustc_hir::{
@@ -84,7 +83,7 @@ impl<'tcx> LateLintPass<'tcx> for MainReturnWithoutAppExit {
                 {
                     // Get the type of `src` for `src.run()`. We peel away all references because
                     // both `App` and `&mut App` are allowed.
-                    let ty = peel_middle_ty_refs(cx.typeck_results().expr_ty(src)).0;
+                    let ty = cx.typeck_results().expr_ty(src).peel_refs();
 
                     // If `src` is a Bevy `App`, emit the lint.
                     if match_type(cx, ty, &crate::paths::APP) {
