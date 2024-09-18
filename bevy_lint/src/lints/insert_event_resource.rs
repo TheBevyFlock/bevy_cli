@@ -7,7 +7,7 @@ use clippy_utils::{
     ty::match_type,
 };
 use rustc_errors::Applicability;
-use rustc_hir::{Expr, ExprKind, GenericArg, GenericArgs, Path, PathSegment, QPath, Ty, TyKind};
+use rustc_hir::{Expr, ExprKind, GenericArg, GenericArgs, Path, PathSegment, QPath};
 use rustc_hir_analysis::lower_ty;
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_session::{declare_lint_pass, declare_tool_lint};
@@ -75,7 +75,7 @@ fn check_insert_resource<'tcx>(cx: &LateContext<'tcx>, args: &[Expr], method_spa
 fn check_init_resource<'tcx>(cx: &LateContext<'tcx>, path: &PathSegment<'tcx>, method_span: Span) {
     if let Some(&GenericArgs {
         // `App::init_resource()` has one generic type argument: T.
-        args: &[GenericArg::Type(generic_hir_ty)],
+        args: &[GenericArg::Type(resource_hir_ty)],
         ..
     }) = path.args
     {
@@ -83,48 +83,13 @@ fn check_init_resource<'tcx>(cx: &LateContext<'tcx>, path: &PathSegment<'tcx>, m
         // information, see <https://rustc-dev-guide.rust-lang.org/ty.html#rustc_hirty-vs-tyty>.
         // Note that `lower_ty()` is quasi-deprecated, and should be removed if a adequate
         // replacement is found.
-        let generic_ty = lower_ty(cx.tcx, generic_hir_ty);
+        let resource_ty = lower_ty(cx.tcx, resource_hir_ty);
 
-        // If the generic argument is `Events<T>`, emit the lint.
-        if match_type(cx, generic_ty, &crate::paths::EVENTS) {
+        // If the resource type is `Events<T>`, emit the lint.
+        if match_type(cx, resource_ty, &crate::paths::EVENTS) {
             let mut applicability = Applicability::MachineApplicable;
 
-            // Get the `str` representation of the type; this will usually look like
-            // `Events<MyEvent>`. If the snippet cannot be found, fallback to the default and
-            // update the applicability to reflect this.
-            let generic_ty_span = match generic_hir_ty.kind {
-                TyKind::Path(QPath::Resolved(
-                    _,
-                    &Path {
-                        segments:
-                            [PathSegment {
-                                args:
-                                    Some(GenericArgs {
-                                        args: [GenericArg::Type(Ty { span, .. })],
-                                        ..
-                                    }),
-                                ..
-                            }],
-                        ..
-                    },
-                )) => Some(*span),
-                _ => None,
-            };
-
-            const DEFAULT_SNIPPET: &str = "Events<T>";
-
-            let ty_snippet = match generic_ty_span {
-                Some(generic_ty_span) => snippet_with_applicability(
-                    cx,
-                    generic_ty_span,
-                    DEFAULT_SNIPPET,
-                    &mut applicability,
-                ),
-                None => {
-                    applicability = Applicability::HasPlaceholders;
-                    Cow::Borrowed(DEFAULT_SNIPPET)
-                }
-            };
+            let event_ty_snippet = extract_event_snippet(cx, resource_hir_ty, &mut applicability);
 
             span_lint_and_sugg(
                 cx,
@@ -132,9 +97,63 @@ fn check_init_resource<'tcx>(cx: &LateContext<'tcx>, path: &PathSegment<'tcx>, m
                 method_span,
                 "called `App::init_resource::<Events<T>>()` instead of `App::add_event::<T>()`", /* TODO: customize */
                 "use",
-                format!("add_event::<{ty_snippet}>()"),
+                format!("add_event::<{event_ty_snippet}>()"),
                 applicability,
             );
         }
     }
+}
+
+/// Tries to extract the snippet `MyEvent` from the [`rustc_hir::Ty`] representing
+/// `Events<MyEvent>`.
+///
+/// Note that this works on a best-effort basis, and will return `"T"` if the type cannot be
+/// extracted. If so, it will mutate the passed applicability to [`Applicability::HasPlaceholders`],
+/// similar to [`snippet_with_applicability()`].
+fn extract_event_snippet<'tcx>(
+    cx: &LateContext<'tcx>,
+    events_hir_ty: &rustc_hir::Ty<'tcx>,
+    applicability: &mut Applicability,
+) -> Cow<'static, str> {
+    const DEFAULT: Cow<str> = Cow::Borrowed("T");
+
+    // This is some crazy pattern matching. Let me walk you through it:
+    let event_span = match events_hir_ty.kind {
+        // There are multiple kinds of HIR types, but we're looking for a path to a type
+        // definition. This path is likely `Events`, and contains the generic argument that we're
+        // searching for.
+        rustc_hir::TyKind::Path(QPath::Resolved(
+            _,
+            &Path {
+                // There can be multiple segments in a path, but in our case we just have one:
+                // `Events`.
+                segments:
+                    &[PathSegment {
+                        // Find the arguments to `Events<T>`, extracting `T`.
+                        args:
+                            Some(&GenericArgs {
+                                args: &[GenericArg::Type(ty)],
+                                ..
+                            }),
+                        ..
+                    }],
+                ..
+            },
+        )) => {
+            // We now have the HIR type `T` for `Events<T>`, let's return its span.
+            ty.span
+        }
+        // Something in the above pattern matching went wrong, likely due to an edge case. For
+        // this, we set the applicability to `HasPlaceholders` and return the default snippet.
+        _ => {
+            if let Applicability::MachineApplicable = applicability {
+                *applicability = Applicability::HasPlaceholders;
+            }
+
+            return DEFAULT;
+        }
+    };
+
+    // We now have the span to the event type, so let's try to extract it into a string.
+    snippet_with_applicability(cx, event_span, &DEFAULT, applicability)
 }
