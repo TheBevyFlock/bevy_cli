@@ -7,6 +7,7 @@ use rustc_errors::Applicability;
 use rustc_hir::{Expr, ExprKind, GenericArg, GenericArgs, Path, PathSegment, QPath};
 use rustc_hir_analysis::lower_ty;
 use rustc_lint::{LateContext, LateLintPass};
+use rustc_middle::ty::{Ty, TyKind};
 use rustc_session::{declare_lint_pass, declare_tool_lint};
 use rustc_span::Span;
 use std::borrow::Cow;
@@ -61,16 +62,45 @@ fn check_insert_resource<'tcx>(cx: &LateContext<'tcx>, args: &[Expr], method_spa
 
     // If `arg` is `Events<T>`, emit the lint.
     if match_type(cx, ty, &crate::paths::EVENTS) {
+        let mut applicability = Applicability::MachineApplicable;
+
+        let event_ty_snippet = extract_ty_event_snippet(ty, &mut applicability);
+
         span_lint_and_sugg(
             cx,
             INSERT_EVENT_RESOURCE,
             method_span,
             "called `App::insert_resource(Events<T>)` instead of `App::add_event::<T>()`",
             "inserting an `Events` resource does not fully setup that event",
-            format!("init_resource::<T>()"),
-            Applicability::HasPlaceholders,
+            format!("add_event::<{event_ty_snippet}>()"),
+            applicability,
         );
     }
+}
+
+fn extract_ty_event_snippet<'tcx>(
+    events_ty: Ty<'tcx>,
+    applicability: &mut Applicability,
+) -> Cow<'tcx, str> {
+    const DEFAULT: Cow<str> = Cow::Borrowed("T");
+
+    let TyKind::Adt(_, events_arguments) = events_ty.kind() else {
+        if let Applicability::MachineApplicable = applicability {
+            *applicability = Applicability::HasPlaceholders;
+        }
+
+        return DEFAULT;
+    };
+
+    let Some(event_snippet) = events_arguments.iter().next() else {
+        if let Applicability::MachineApplicable = applicability {
+            *applicability = Applicability::HasPlaceholders;
+        }
+
+        return DEFAULT;
+    };
+
+    format!("{event_snippet:?}").into()
 }
 
 /// Checks if `App::init_resource()` inserts an `Events<T>`, and emits a diagnostic if so.
@@ -91,7 +121,8 @@ fn check_init_resource<'tcx>(cx: &LateContext<'tcx>, path: &PathSegment<'tcx>, m
         if match_type(cx, resource_ty, &crate::paths::EVENTS) {
             let mut applicability = Applicability::MachineApplicable;
 
-            let event_ty_snippet = extract_event_snippet(cx, resource_hir_ty, &mut applicability);
+            let event_ty_snippet =
+                extract_hir_event_snippet(cx, resource_hir_ty, &mut applicability);
 
             span_lint_and_sugg(
                 cx,
@@ -112,7 +143,7 @@ fn check_init_resource<'tcx>(cx: &LateContext<'tcx>, path: &PathSegment<'tcx>, m
 /// Note that this works on a best-effort basis, and will return `"T"` if the type cannot be
 /// extracted. If so, it will mutate the passed applicability to [`Applicability::HasPlaceholders`],
 /// similar to [`snippet_with_applicability()`].
-fn extract_event_snippet<'tcx>(
+fn extract_hir_event_snippet<'tcx>(
     cx: &LateContext<'tcx>,
     events_hir_ty: &rustc_hir::Ty<'tcx>,
     applicability: &mut Applicability,
