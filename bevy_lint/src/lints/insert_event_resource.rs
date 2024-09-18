@@ -78,6 +78,10 @@ fn check_insert_resource<'tcx>(cx: &LateContext<'tcx>, args: &[Expr], method_spa
     }
 }
 
+/// Creates a string representation of type `T` for [`Ty`] `Events<T>`.
+///
+/// This takes a mutable applicability reference, and will set it to
+/// [`Applicability::HasPlaceholders`] if the type cannot be stringified.
 fn extract_ty_event_snippet<'tcx>(
     events_ty: Ty<'tcx>,
     applicability: &mut Applicability,
