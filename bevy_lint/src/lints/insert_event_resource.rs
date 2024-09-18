@@ -125,10 +125,10 @@ fn extract_event_snippet<'tcx>(
         rustc_hir::TyKind::Path(QPath::Resolved(
             _,
             &Path {
-                // There can be multiple segments in a path, but in our case we just have one:
-                // `Events`.
+                // There can be multiple segments in a path, such as if it were
+                // `bevy::prelude::Events`, but in this case we just care about the last: `Events`.
                 segments:
-                    &[PathSegment {
+                    &[.., PathSegment {
                         // Find the arguments to `Events<T>`, extracting `T`.
                         args:
                             Some(&GenericArgs {
