@@ -1,4 +1,34 @@
-//! TODO
+//! Checks for the `Events<T>` resource being manually inserted through `App::init_resource()` or
+//! `App::insert_resource()` instead of with `App::add_event()`.
+//!
+//! # Why is this bad?
+//!
+//! While `Events<T>` is technically a `Resource`, you cannot register an event by _just_ inserting
+//! it into the `App`. There are other steps necessary as well, which are usually orchestrated by
+//! `EventRegistry::register_event()`. Instead of inserting the `Events<T>` resource manually, call
+//! `App::add_event()`, which will handle this all for you and result in desired behavior.
+//!
+//! # Example
+//!
+//! ```rust
+//! # use bevy::prelude::*;
+//! #
+//! #[derive(Event)]
+//! struct MyEvent;
+//!
+//! App::new().init_resource::<Events<MyEvent>>().run();
+//! ```
+//!
+//! Use instead:
+//!
+//! ```rust
+//! # use bevy::prelude::*;
+//! #
+//! #[derive(Event)]
+//! struct MyEvent;
+//!
+//! App::new().add_event::<MyEvent>().run();
+//! ```
 
 use clippy_utils::{
     diagnostics::span_lint_and_sugg, source::snippet_with_applicability, sym, ty::match_type,
