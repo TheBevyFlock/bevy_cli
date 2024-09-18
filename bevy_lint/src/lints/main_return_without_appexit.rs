@@ -69,11 +69,10 @@ impl<'tcx> LateLintPass<'tcx> for MainReturnWithoutAppExit {
             && matches!(
                 declaration.output,
                 // The function signature is the default `fn main()`.
-                FnRetTy::DefaultReturn(..) | 
+                FnRetTy::DefaultReturn(..)
                 // The function signature is `fn main() -> ()`.
-                FnRetTy::Return(&Ty { kind: TyKind::Tup(&[]), .. })
+                | FnRetTy::Return(&Ty { kind: TyKind::Tup(&[]), .. })
             )
-            }
         {
             // Iterate over each expression within the entrypoint function, finding and reporting
             // `App::run()` calls.
