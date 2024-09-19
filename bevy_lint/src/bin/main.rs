@@ -1,7 +1,10 @@
 use anyhow::{anyhow, ensure, Context};
-use std::{env, process::Command};
+use std::{
+    env,
+    process::{Command, ExitCode},
+};
 
-fn main() -> anyhow::Result<()> {
+fn main() -> anyhow::Result<ExitCode> {
     // The `bevy_lint` lives in the same folder as `bevy_lint_driver`, so we can easily find it
     // using the path of the current executable.
     let mut driver_path = env::current_exe()
@@ -35,7 +38,19 @@ fn main() -> anyhow::Result<()> {
         .status()
         .context("Failed to spawn `cargo check`.")?;
 
-    ensure!(status.success(), "Check failed with non-zero exit code.");
+    let code = if status.success() {
+        // Exit status of 0, success!
+        0
+    } else {
+        // Print out `cargo`'s exit code on failure.
+        eprintln!("Check failed: {}.", status);
 
-    Ok(())
+        // Extract the exit code. `ExitCode` only supports being created from a `u8`, so we truncate
+        // the bits. Additionally, `ExitStatus::code()` can return `None` on Unix if it was
+        // terminated by a signal. In those cases, we just default to 1.
+        status.code().unwrap_or(1) as u8
+    };
+
+    // Return `cargo`'s exit code.
+    Ok(ExitCode::from(code))
 }
