@@ -7,7 +7,7 @@ use crate::external_cli::arg_builder::ArgBuilder;
 use super::{program, CargoCompilationArgs, CargoFeatureArgs, CargoManifestArgs};
 
 /// Create a command to run `cargo build`.
-pub(crate) fn build_command() -> Command {
+pub(crate) fn command() -> Command {
     let mut command = Command::new(program());
     command.arg("build");
     command
