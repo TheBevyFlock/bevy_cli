@@ -3,10 +3,15 @@
 //!
 //! # Why is this bad?
 //!
-//! While `Events<T>` is technically a `Resource`, you cannot register an event by _just_ inserting
-//! it into the `App`. There are other steps necessary as well, which are usually orchestrated by
-//! `EventRegistry::register_event()`. Instead of inserting the `Events<T>` resource manually, call
-//! `App::add_event()`, which will handle this all for you and result in desired behavior.
+//! Unless you have intentionally and knowingly initialized the `Events<T>` resource in this way,
+//! events and their resources should be initialized with `App::add_event()` because it
+//! automatically handles dropping old events. Just adding `Events<T>` makes no such guarantee, and
+//! will likely result in a memory leak.
+//!
+//! For more information, please see the documentation on [`App::add_event()`] and [`Events<T>`].
+//!
+//! [`Events<T>`]: https://dev-docs.bevyengine.org/bevy/ecs/event/struct.Events.html
+//! [`App::add_event()`]: https://docs.rs/bevy/latest/bevy/app/struct.App.html#method.add_event
 //!
 //! # Example
 //!
