@@ -86,7 +86,7 @@ impl<'tcx> LateLintPass<'tcx> for InsertEventResource {
 }
 
 /// Checks if `App::insert_resource()` inserts an `Events<T>`, and emits a diagnostic if so.
-fn check_insert_resource<'tcx>(cx: &LateContext<'tcx>, args: &[Expr], method_span: Span) {
+fn check_insert_resource(cx: &LateContext<'_>, args: &[Expr], method_span: Span) {
     // Extract the argument if there is only 1 (which there should be!), else exit.
     let [arg] = args else {
         return;
