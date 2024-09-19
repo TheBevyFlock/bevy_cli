@@ -1,7 +1,7 @@
 //! Checks for the `Events<T>` resource being manually inserted through `App::init_resource()` or
 //! `App::insert_resource()` instead of with `App::add_event()`.
 //!
-//! # Why is this bad?
+//! # Motivation
 //!
 //! Unless you have intentionally and knowingly initialized the `Events<T>` resource in this way,
 //! events and their resources should be initialized with `App::add_event()` because it

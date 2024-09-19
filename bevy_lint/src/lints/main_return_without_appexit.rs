@@ -3,7 +3,7 @@
 //! This lint will not be emitted if `fn main()` returns a non-[`unit`] type, even if that type is
 //! not `AppExit`.
 //!
-//! # Why is this bad?
+//! # Motivation
 //!
 //! `AppExit` is used to determine whether the `App` exited successful or due to an error. Returning
 //! it from `main()` will set the exit code, which allows external processes to detect whether there
