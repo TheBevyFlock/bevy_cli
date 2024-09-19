@@ -43,7 +43,7 @@ fn main() -> anyhow::Result<ExitCode> {
         0
     } else {
         // Print out `cargo`'s exit code on failure.
-        eprintln!("Check failed: {}.", status);
+        eprintln!("Check failed: {status}.");
 
         // Extract the exit code. `ExitCode` only supports being created from a `u8`, so we truncate
         // the bits. Additionally, `ExitStatus::code()` can return `None` on Unix if it was
