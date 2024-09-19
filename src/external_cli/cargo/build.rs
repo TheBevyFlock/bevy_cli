@@ -4,11 +4,11 @@ use clap::{ArgAction, Args};
 
 use crate::external_cli::arg_builder::ArgBuilder;
 
-use super::{CargoCompilationArgs, CargoFeatureArgs, CargoManifestArgs, PROGRAM};
+use super::{program, CargoCompilationArgs, CargoFeatureArgs, CargoManifestArgs};
 
 /// Create a command to run `cargo build`.
 pub(crate) fn command() -> Command {
-    let mut command = Command::new(PROGRAM);
+    let mut command = Command::new(program());
     command.arg("build");
     command
 }

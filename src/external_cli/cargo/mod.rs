@@ -1,13 +1,15 @@
 #![expect(dead_code, reason = "Will be used for `bevy build` and `bevy run`")]
+use std::{env, ffi::OsString};
+
 use clap::{ArgAction, Args};
 
 use super::arg_builder::ArgBuilder;
 
 pub(crate) mod build;
 
-// TODO: Support customizing the executable via an env var
-// https://github.com/TheBevyFlock/bevy_cli/issues/71
-const PROGRAM: &str = "cargo";
+fn program() -> OsString {
+    env::var_os("BEVY_CLI_CARGO").unwrap_or("cargo".into())
+}
 
 #[derive(Debug, Args)]
 #[command(next_help_heading = "Feature Selection")]
