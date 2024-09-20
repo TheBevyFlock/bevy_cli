@@ -1,4 +1,50 @@
-//! TODO
+//! Checks for use of panicking methods of `Query` and `QueryState` when a non-panicking alternative
+//! exists.
+//!
+//! For instance, this will lint against `Query::single()`, recommending that `Query::get_single()`
+//! should be used instead.
+//!
+//! # Motivation
+//!
+//! Panicking is the nuclear option of error handling in Rust: it is meant for cases where recovery
+//! is near-impossible. As such, panicking is usually undesirable in long-running applications
+//! and games like what Bevy is used for. This lint aims to prevent unwanted crashes in these
+//! applications by forcing developers to handle the `Result` in their code.
+//!
+//! # Example
+//!
+//! ```
+//! # use bevy::prelude::*;
+//! #
+//! #[derive(Component)]
+//! struct MyComponent;
+//!
+//! fn my_system(query: Query<&MyComponent>) {
+//!     let component = query.single();
+//!     // ...
+//! }
+//! ```
+//!
+//! Use instead:
+//!
+//! ```
+//! # use bevy::prelude::*;
+//! #
+//! #[derive(Component)]
+//! struct MyComponent;
+//!
+//! fn my_system(query: Query<&MyComponent>) {
+//!     match query.get_single() {
+//!         Ok(component) => {
+//!             // ...
+//!         }
+//!         Err(error) => {
+//!             error!("Invariant not upheld: {:?}", error);
+//!             return;
+//!         }
+//!     }
+//! }
+//! ```
 
 use clippy_utils::{
     diagnostics::span_lint_and_help,
@@ -13,7 +59,7 @@ use rustc_span::{Span, Symbol};
 
 declare_tool_lint! {
     pub bevy::PANICKING_QUERY_METHODS,
-    Warn, // TODO: Set to `Allow`.
+    Allow,
     "called a `Query` or `QueryState` method that can panic when a non-panicking alternative exists"
 }
 
