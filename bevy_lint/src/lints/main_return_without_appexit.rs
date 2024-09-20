@@ -11,7 +11,7 @@
 //!
 //! # Example
 //!
-//! ```rust
+//! ```
 //! # use bevy::prelude::*;
 //! #
 //! fn main() {
@@ -21,7 +21,7 @@
 //!
 //! Use instead:
 //!
-//! ```rust
+//! ```
 //! # use bevy::prelude::*;
 //! #
 //! fn main() -> AppExit {

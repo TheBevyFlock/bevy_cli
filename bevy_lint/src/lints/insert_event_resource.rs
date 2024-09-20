@@ -15,7 +15,7 @@
 //!
 //! # Example
 //!
-//! ```rust
+//! ```
 //! # use bevy::prelude::*;
 //! #
 //! #[derive(Event)]
@@ -26,7 +26,7 @@
 //!
 //! Use instead:
 //!
-//! ```rust
+//! ```
 //! # use bevy::prelude::*;
 //! #
 //! #[derive(Event)]
