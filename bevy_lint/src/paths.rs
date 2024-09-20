@@ -9,3 +9,4 @@
 pub const APP: [&str; 3] = ["bevy_app", "app", "App"];
 pub const EVENTS: [&str; 3] = ["bevy_ecs", "event", "Events"];
 pub const QUERY: [&str; 4] = ["bevy_ecs", "system", "query", "Query"];
+pub const QUERY_STATE: [&str; 4] = ["bevy_ecs", "query", "state", "QueryState"];
