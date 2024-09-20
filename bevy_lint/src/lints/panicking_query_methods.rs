@@ -1,7 +1,6 @@
 //! TODO:
 //!
 //! - Detect alternative method call syntax
-//! - Add more comments
 
 use clippy_utils::{
     diagnostics::span_lint_and_help,
@@ -47,24 +46,40 @@ impl<'tcx> LateLintPass<'tcx> for PanickingQueryMethods {
                 return;
             }
 
+            // Here we check if the method name matches one of methods in `PANICKING_ALTERNATIVES`.
+            // If it does match, we store the recommended alternative for reference in diagnostics
+            // later. If nothing matches, we exit the entire function.
             let alternative = 'block: {
                 for (panicking_method, alternative_method) in PANICKING_ALTERNATIVES {
+                    // TODO: Intern these earlier / cache the results?
                     let key = Symbol::intern(panicking_method);
 
                     if path.ident.name == key {
+                        // It is one of the panicking methods. Write down the alternative and stop
+                        // searching.
                         break 'block *alternative_method;
                     }
                 }
 
+                // If we reach this point, the method is not one we're searching for. In this case,
+                // we exit.
                 return;
             };
 
+            // By this point, we've verified that `src` is `Query` and the method is a panicking
+            // one. Let's emit the lint.
+
+            // Try to find the string representation of `src`. This usually returns `my_query`
+            // without the trailing `.`, so we manually append it. When the snippet cannot be
+            // found, we default to the qualified `Query::` form.
             let src_snippet: Cow<str> =
                 snippet_opt(cx, src.span).map_or("Query::".into(), |mut s| {
                     s.push('.');
                     s.into()
                 });
 
+            // Try to find the string representation of the arguments to our panicking method. See
+            // `span_args()` for more details on how this is done.
             let args_snippet = snippet(cx, span_args(args), "");
 
             span_lint_and_help(
@@ -73,6 +88,7 @@ impl<'tcx> LateLintPass<'tcx> for PanickingQueryMethods {
                 method_span,
                 PANICKING_QUERY_METHODS.desc,
                 None,
+                // This usually ends up looking like: `query.get_many([e1, e2])`.
                 format!("use `{src_snippet}{alternative}({args_snippet})` and handle the `Result`"),
             );
         }
