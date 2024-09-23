@@ -51,7 +51,7 @@ use std::borrow::Cow;
 declare_bevy_lint! {
     pub INSERT_EVENT_RESOURCE,
     SUSPICIOUS,
-    "called `App::insert_resource(Events<T>)` or `App::init_resource::<Events<T>>()` instead of `App::add_event::<T>()`"
+    "called `App::insert_resource(Events<T>)` or `App::init_resource::<Events<T>>()` instead of `App::add_event::<T>()`",
 }
 
 declare_lint_pass! {

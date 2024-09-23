@@ -26,7 +26,7 @@ macro_rules! declare_bevy_lint {
         $(#[$attr:meta])*
         $vis:vis $name:ident,
         $group:ident,
-        $desc:expr
+        $desc:expr$(,)?
     } => {
         $(#[$attr])*
         $vis static $name: &$crate::lint::BevyLint = &$crate::lint::BevyLint {
