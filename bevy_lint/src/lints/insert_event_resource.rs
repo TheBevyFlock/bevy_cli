@@ -49,7 +49,7 @@ use std::borrow::Cow;
 
 declare_tool_lint! {
     pub bevy::INSERT_EVENT_RESOURCE,
-    Deny,
+    Warn,
     "called `App::insert_resource(Events<T>)` or `App::init_resource::<Events<T>>()` instead of `App::add_event::<T>()`"
 }
 

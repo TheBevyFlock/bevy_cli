@@ -44,7 +44,7 @@ use std::ops::ControlFlow;
 
 declare_tool_lint! {
     pub bevy::MAIN_RETURN_WITHOUT_APPEXIT,
-    Warn,
+    Allow,
     "an entrypoint that calls `App::run()` does not return `AppExit`"
 }
 
