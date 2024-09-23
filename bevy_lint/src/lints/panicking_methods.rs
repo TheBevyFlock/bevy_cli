@@ -52,7 +52,7 @@ use clippy_utils::{
     ty::match_type,
 };
 use rustc_hir::{Expr, ExprKind};
-use rustc_lint::{LateContext, LateLintPass};
+use rustc_lint::{LateContext, LateLintPass, Lint};
 use rustc_middle::ty::Ty;
 use rustc_session::{declare_lint_pass, declare_tool_lint};
 use rustc_span::{Span, Symbol};
@@ -131,7 +131,7 @@ impl<'tcx> LateLintPass<'tcx> for PanickingMethods {
 
             span_lint_and_help(
                 cx,
-                PANICKING_QUERY_METHODS,
+                query_variant.lint(),
                 method_span,
                 format!(
                     "called a `{}` method that can panic when a non-panicking alternative exists",
@@ -183,16 +183,34 @@ impl PanickingType {
                 ("single_mut", "get_single_mut"),
                 // `QueryState` does not currently have `many()` or `many_mut()`.
             ],
-            Self::World => todo!(),
+            Self::World => &[
+                ("entity", "get_entity"),
+                ("entity_mut", "get_entity_mut"),
+                ("many_entities", "get_many_entities"),
+                ("many_entities_mut", "get_many_entities_mut"),
+                ("resource", "get_resource"),
+                ("resource_mut", "get_resource_mut"),
+                ("resource_ref", "get_resource_ref"),
+                ("non_send_resource", "get_non_send_resource"),
+                ("non_send_resource_mut", "get_non_send_resource_mut"),
+                ("schedule_scope", "try_schedule_scope"),
+            ],
         }
     }
 
     /// Returns the name of the type this variant represents.
     fn name(&self) -> &'static str {
-        match &self {
+        match self {
             Self::Query => "Query",
             Self::QueryState => "QueryState",
             Self::World => "World",
+        }
+    }
+
+    fn lint(&self) -> &'static Lint {
+        match self {
+            Self::Query | Self::QueryState => PANICKING_QUERY_METHODS,
+            Self::World => &PANICKING_WORLD_METHODS,
         }
     }
 }
