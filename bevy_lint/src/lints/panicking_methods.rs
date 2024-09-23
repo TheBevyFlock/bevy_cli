@@ -63,11 +63,17 @@ declare_tool_lint! {
     "called a `Query` or `QueryState` method that can panic when a non-panicking alternative exists"
 }
 
-declare_lint_pass! {
-    PanickingQueryMethods => [PANICKING_QUERY_METHODS]
+declare_tool_lint! {
+    pub bevy::PANICKING_WORLD_METHODS,
+    Allow,
+    "called a `World` method that can panic when a non-panicking alternative exists"
 }
 
-impl<'tcx> LateLintPass<'tcx> for PanickingQueryMethods {
+declare_lint_pass! {
+    PanickingMethods => [PANICKING_QUERY_METHODS, PANICKING_WORLD_METHODS]
+}
+
+impl<'tcx> LateLintPass<'tcx> for PanickingMethods {
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &Expr<'tcx>) {
         // Find a method call.
         if let ExprKind::MethodCall(path, src, args, method_span) = expr.kind {
@@ -77,7 +83,7 @@ impl<'tcx> LateLintPass<'tcx> for PanickingQueryMethods {
             let src_ty = cx.typeck_results().expr_ty(src).peel_refs();
 
             // Check if `src` is `Query` or `QueryState`, else exit.
-            let Some(query_variant) = QueryVariant::from_ty(cx, src_ty) else {
+            let Some(query_variant) = PanickingType::from_ty(cx, src_ty) else {
                 return;
             };
 
@@ -139,18 +145,21 @@ impl<'tcx> LateLintPass<'tcx> for PanickingQueryMethods {
     }
 }
 
-enum QueryVariant {
+enum PanickingType {
     Query,
     QueryState,
+    World,
 }
 
-impl QueryVariant {
+impl PanickingType {
     /// Returns [`Self`] if the type matches Bevy's `Query` or `QueryState` types.
     fn from_ty<'tcx>(cx: &LateContext<'tcx>, ty: Ty<'tcx>) -> Option<Self> {
         if match_type(cx, ty, &crate::paths::QUERY) {
             Some(Self::Query)
         } else if match_type(cx, ty, &crate::paths::QUERY_STATE) {
             Some(Self::QueryState)
+        } else if match_type(cx, ty, &crate::paths::WORLD) {
+            Some(Self::World)
         } else {
             None
         }
@@ -174,6 +183,7 @@ impl QueryVariant {
                 ("single_mut", "get_single_mut"),
                 // `QueryState` does not currently have `many()` or `many_mut()`.
             ],
+            Self::World => todo!(),
         }
     }
 
@@ -182,6 +192,7 @@ impl QueryVariant {
         match &self {
             Self::Query => "Query",
             Self::QueryState => "QueryState",
+            Self::World => "World",
         }
     }
 }
