@@ -51,7 +51,7 @@ use clippy_utils::{
     source::{snippet, snippet_opt},
     ty::match_type,
 };
-use rustc_hir::{Expr, ExprKind};
+use rustc_hir::{Expr, ExprKind, GenericArgs};
 use rustc_lint::{LateContext, LateLintPass, Lint};
 use rustc_middle::ty::Ty;
 use rustc_session::{declare_lint_pass, declare_tool_lint};
@@ -82,14 +82,14 @@ impl<'tcx> LateLintPass<'tcx> for PanickingMethods {
             // dereference the source.
             let src_ty = cx.typeck_results().expr_ty(src).peel_refs();
 
-            // Check if `src` is `Query` or `QueryState`, else exit.
-            let Some(query_variant) = PanickingType::try_from_ty(cx, src_ty) else {
+            // Check if `src` is a panicking type (e.g. `Query`), else exit.
+            let Some(panicking_type) = PanickingType::try_from_ty(cx, src_ty) else {
                 return;
             };
 
             // Get a list of methods that panic and their alternatives for the specific query
             // variant.
-            let panicking_alternatives = query_variant.panicking_alternatives();
+            let panicking_alternatives = panicking_type.alternatives();
 
             // Here we check if the method name matches one of methods in `panicking_alternatives`.
             // If it does match, we store the recommended alternative for reference in diagnostics
@@ -111,19 +111,28 @@ impl<'tcx> LateLintPass<'tcx> for PanickingMethods {
                 return;
             };
 
-            // By this point, we've verified that `src` is `Query` or `QueryState` and the method
-            // is one that panics with a viable alternative. Let's emit the lint.
+            // By this point, we've verified that `src` is a panicking type and the method is one
+            // that panics with a viable alternative. Let's emit the lint.
 
             // Try to find the string representation of `src`. This usually returns `my_query`
             // without the trailing `.`, so we manually append it. When the snippet cannot be
-            // found, we default to the qualified `Query::` / `QueryState::` form.
+            // found, we default to the qualified `Type::` form.
             let src_snippet = snippet_opt(cx, src.span).map_or_else(
-                || format!("{}::", query_variant.name()),
+                || format!("{}::", panicking_type.name()),
                 |mut s| {
                     s.push('.');
                     s
                 },
             );
+
+            // Try to find the generic arguments of the method, if any exist. This can either
+            // evaluate to `""` or `"::<A, B, C>"`.
+            let generics_snippet = path
+                .args // Find the generic arguments of this path.
+                .and_then(GenericArgs::span_ext) // Find the span of the generics.
+                .and_then(|span| snippet_opt(cx, span)) // Extract the string, which may look like `<A, B>`.
+                .map(|snippet| format!("::{snippet}")) // Insert `::` before the string.
+                .unwrap_or_default(); // If any of the previous failed, return an empty string.
 
             // Try to find the string representation of the arguments to our panicking method. See
             // `span_args()` for more details on how this is done.
@@ -131,15 +140,15 @@ impl<'tcx> LateLintPass<'tcx> for PanickingMethods {
 
             span_lint_and_help(
                 cx,
-                query_variant.lint(),
+                panicking_type.lint(),
                 method_span,
                 format!(
                     "called a `{}` method that can panic when a non-panicking alternative exists",
-                    query_variant.name()
+                    panicking_type.name()
                 ),
                 None,
                 // This usually ends up looking like: `query.get_many([e1, e2])`.
-                format!("use `{src_snippet}{alternative}({args_snippet})` and handle the `Result`"),
+                format!("use `{src_snippet}{alternative}{generics_snippet}({args_snippet})` and handle the `Option` or `Result`"),
             );
         }
     }
@@ -170,7 +179,7 @@ impl PanickingType {
     ///
     /// Each item in the returned [`slice`] is of the format
     /// `(panicking_method, alternative_method)`.
-    fn panicking_alternatives(&self) -> &'static [(&'static str, &'static str)] {
+    fn alternatives(&self) -> &'static [(&'static str, &'static str)] {
         match self {
             Self::Query => &[
                 ("single", "get_single"),
@@ -207,10 +216,13 @@ impl PanickingType {
         }
     }
 
+    /// Returns the [`Lint`] associated with this panicking type.
+    ///
+    /// This can either return [`PANICKING_QUERY_METHODS`] or [`PANICKING_WORLD_METHODS`].
     fn lint(&self) -> &'static Lint {
         match self {
             Self::Query | Self::QueryState => PANICKING_QUERY_METHODS,
-            Self::World => &PANICKING_WORLD_METHODS,
+            Self::World => PANICKING_WORLD_METHODS,
         }
     }
 }
