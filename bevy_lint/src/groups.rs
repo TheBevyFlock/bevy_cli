@@ -3,7 +3,7 @@ use rustc_lint::Level;
 
 /// A group of deny-by-default lints that check for outright wrong or useless code.
 ///
-/// These lints are carefully picked to be free of false-positives. You should avoid
+/// These lints are carefully picked to be free of false positives. You should avoid
 /// `#[allow(...)]`-ing these lints without a _very_ good reason.
 pub static CORRECTNESS: LintGroup = LintGroup {
     name: "bevy::correctness",
@@ -12,9 +12,7 @@ pub static CORRECTNESS: LintGroup = LintGroup {
 
 /// A group similar to [`CORRECTNESS`] that checks for suspicious or usually wrong code.
 ///
-/// As compared to [`CORRECTNESS`], it may be possible that the linted code may be written
-/// intentionally. Even still, you usually want to fix these lints instead of `#[allow(...)]`-ing
-/// them.
+/// The linted code may have been written intentionally, but should probably still be fixed.
 pub static SUSPICIOUS: LintGroup = LintGroup {
     name: "bevy::suspicious",
     level: Level::Warn,
