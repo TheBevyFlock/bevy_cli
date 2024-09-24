@@ -1,4 +1,3 @@
-#![expect(dead_code, reason = "Will be used for `bevy build` and `bevy run`")]
 use std::{env, ffi::OsString};
 
 use clap::{ArgAction, Args};
@@ -6,6 +5,7 @@ use clap::{ArgAction, Args};
 use super::arg_builder::ArgBuilder;
 
 pub(crate) mod build;
+pub(crate) mod install;
 
 fn program() -> OsString {
     env::var_os("BEVY_CLI_CARGO").unwrap_or("cargo".into())
@@ -65,6 +65,19 @@ pub struct CargoCompilationArgs {
 }
 
 impl CargoCompilationArgs {
+    /// The profile used to compile the app.
+    ///
+    /// This is determined by the `--release` and `--profile` arguments.
+    pub(crate) fn profile(&self) -> &str {
+        if self.is_release {
+            "release"
+        } else if let Some(profile) = &self.profile {
+            profile
+        } else {
+            "debug"
+        }
+    }
+
     pub(crate) fn args_builder(&self, is_web: bool) -> ArgBuilder {
         // web takes precedence over --target <TRIPLE>
         let target = if is_web {

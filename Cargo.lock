@@ -256,6 +256,7 @@ dependencies = [
  "regex",
  "reqwest",
  "serde",
+ "toml_edit 0.22.21",
 ]
 
 [[package]]
