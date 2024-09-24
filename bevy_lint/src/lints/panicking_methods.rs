@@ -1,15 +1,19 @@
-//! Checks for use of panicking methods of `Query` and `QueryState` when a non-panicking alternative
-//! exists.
+//! Checks for use of panicking methods of `Query`, `QueryState`, or `World` when a non-panicking
+//! alternative exists.
 //!
 //! For instance, this will lint against `Query::single()`, recommending that `Query::get_single()`
 //! should be used instead.
+//!
+//! This lint is actually two: [`PANICKING_QUERY_METHODS`] and [`PANICKING_WORLD_METHODS`]. Each
+//! can be toggled separately. The query variant lints for `Query` and `QueryState`, while the
+//! world variant lints for `World`.
 //!
 //! # Motivation
 //!
 //! Panicking is the nuclear option of error handling in Rust: it is meant for cases where recovery
 //! is near-impossible. As such, panicking is usually undesirable in long-running applications
 //! and games like what Bevy is used for. This lint aims to prevent unwanted crashes in these
-//! applications by forcing developers to handle the `Result` in their code.
+//! applications by forcing developers to handle the `Option` or `Result` in their code.
 //!
 //! # Example
 //!
@@ -19,10 +23,21 @@
 //! #[derive(Component)]
 //! struct MyComponent;
 //!
-//! fn my_system(query: Query<&MyComponent>) {
+//! #[derive(Resource)]
+//! struct MyResource;
+//!
+//! fn panicking_query(query: Query<&MyComponent>) {
 //!     let component = query.single();
 //!     // ...
 //! }
+//!
+//! fn panicking_world(world: &mut World) {
+//!     let resource = world.resource::<MyResource>();
+//!     // ...
+//! }
+//! #
+//! # bevy::ecs::system::assert_is_system(panicking_query);
+//! # bevy::ecs::system::assert_is_system(panicking_world);
 //! ```
 //!
 //! Use instead:
@@ -33,7 +48,10 @@
 //! #[derive(Component)]
 //! struct MyComponent;
 //!
-//! fn my_system(query: Query<&MyComponent>) {
+//! #[derive(Resource)]
+//! struct MyResource;
+//!
+//! fn graceful_query(query: Query<&MyComponent>) {
 //!     match query.get_single() {
 //!         Ok(component) => {
 //!             // ...
@@ -44,6 +62,18 @@
 //!         }
 //!     }
 //! }
+//!
+//! fn graceful_world(world: &mut World) {
+//!     let Some(resource) = world.get_resource::<MyResource>() else {
+//!         // Resource may not exist.
+//!         return;
+//!     };
+//!
+//!     // ...
+//! }
+//! #
+//! # bevy::ecs::system::assert_is_system(graceful_query);
+//! # bevy::ecs::system::assert_is_system(graceful_world);
 //! ```
 
 use clippy_utils::{
