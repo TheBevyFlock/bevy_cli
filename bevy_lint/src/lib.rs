@@ -16,7 +16,12 @@ extern crate rustc_session;
 extern crate rustc_span;
 
 mod callback;
+pub mod groups;
+mod lint;
 pub mod lints;
 mod paths;
 
-pub use self::callback::BevyLintCallback;
+pub use self::{
+    callback::BevyLintCallback,
+    lint::{BevyLint, LintGroup},
+};
