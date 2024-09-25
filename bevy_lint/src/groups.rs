@@ -1,4 +1,7 @@
-use crate::{lints::LINTS, BevyLint, LintGroup};
+use crate::{
+    lint::{BevyLint, LintGroup},
+    lints::LINTS,
+};
 use rustc_lint::{Level, LintStore};
 
 /// A group of deny-by-default lints that check for outright wrong or useless code.

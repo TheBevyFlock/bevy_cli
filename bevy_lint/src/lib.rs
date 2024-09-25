@@ -21,7 +21,4 @@ mod lint;
 pub mod lints;
 mod paths;
 
-pub use self::{
-    callback::BevyLintCallback,
-    lint::{BevyLint, LintGroup},
-};
+pub use self::callback::BevyLintCallback;
