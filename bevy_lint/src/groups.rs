@@ -80,7 +80,7 @@ static GROUPS: &[&LintGroup] = &[
 pub(crate) fn register_groups(store: &mut LintStore) {
     for &group in GROUPS {
         let lints = LINTS
-            .into_iter()
+            .iter()
             .copied()
             // Only select lints of this specified group.
             .filter(|l| l.group == group)
