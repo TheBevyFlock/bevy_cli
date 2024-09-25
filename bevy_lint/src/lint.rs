@@ -3,6 +3,7 @@ use rustc_lint::{Level, Lint, LintId};
 /// A Bevy lint definition and its associated group.
 ///
 /// The level of the lint must be the same as the level of the group.
+#[derive(Debug)]
 pub struct BevyLint {
     pub lint: &'static Lint,
     pub group: &'static LintGroup,
@@ -15,7 +16,7 @@ impl BevyLint {
 }
 
 /// Represents a lint group.
-#[derive(PartialEq)]
+#[derive(PartialEq, Debug)]
 pub struct LintGroup {
     /// The name of the lint group.
     ///
