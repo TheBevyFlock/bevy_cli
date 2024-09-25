@@ -76,6 +76,7 @@
 //! # bevy::ecs::system::assert_is_system(graceful_world);
 //! ```
 
+use crate::declare_bevy_lint;
 use clippy_utils::{
     diagnostics::span_lint_and_help,
     source::{snippet, snippet_opt},
@@ -84,23 +85,23 @@ use clippy_utils::{
 use rustc_hir::{Expr, ExprKind, GenericArgs};
 use rustc_lint::{LateContext, LateLintPass, Lint};
 use rustc_middle::ty::Ty;
-use rustc_session::{declare_lint_pass, declare_tool_lint};
+use rustc_session::declare_lint_pass;
 use rustc_span::{Span, Symbol};
 
-declare_tool_lint! {
-    pub bevy::PANICKING_QUERY_METHODS,
-    Allow,
+declare_bevy_lint! {
+    pub PANICKING_QUERY_METHODS,
+    RESTRICTION,
     "called a `Query` or `QueryState` method that can panic when a non-panicking alternative exists"
 }
 
-declare_tool_lint! {
-    pub bevy::PANICKING_WORLD_METHODS,
-    Allow,
+declare_bevy_lint! {
+    pub PANICKING_WORLD_METHODS,
+    RESTRICTION,
     "called a `World` method that can panic when a non-panicking alternative exists"
 }
 
 declare_lint_pass! {
-    PanickingMethods => [PANICKING_QUERY_METHODS, PANICKING_WORLD_METHODS]
+    PanickingMethods => [PANICKING_QUERY_METHODS.lint, PANICKING_WORLD_METHODS.lint]
 }
 
 impl<'tcx> LateLintPass<'tcx> for PanickingMethods {
@@ -251,8 +252,8 @@ impl PanickingType {
     /// This can either return [`PANICKING_QUERY_METHODS`] or [`PANICKING_WORLD_METHODS`].
     fn lint(&self) -> &'static Lint {
         match self {
-            Self::Query | Self::QueryState => PANICKING_QUERY_METHODS,
-            Self::World => PANICKING_WORLD_METHODS,
+            Self::Query | Self::QueryState => PANICKING_QUERY_METHODS.lint,
+            Self::World => PANICKING_WORLD_METHODS.lint,
         }
     }
 }
