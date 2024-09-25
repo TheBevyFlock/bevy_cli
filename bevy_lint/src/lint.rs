@@ -1,14 +1,22 @@
-use rustc_lint::{Level, Lint};
+use rustc_lint::{Level, Lint, LintId};
 
 /// A Bevy lint definition and its associated group.
 ///
 /// The level of the lint must be the same as the level of the group.
+#[derive(Debug)]
 pub struct BevyLint {
     pub lint: &'static Lint,
     pub group: &'static LintGroup,
 }
 
+impl BevyLint {
+    pub fn id(&self) -> LintId {
+        LintId::of(self.lint)
+    }
+}
+
 /// Represents a lint group.
+#[derive(PartialEq, Debug)]
 pub struct LintGroup {
     /// The name of the lint group.
     ///
@@ -21,6 +29,7 @@ pub struct LintGroup {
 }
 
 #[macro_export]
+#[doc(hidden)]
 macro_rules! declare_bevy_lint {
     {
         $(#[$attr:meta])*

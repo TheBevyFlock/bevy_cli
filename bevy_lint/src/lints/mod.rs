@@ -1,11 +1,11 @@
-use crate::BevyLint;
+use crate::lint::BevyLint;
 use rustc_lint::{Lint, LintStore};
 
 pub mod insert_event_resource;
 pub mod main_return_without_appexit;
 pub mod panicking_methods;
 
-pub static LINTS: &[&BevyLint] = &[
+pub(crate) static LINTS: &[&BevyLint] = &[
     insert_event_resource::INSERT_EVENT_RESOURCE,
     main_return_without_appexit::MAIN_RETURN_WITHOUT_APPEXIT,
     panicking_methods::PANICKING_QUERY_METHODS,
