@@ -1,4 +1,4 @@
-use rustc_lint::{Level, Lint};
+use rustc_lint::{Level, Lint, LintId};
 
 /// A Bevy lint definition and its associated group.
 ///
@@ -8,7 +8,14 @@ pub struct BevyLint {
     pub group: &'static LintGroup,
 }
 
+impl BevyLint {
+    pub fn id(&self) -> LintId {
+        LintId::of(self.lint)
+    }
+}
+
 /// Represents a lint group.
+#[derive(PartialEq)]
 pub struct LintGroup {
     /// The name of the lint group.
     ///
