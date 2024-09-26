@@ -255,7 +255,9 @@ dependencies = [
  "dialoguer",
  "regex",
  "reqwest",
+ "semver",
  "serde",
+ "serde_json",
 ]
 
 [[package]]
