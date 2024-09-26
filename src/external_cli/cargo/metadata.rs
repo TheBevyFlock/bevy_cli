@@ -134,6 +134,6 @@ mod tests {
         assert!(metadata
             .packages
             .iter()
-            .any(|package| package.name == "bevy_cli".to_string()));
+            .any(|package| package.name == "bevy_cli"));
     }
 }
