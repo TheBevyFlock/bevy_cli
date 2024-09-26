@@ -109,8 +109,8 @@ pub struct Target {
 #[serde(rename_all = "kebab-case")]
 pub enum TargetKind {
     Lib,
-    RLib,
-    DyLib,
+    Rlib,
+    Dylib,
     ProcMacro,
     Bin,
     Example,
