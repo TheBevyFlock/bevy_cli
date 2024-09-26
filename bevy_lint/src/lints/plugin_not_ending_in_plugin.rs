@@ -28,9 +28,12 @@ impl<'tcx> LateLintPass<'tcx> for PluginNotEndingInPlugin {
             && let Res::Def(_, def_id) = of_trait.path.res
             // ...where the trait being implemented is Bevy's `Plugin`...
             && match_def_path(cx, def_id, &crate::paths::PLUGIN)
-            // ...and the type the trait is being implemented for has a user-defined name. See
-            // `extract_path_from_hir_ty`'s documentation for more info on what this does.
-            && let Some(self_path) = extract_path_from_hir_ty(impl_.self_ty)
+            // ...and the type `Plugin` is being implemented for is a path to a user-defined type.
+            // This purposefully evaluates as false for references, since implementing `Plugin` for
+            // them is useless due to `Plugin`'s `'static` requirement. The other kinds of types,
+            // such as lang items and primitives, are also skipped because they cannot be easily
+            // renamed.
+            && let TyKind::Path(QPath::Resolved(_, self_path)) = impl_.self_ty.kind
         {
             // Find the last segment of the path, such as `Foo` for `bar::baz::Foo`. This is
             // considered the name of the type.
@@ -50,29 +53,5 @@ impl<'tcx> LateLintPass<'tcx> for PluginNotEndingInPlugin {
                 PLUGIN_NOT_ENDING_IN_PLUGIN.lint.desc,
             );
         }
-    }
-}
-
-/// A best-effort utilitiy that tries to extract the [`Path`] of an HIR [`Ty`] if the name can
-/// easily be changed by the user.
-///
-/// Kinds of types that are extracted are paths (`module::submodule::Type`) and references to paths
-/// (`&module::Type` or `*const Type`). Types that are not extracted, and just return [`None`],
-/// include slices (`[T]`), trait objects (`dyn Trait`), tuples (`(A, B, ...)`), and more.
-fn extract_path_from_hir_ty<'tcx>(hir_ty: &Ty<'tcx>) -> Option<&'tcx Path<'tcx>> {
-    match hir_ty.kind {
-        // The type is a path, such as `module::Type`.
-        TyKind::Path(qpath) => match qpath {
-            // If the qualified path points to a resolved piece of code, return that path.
-            QPath::Resolved(_, path) => Some(path),
-            // The alternatives are lang items (which cannot be renamed without `#![no_core]`) and
-            // relative paths (`<T>::AssociatedType`), which also cannot be renamed easily.
-            _ => None,
-        },
-        // If the type is a reference or pointer, recursively check the inner type. For instance,
-        // `*const module::Type` would return `module::Type`, while `&[usize; 10]` would return
-        // `None` because `[usize; 10]` returns `None`.
-        TyKind::Ref(_, mut_ty) | TyKind::Ptr(mut_ty) => extract_path_from_hir_ty(mut_ty.ty),
-        _ => None,
     }
 }
