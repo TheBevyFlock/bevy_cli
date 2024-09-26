@@ -38,12 +38,15 @@ where
 #[derive(Debug, Deserialize)]
 pub struct Metadata {
     /// List of all packages in the workspace.
-    /// It also includes all feature-enabled dependencies unless --no-deps is used.
+    ///
+    /// It also includes all feature-enabled dependencies unless `--no-deps` is used.
     packages: Vec<Package>,
     /// List of members of the workspace.
+    ///
     /// Each entry is the Package ID for the package.
     workspace_members: Option<Vec<String>>,
     /// List of default members of the workspace.
+    ///
     /// Each entry is the Package ID for the package.
     workspace_default_members: Option<Vec<String>>,
     /// The absolute path to the build directory where Cargo places its output.
@@ -74,14 +77,17 @@ pub struct Dependency {
     /// The name of the dependency.
     name: String,
     /// The version requirement for the dependency.
-    /// Dependencies without a version requirement have a value of "*".
+    ///
+    /// Dependencies without a version requirement have a value of `*`.
     #[serde(default)]
     req: VersionReq,
     /// The dependency kind.
-    /// "dev", "build", or null for a normal dependency.
+    ///
+    /// `"dev"`, `"build"`, or `null` for a normal dependency.
     #[serde(default)]
     kind: DependencyKind,
     /// The file system path for a local path dependency.
+    ///
     /// Not present if not a path dependency.
     path: Option<PathBuf>,
 }
@@ -101,6 +107,7 @@ pub enum DependencyKind {
 pub struct Target {
     kind: Vec<TargetKind>,
     /// The name of the target.
+    ///
     /// For lib targets, dashes will be replaced with underscores.
     name: String,
 }
