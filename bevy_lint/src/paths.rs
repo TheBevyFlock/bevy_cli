@@ -8,3 +8,4 @@
 
 pub const APP: [&str; 3] = ["bevy_app", "app", "App"];
 pub const EVENTS: [&str; 3] = ["bevy_ecs", "event", "Events"];
+pub const PLUGIN: [&str; 3] = ["bevy_app", "plugin", "Plugin"];
