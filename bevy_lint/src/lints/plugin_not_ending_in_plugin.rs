@@ -1,8 +1,11 @@
 //! TODO
 
 use crate::declare_bevy_lint;
-use clippy_utils::{diagnostics::span_lint, match_def_path};
-use rustc_hir::{def::Res, Item, ItemKind, Path, QPath, Ty, TyKind};
+use clippy_utils::{
+    diagnostics::span_lint_and_then, match_def_path, path_res, source::snippet_opt,
+};
+use rustc_errors::Applicability;
+use rustc_hir::{def::Res, Item, ItemKind, QPath, TyKind};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_session::declare_lint_pass;
 
@@ -46,11 +49,29 @@ impl<'tcx> LateLintPass<'tcx> for PluginNotEndingInPlugin {
                 return;
             }
 
-            span_lint(
+            // Resolve the `DefId` of our HIR `Ty`, then lookup the symbol and span if it exists.
+            // We use this to add an optional suggestion for renaming the type.
+            let source_definition = path_res(cx, impl_.self_ty)
+                .opt_def_id()
+                .and_then(|did| cx.tcx.opt_item_ident(did));
+
+            span_lint_and_then(
                 cx,
                 PLUGIN_NOT_ENDING_IN_PLUGIN.lint,
                 self_path.span,
                 PLUGIN_NOT_ENDING_IN_PLUGIN.lint.desc,
+                |diag| {
+                    if let Some(source_definition) = source_definition
+                        && let Some(name) = snippet_opt(cx, source_definition.span)
+                    {
+                        diag.span_suggestion(
+                            source_definition.span,
+                            "rename the plugin",
+                            format!("{name}Plugin"),
+                            Applicability::MaybeIncorrect,
+                        );
+                    }
+                },
             );
         }
     }
