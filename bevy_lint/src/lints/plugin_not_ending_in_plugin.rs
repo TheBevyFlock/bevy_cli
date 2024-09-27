@@ -38,13 +38,12 @@
 //! ```
 
 use crate::declare_bevy_lint;
-use clippy_utils::{
-    diagnostics::span_lint_and_then, match_def_path, path_res, source::snippet_opt,
-};
+use clippy_utils::{diagnostics::span_lint_and_then, match_def_path, path_res};
 use rustc_errors::Applicability;
-use rustc_hir::{def::Res, Item, ItemKind, QPath, TyKind};
+use rustc_hir::{def::Res, Item, ItemKind};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_session::declare_lint_pass;
+use rustc_span::symbol::Ident;
 
 declare_bevy_lint! {
     pub PLUGIN_NOT_ENDING_IN_PLUGIN,
@@ -58,9 +57,9 @@ declare_lint_pass! {
 
 impl<'tcx> LateLintPass<'tcx> for PluginNotEndingInPlugin {
     fn check_item(&mut self, cx: &LateContext<'tcx>, item: &Item<'tcx>) {
-        // Find `impl T` items...
+        // Find `impl` items...
         if let ItemKind::Impl(impl_) = item.kind
-            // ...that implement a trait for `T`...
+            // ...that implement a trait...
             && let Some(of_trait) = impl_.of_trait
             // ...where the trait is a path to user code... (I don't believe this will ever be
             // false, since the alternatives are primitives, `Self`, and others that wouldn't make
@@ -68,46 +67,40 @@ impl<'tcx> LateLintPass<'tcx> for PluginNotEndingInPlugin {
             && let Res::Def(_, def_id) = of_trait.path.res
             // ...where the trait being implemented is Bevy's `Plugin`...
             && match_def_path(cx, def_id, &crate::paths::PLUGIN)
-            // ...and the type `Plugin` is being implemented for is a path to a user-defined type.
-            // This purposefully evaluates as false for references, since implementing `Plugin` for
-            // them is useless due to `Plugin`'s `'static` requirement. The other kinds of types,
-            // such as lang items and primitives, are also skipped because they cannot be easily
-            // renamed.
-            && let TyKind::Path(QPath::Resolved(_, self_path)) = impl_.self_ty.kind
         {
-            // Find the last segment of the path, such as `Foo` for `bar::baz::Foo`. This is
-            // considered the name of the type.
-            let Some(self_name) = self_path.segments.last() else {
+            // Try to resolve the original definition of this type, finding its original name and
+            // span. (We don't use the name from the path, since that can be spoofed through
+            // `use Foo as FooPlugin`.)
+            let Some(Ident {
+                name: self_name,
+                span: self_span,
+            }) = path_res(cx, impl_.self_ty)
+                .opt_def_id()
+                .and_then(|def_id| cx.tcx.opt_item_ident(def_id))
+            else {
                 return;
             };
 
-            // If the name ends with "Plugin", do not emit a lint.
-            if self_name.ident.as_str().ends_with("Plugin") {
+            // If the type's name ends in "Plugin", exit.
+            if self_name.as_str().ends_with("Plugin") {
                 return;
             }
-
-            // Resolve the `DefId` of our HIR `Ty`, then lookup the symbol and span if it exists.
-            // We use this to add an optional suggestion for renaming the type.
-            let source_definition = path_res(cx, impl_.self_ty)
-                .opt_def_id()
-                .and_then(|did| cx.tcx.opt_item_ident(did));
 
             span_lint_and_then(
                 cx,
                 PLUGIN_NOT_ENDING_IN_PLUGIN.lint,
-                self_path.span,
+                self_span,
                 PLUGIN_NOT_ENDING_IN_PLUGIN.lint.desc,
                 |diag| {
-                    if let Some(source_definition) = source_definition
-                        && let Some(name) = snippet_opt(cx, source_definition.span)
-                    {
-                        diag.span_suggestion(
-                            source_definition.span,
-                            "rename the plugin",
-                            format!("{name}Plugin"),
-                            Applicability::MaybeIncorrect,
-                        );
-                    }
+                    diag.span_suggestion(
+                        self_span,
+                        "rename the plugin",
+                        format!("{self_name}Plugin"),
+                        // There may be other references that also need to be renamed.
+                        Applicability::MaybeIncorrect,
+                    );
+
+                    diag.span_help(item.span, "`Plugin` implemented here");
                 },
             );
         }
