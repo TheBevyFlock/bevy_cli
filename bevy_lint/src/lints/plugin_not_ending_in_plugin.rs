@@ -74,15 +74,30 @@ impl<'tcx> LateLintPass<'tcx> for PluginNotEndingInPlugin {
             // ...where the trait being implemented is Bevy's `Plugin`...
             && match_def_path(cx, def_id, &crate::paths::PLUGIN)
         {
-            // Try to resolve the original definition of this type, finding its original name and
-            // span. (We don't use the name from the path, since that can be spoofed through
-            // `use Foo as FooPlugin`.)
+            // Try to resolve where this type was originally defined. This will result in a `DefId`
+            // pointing to the original `struct Foo` definition, or `impl <T>` if it's a generic
+            // parameter.
+            let Some(def_id) = path_res(cx, impl_.self_ty).opt_def_id() else {
+                return;
+            };
+
+            // If this type is a generic parameter, exit. Their names, such as `T`, cannot be
+            // referenced by others.
+            if impl_
+                .generics
+                .params
+                .iter()
+                .any(|param| param.def_id.to_def_id() == def_id)
+            {
+                return;
+            }
+
+            // Find the original name and span of the type. (We don't use the name from the path,
+            // since that can be spoofed through `use Foo as FooPlugin`.)
             let Some(Ident {
                 name: self_name,
                 span: self_span,
-            }) = path_res(cx, impl_.self_ty)
-                .opt_def_id()
-                .and_then(|def_id| cx.tcx.opt_item_ident(def_id))
+            }) = cx.tcx.opt_item_ident(def_id)
             else {
                 return;
             };
