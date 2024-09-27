@@ -1,4 +1,14 @@
-//! TODO
+//! Checks for types who implement `Plugin` whose names do not end in "Plugin".
+//!
+//! This does _not_ check function-style plugins, only structures with `Plugin` explicitly
+//! implemented with `impl Plugin for T`.
+//!
+//! # Motivation
+//!
+//! It is common practice to suffix all plugin names with "Plugin", since doing so signals the
+//! primary purpose of the type. As compared to traits like [`Clone`] and `Serialize`, the primary
+//! purpose of a type that implements `Plugin` is to be a Bevy plugin, which is why a distinction
+//! is made in the name.
 
 use crate::declare_bevy_lint;
 use clippy_utils::{
