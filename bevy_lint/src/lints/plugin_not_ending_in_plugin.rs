@@ -9,6 +9,12 @@
 //! `Plugin` is to be a Bevy plugin. As such, it is common practice to suffix plugin names with
 //! "Plugin" to signal how they should be used.
 //!
+//! # Known issues
+//!
+//! Due to technical reasons, if you wish to silence this lint you need to annotate the
+//! `impl Plugin for T` line with `#[allow(bevy::plugin_not_ending_in_plugin)]`, not the `struct T`
+//! line.
+//!
 //! # Example
 //!
 //! ```
