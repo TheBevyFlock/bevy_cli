@@ -1,14 +1,41 @@
-//! Checks for types who implement `Plugin` whose names do not end in "Plugin".
+//! Checks for types who implement `Plugin` but whose names does not end in "Plugin".
 //!
-//! This does _not_ check function-style plugins, only structures with `Plugin` explicitly
-//! implemented with `impl Plugin for T`.
+//! This does _not_ check function-style plugins (`fn plugin(app: &mut App)`), only structures with
+//! `Plugin` explicitly implemented with `impl Plugin for T`.
 //!
 //! # Motivation
 //!
-//! It is common practice to suffix all plugin names with "Plugin", since doing so signals the
-//! primary purpose of the type. As compared to traits like [`Clone`] and `Serialize`, the primary
-//! purpose of a type that implements `Plugin` is to be a Bevy plugin, which is why a distinction
-//! is made in the name.
+//! Unlike traits like [`Clone`] or [`Debug`], the primary purpose of a type that implements
+//! `Plugin` is to be a Bevy plugin. As such, it is common practice to suffix plugin names with
+//! "Plugin" to signal how they should be used.
+//!
+//! # Example
+//!
+//! ```
+//! # use bevy::prelude::*;
+//! #
+//! struct Physics;
+//!
+//! impl Plugin for Physics {
+//!     fn build(&self, app: &mut App) {
+//!         // ...
+//!     }
+//! }
+//! ```
+//!
+//! Use instead:
+//!
+//! ```
+//! # use bevy::prelude::*;
+//! #
+//! struct PhysicsPlugin;
+//!
+//! impl Plugin for PhysicsPlugin {
+//!     fn build(&self, app: &mut App) {
+//!         // ...
+//!     }
+//! }
+//! ```
 
 use crate::declare_bevy_lint;
 use clippy_utils::{
