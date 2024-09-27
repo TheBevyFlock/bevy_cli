@@ -113,7 +113,7 @@ impl<'tcx> LateLintPass<'tcx> for PanickingMethods {
             // dereference the source.
             let src_ty = cx.typeck_results().expr_ty(src).peel_refs();
 
-            // Check if `src` is a panicking type (e.g. `Query`), else exit.
+            // Check if `src` is a type that has panicking methods (e.g. `Query`), else exit.
             let Some(panicking_type) = PanickingType::try_from_ty(cx, src_ty) else {
                 return;
             };
@@ -192,7 +192,7 @@ enum PanickingType {
 }
 
 impl PanickingType {
-    /// Returns [`Self`] if the type matches Bevy's `Query` or `QueryState` types.
+    /// Returns the corresponding variant for the given [`Ty`], if it is supported by this lint.
     fn try_from_ty<'tcx>(cx: &LateContext<'tcx>, ty: Ty<'tcx>) -> Option<Self> {
         if match_type(cx, ty, &crate::paths::QUERY) {
             Some(Self::Query)
@@ -205,8 +205,7 @@ impl PanickingType {
         }
     }
 
-    /// Returns a list of panicking `Query` or `QueryState` methods and their non-panicking
-    /// alternatives.
+    /// Returns a list of panicking methods for each of the supported types.
     ///
     /// Each item in the returned [`slice`] is of the format
     /// `(panicking_method, alternative_method)`.
