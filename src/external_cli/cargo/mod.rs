@@ -6,6 +6,7 @@ use super::arg_builder::ArgBuilder;
 
 pub(crate) mod build;
 pub(crate) mod install;
+pub(crate) mod metadata;
 
 fn program() -> OsString {
     env::var_os("BEVY_CLI_CARGO").unwrap_or("cargo".into())

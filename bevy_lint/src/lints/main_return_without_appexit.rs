@@ -11,7 +11,7 @@
 //!
 //! # Example
 //!
-//! ```rust
+//! ```
 //! # use bevy::prelude::*;
 //! #
 //! fn main() {
@@ -21,7 +21,7 @@
 //!
 //! Use instead:
 //!
-//! ```rust
+//! ```
 //! # use bevy::prelude::*;
 //! #
 //! fn main() -> AppExit {
@@ -30,6 +30,7 @@
 //! }
 //! ```
 
+use crate::declare_bevy_lint;
 use clippy_utils::{
     diagnostics::span_lint_and_then, is_entrypoint_fn, sym, ty::match_type, visitors::for_each_expr,
 };
@@ -38,18 +39,18 @@ use rustc_hir::{
     def_id::LocalDefId, intravisit::FnKind, Body, ExprKind, FnDecl, FnRetTy, Ty, TyKind,
 };
 use rustc_lint::{LateContext, LateLintPass};
-use rustc_session::{declare_lint_pass, declare_tool_lint};
+use rustc_session::declare_lint_pass;
 use rustc_span::Span;
 use std::ops::ControlFlow;
 
-declare_tool_lint! {
-    pub bevy::MAIN_RETURN_WITHOUT_APPEXIT,
-    Warn,
-    "an entrypoint that calls `App::run()` does not return `AppExit`"
+declare_bevy_lint! {
+    pub MAIN_RETURN_WITHOUT_APPEXIT,
+    PEDANTIC,
+    "an entrypoint that calls `App::run()` does not return `AppExit`",
 }
 
 declare_lint_pass! {
-    MainReturnWithoutAppExit => [MAIN_RETURN_WITHOUT_APPEXIT]
+    MainReturnWithoutAppExit => [MAIN_RETURN_WITHOUT_APPEXIT.lint]
 }
 
 impl<'tcx> LateLintPass<'tcx> for MainReturnWithoutAppExit {
@@ -89,9 +90,9 @@ impl<'tcx> LateLintPass<'tcx> for MainReturnWithoutAppExit {
                     if match_type(cx, ty, &crate::paths::APP) {
                         span_lint_and_then(
                             cx,
-                            MAIN_RETURN_WITHOUT_APPEXIT,
+                            MAIN_RETURN_WITHOUT_APPEXIT.lint,
                             method_span,
-                            MAIN_RETURN_WITHOUT_APPEXIT.desc,
+                            MAIN_RETURN_WITHOUT_APPEXIT.lint.desc,
                             |diag| {
                                 diag.note("`App::run()` returns `AppExit`, which can be used to determine whether the app exited successfully or not");
                                 match declaration.output {

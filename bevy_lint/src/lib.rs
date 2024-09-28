@@ -16,6 +16,8 @@ extern crate rustc_session;
 extern crate rustc_span;
 
 mod callback;
+pub mod groups;
+mod lint;
 pub mod lints;
 mod paths;
 
