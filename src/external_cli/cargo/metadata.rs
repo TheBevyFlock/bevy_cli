@@ -1,3 +1,4 @@
+#![expect(dead_code, reason = "Will be used for bevy bump and perhaps bevy run")]
 use std::{ffi::OsStr, path::PathBuf, process::Command};
 
 use semver::{Version, VersionReq};
