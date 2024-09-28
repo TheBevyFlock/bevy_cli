@@ -15,7 +15,7 @@
 //!
 //! # Example
 //!
-//! ```rust
+//! ```
 //! # use bevy::prelude::*;
 //! #
 //! #[derive(Event)]
@@ -26,7 +26,7 @@
 //!
 //! Use instead:
 //!
-//! ```rust
+//! ```
 //! # use bevy::prelude::*;
 //! #
 //! #[derive(Event)]
@@ -35,6 +35,7 @@
 //! App::new().add_event::<MyEvent>().run();
 //! ```
 
+use crate::declare_bevy_lint;
 use clippy_utils::{
     diagnostics::span_lint_and_sugg, source::snippet_with_applicability, sym, ty::match_type,
 };
@@ -43,18 +44,18 @@ use rustc_hir::{Expr, ExprKind, GenericArg, GenericArgs, Path, PathSegment, QPat
 use rustc_hir_analysis::lower_ty;
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::{Ty, TyKind};
-use rustc_session::{declare_lint_pass, declare_tool_lint};
+use rustc_session::declare_lint_pass;
 use rustc_span::Span;
 use std::borrow::Cow;
 
-declare_tool_lint! {
-    pub bevy::INSERT_EVENT_RESOURCE,
-    Deny,
-    "called `App::insert_resource(Events<T>)` or `App::init_resource::<Events<T>>()` instead of `App::add_event::<T>()`"
+declare_bevy_lint! {
+    pub INSERT_EVENT_RESOURCE,
+    SUSPICIOUS,
+    "called `App::insert_resource(Events<T>)` or `App::init_resource::<Events<T>>()` instead of `App::add_event::<T>()`",
 }
 
 declare_lint_pass! {
-    InsertEventResource => [INSERT_EVENT_RESOURCE]
+    InsertEventResource => [INSERT_EVENT_RESOURCE.lint]
 }
 
 impl<'tcx> LateLintPass<'tcx> for InsertEventResource {
@@ -103,7 +104,7 @@ fn check_insert_resource(cx: &LateContext<'_>, args: &[Expr], method_span: Span)
 
         span_lint_and_sugg(
             cx,
-            INSERT_EVENT_RESOURCE,
+            INSERT_EVENT_RESOURCE.lint,
             method_span,
             "called `App::insert_resource(Events<T>)` instead of `App::add_event::<T>()`",
             "inserting an `Events` resource does not fully setup that event",
@@ -165,7 +166,7 @@ fn check_init_resource<'tcx>(cx: &LateContext<'tcx>, path: &PathSegment<'tcx>, m
 
             span_lint_and_sugg(
                 cx,
-                INSERT_EVENT_RESOURCE,
+                INSERT_EVENT_RESOURCE.lint,
                 method_span,
                 "called `App::init_resource::<Events<T>>()` instead of `App::add_event::<T>()`",
                 "inserting an `Events` resource does not fully setup that event",

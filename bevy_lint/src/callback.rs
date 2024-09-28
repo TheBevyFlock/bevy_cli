@@ -15,8 +15,9 @@ impl Callbacks for BevyLintCallback {
                 (previous)(session, store);
             }
 
-            store.register_lints(crate::lints::LINTS);
+            crate::lints::register_lints(store);
             crate::lints::register_passes(store);
+            crate::groups::register_groups(store);
         }));
     }
 }

@@ -6,6 +6,7 @@ use clap::{ArgAction, Args};
 use super::arg_builder::ArgBuilder;
 
 pub(crate) mod build;
+pub(crate) mod metadata;
 pub(crate) mod run;
 
 fn program() -> OsString {
