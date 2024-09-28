@@ -1,5 +1,5 @@
 use crate::{
-    external_cli::{cargo, rustup, wasm_bindgen},
+    external_cli::{cargo, rustup, wasm_bindgen, CommandHelpers},
     manifest::package_name,
 };
 
@@ -8,21 +8,19 @@ pub use self::args::BuildArgs;
 mod args;
 
 pub fn build(args: &BuildArgs) -> anyhow::Result<()> {
-    if args.is_web() {
-        ensure_web_setup()?;
-    }
-
     let cargo_args = args.cargo_args_builder();
 
     if args.is_web() {
+        ensure_web_setup()?;
+
         println!("Building for WASM...");
-        cargo::build::command().args(cargo_args).status()?;
+        cargo::build::command().args(cargo_args).ensure_status()?;
 
         println!("Bundling for the web...");
         wasm_bindgen::bundle(&package_name()?, args.profile())
             .expect("Failed to bundle for the web");
     } else {
-        cargo::build::command().args(cargo_args).status()?;
+        cargo::build::command().args(cargo_args).ensure_status()?;
     }
 
     Ok(())
