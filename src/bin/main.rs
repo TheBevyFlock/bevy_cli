@@ -1,5 +1,5 @@
 use anyhow::Result;
-use bevy_cli::build::{build, BuildArgs};
+use bevy_cli::build::BuildArgs;
 use clap::{Args, Parser, Subcommand};
 
 fn main() -> Result<()> {
@@ -10,7 +10,7 @@ fn main() -> Result<()> {
             bevy_cli::template::generate_template(&new.name, &new.template, &new.branch)?;
         }
         Subcommands::Lint { args } => bevy_cli::lint::lint(args)?,
-        Subcommands::Build(args) => build(&args)?,
+        Subcommands::Build(args) => bevy_cli::build::build(&args)?,
     }
 
     Ok(())
