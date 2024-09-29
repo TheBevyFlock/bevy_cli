@@ -1,5 +1,3 @@
-#![expect(dead_code, reason = "Will be used for the build/run commands")]
-
 use std::process::Command;
 
 use super::arg_builder::ArgBuilder;

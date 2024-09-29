@@ -258,6 +258,7 @@ dependencies = [
  "semver",
  "serde",
  "serde_json",
+ "toml_edit 0.22.21",
 ]
 
 [[package]]
