@@ -4,6 +4,8 @@ use std::{
     process::{Command, ExitCode},
 };
 
+const RUST_TOOLCHAIN: &str = "nightly-2024-08-21";
+
 fn main() -> anyhow::Result<ExitCode> {
     // The `bevy_lint` lives in the same folder as `bevy_lint_driver`, so we can easily find it
     // using the path of the current executable.
@@ -28,6 +30,7 @@ fn main() -> anyhow::Result<ExitCode> {
 
     // Run `cargo check`.
     let status = Command::new("cargo")
+        .arg(format!("+{RUST_TOOLCHAIN}"))
         .arg("check")
         // Forward all arguments to `cargo check` except for the first, which is the path to the
         // current executable.
