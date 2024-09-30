@@ -4,6 +4,7 @@ use std::{
     process::{Command, ExitCode},
 };
 
+// This is set by `build.rs`. It is the version specified in `rust-toolchain.toml`.
 const RUST_TOOLCHAIN_CHANNEL: &str = env!("RUST_TOOLCHAIN_CHANNEL");
 
 fn main() -> anyhow::Result<ExitCode> {
