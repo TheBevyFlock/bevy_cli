@@ -98,7 +98,13 @@ impl ArgBuilder {
         V: Into<String>,
     {
         let values: Vec<String> = value_list.into_iter().map(|val| val.into()).collect();
-        self.add_with_value(name, values.join(","))
+
+        // If there are no values to add, omit the name of the argument as well
+        if values.is_empty() {
+            self
+        } else {
+            self.add_with_value(name, values.join(","))
+        }
     }
 
     /// Add all arguments from the other builder to this one.
@@ -193,6 +199,15 @@ mod tests {
         assert_eq!(
             args.into_iter().collect::<Vec<String>>(),
             vec!["--features", "dev,file_watcher"]
+        );
+    }
+
+    #[test]
+    fn add_value_list_empty_list_no_changes() {
+        let args = ArgBuilder::new().add_value_list("--features", Vec::<String>::new());
+        assert_eq!(
+            args.into_iter().collect::<Vec<String>>(),
+            Vec::<String>::new()
         );
     }
 

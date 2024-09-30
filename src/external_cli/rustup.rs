@@ -1,7 +1,5 @@
 //! Utilities for the `rustup` CLI tool.
 
-#![expect(dead_code, reason = "Will be used for build/run commands")]
-
 use std::{env, ffi::OsString, process::Command};
 
 use dialoguer::Confirm;
