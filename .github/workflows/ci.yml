@@ -6,14 +6,36 @@ on:
   pull_request:
   workflow_dispatch:
 
-env:
-  # Keep this in sync with `rust-toolchain.toml`.
-  RUST_TOOLCHAIN: nightly-2024-08-21
-  RUST_COMPONENTS: rustc-dev, llvm-tools-preview
-
 jobs:
+  # Find the nightly Rust version and required components from `rust-toolchain.toml` using
+  # <https://taplo.tamasfe.dev>, so that we install can install them in later jobs.
+  extract-rust-version:
+    name: Extract Rust version
+    runs-on: ubuntu-latest
+    outputs:
+      channel: ${{ steps.toolchain.outputs.toolchain }}
+      components: ${{ steps.toolchain.outputs.components }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Taplo
+        run: |
+          curl -fsSL https://github.com/tamasfe/taplo/releases/latest/download/taplo-linux-x86_64.gz \
+            | gzip -d - | install -m 755 /dev/stdin /usr/local/bin/taplo
+
+      - name: Extract toolchain
+        id: toolchain
+        run: |
+          TOOLCHAIN=$(taplo get -f='rust-toolchain.toml' 'toolchain.channel')
+          COMPONENTS=$(taplo get -f='rust-toolchain.toml' --separator=', ' 'toolchain.components')
+
+          echo toolchain=$TOOLCHAIN >> $GITHUB_OUTPUT
+          echo components=$COMPONENTS >> $GITHUB_OUTPUT
+
   test:
     name: Run tests
+    needs: extract-rust-version
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
@@ -25,8 +47,8 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@master
         with:
-          toolchain: ${{ env.RUST_TOOLCHAIN }}
-          components: ${{ env.RUST_COMPONENTS }}
+          toolchain: ${{ needs.extract-rust-version.outputs.channel }}
+          components: ${{ needs.extract-rust-version.outputs.components }}
 
       - name: Cache build artifacts
         uses: Leafwing-Studios/cargo-cache@v2
@@ -42,6 +64,7 @@ jobs:
 
   clippy:
     name: Check with Clippy
+    needs: extract-rust-version
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -50,8 +73,8 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@master
         with:
-          toolchain: ${{ env.RUST_TOOLCHAIN }}
-          components: '${{ env.RUST_COMPONENTS }}, clippy'
+          toolchain: ${{ needs.extract-rust-version.outputs.channel }}
+          components: '${{ needs.extract-rust-version.outputs.components }}, clippy'
 
       - name: Cache build artifacts
         uses: Leafwing-Studios/cargo-cache@v2
@@ -63,6 +86,7 @@ jobs:
 
   rustfmt:
     name: Check with rustfmt
+    needs: extract-rust-version
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -71,14 +95,15 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@master
         with:
-          toolchain: ${{ env.RUST_TOOLCHAIN }}
-          components: '${{ env.RUST_COMPONENTS }}, rustfmt'
+          toolchain: ${{ needs.extract-rust-version.outputs.channel }}
+          components: '${{ needs.extract-rust-version.outputs.components }}, rustfmt'
 
       - name: Run rustfmt
         run: cargo fmt --all --check
 
   docs:
     name: Build docs
+    needs: extract-rust-version
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -87,8 +112,8 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@master
         with:
-          toolchain: ${{ env.RUST_TOOLCHAIN }}
-          components: ${{ env.RUST_COMPONENTS }}
+          toolchain: ${{ needs.extract-rust-version.outputs.channel }}
+          components: ${{ needs.extract-rust-version.outputs.components }}
 
       - name: Cache build artifacts
         uses: Leafwing-Studios/cargo-cache@v2
