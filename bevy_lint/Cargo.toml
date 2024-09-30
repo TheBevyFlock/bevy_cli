@@ -15,7 +15,7 @@ name = "bevy_lint_driver"
 path = "src/bin/driver.rs"
 
 [dependencies]
-# Easy error propagation and contexts
+# Easy error propagation and contexts.
 anyhow = "1.0.86"
 
 # Contains a series of useful utilities when writing lints. The version and commit were chosen to
@@ -25,6 +25,12 @@ anyhow = "1.0.86"
 version = "=0.1.82"
 git = "https://github.com/rust-lang/rust-clippy"
 rev = "e8ac4ea4187498052849531b86114a1eec5314a1"
+
+[build-dependencies]
+# Parse `rust-toolchain.toml` at build time.
+toml_edit = { version = "0.22.22", default-features = false, features = [
+    "parse",
+] }
 
 [dev-dependencies]
 # Used to test lints that need Bevy's types
