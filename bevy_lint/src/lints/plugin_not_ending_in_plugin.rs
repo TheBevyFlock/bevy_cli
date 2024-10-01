@@ -110,7 +110,7 @@ impl<'tcx> LateLintPass<'tcx> for PluginNotEndingInPlugin {
             span_lint_and_then(
                 cx,
                 PLUGIN_NOT_ENDING_IN_PLUGIN.lint,
-                self_span,
+                item.span,
                 PLUGIN_NOT_ENDING_IN_PLUGIN.lint.desc,
                 |diag| {
                     diag.span_suggestion(
@@ -120,8 +120,6 @@ impl<'tcx> LateLintPass<'tcx> for PluginNotEndingInPlugin {
                         // There may be other references that also need to be renamed.
                         Applicability::MaybeIncorrect,
                     );
-
-                    diag.span_help(item.span, "`Plugin` implemented here");
                 },
             );
         }
