@@ -14,6 +14,10 @@ path = "src/bin/main.rs"
 name = "bevy_lint_driver"
 path = "src/bin/driver.rs"
 
+[[test]]
+name = "ui"
+harness = false
+
 [dependencies]
 # Easy error propagation and contexts
 anyhow = "1.0.86"
@@ -29,6 +33,9 @@ rev = "e8ac4ea4187498052849531b86114a1eec5314a1"
 [dev-dependencies]
 # Used to test lints that need Bevy's types
 bevy = { version = "0.14.2", default-features = false }
+
+# Ensures the error messages for lints do not regress.
+ui_test = "0.26.5"
 
 [package.metadata.rust-analyzer]
 # Enables Rust-Analyzer support for `rustc` crates.
