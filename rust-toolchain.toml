@@ -1,5 +1,4 @@
-# If you modify this file, please also update `RUST_TOOLCHAIN` in `.github/workflows/ci.yml`, the
-# `clippy_utils` version in `bevy_lint/Cargo.toml`, and the toolchain in `README.md`.
+# If you modify this file, please also update the `clippy_utils` version in `bevy_lint/Cargo.toml`.
 
 [toolchain]
 # Writing custom lints requires using nightly Rust. We pin to a specific version of nightly version
