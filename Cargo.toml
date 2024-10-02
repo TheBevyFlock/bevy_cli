@@ -1,5 +1,5 @@
 [workspace]
-members = ["bevy_lint"]
+members = ["bevy_lint", "bevy_lint/tests/ui"]
 
 [package]
 name = "bevy_cli"

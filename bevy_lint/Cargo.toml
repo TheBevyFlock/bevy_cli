@@ -31,9 +31,6 @@ git = "https://github.com/rust-lang/rust-clippy"
 rev = "e8ac4ea4187498052849531b86114a1eec5314a1"
 
 [dev-dependencies]
-# Used to test lints that need Bevy's types
-bevy = { version = "0.14.2", default-features = false }
-
 # Ensures the error messages for lints do not regress.
 ui_test = "0.26.5"
 
