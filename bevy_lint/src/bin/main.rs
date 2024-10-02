@@ -4,6 +4,9 @@ use std::{
     process::{Command, ExitCode},
 };
 
+// This is set by `build.rs`. It is the version specified in `rust-toolchain.toml`.
+const RUST_TOOLCHAIN_CHANNEL: &str = env!("RUST_TOOLCHAIN_CHANNEL");
+
 fn main() -> anyhow::Result<ExitCode> {
     // The `bevy_lint` lives in the same folder as `bevy_lint_driver`, so we can easily find it
     // using the path of the current executable.
@@ -28,6 +31,7 @@ fn main() -> anyhow::Result<ExitCode> {
 
     // Run `cargo check`.
     let status = Command::new("cargo")
+        .arg(format!("+{RUST_TOOLCHAIN_CHANNEL}"))
         .arg("check")
         // Forward all arguments to `cargo check` except for the first, which is the path to the
         // current executable.
@@ -35,6 +39,15 @@ fn main() -> anyhow::Result<ExitCode> {
         // This instructs `rustc` to call `bevy_lint_driver` instead of its default routine.
         // This lets us register custom lints.
         .env("RUSTC_WORKSPACE_WRAPPER", driver_path)
+        // Pass `--cfg bevy_lint` so that programs can conditionally configure lints. If
+        // `RUSTFLAGS` is already set, we append `--cfg bevy_lint` to the end.
+        .env(
+            "RUSTFLAGS",
+            env::var("RUSTFLAGS").map_or("--cfg bevy_lint".to_string(), |mut flags| {
+                flags.push_str(" --cfg bevy_lint");
+                flags
+            }),
+        )
         .status()
         .context("Failed to spawn `cargo check`.")?;
 
