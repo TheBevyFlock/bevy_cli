@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Bevy App</title>
+    <style>
+      /* Styles for the loading screen */
+      :root {
+        --web-bg-color: #282828;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        border: 0;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+      }
+
+      .center {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+      }
+
+      #game {
+        background-color: var(--web-bg-color);
+      }
+
+      .spinner {
+        width: 128px;
+        height: 128px;
+        border: 64px solid transparent;
+        border-bottom-color: #ececec;
+        border-right-color: #b2b2b2;
+        border-top-color: #787878;
+        border-radius: 50%;
+        box-sizing: border-box;
+        animation: spin 1.2s linear infinite;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      #bevy {
+        /* Hide Bevy app before it loads */
+        height: 0;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="game" class="center">
+      <div id="loading-screen" class="center">
+        <span class="spinner"></span>
+      </div>
+
+      <canvas id="bevy">Javascript and canvas support is required</canvas>
+    </div>
+
+    <script type="module">
+      // Starting the game
+      import init from "./build/bevy_app.js";
+      init().catch((error) => {
+        if (
+          !error.message.startsWith(
+            "Using exceptions for control flow, don't mind me. This isn't actually an error!"
+          )
+        ) {
+          throw error;
+        }
+      });
+    </script>
+
+    <script type="module">
+      // Hide loading screen when the game starts.
+      const loading_screen = document.getElementById("loading-screen");
+      const bevy = document.getElementById("bevy");
+      const observer = new MutationObserver(() => {
+        if (bevy.height > 1) {
+          loading_screen.style.display = "none";
+          observer.disconnect();
+        }
+      });
+      observer.observe(bevy, { attributeFilter: ["height"] });
+    </script>
+
+    <script type="module">
+      // Script to restart the audio context
+      // Taken from https://developer.chrome.com/blog/web-audio-autoplay/#moving-forward
+      (function () {
+        // An array of all contexts to resume on the page
+        const audioContextList = [];
+
+        // An array of various user interaction events we should listen for
+        const userInputEventNames = [
+          "click",
+          "contextmenu",
+          "auxclick",
+          "dblclick",
+          "mousedown",
+          "mouseup",
+          "pointerup",
+          "touchend",
+          "keydown",
+          "keyup",
+        ];
+
+        // A proxy object to intercept AudioContexts and
+        // add them to the array for tracking and resuming later
+        self.AudioContext = new Proxy(self.AudioContext, {
+          construct(target, args) {
+            const result = new target(...args);
+            audioContextList.push(result);
+            return result;
+          },
+        });
+
+        // To resume all AudioContexts being tracked
+        function resumeAllContexts(event) {
+          let count = 0;
+
+          audioContextList.forEach((context) => {
+            if (context.state !== "running") {
+              context.resume();
+            } else {
+              count++;
+            }
+          });
+
+          // If all the AudioContexts have now resumed then we
+          // unbind all the event listeners from the page to prevent
+          // unnecessary resume attempts
+          if (count == audioContextList.length) {
+            userInputEventNames.forEach((eventName) => {
+              document.removeEventListener(eventName, resumeAllContexts);
+            });
+          }
+        }
+
+        // We bind the resume function for each user interaction
+        // event on the page
+        userInputEventNames.forEach((eventName) => {
+          document.addEventListener(eventName, resumeAllContexts);
+        });
+      })();
+    </script>
+  </body>
+</html>
