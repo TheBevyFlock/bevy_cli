@@ -1,7 +1,0 @@
-[package]
-name = "ui"
-edition = "2021"
-publish = false
-
-[dependencies]
-bevy = { version = "0.14.2", default-features = false }

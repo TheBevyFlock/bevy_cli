@@ -1,6 +1,6 @@
 #![feature(register_tool)]
 #![register_tool(bevy)]
-#![warn(bevy::pedantic)]
+#![warn(bevy::main_return_without_appexit)]
 
 use bevy::prelude::*;
 
