@@ -30,11 +30,9 @@ pub(crate) fn serve(port: u16, profile: &str) -> anyhow::Result<()> {
 
             // Serve the build artifacts at the `/build/*` route
             // A custom `index.html` will have to call `/build/bevy_app.js`
-            let js_path = Path::new("bevy_app.js");
-            let wasm_path = Path::new("bevy_app_bg.wasm");
             app = app.service(
                 actix_files::Files::new("/build", wasm_bindgen::get_target_folder(&profile))
-                    .path_filter(move |path, _| path == js_path || path == wasm_path),
+                    .path_filter(|path, _| wasm_bindgen::is_bindgen_artifact(path)),
             );
 
             // If the app has an assets folder, serve it under `/assets`
