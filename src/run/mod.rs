@@ -25,7 +25,7 @@ pub fn run(args: &RunArgs) -> anyhow::Result<()> {
         wasm_bindgen::bundle(&package_name()?, args.profile())?;
 
         let port = web_args.port;
-        let url = format!("http://127.0.0.1:{port}");
+        let url = format!("http://localhost:{port}");
 
         // Serving the app is blocking, so we open the page first
         if web_args.do_open {
