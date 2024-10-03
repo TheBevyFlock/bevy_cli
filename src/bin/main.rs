@@ -1,5 +1,5 @@
 use anyhow::Result;
-use bevy_cli::build::BuildArgs;
+use bevy_cli::{build::BuildArgs, run::RunArgs};
 use clap::{Args, Parser, Subcommand};
 
 fn main() -> Result<()> {
@@ -11,6 +11,7 @@ fn main() -> Result<()> {
         }
         Subcommands::Lint { args } => bevy_cli::lint::lint(args)?,
         Subcommands::Build(args) => bevy_cli::build::build(&args)?,
+        Subcommands::Run(args) => bevy_cli::run::run(&args)?,
     }
 
     Ok(())
@@ -29,16 +30,14 @@ pub struct Cli {
 }
 
 /// Available subcommands for `bevy`.
-#[expect(
-    clippy::large_enum_variant,
-    reason = "Only constructed once, not expected to have a performance impact."
-)]
 #[derive(Subcommand)]
 pub enum Subcommands {
     /// Create a new Bevy project from a specified template.
     New(NewArgs),
     /// Build your Bevy app.
     Build(BuildArgs),
+    /// Run your Bevy app.
+    Run(RunArgs),
     /// Check the current project using Bevy-specific lints.
     ///
     /// This command requires `bevy_lint` to be installed, and will fail if it is not. Please see

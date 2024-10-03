@@ -1,5 +1,3 @@
-#![expect(dead_code, reason = "Temporarily unused until #120 is merged.")]
-
 use std::process::Command;
 
 use clap::Args;
