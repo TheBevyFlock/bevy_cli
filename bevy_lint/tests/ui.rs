@@ -8,10 +8,13 @@ fn main() -> color_eyre::Result<()> {
 
 fn config() -> Config {
     Config {
+        // Make this an empty string, because `bevy_lint_driver` does not currently support the
+        // `--version` flag, which is required to auto-discover the host.
         host: Some(String::new()),
         program: {
             let mut p = CommandBuilder::rustc();
 
+            // Switch from raw `rustc` calls to `rustup run TOOLCHAIN bevy_lint_driver`.
             p.program = PathBuf::from("rustup");
 
             p.args = [
@@ -19,6 +22,7 @@ fn config() -> Config {
                 "nightly-2024-08-21",
                 "../target/debug/bevy_lint_driver",
                 "--error-format=json",
+                // This allows examples to `use bevy;`.
                 "-L",
                 "all=../target/debug/deps",
                 "--extern=bevy",
