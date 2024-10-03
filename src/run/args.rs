@@ -44,5 +44,5 @@ pub struct RunWebArgs {
 
     /// Open the app in the browser.
     #[arg(short = 'o', long = "open", action = ArgAction::SetTrue, default_value_t = false)]
-    pub do_open: bool,
+    pub open: bool,
 }

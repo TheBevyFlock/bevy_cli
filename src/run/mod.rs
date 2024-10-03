@@ -28,7 +28,7 @@ pub fn run(args: &RunArgs) -> anyhow::Result<()> {
         let url = format!("http://localhost:{port}");
 
         // Serving the app is blocking, so we open the page first
-        if web_args.do_open {
+        if web_args.open {
             match webbrowser::open(&url) {
                 Ok(()) => println!("Your app is running at <{url}>!"),
                 Err(error) => {
