@@ -29,13 +29,14 @@ pub fn run(args: &RunArgs) -> anyhow::Result<()> {
 
         // Serving the app is blocking, so we open the page first
         if web_args.do_open {
-            if webbrowser::open(&url).is_err() {
-                println!("Failed to open the browser automatically, open the app on <{url}>");
-            } else {
-                println!("Your app is running on <{url}>");
+            match webbrowser::open(&url) {
+                Ok(()) => println!("Your app is running at <{url}>!"),
+                Err(error) => {
+                    println!("Failed to open the browser automatically, open the app at <{url}>. (Error: {error:?}")
+                }
             }
         } else {
-            println!("Open your app on <{url}>");
+            println!("Open your app at <{url}>!");
         }
 
         serve::serve(port, args.profile())?;
