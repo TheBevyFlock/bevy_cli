@@ -1,6 +1,9 @@
 use std::path::{Path, PathBuf};
 use ui_test::{color_eyre::{self, eyre::ensure}, run_tests, CommandBuilder, Config};
 
+// This is set by `build.rs`. It is the version specified in `rust-toolchain.toml`.
+const RUST_TOOLCHAIN_CHANNEL: &str = env!("RUST_TOOLCHAIN_CHANNEL");
+
 fn main() -> color_eyre::Result<()> {
     let config = config()?;
     run_tests(config)
@@ -24,8 +27,7 @@ fn config() -> color_eyre::Result<Config> {
             program: "rustup".into(),
             args: vec![
                 "run".into(),
-                // TODO: Use `build.rs` to change this dynamically.
-                "nightly-2024-08-21".into(),
+                RUST_TOOLCHAIN_CHANNEL.into(),
                 DRIVER_PATH.into(),
                 // `bevy_lint_driver` expects the first argument to be the path to `rustc`.
                 "rustc".into(),
