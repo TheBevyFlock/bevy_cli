@@ -1,4 +1,4 @@
-warning: an entrypoint that calls `App::run()` does not return `AppExit`
+error: an entrypoint that calls `App::run()` does not return `AppExit`
  --> tests/ui/main_return_without_appexit.rs:8:16
   |
 7 | fn main() {
@@ -10,8 +10,8 @@ warning: an entrypoint that calls `App::run()` does not return `AppExit`
 note: the lint level is defined here
  --> tests/ui/main_return_without_appexit.rs:3:9
   |
-3 | #![warn(bevy::main_return_without_appexit)]
+3 | #![deny(bevy::main_return_without_appexit)]
   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-warning: 1 warning emitted
+error: aborting due to 1 previous error
 

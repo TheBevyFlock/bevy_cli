@@ -21,6 +21,7 @@ fn config() -> Config {
                 "run",
                 "nightly-2024-08-21",
                 "../target/debug/bevy_lint_driver",
+                "rustc",
                 "--error-format=json",
                 // This allows examples to `use bevy;`.
                 "-L",
