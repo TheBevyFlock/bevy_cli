@@ -11,28 +11,23 @@ fn config() -> Config {
         // Make this an empty string, because `bevy_lint_driver` does not currently support the
         // `--version` flag, which is required to auto-discover the host.
         host: Some(String::new()),
-        program: {
-            let mut p = CommandBuilder::rustc();
-
-            // Switch from raw `rustc` calls to `rustup run TOOLCHAIN bevy_lint_driver`.
-            p.program = PathBuf::from("rustup");
-
-            p.args = [
-                "run",
-                "nightly-2024-08-21",
-                "../target/debug/bevy_lint_driver",
-                "rustc",
-                "--error-format=json",
+        program: CommandBuilder {
+            program: "rustup".into(),
+            args: vec![
+                "run".into(),
+                "nightly-2024-08-21".into(),
+                "../target/debug/bevy_lint_driver".into(),
+                "rustc".into(),
+                "--error-format=json".into(),
                 // This allows examples to `use bevy;`.
-                "-L",
-                "all=../target/debug/deps",
-                "--extern=bevy",
-            ]
-            .into_iter()
-            .map(OsString::from)
-            .collect();
-
-            p
+                "-L".into(),
+                "all=../target/debug/deps".into(),
+                "--extern=bevy".into(),
+            ],
+            out_dir_flag: Some("--out-dir".into()),
+            input_file_flag: None,
+            envs: Vec::new(),
+            cfg_flag: Some("--print=cfg".into()),
         },
         out_dir: PathBuf::from("../target/ui"),
         ..Config::rustc("tests/ui")
