@@ -1,5 +1,8 @@
 use std::path::{Path, PathBuf};
-use ui_test::{color_eyre::{self, eyre::ensure}, run_tests, CommandBuilder, Config};
+use ui_test::{
+    color_eyre::{self, eyre::ensure},
+    run_tests, CommandBuilder, Config,
+};
 
 // This is set by `build.rs`. It is the version specified in `rust-toolchain.toml`.
 const RUST_TOOLCHAIN_CHANNEL: &str = env!("RUST_TOOLCHAIN_CHANNEL");
