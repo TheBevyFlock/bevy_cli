@@ -40,3 +40,10 @@ toml_edit = { version = "0.22.21", default-features = false, features = [
 
 # Understanding package versions
 semver = { version = "1.0.23", features = ["serde"] }
+
+# Serving the app for the browser
+actix-files = "0.6.6"
+actix-web = "4.9.0"
+
+# Opening the app in the browser
+webbrowser = "1.0.2"

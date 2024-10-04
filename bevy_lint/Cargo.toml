@@ -1,15 +1,21 @@
 [package]
 name = "bevy_lint"
 version = "0.1.0-dev"
+authors = ["BD103"]
 edition = "2021"
+description = "A collection of lints for the Bevy game engine"
+repository = "https://github.com/TheBevyFlock/bevy_cli"
 license = "MIT OR Apache-2.0"
+# While there are two binaries available, only `bevy_lint` is intended to be called by users.
 default-run = "bevy_lint"
 
+# The main entrypoint for using Bevy lints. This program is intended to be called by users.
 [[bin]]
 name = "bevy_lint"
 path = "src/bin/main.rs"
 
-# Integrates custom lints with `rustc`.
+# The internal program called by `cargo` instead of `rustc`. While this is where the lints are
+# registered, it is not intended to be called by users.
 [[bin]]
 name = "bevy_lint_driver"
 path = "src/bin/driver.rs"
@@ -19,7 +25,7 @@ name = "ui"
 harness = false
 
 [dependencies]
-# Easy error propagation and contexts
+# Easy error propagation and contexts.
 anyhow = "1.0.86"
 
 # Contains a series of useful utilities when writing lints. The version and commit were chosen to
@@ -29,6 +35,12 @@ anyhow = "1.0.86"
 version = "=0.1.82"
 git = "https://github.com/rust-lang/rust-clippy"
 rev = "e8ac4ea4187498052849531b86114a1eec5314a1"
+
+[build-dependencies]
+# Parse `rust-toolchain.toml` at build time.
+toml_edit = { version = "0.22.22", default-features = false, features = [
+    "parse",
+] }
 
 [dev-dependencies]
 # Used when running UI tests.
