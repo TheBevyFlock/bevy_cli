@@ -38,8 +38,6 @@ fn main() -> ExitCode {
         // path so that `RunCompiler` just sees `rustc`'s path.
         args.remove(0);
 
-        println!("{:?}", args);
-
         // Call the compiler with our custom callback.
         RunCompiler::new(&args, &mut BevyLintCallback).run()
     });
