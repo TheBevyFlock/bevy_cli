@@ -41,56 +41,56 @@ pub struct Metadata {
     /// List of all packages in the workspace.
     ///
     /// It also includes all feature-enabled dependencies unless `--no-deps` is used.
-    packages: Vec<Package>,
+    pub packages: Vec<Package>,
     /// List of members of the workspace.
     ///
     /// Each entry is the Package ID for the package.
-    workspace_members: Option<Vec<String>>,
+    pub workspace_members: Option<Vec<String>>,
     /// List of default members of the workspace.
     ///
     /// Each entry is the Package ID for the package.
-    workspace_default_members: Option<Vec<String>>,
+    pub workspace_default_members: Option<Vec<String>>,
     /// The absolute path to the build directory where Cargo places its output.
-    target_directory: PathBuf,
+    pub target_directory: PathBuf,
     /// The absolute path to the root of the workspace.
-    workspace_root: Option<PathBuf>,
+    pub workspace_root: Option<PathBuf>,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct Package {
     /// The name of the package.
-    name: String,
+    pub name: String,
     /// The version of the package.
-    version: Version,
+    pub version: Version,
     /// The Package ID for referring to the package within the document and as the `--package`
     /// argument to many commands.
-    id: String,
+    pub id: String,
     /// List of Cargo targets.
-    targets: Vec<Target>,
+    pub targets: Vec<Target>,
     /// Absolute path to this package's manifest.
-    manifest_path: PathBuf,
+    pub manifest_path: PathBuf,
     /// Optional string that is the default binary picked by cargo run.
-    default_run: Option<String>,
+    pub default_run: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct Dependency {
     /// The name of the dependency.
-    name: String,
+    pub name: String,
     /// The version requirement for the dependency.
     ///
     /// Dependencies without a version requirement have a value of `*`.
     #[serde(default)]
-    req: VersionReq,
+    pub req: VersionReq,
     /// The dependency kind.
     ///
     /// `"dev"`, `"build"`, or `null` for a normal dependency.
     #[serde(default)]
-    kind: DependencyKind,
+    pub kind: DependencyKind,
     /// The file system path for a local path dependency.
     ///
     /// Not present if not a path dependency.
-    path: Option<PathBuf>,
+    pub path: Option<PathBuf>,
 }
 
 #[derive(Debug, Deserialize, Default)]
@@ -106,11 +106,11 @@ pub enum DependencyKind {
 
 #[derive(Debug, Deserialize)]
 pub struct Target {
-    kind: Vec<TargetKind>,
+    pub kind: Vec<TargetKind>,
     /// The name of the target.
     ///
     /// For lib targets, dashes will be replaced with underscores.
-    name: String,
+    pub name: String,
 }
 
 #[derive(Debug, Deserialize)]
