@@ -117,8 +117,7 @@ fn find_bevy_rlib() -> color_eyre::Result<PathBuf> {
     let rlib = messages[0]
         .filenames
         .iter()
-        .filter(|p| p.extension() == Some(OsStr::new("rlib")))
-        .next()
+        .find(|p| p.extension() == Some(OsStr::new("rlib")))
         .unwrap();
 
     Ok(rlib.to_path_buf())
