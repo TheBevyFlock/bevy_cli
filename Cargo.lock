@@ -634,6 +634,8 @@ dependencies = [
  "anyhow",
  "bevy",
  "clippy_utils",
+ "serde",
+ "serde_json",
  "toml_edit 0.22.22",
  "ui_test",
 ]
