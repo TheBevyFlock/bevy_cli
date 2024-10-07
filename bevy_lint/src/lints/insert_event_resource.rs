@@ -41,7 +41,6 @@ use clippy_utils::{
 };
 use rustc_errors::Applicability;
 use rustc_hir::{Expr, ExprKind, GenericArg, GenericArgs, Path, PathSegment, QPath};
-use rustc_hir_analysis::lower_ty;
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::{Ty, TyKind};
 use rustc_session::declare_lint_pass;
@@ -153,9 +152,7 @@ fn check_init_resource<'tcx>(cx: &LateContext<'tcx>, path: &PathSegment<'tcx>, m
     {
         // Lower `rustc_hir::Ty` to `ty::Ty`, so we can inspect type information. For more
         // information, see <https://rustc-dev-guide.rust-lang.org/ty.html#rustc_hirty-vs-tyty>.
-        // Note that `lower_ty()` is quasi-deprecated, and should be removed if a adequate
-        // replacement is found.
-        let resource_ty = lower_ty(cx.tcx, resource_hir_ty);
+        let resource_ty = cx.typeck_results().node_type(resource_hir_ty.hir_id);
 
         // If the resource type is `Events<T>`, emit the lint.
         if match_type(cx, resource_ty, &crate::paths::EVENTS) {
