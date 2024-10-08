@@ -3,6 +3,7 @@
 
 use serde::Deserialize;
 use std::{
+    env,
     ffi::OsStr,
     path::{Path, PathBuf},
     process::{Command, Stdio},
@@ -22,17 +23,17 @@ fn main() -> color_eyre::Result<()> {
 
 /// Generates a custom [`Config`] for `bevy_lint`'s UI tests.
 fn config() -> color_eyre::Result<Config> {
-    const DRIVER_PATH: &str = "../target/debug/bevy_lint_driver";
+    const DRIVER_STEM: &str = "../target/debug/bevy_lint_driver";
 
-    ensure!(Path::new(DRIVER_PATH).is_file());
+    // The path to the `bevy_lint_driver` executable, relative from inside the `bevy_lint` folder.
+    // We use `with_extension()` to potentially add the `.exe` suffix, if on Windows.
+    let driver_path = Path::new(DRIVER_STEM).with_extension(env::consts::EXE_EXTENSION);
 
-    let bevy_extern_argument = match find_bevy_rlib() {
-        Ok(path) => format!("--extern=bevy={}", path.display()).into(),
-        Err(error) => {
-            eprintln!("Error while finding path to `libbevy.rlib`: {:?}", error);
-            "--extern=bevy".into()
-        }
-    };
+    ensure!(
+        driver_path.is_file(),
+        "`bevy_lint_driver` could not be found at {}, make sure to build it with `cargo build -p bevy_lint --bin bevy_lint_driver`.",
+        driver_path.display(),
+    );
 
     let config = Config {
         // When `host` is `None`, `ui_test` will attempt to auto-discover the host by calling
@@ -47,7 +48,7 @@ fn config() -> color_eyre::Result<Config> {
             args: vec![
                 "run".into(),
                 RUST_TOOLCHAIN_CHANNEL.into(),
-                DRIVER_PATH.into(),
+                driver_path.into(),
                 // `bevy_lint_driver` expects the first argument to be the path to `rustc`.
                 "rustc".into(),
                 // This is required so that `ui_test` can parse warnings and errors.
@@ -56,10 +57,9 @@ fn config() -> color_eyre::Result<Config> {
                 // This is required for UI tests to import `bevy`.
                 "-L".into(),
                 "all=../target/debug/deps".into(),
-                // This lets UI tests write `use bevy::*;` without `extern bevy;` first.
-                bevy_extern_argument,
+                // Make the `bevy` crate directly importable from the UI tests.
+                format!("--extern=bevy={}", find_bevy_rlib()?.display()).into(),
             ],
-
             out_dir_flag: Some("--out-dir".into()),
             input_file_flag: None,
             envs: Vec::new(),
@@ -72,6 +72,12 @@ fn config() -> color_eyre::Result<Config> {
     Ok(config)
 }
 
+/// An artifact message printed to stdout by Cargo.
+///
+/// This only deserializes the fields necessary to run UI tests, the rest of skipped.
+///
+/// See <https://doc.rust-lang.org/cargo/reference/external-tools.html#artifact-messages> for more
+/// information on the exact format.
 #[derive(Deserialize, Debug)]
 #[serde(rename = "compiler-artifact", tag = "reason")]
 struct ArtifactMessage<'a> {
@@ -80,17 +86,28 @@ struct ArtifactMessage<'a> {
     filenames: Vec<&'a Path>,
 }
 
+/// The `"target"` field of an [`ArtifactMessage`].
 #[derive(Deserialize, Debug)]
 struct ArtifactTarget<'a> {
     name: &'a str,
     kind: Vec<&'a str>,
 }
 
+/// Tries to find the path to `libbevy.rlib` that UI tests import.
+///
+/// `bevy` is a dev-dependency, and as such is only built for tests and examples. We can force it
+/// to be built by calling `cargo build --test=ui --message-format=json`, then scan the printed
+/// JSON for the artifact message with the path to `libbevy.rlib`.
+///
+/// The reason we specify `--extern bevy=PATH` instead of just `--extern bevy` is because `rustc`
+/// will fail to compile if multiple `libbevy.rlib` files are found, which usually is the case.
 fn find_bevy_rlib() -> color_eyre::Result<PathBuf> {
+    // `bevy` is a dev-dependency, so building a test will require it to be built as well.
     let output = Command::new("cargo")
         .arg("build")
         .arg("--test=ui")
         .arg("--message-format=json")
+        // Show error messages to the user for easier debugging.
         .stderr(Stdio::inherit())
         .output()?;
 
