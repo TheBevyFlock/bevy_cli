@@ -1,4 +1,5 @@
-// A convenience feature used in `find_bevy_rlib()`.
+// A convenience feature used in `find_bevy_rlib()` that lets you chain multiple `if let`
+// statements together with `&&`.
 #![feature(let_chains)]
 
 use serde::Deserialize;
@@ -111,31 +112,40 @@ fn find_bevy_rlib() -> color_eyre::Result<PathBuf> {
         .stderr(Stdio::inherit())
         .output()?;
 
-    ensure!(output.status.success());
+    ensure!(output.status.success(), "`cargo build --test=ui` failed.");
 
-    const NEWLINE: u8 = '\n' as u8;
+    // The package ID of the `bevy` crate starts with this string.
     const BEVY_PACKAGE_ID_PREFIX: &str =
         "registry+https://github.com/rust-lang/crates.io-index#bevy@";
 
+    // It's theoretically possible for there to be multiple messages about building `libbevy.rlib`.
+    // We support this, but optimize for just 1 message.
     let mut messages = Vec::with_capacity(1);
 
-    for line in output.stdout.split(|&byte| byte == NEWLINE) {
+    // Iterate over each line in stdout, trying to deserialize it from JSON.
+    for line in output.stdout.split(|&byte| byte == b'\n') {
         if let Ok(message) = serde_json::from_slice::<ArtifactMessage>(line)
+            // If the message passes the following conditions, it's probably the one we want.
             && message.package_id.starts_with(BEVY_PACKAGE_ID_PREFIX)
             && message.target.name == "bevy"
-            && message.target.kind == ["lib"]
+            && message.target.kind.contains(&"lib")
         {
             messages.push(message);
         }
     }
 
-    ensure!(messages.len() == 1);
+    ensure!(
+        messages.len() == 1,
+        "More than one `libbevy.rlib` was built for UI tests. Please ensure there is not more than 1 version of Bevy in `Cargo.lock`.",
+    );
 
+    // The message usually has multiple files, often `libbevy.rlib` and `libbevy.rmeta`. Filter
+    // through these to find the `rlib`.
     let rlib = messages[0]
         .filenames
         .iter()
         .find(|p| p.extension() == Some(OsStr::new("rlib")))
-        .unwrap();
+        .expect("`libbevy.rlib` not found within artifact message filenames.");
 
     Ok(rlib.to_path_buf())
 }
