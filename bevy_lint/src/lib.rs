@@ -2,6 +2,8 @@
 #![feature(rustc_private)]
 // Allows chaining `if let` multiple times using `&&`.
 #![feature(let_chains)]
+// Warn on internal `rustc` lints that check for poor usage of internal compiler APIs.
+#![warn(rustc::internal)]
 
 // This is a list of every single `rustc` crate used within this library. If you need another, add
 // it here!
