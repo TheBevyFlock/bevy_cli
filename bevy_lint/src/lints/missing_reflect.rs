@@ -1,8 +1,11 @@
 //! TODO
 
 use crate::declare_bevy_lint;
-use clippy_utils::def_path_def_ids;
-use rustc_hir::def_id::LocalDefId;
+use clippy_utils::def_path_res;
+use rustc_hir::{
+    def::{DefKind, Res},
+    def_id::{DefId, LocalDefId},
+};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::TyCtxt;
 use rustc_session::declare_lint_pass;
@@ -40,8 +43,7 @@ impl<'tcx> LateLintPass<'tcx> for MissingReflect {
 }
 
 fn find_local_trait_impls(tcx: TyCtxt<'_>, trait_def_path: &[&str]) -> Vec<LocalDefId> {
-    // TODO: Filter to just be traits, not macros.
-    let trait_def_ids: Vec<_> = def_path_def_ids(tcx, trait_def_path).collect();
+    let trait_def_ids = find_trait_did_for_def_path(tcx, trait_def_path);
 
     if trait_def_ids.is_empty() {
         return Vec::new();
@@ -59,5 +61,15 @@ fn find_local_trait_impls(tcx: TyCtxt<'_>, trait_def_path: &[&str]) -> Vec<Local
         .filter_map(|trait_def_id| local_trait_impls.get(&trait_def_id))
         .flatten()
         .copied()
+        .collect()
+}
+
+fn find_trait_did_for_def_path(tcx: TyCtxt<'_>, trait_def_path: &[&str]) -> Vec<DefId> {
+    def_path_res(tcx, trait_def_path)
+        .into_iter()
+        .filter_map(|res| match res {
+            Res::Def(DefKind::Trait, def_id) => Some(def_id),
+            _ => None,
+        })
         .collect()
 }
