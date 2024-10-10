@@ -1,8 +1,8 @@
 //! TODO
 
-use rustc_lint::LateLintPass;
+use rustc_hir::Item;
+use rustc_lint::{LateContext, LateLintPass};
 use rustc_session::declare_lint_pass;
-
 use crate::declare_bevy_lint;
 
 declare_bevy_lint! {
@@ -15,4 +15,8 @@ declare_lint_pass! {
     MissingReflect => [MISSING_REFLECT.lint]
 }
 
-impl<'tcx> LateLintPass<'tcx> for MissingReflect {}
+impl<'tcx> LateLintPass<'tcx> for MissingReflect {
+    fn check_item(&mut self, cx: &LateContext<'tcx>, item: &Item<'tcx>) {
+        todo!()
+    }
+}
