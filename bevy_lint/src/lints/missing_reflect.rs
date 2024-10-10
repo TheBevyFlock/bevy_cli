@@ -7,7 +7,7 @@ use rustc_hir::{
     def_id::{DefId, LocalDefId},
 };
 use rustc_lint::{LateContext, LateLintPass};
-use rustc_middle::ty::TyCtxt;
+use rustc_middle::ty::{AdtDef, TyCtxt};
 use rustc_session::declare_lint_pass;
 
 declare_bevy_lint! {
@@ -24,14 +24,16 @@ impl<'tcx> LateLintPass<'tcx> for MissingReflect {
     fn check_crate(&mut self, cx: &LateContext<'tcx>) {
         const CHECKED_TRAITS: [&[&str]; 2] = [&crate::paths::COMPONENT, &crate::paths::RESOURCE];
 
-        // TODO: Convert from `impl` DID to `struct` DID.
-        let reflect_impls = find_local_trait_impls(cx.tcx, &crate::paths::REFLECT);
+        let reflect_impls = impl_dids_to_self_ty(
+            cx.tcx,
+            find_local_trait_impls(cx.tcx, &crate::paths::REFLECT),
+        );
 
         println!("REFLECT: {reflect_impls:?}");
 
         for trait_def_path in CHECKED_TRAITS {
-            // TODO: Convert from `impl` DID to `struct` DID.
-            let trait_impls = find_local_trait_impls(cx.tcx, trait_def_path);
+            let trait_impls =
+                impl_dids_to_self_ty(cx.tcx, find_local_trait_impls(cx.tcx, trait_def_path));
 
             for impl_ in trait_impls {
                 if !reflect_impls.contains(&impl_) {
@@ -70,6 +72,23 @@ fn find_trait_did_for_def_path(tcx: TyCtxt<'_>, trait_def_path: &[&str]) -> Vec<
         .filter_map(|res| match res {
             Res::Def(DefKind::Trait, def_id) => Some(def_id),
             _ => None,
+        })
+        .collect()
+}
+
+fn impl_dids_to_self_ty(tcx: TyCtxt<'_>, dids: Vec<LocalDefId>) -> Vec<DefId> {
+    dids.into_iter()
+        .filter_map(|did| {
+            let hir_ty = tcx
+                .hir_node_by_def_id(did)
+                .expect_item()
+                .expect_impl()
+                .self_ty;
+
+            tcx.type_of(hir_ty.hir_id.owner)
+                .skip_binder()
+                .ty_adt_def()
+                .map(AdtDef::did)
         })
         .collect()
 }
