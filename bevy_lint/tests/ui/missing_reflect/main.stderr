@@ -1,0 +1,20 @@
+error: defined a component, resource, or event without a `Reflect` implementation
+ --> tests/ui/missing_reflect/main.rs:9:8
+  |
+9 | struct Missing;
+  |        ^^^^^^^
+  |
+note: the lint level is defined here
+ --> tests/ui/missing_reflect/main.rs:4:9
+  |
+4 | #![deny(bevy::missing_reflect)]
+  |         ^^^^^^^^^^^^^^^^^^^^^
+
+error: defined a component, resource, or event without a `Reflect` implementation
+  --> tests/ui/missing_reflect/main.rs:16:20
+   |
+16 | impl Component for MissingImpl {
+   |                    ^^^^^^^^^^^
+
+error: aborting due to 2 previous errors
+
