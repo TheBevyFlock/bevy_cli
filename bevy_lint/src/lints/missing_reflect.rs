@@ -1,11 +1,11 @@
 //! TODO
 
 use crate::declare_bevy_lint;
-use clippy_utils::{def_path_res, diagnostics::span_lint};
+use clippy_utils::{def_path_res, diagnostics::span_lint_hir};
 use rustc_hir::{
     def::{DefKind, Res},
     def_id::{DefId, LocalDefId},
-    Item, ItemKind, Node,
+    Item, ItemKind, Node, OwnerId,
 };
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::TyCtxt;
@@ -54,7 +54,19 @@ impl<'tcx> LateLintPass<'tcx> for MissingReflect {
             // Check if any of the checked types do not implement `Reflect`. If so, emit the lint!
             for (impl_, span) in checked_types {
                 if !reflect_types.contains(&impl_) {
-                    span_lint(cx, MISSING_REFLECT.lint, span, MISSING_REFLECT.lint.desc);
+                    let owner_id = OwnerId {
+                        // This is guaranteed to be a `LocalDefId` because the trait `impl` that it
+                        // came from is also local.
+                        def_id: impl_.expect_local(),
+                    };
+
+                    span_lint_hir(
+                        cx,
+                        MISSING_REFLECT.lint,
+                        owner_id.into(),
+                        span,
+                        MISSING_REFLECT.lint.desc,
+                    );
                 }
             }
         }
