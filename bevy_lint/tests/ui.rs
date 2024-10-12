@@ -82,8 +82,10 @@ fn config() -> color_eyre::Result<Config> {
 #[derive(Deserialize, Debug)]
 #[serde(rename = "compiler-artifact", tag = "reason")]
 struct ArtifactMessage<'a> {
-    package_id: &'a str,
+    #[serde(borrow)]
     target: ArtifactTarget<'a>,
+
+    #[serde(borrow)]
     filenames: Vec<&'a Path>,
 }
 
@@ -91,6 +93,8 @@ struct ArtifactMessage<'a> {
 #[derive(Deserialize, Debug)]
 struct ArtifactTarget<'a> {
     name: &'a str,
+
+    #[serde(borrow)]
     kind: Vec<&'a str>,
 }
 
@@ -114,19 +118,17 @@ fn find_bevy_rlib() -> color_eyre::Result<PathBuf> {
 
     ensure!(output.status.success(), "`cargo build --test=ui` failed.");
 
-    // The package ID of the `bevy` crate starts with this string.
-    const BEVY_PACKAGE_ID_PREFIX: &str =
-        "registry+https://github.com/rust-lang/crates.io-index#bevy@";
-
     // It's theoretically possible for there to be multiple messages about building `libbevy.rlib`.
     // We support this, but optimize for just 1 message.
     let mut messages = Vec::with_capacity(1);
 
+    // Convert the `stdout` to a string, replacing invalid characters with `�`.
+    let stdout = String::from_utf8_lossy(&output.stdout);
+
     // Iterate over each line in stdout, trying to deserialize it from JSON.
-    for line in output.stdout.split(|&byte| byte == b'\n') {
-        if let Ok(message) = serde_json::from_slice::<ArtifactMessage>(line)
+    for line in stdout.lines() {
+        if let Ok(message) = serde_json::from_str::<ArtifactMessage>(line)
             // If the message passes the following conditions, it's probably the one we want.
-            && message.package_id.starts_with(BEVY_PACKAGE_ID_PREFIX)
             && message.target.name == "bevy"
             && message.target.kind.contains(&"lib")
         {
