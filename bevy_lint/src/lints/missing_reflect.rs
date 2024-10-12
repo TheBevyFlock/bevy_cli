@@ -21,11 +21,6 @@ declare_lint_pass! {
     MissingReflect => [MISSING_REFLECT.lint]
 }
 
-/// A list of traits that are checked for `Reflect` implementations.
-///
-/// If a struct implements one of these traits but not `Reflect`, this lint will raise a warning.
-const CHECKED_TRAITS: [&[&str]; 2] = [&crate::paths::COMPONENT, &crate::paths::RESOURCE];
-
 impl<'tcx> LateLintPass<'tcx> for MissingReflect {
     // The lint can be summarized in a few steps:
     //
@@ -43,22 +38,22 @@ impl<'tcx> LateLintPass<'tcx> for MissingReflect {
             .filter_map(|did| impl_to_source_type(cx.tcx, did))
             .collect();
 
-        for trait_def_path in CHECKED_TRAITS {
+        for checked_trait in CheckedTraits::all() {
             // This is the same as the above `reflect_types`, but this time we are searching for
             // one of the checked traits. (`Component` or `Resource`.)
-            let checked_types: Vec<_> = find_local_trait_impls(cx.tcx, trait_def_path)
+            let checked_types: Vec<_> = find_local_trait_impls(cx.tcx, checked_trait.def_path())
                 .filter_map(|did| impl_to_source_type(cx.tcx, did))
                 .collect();
 
             // Check if any of the checked types do not implement `Reflect`. If so, emit the lint!
-            for impl_ in checked_types {
-                if !reflect_types.contains(&impl_) {
-                    let ident = cx.tcx.opt_item_ident(impl_).unwrap();
+            for def_id in checked_types {
+                if !reflect_types.contains(&def_id) {
+                    let ident = cx.tcx.opt_item_ident(def_id).unwrap();
 
                     let owner_id = OwnerId {
                         // This is guaranteed to be a `LocalDefId` because the trait `impl` that it
                         // came from is also local.
-                        def_id: impl_.expect_local(),
+                        def_id: def_id.expect_local(),
                     };
 
                     span_lint_hir(
@@ -66,10 +61,35 @@ impl<'tcx> LateLintPass<'tcx> for MissingReflect {
                         MISSING_REFLECT.lint,
                         owner_id.into(),
                         ident.span,
-                        MISSING_REFLECT.lint.desc,
+                        checked_trait.diagnostic_message(),
                     );
                 }
             }
+        }
+    }
+}
+
+enum CheckedTraits {
+    Component,
+    Resource,
+}
+
+impl CheckedTraits {
+    fn all() -> [Self; 2] {
+        [Self::Component, Self::Resource]
+    }
+
+    fn def_path(&self) -> &'static [&'static str] {
+        match self {
+            Self::Component => &crate::paths::COMPONENT,
+            Self::Resource => &crate::paths::RESOURCE,
+        }
+    }
+
+    fn diagnostic_message(&self) -> &'static str {
+        match self {
+            Self::Component => "defined a component without a `Reflect` implementation",
+            Self::Resource => "defined a resource without a `Reflect` implementation",
         }
     }
 }
