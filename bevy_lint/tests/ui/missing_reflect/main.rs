@@ -10,9 +10,8 @@ struct Missing;
 //~^ ERROR: defined a component, resource, or event without a `Reflect` implementation
 
 struct MissingImpl;
+//~^ ERROR: defined a component, resource, or event without a `Reflect` implementation
 
-// TODO: This behavior is strange. The lint should be emitted on `struct MissingImpl`.
-//~v ERROR: defined a component, resource, or event without a `Reflect` implementation
 impl Component for MissingImpl {
     const STORAGE_TYPE: StorageType = StorageType::Table;
 }

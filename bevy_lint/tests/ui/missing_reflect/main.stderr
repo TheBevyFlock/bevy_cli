@@ -11,10 +11,10 @@ note: the lint level is defined here
   |         ^^^^^^^^^^^^^^^^^^^^^
 
 error: defined a component, resource, or event without a `Reflect` implementation
-  --> tests/ui/missing_reflect/main.rs:16:20
+  --> tests/ui/missing_reflect/main.rs:12:8
    |
-16 | impl Component for MissingImpl {
-   |                    ^^^^^^^^^^^
+12 | struct MissingImpl;
+   |        ^^^^^^^^^^^
 
 error: aborting due to 2 previous errors
 

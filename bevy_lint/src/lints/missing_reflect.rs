@@ -10,7 +10,6 @@ use rustc_hir::{
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::TyCtxt;
 use rustc_session::declare_lint_pass;
-use rustc_span::Span;
 
 declare_bevy_lint! {
     pub MISSING_REFLECT,
@@ -41,7 +40,7 @@ impl<'tcx> LateLintPass<'tcx> for MissingReflect {
         // Find all `impl` items for `Reflect` in the current crate, then from that find `T` in
         // `impl Reflect for T`.
         let reflect_types: Vec<_> = find_local_trait_impls(cx.tcx, &crate::paths::REFLECT)
-            .filter_map(|did| impl_to_source_type(cx.tcx, did).map(|(did, _)| did))
+            .filter_map(|did| impl_to_source_type(cx.tcx, did))
             .collect();
 
         for trait_def_path in CHECKED_TRAITS {
@@ -52,8 +51,10 @@ impl<'tcx> LateLintPass<'tcx> for MissingReflect {
                 .collect();
 
             // Check if any of the checked types do not implement `Reflect`. If so, emit the lint!
-            for (impl_, span) in checked_types {
+            for impl_ in checked_types {
                 if !reflect_types.contains(&impl_) {
+                    let ident = cx.tcx.opt_item_ident(impl_).unwrap();
+
                     let owner_id = OwnerId {
                         // This is guaranteed to be a `LocalDefId` because the trait `impl` that it
                         // came from is also local.
@@ -64,7 +65,7 @@ impl<'tcx> LateLintPass<'tcx> for MissingReflect {
                         cx,
                         MISSING_REFLECT.lint,
                         owner_id.into(),
-                        span,
+                        ident.span,
                         MISSING_REFLECT.lint.desc,
                     );
                 }
@@ -129,7 +130,7 @@ fn trait_def_ids(tcx: TyCtxt<'_>, trait_def_path: &[&str]) -> impl Iterator<Item
 /// [^0]: An algebraic data type. These are most user-defined types, such as structs, enums, and
 /// unions. Notably, primitives are not ADTs. See [`TyKind`](rustc_middle::ty::TyKind) for a
 /// complete list.
-fn impl_to_source_type(tcx: TyCtxt<'_>, def_id: LocalDefId) -> Option<(DefId, Span)> {
+fn impl_to_source_type(tcx: TyCtxt<'_>, def_id: LocalDefId) -> Option<DefId> {
     let node = tcx.hir_node_by_def_id(def_id);
 
     // Ensure the node is an `impl` item.
@@ -155,5 +156,5 @@ fn impl_to_source_type(tcx: TyCtxt<'_>, def_id: LocalDefId) -> Option<(DefId, Sp
         .peel_refs()
         .ty_adt_def()?;
 
-    Some((ty_adt.did(), hir_ty.span))
+    Some(ty_adt.did())
 }
