@@ -122,9 +122,12 @@ fn find_bevy_rlib() -> color_eyre::Result<PathBuf> {
     // We support this, but optimize for just 1 message.
     let mut messages = Vec::with_capacity(1);
 
+    // Convert the `stdout` to a string, replacing invalid characters with `�`.
+    let stdout = String::from_utf8_lossy(&output.stdout);
+
     // Iterate over each line in stdout, trying to deserialize it from JSON.
-    for line in output.stdout.split(|&byte| byte == b'\n') {
-        if let Ok(message) = serde_json::from_slice::<ArtifactMessage>(line)
+    for line in stdout.lines() {
+        if let Ok(message) = serde_json::from_str::<ArtifactMessage>(line)
             // If the message passes the following conditions, it's probably the one we want.
             && message.package_id.starts_with(BEVY_PACKAGE_ID_PREFIX)
             && message.target.name == "bevy"
