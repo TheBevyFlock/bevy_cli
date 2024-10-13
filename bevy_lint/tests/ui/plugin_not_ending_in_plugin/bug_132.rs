@@ -1,7 +1,9 @@
-//! A test that verifies annotating the structure definition of a plugin does not silence the lint.
+//! A test that checks that annotating the structure definition of a plugin does not silence the
+//! lint.
 //!
-//! While this may eventually be desired behavior, this test ensures the behavior does not change
-//! without a proper warning.
+//! This test tracks the bug reported in [#132]. When this starts failing, the bug has been fixed.
+//!
+//! [#132]: https://github.com/TheBevyFlock/bevy_cli/issues/132
 
 #![feature(register_tool)]
 #![register_tool(bevy)]
