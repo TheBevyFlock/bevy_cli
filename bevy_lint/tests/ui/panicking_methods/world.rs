@@ -1,4 +1,4 @@
-//! The tests ths `panicking_query_methods` lint, specifically when triggered on the `World` type.
+//! This tests the `panicking_query_methods` lint, specifically when triggered on the `World` type.
 
 #![feature(register_tool)]
 #![register_tool(bevy)]
