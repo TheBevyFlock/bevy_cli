@@ -15,7 +15,7 @@ struct Foo;
 
 fn main() {
     let mut app = App::new();
-    
+
     // These both should error, but currently do not.
     App::init_resource::<Events<Foo>>(&mut app);
     App::insert_resource::<Events<Foo>>(&mut app, Default::default());
