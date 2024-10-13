@@ -1,0 +1,19 @@
+error: implemented `Plugin` for a structure whose name does not end in "Plugin"
+  --> tests/ui/plugin_not_ending_in_plugin/bug_132.rs:20:1
+   |
+16 |   struct Foo;
+   |          --- help: rename the plugin: `FooPlugin`
+...
+20 | / impl Plugin for Foo {
+21 | |     fn build(&self, _app: &mut App) {}
+22 | | }
+   | |_^
+   |
+note: the lint level is defined here
+  --> tests/ui/plugin_not_ending_in_plugin/bug_132.rs:10:9
+   |
+10 | #![deny(bevy::plugin_not_ending_in_plugin)]
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: aborting due to 1 previous error
+
