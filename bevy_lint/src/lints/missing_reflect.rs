@@ -1,4 +1,29 @@
-//! TODO
+//! Checks for components, resources, and events that do not implement `Reflect`.
+//!
+//! # Motivation
+//!
+//! Reflection lets programs inspect type information at runtime. It is commonly used by tools to
+//! view and edit ECS information while the program is running (usually components and resources).
+//! Reflection is opt-in, though, and easy to forget since you need to `#[derive(Reflect)]` for each
+//! type that uses it.
+//!
+//! # Example
+//!
+//! ```
+//! # use bevy::prelude::*;
+//! #
+//! #[derive(Component)]
+//! struct MyComponent;
+//! ```
+//!
+//! Use instead:
+//!
+//! ```
+//! # use bevy::prelude::*;
+//! #
+//! #[derive(Component, Reflect)]
+//! struct MyComponent;
+//! ```
 
 use crate::declare_bevy_lint;
 use clippy_utils::{def_path_res, diagnostics::span_lint_hir_and_then, sugg::DiagExt};
