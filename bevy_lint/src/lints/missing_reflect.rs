@@ -21,6 +21,7 @@
 //! ```
 //! # use bevy::prelude::*;
 //! #
+//! // Remember to also register this component in the `App` type registry.
 //! #[derive(Component, Reflect)]
 //! struct MyComponent;
 //! ```
