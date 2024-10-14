@@ -49,6 +49,7 @@ impl<'tcx> LateLintPass<'tcx> for MissingReflect {
                 .filter(|trait_type| !reflected.contains(trait_type))
                 .collect();
 
+        // Emit diagnostics for each of these types.
         for (checked_trait, trait_name) in [
             (events, "Event"),
             (components, "Component"),
@@ -58,9 +59,13 @@ impl<'tcx> LateLintPass<'tcx> for MissingReflect {
                 span_lint_hir_and_then(
                     cx,
                     MISSING_REFLECT.lint,
+                    // This tells `rustc` where to search for for `#[allow(...)]` attributes.
                     without_reflect.hir_id,
                     without_reflect.item_span,
-                    MISSING_REFLECT.lint.desc,
+                    format!(
+                        "defined a {} without a `Reflect` implementation",
+                        trait_name.to_lowercase()
+                    ),
                     |diag| {
                         diag.span_note(
                             without_reflect.impl_span,
@@ -71,6 +76,9 @@ impl<'tcx> LateLintPass<'tcx> for MissingReflect {
                             without_reflect.item_span,
                             "`Reflect` can be automatically derived",
                             "#[derive(Reflect)]",
+                            // This can be automatically applied by `rustfix` without issues. It
+                            // may result in two consecutive `#[derive(...)]` attributes, but
+                            // `rustfmt` merges them.
                             Applicability::MachineApplicable,
                         );
                     },
@@ -83,8 +91,11 @@ impl<'tcx> LateLintPass<'tcx> for MissingReflect {
 /// Represents a type that implements a specific trait.
 #[derive(Debug)]
 struct TraitType {
+    /// The [`HirId`] pointing to the type item declaration.
     hir_id: HirId,
+    /// The span where the type was declared.
     item_span: Span,
+    /// The span where the trait was implemented.
     impl_span: Span,
 }
 
@@ -136,6 +147,8 @@ impl TraitType {
                 _ => return None,
             };
 
+            // Find the `HirId` from the `DefId`. This is like a `DefId`, but with further
+            // constraints on what it can represent.
             let hir_id = OwnerId {
                 // This is guaranteed to be a `LocalDefId` due to Rust's orphan rule. The traits
                 // (`Reflect`, `Component`, etc.) are from an external crate, so the type
@@ -145,6 +158,8 @@ impl TraitType {
             }
             .into();
 
+            // Find the span where the type was declared. This is guaranteed to be an item, so we
+            // can safely call `expect_item()` without it panicking.
             let item_span = tcx.hir_node(hir_id).expect_item().span;
 
             Some(TraitType {
@@ -156,10 +171,10 @@ impl TraitType {
     }
 }
 
-/// A custom equality implementation that just checks the [`DefId`] of the [`TraitType`], and skips
+/// A custom equality implementation that just checks the [`HirId`] of the [`TraitType`], and skips
 /// the other values.
 ///
-/// [`TraitType`]s with equal [`DefId`]s are guaranteed to be equal in all other fields, so this
+/// [`TraitType`]s with equal [`HirId`]s are guaranteed to be equal in all other fields, so this
 /// takes advantage of that fact.
 impl PartialEq for TraitType {
     fn eq(&self, other: &Self) -> bool {
