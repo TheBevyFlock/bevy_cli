@@ -1,7 +1,8 @@
 //! TODO
 
 use crate::declare_bevy_lint;
-use clippy_utils::{def_path_res, diagnostics::span_lint_hir_and_then};
+use clippy_utils::{def_path_res, diagnostics::span_lint_hir_and_then, sugg::DiagExt};
+use rustc_errors::Applicability;
 use rustc_hir::{
     def::{DefKind, Res},
     HirId, Item, ItemKind, Node, OwnerId, QPath, TyKind,
@@ -9,7 +10,7 @@ use rustc_hir::{
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::TyCtxt;
 use rustc_session::declare_lint_pass;
-use rustc_span::{symbol::Ident, Span};
+use rustc_span::Span;
 
 declare_bevy_lint! {
     pub MISSING_REFLECT,
@@ -58,12 +59,19 @@ impl<'tcx> LateLintPass<'tcx> for MissingReflect {
                     cx,
                     MISSING_REFLECT.lint,
                     without_reflect.hir_id,
-                    without_reflect.ident.span,
+                    without_reflect.item_span,
                     MISSING_REFLECT.lint.desc,
                     |diag| {
                         diag.span_note(
                             without_reflect.impl_span,
                             format!("`{trait_name}` implemented here"),
+                        )
+                        .suggest_item_with_attr(
+                            cx,
+                            without_reflect.item_span,
+                            "`Reflect` can be automatically derived",
+                            "#[derive(Reflect)]",
+                            Applicability::MachineApplicable,
                         );
                     },
                 );
@@ -76,7 +84,7 @@ impl<'tcx> LateLintPass<'tcx> for MissingReflect {
 #[derive(Debug)]
 struct TraitType {
     hir_id: HirId,
-    ident: Ident,
+    item_span: Span,
     impl_span: Span,
 }
 
@@ -137,11 +145,11 @@ impl TraitType {
             }
             .into();
 
-            let ident = tcx.opt_item_ident(def_id).unwrap();
+            let item_span = tcx.hir_node(hir_id).expect_item().span;
 
             Some(TraitType {
                 hir_id,
-                ident,
+                item_span,
                 impl_span: *impl_span,
             })
         })
