@@ -73,6 +73,18 @@ pub struct Package {
     pub default_run: Option<String>,
 }
 
+impl Package {
+    /// Check if the package has an executable binary.
+    pub fn has_bin(&self) -> bool {
+        self.targets.iter().any(|target| {
+            target
+                .kind
+                .iter()
+                .any(|target_kind| *target_kind == TargetKind::Bin)
+        })
+    }
+}
+
 #[derive(Debug, Deserialize)]
 pub struct Dependency {
     /// The name of the dependency.
@@ -93,7 +105,7 @@ pub struct Dependency {
     pub path: Option<PathBuf>,
 }
 
-#[derive(Debug, Deserialize, Default)]
+#[derive(Debug, Deserialize, Default, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum DependencyKind {
     #[default]
@@ -113,7 +125,7 @@ pub struct Target {
     pub name: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 pub enum TargetKind {
     Lib,
