@@ -7,6 +7,11 @@
 //! Reflection is opt-in, though, and easy to forget since you need to `#[derive(Reflect)]` for each
 //! type that uses it.
 //!
+//! # Known issues
+//!
+//! This lint will suggest `#[derive(Reflect)]` even if it cannot be applied. (E.g. if one of the
+//! fields does not implement `Reflect`.)
+//!
 //! # Example
 //!
 //! ```
@@ -102,10 +107,11 @@ impl<'tcx> LateLintPass<'tcx> for MissingReflect {
                             without_reflect.item_span,
                             "`Reflect` can be automatically derived",
                             "#[derive(Reflect)]",
-                            // This can be automatically applied by `rustfix` without issues. It
-                            // may result in two consecutive `#[derive(...)]` attributes, but
-                            // `rustfmt` merges them.
-                            Applicability::MachineApplicable,
+                            // This can usually be automatically applied by `rustfix` without
+                            // issues, unless one of the fields of the struct does not implement
+                            // `Reflect` (see #141). This suggestion may result in two consecutive
+                            // `#[derive(...)]` attributes, but `rustfmt` merges them afterwards.
+                            Applicability::MaybeIncorrect,
                         );
                     },
                 );
