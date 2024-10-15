@@ -9,7 +9,7 @@
 #![allow(dead_code)]
 #![deny(bevy::missing_reflect)]
 
-use bevy::{prelude::*, ecs::component::StorageType};
+use bevy::{ecs::component::StorageType, prelude::*};
 
 #[derive(Reflect)]
 struct MyComponent;
