@@ -1,37 +1,37 @@
 error: defined an event without a `Reflect` implementation
-  --> tests/ui/missing_reflect/manual_owned.rs:30:1
+  --> tests/ui/missing_reflect/impl.rs:33:1
    |
-30 | struct MyEvent;
-   | ^^^^^^^^^^^^^^^
+33 | struct MyEvent(String);
+   | ^^^^^^^^^^^^^^^^^^^^^^^
    |
 note: `Event` implemented here
-  --> tests/ui/missing_reflect/manual_owned.rs:39:1
+  --> tests/ui/missing_reflect/impl.rs:40:1
    |
-39 | impl Event for MyEvent {}
+40 | impl Event for MyEvent {}
    | ^^^^^^^^^^^^^^^^^^^^^^^^^
 note: the lint level is defined here
-  --> tests/ui/missing_reflect/manual_owned.rs:10:9
+  --> tests/ui/missing_reflect/impl.rs:8:9
    |
-10 | #![deny(bevy::missing_reflect)]
+8  | #![deny(bevy::missing_reflect)]
    |         ^^^^^^^^^^^^^^^^^^^^^
 help: `Reflect` can be automatically derived
    |
-30 + #[derive(Reflect)]
-31 | struct MyEvent;
+33 + #[derive(Reflect)]
+34 | struct MyEvent(String);
    |
 
 error: defined a component without a `Reflect` implementation
-  --> tests/ui/missing_reflect/manual_owned.rs:14:1
+  --> tests/ui/missing_reflect/impl.rs:14:1
    |
 14 | struct MyComponent;
    | ^^^^^^^^^^^^^^^^^^^
    |
 note: `Component` implemented here
-  --> tests/ui/missing_reflect/manual_owned.rs:19:1
+  --> tests/ui/missing_reflect/impl.rs:17:1
    |
-19 | / impl Component for MyComponent {
-20 | |     const STORAGE_TYPE: StorageType = StorageType::Table;
-21 | | }
+17 | / impl Component for MyComponent {
+18 | |     const STORAGE_TYPE: StorageType = StorageType::Table;
+19 | | }
    | |_^
 help: `Reflect` can be automatically derived
    |
@@ -40,20 +40,23 @@ help: `Reflect` can be automatically derived
    |
 
 error: defined a resource without a `Reflect` implementation
-  --> tests/ui/missing_reflect/manual_owned.rs:23:1
+  --> tests/ui/missing_reflect/impl.rs:23:1
    |
-23 | struct MyResource;
-   | ^^^^^^^^^^^^^^^^^^
+23 | / struct MyResource {
+24 | |     field_1: usize,
+25 | |     field_2: bool,
+26 | | }
+   | |_^
    |
 note: `Resource` implemented here
-  --> tests/ui/missing_reflect/manual_owned.rs:28:1
+  --> tests/ui/missing_reflect/impl.rs:29:1
    |
-28 | impl Resource for MyResource {}
+29 | impl Resource for MyResource {}
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 help: `Reflect` can be automatically derived
    |
 23 + #[derive(Reflect)]
-24 | struct MyResource;
+24 | struct MyResource {
    |
 
 error: aborting due to 3 previous errors
