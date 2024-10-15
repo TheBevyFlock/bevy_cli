@@ -76,10 +76,10 @@ impl<'tcx> LateLintPass<'tcx> for MissingReflect {
                 .collect();
 
         // Emit diagnostics for each of these types.
-        for (checked_trait, trait_name) in [
-            (events, "Event"),
-            (components, "Component"),
-            (resources, "Resource"),
+        for (checked_trait, trait_name, message_phrase) in [
+            (events, "Event", "an event"),
+            (components, "Component", "a component"),
+            (resources, "Resource", "a resource"),
         ] {
             for without_reflect in checked_trait {
                 span_lint_hir_and_then(
@@ -89,8 +89,8 @@ impl<'tcx> LateLintPass<'tcx> for MissingReflect {
                     without_reflect.hir_id,
                     without_reflect.item_span,
                     format!(
-                        "defined a {} without a `Reflect` implementation",
-                        trait_name.to_lowercase()
+                        "defined {} without a `Reflect` implementation",
+                        message_phrase,
                     ),
                     |diag| {
                         diag.span_note(
