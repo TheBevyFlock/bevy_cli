@@ -1,0 +1,60 @@
+error: defined an event without a `Reflect` implementation
+  --> tests/ui/missing_reflect/manual_ref.rs:30:1
+   |
+30 | struct MyEvent;
+   | ^^^^^^^^^^^^^^^
+   |
+note: `Event` implemented here
+  --> tests/ui/missing_reflect/manual_ref.rs:39:1
+   |
+39 | impl Event for &'static MyEvent {}
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+note: the lint level is defined here
+  --> tests/ui/missing_reflect/manual_ref.rs:10:9
+   |
+10 | #![deny(bevy::missing_reflect)]
+   |         ^^^^^^^^^^^^^^^^^^^^^
+help: `Reflect` can be automatically derived
+   |
+30 + #[derive(Reflect)]
+31 | struct MyEvent;
+   |
+
+error: defined a component without a `Reflect` implementation
+  --> tests/ui/missing_reflect/manual_ref.rs:14:1
+   |
+14 | struct MyComponent;
+   | ^^^^^^^^^^^^^^^^^^^
+   |
+note: `Component` implemented here
+  --> tests/ui/missing_reflect/manual_ref.rs:19:1
+   |
+19 | / impl Component for &'static MyComponent {
+20 | |     const STORAGE_TYPE: StorageType = StorageType::Table;
+21 | | }
+   | |_^
+help: `Reflect` can be automatically derived
+   |
+14 + #[derive(Reflect)]
+15 | struct MyComponent;
+   |
+
+error: defined a resource without a `Reflect` implementation
+  --> tests/ui/missing_reflect/manual_ref.rs:23:1
+   |
+23 | struct MyResource;
+   | ^^^^^^^^^^^^^^^^^^
+   |
+note: `Resource` implemented here
+  --> tests/ui/missing_reflect/manual_ref.rs:28:1
+   |
+28 | impl Resource for &'static MyResource {}
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+help: `Reflect` can be automatically derived
+   |
+23 + #[derive(Reflect)]
+24 | struct MyResource;
+   |
+
+error: aborting due to 3 previous errors
+
