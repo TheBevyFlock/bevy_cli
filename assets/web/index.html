@@ -6,7 +6,7 @@
     <style>
       /* Styles for the loading screen */
       :root {
-        --web-bg-color: #282828;
+        --web-bg-color: #2b2c2f;
       }
 
       * {
@@ -30,7 +30,7 @@
         flex-direction: column;
       }
 
-      #game {
+      body {
         background-color: var(--web-bg-color);
       }
 
@@ -55,21 +55,12 @@
           transform: rotate(360deg);
         }
       }
-
-      #bevy {
-        /* Hide Bevy app before it loads */
-        height: 0;
-      }
     </style>
   </head>
 
-  <body>
-    <div id="game" class="center">
-      <div id="loading-screen" class="center">
-        <span class="spinner"></span>
-      </div>
-
-      <canvas id="bevy">Javascript and canvas support is required</canvas>
+  <body class="center">
+    <div id="loading-screen" class="center">
+      <span class="spinner"></span>
     </div>
 
     <script type="module">
@@ -95,8 +86,8 @@
             if (addedNode instanceof HTMLCanvasElement) {
               // A new canvas has been created, which means that the game has been loaded
               // Hide the loading screen!
-          loading_screen.style.display = "none";
-          observer.disconnect();
+              loading_screen.style.display = "none";
+              observer.disconnect();
               break;
             }
           }
