@@ -85,7 +85,7 @@ impl<'tcx> LateLintPass<'tcx> for MissingReflect {
                 span_lint_hir_and_then(
                     cx,
                     MISSING_REFLECT.lint,
-                    // This tells `rustc` where to search for for `#[allow(...)]` attributes.
+                    // This tells `rustc` where to search for `#[allow(...)]` attributes.
                     without_reflect.hir_id,
                     without_reflect.item_span,
                     format!(
