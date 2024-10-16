@@ -14,12 +14,12 @@ pub(crate) fn command() -> Command {
     command
 }
 
-/// Try to obtain the Cargo metadata of this pacakge.
+/// Try to obtain the Cargo metadata of this package.
 pub(crate) fn metadata() -> anyhow::Result<Metadata> {
     metadata_with_args::<[&str; 0], &str>([])
 }
 
-/// Try to obtain the Cargo metadata of this pacakge.
+/// Try to obtain the Cargo metadata of this package.
 ///
 /// To see which additional args are available, [consult the `cargo metadata` documentation](https://doc.rust-lang.org/cargo/commands/cargo-metadata.html)
 /// or use `cargo metadata --help`.
