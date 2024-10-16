@@ -1,10 +1,6 @@
 //! Lint groups that can be toggled together.
 //!
 //! Each lint is organized within a specific category, such as [`PERFORMANCE`] or [`STYLE`].
-//!
-//! ```
-//! #![warn(bevy::pedantic)]
-//! ```
 
 use crate::{
     lint::{BevyLint, LintGroup},

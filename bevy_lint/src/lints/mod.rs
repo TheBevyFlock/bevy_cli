@@ -1,3 +1,7 @@
+//! All lints offered by `bevy_lint`.
+//!
+//! Click on each module to learn more about individual lints.
+
 use crate::lint::BevyLint;
 use rustc_lint::{Lint, LintStore};
 
