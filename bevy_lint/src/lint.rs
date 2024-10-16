@@ -37,6 +37,15 @@ macro_rules! declare_bevy_lint {
         $group:ident,
         $desc:expr$(,)?
     } => {
+        /// Click me for more information.
+        ///
+        /// ```
+        /// Lint {
+        #[doc = concat!("    name: \"bevy::", stringify!($name), "\",")]
+        #[doc = concat!("    group: ", stringify!($group), ",")]
+        #[doc = concat!("    description: ", stringify!($desc), ",")]
+        /// }
+        /// ```
         $(#[$attr])*
         $vis static $name: &$crate::lint::BevyLint = &$crate::lint::BevyLint {
             lint: &::rustc_lint::Lint {
