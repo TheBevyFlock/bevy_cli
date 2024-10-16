@@ -179,14 +179,18 @@ impl TraitType {
                 _ => return None,
             };
 
-            // Find the `HirId` from the `DefId`. This is like a `DefId`, but with further
+            // Tries to convert the `DefId` to a `LocalDefId`, exiting early if it cannot be done.
+            // This will only work if `T` in `impl T` is defined within the same crate.
+            //
+            // In most cases this will succeed due to Rust's orphan rule, but it notably fails
+            // within `bevy_reflect` itself, since that crate implements `Reflect` for `std` types
+            // such as `String`.
+            let local_def_id = def_id.as_local()?;
+
+            // Find the `HirId` from the `LocalDefId`. This is like a `DefId`, but with further
             // constraints on what it can represent.
             let hir_id = OwnerId {
-                // This is guaranteed to be a `LocalDefId` due to Rust's orphan rule. The traits
-                // (`Reflect`, `Component`, etc.) are from an external crate, so the type
-                // definition _must_ be local. The only case this may not be upheld is within
-                // Bevy's own crates.
-                def_id: def_id.expect_local(),
+                def_id: local_def_id,
             }
             .into();
 
