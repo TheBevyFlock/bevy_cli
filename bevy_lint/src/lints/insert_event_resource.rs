@@ -49,7 +49,10 @@ use std::borrow::Cow;
 
 declare_bevy_lint! {
     pub INSERT_EVENT_RESOURCE,
-    SUSPICIOUS,
+    // The only time this lint would be a false-positive is within
+    // `EventRegistry::register_event()`, which is called by `App::add_event()`. In that case it is
+    // safe to `#[allow(...)]` this lint.
+    CORRECTNESS,
     "called `App::insert_resource(Events<T>)` or `App::init_resource::<Events<T>>()` instead of `App::add_event::<T>()`",
 }
 
