@@ -60,6 +60,12 @@ pub fn run(args: &RunArgs) -> anyhow::Result<()> {
 }
 
 /// Determine which package should be run.
+///
+/// We first take a look at the `--bin` and `--package` args.
+/// If they are not defined, we try to determine the package automatically with the information
+/// provided by cargo metadata.
+/// We first look for the `default_run` definition and otherwise check if there is only a single
+/// binary package that could be run.
 fn select_run_package<'a>(
     metadata: &'a Metadata,
     args: &CargoRunArgs,
