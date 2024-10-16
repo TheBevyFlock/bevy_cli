@@ -39,7 +39,7 @@ macro_rules! declare_bevy_lint {
     } => {
         /// Click me for more information.
         ///
-        /// ```
+        /// ```ignore
         /// Lint {
         #[doc = concat!("    name: \"bevy::", stringify!($name), "\",")]
         #[doc = concat!("    group: ", stringify!($group), ",")]
