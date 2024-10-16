@@ -1,6 +1,7 @@
 use rustc_driver::Callbacks;
 use rustc_interface::interface::Config;
 
+/// The `rustc` [`Callbacks`] that register Bevy's lints.
 pub struct BevyLintCallback;
 
 impl Callbacks for BevyLintCallback {
