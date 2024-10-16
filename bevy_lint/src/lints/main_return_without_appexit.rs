@@ -9,6 +9,11 @@
 //! it from `main()` will set the exit code, which allows external processes to detect whether there
 //! was an error.
 //!
+//! # Known issues
+//!
+//! If you wish to silence this lint, you must add `#[allow(bevy::main_return_without_appexit)]` to
+//! `fn main()`, not the line that calls `App::run()`.
+//!
 //! # Example
 //!
 //! ```
