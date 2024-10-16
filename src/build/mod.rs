@@ -13,7 +13,7 @@ pub fn build(args: &BuildArgs) -> anyhow::Result<()> {
     if args.is_web() {
         ensure_web_setup()?;
 
-        println!("Compile to WebAssembly...");
+        println!("Compiling to WebAssembly...");
         cargo::build::command().args(cargo_args).ensure_status()?;
 
         println!("Bundling JavaScript bindings...");

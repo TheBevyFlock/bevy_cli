@@ -26,7 +26,7 @@ pub fn run(args: &RunArgs) -> anyhow::Result<()> {
         let metadata = cargo::metadata::metadata_with_args(["--no-deps"])?;
 
         // If targeting the web, run a web server with the WASM build
-        println!("Compile to WebAssembly...");
+        println!("Compiling to WebAssembly...");
         cargo::build::command().args(cargo_args).ensure_status()?;
 
         println!("Bundling JavaScript bindings...");
