@@ -13,12 +13,11 @@ pub fn build(args: &BuildArgs) -> anyhow::Result<()> {
     if args.is_web() {
         ensure_web_setup()?;
 
-        println!("Building for WASM...");
+        println!("Compiling to WebAssembly...");
         cargo::build::command().args(cargo_args).ensure_status()?;
 
-        println!("Bundling for the web...");
-        wasm_bindgen::bundle(&package_name()?, args.profile())
-            .expect("Failed to bundle for the web");
+        println!("Bundling JavaScript bindings...");
+        wasm_bindgen::bundle(&package_name()?, args.profile())?;
     } else {
         cargo::build::command().args(cargo_args).ensure_status()?;
     }
