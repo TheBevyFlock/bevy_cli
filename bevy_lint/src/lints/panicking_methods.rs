@@ -232,6 +232,7 @@ impl PanickingType {
                 ("resource_ref", "get_resource_ref"),
                 ("non_send_resource", "get_non_send_resource"),
                 ("non_send_resource_mut", "get_non_send_resource_mut"),
+                ("run_schedule", "try_run_schedule"),
                 ("schedule_scope", "try_schedule_scope"),
             ],
         }
