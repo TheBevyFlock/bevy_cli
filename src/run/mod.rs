@@ -5,7 +5,7 @@ use args::RunSubcommands;
 use crate::{
     build::ensure_web_setup,
     external_cli::{
-        cargo::{self, metadata::Metadata, run::CargoRunArgs},
+        cargo::{self, metadata::Metadata},
         wasm_bindgen, CommandHelpers,
     },
 };
@@ -28,8 +28,8 @@ pub fn run(args: &RunArgs) -> anyhow::Result<()> {
         cargo::build::command().args(cargo_args).ensure_status()?;
 
         println!("Bundling JavaScript bindings...");
-        let package_name = select_run_binary(&metadata, &args.cargo_args)?.name.clone();
-        wasm_bindgen::bundle(&package_name, args.profile())?;
+        let bin_target = select_run_binary(&metadata, &args)?;
+        wasm_bindgen::bundle(&bin_target)?;
 
         let port = web_args.port;
         let url = format!("http://localhost:{port}");
@@ -55,13 +55,14 @@ pub fn run(args: &RunArgs) -> anyhow::Result<()> {
     Ok(())
 }
 
-struct RunBinary {
+#[derive(Debug)]
+pub(crate) struct BinTarget {
     /// The path to the directory in `target` which contains the binary.
-    artifact_directory: PathBuf,
+    pub(crate) artifact_directory: PathBuf,
     /// The name of the binary (without any extensions).
-    bin_name: String,
+    pub(crate) bin_name: String,
     /// Whether the binary is an example of the workspace.
-    is_example: bool,
+    pub(crate) is_example: bool,
 }
 
 /// Determine which package should be run.
@@ -71,9 +72,11 @@ struct RunBinary {
 /// provided by cargo metadata.
 /// We first look for the `default_run` definition and otherwise check if there is only a single
 /// binary package that could be run.
-fn select_run_binary<'a>(metadata: &'a Metadata, args: &CargoRunArgs) -> anyhow::Result<RunBinary> {
+fn select_run_binary<'a>(metadata: &'a Metadata, args: &RunArgs) -> anyhow::Result<BinTarget> {
+    let cargo_args = &args.cargo_args;
+
     // Determine which packages the binary could be in
-    let packages = if let Some(package_name) = &args.package_args.package {
+    let packages = if let Some(package_name) = &cargo_args.package_args.package {
         let package = metadata
             .packages
             .iter()
@@ -86,7 +89,7 @@ fn select_run_binary<'a>(metadata: &'a Metadata, args: &CargoRunArgs) -> anyhow:
 
     let mut is_example = false;
 
-    let target = if let Some(bin_name) = &args.target_args.bin {
+    let target = if let Some(bin_name) = &cargo_args.target_args.bin {
         // The user specified a concrete binary
         let bins: Vec<_> = packages
             .iter()
@@ -104,7 +107,7 @@ fn select_run_binary<'a>(metadata: &'a Metadata, args: &CargoRunArgs) -> anyhow:
         }
 
         bins[0]
-    } else if let Some(example_name) = &args.target_args.example {
+    } else if let Some(example_name) = &cargo_args.target_args.example {
         // The user specified a concrete example
         let examples: Vec<_> = packages
             .iter()
@@ -163,17 +166,17 @@ fn select_run_binary<'a>(metadata: &'a Metadata, args: &CargoRunArgs) -> anyhow:
     // Assemble the path where the binary will be put
     let mut artifact_directory = metadata.target_directory.clone();
 
-    if let Some(target) = &args.compilation_args.target() {
+    if let Some(target) = &cargo_args.compilation_args.target(args.is_web()) {
         artifact_directory.push(target);
     }
 
-    artifact_directory.push(args.compilation_args.profile());
+    artifact_directory.push(cargo_args.compilation_args.profile());
 
     if is_example {
         artifact_directory.push("examples");
     }
 
-    Ok(RunBinary {
+    Ok(BinTarget {
         bin_name: target.name.clone(),
         is_example,
         artifact_directory,

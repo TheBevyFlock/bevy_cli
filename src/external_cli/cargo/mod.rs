@@ -80,12 +80,12 @@ impl CargoCompilationArgs {
         }
     }
 
-    pub(crate) fn target(&self) -> Option<&String> {
+    pub(crate) fn target(&self, is_web: bool) -> Option<String> {
         if is_web {
             Some("wasm32-unknown-unknown".to_string())
         } else {
             self.target.clone()
-        };
+        }
     }
 
     pub(crate) fn args_builder(&self, is_web: bool) -> ArgBuilder {

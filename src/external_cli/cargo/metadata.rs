@@ -88,14 +88,14 @@ impl Package {
     pub fn bin_targets(&self) -> impl Iterator<Item = &Target> {
         self.targets
             .iter()
-            .filter(|target| target.kind == TargetKind::Bin)
+            .filter(|target| target.kind.iter().any(|kind| *kind == TargetKind::Bin))
     }
 
     /// An iterator over all example targets contained in this package.
     pub fn example_targets(&self) -> impl Iterator<Item = &Target> {
         self.targets
             .iter()
-            .filter(|target| target.kind == TargetKind::Example)
+            .filter(|target| target.kind.iter().any(|kind| *kind == TargetKind::Example))
     }
 }
 
