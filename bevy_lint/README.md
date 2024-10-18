@@ -4,6 +4,8 @@
 
 ## Installation
 
+`bevy_lint` uses [`#![feature(rustc_private)]`](https://doc.rust-lang.org/nightly/unstable-book/language-features/rustc-private.html) to link to `rustc` crates. As such, it requires a specific nightly toolchain to be installed.
+
 ### Bleeding edge
 
 You can install `bevy_lint` directly from the Git repository ([TheBevyFlock/bevy_cli](https://github.com/TheBevyFlock/bevy_cli)) to try out new and unstable features!
@@ -22,8 +24,9 @@ Next, install the actual linter from Git:
 $ cargo +nightly-2024-10-03 install --git https://github.com/TheBevyFlock/bevy_cli.git --locked bevy_lint
 ```
 
-> [!HELP]
-> Make sure to specify the nightly toolchain (such as `nightly-2024-10-03`) when running `cargo install`.
+> [!IMPORTANT]
+>
+> Make sure to specify the correct nightly toolchain (such as `nightly-2024-10-03`) when running `cargo install`.
 
 [Rustup]: https://rustup.rs
 

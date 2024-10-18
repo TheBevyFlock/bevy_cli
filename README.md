@@ -2,6 +2,10 @@
 
 A Bevy CLI tool.
 
+## Bevy Linter
+
+For more information specific to `bevy_lint`, please see [its `README.md`](bevy_lint/README.md).
+
 ## Nightly Rust
 
 The Bevy CLI includes a [custom linter](bevy_lint) that integrates directly with `rustc` through [`#![feature(rustc_private)]`](https://doc.rust-lang.org/nightly/unstable-book/language-features/rustc-private.html). Because of this, building this project requires nightly Rust with the `rustc-dev` and `llvm-tools-preview` components. If you use Rustup, a pinned version will be automatically installed when you compile this project based on the contents of [`rust-toolchain.toml`](rust-toolchain.toml).
