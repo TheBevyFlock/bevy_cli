@@ -11,7 +11,7 @@ You can install `bevy_lint` directly from the Git repository ([TheBevyFlock/bevy
 First, you must install the toolchain and components described by [`rust-toolchain.toml`](https://github.com/TheBevyFlock/bevy_cli/blob/main/rust-toolchain.toml) using [Rustup]. As of the time of writing (October 17th, 2024), the command may look like this:
 
 ```bash
-$ rustup toolchain install nightly-2024-08-21 --component rustc-dev --component llvm-tools-preview
+$ rustup toolchain install nightly-2024-10-03 --component rustc-dev --component llvm-tools-preview
 ```
 
 Please be aware that you must keep this toolchain installed for `bevy_lint` to function[^0].
@@ -19,11 +19,11 @@ Please be aware that you must keep this toolchain installed for `bevy_lint` to f
 Next, install the actual linter from Git:
 
 ```bash
-$ cargo +nightly-2024-08-21 install --git https://github.com/TheBevyFlock/bevy_cli.git --locked bevy_lint
+$ cargo +nightly-2024-10-03 install --git https://github.com/TheBevyFlock/bevy_cli.git --locked bevy_lint
 ```
 
 > [!HELP]
-> Make sure to specify the nightly toolchain (such as `nightly-2024-08-21`) when running `cargo install`.
+> Make sure to specify the nightly toolchain (such as `nightly-2024-10-03`) when running `cargo install`.
 
 [Rustup]: https://rustup.rs
 
