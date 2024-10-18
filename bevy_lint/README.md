@@ -32,9 +32,13 @@ Next, install the actual linter from Git:
 $ cargo +nightly-2024-10-03 install --git https://github.com/TheBevyFlock/bevy_cli.git --locked bevy_lint
 ```
 
+<div class="rustdoc-alert rustdoc-alert-important">
+
 > [!IMPORTANT]
 >
 > Make sure to specify the correct nightly toolchain (such as `nightly-2024-10-03`) when running `cargo install`.
+
+</div>
 
 [Rustup]: https://rustup.rs
 
@@ -79,13 +83,21 @@ fn my_critical_system(world: &mut World) {
 
 It is currently not possible to use the `[lints.bevy]` table in `Cargo.toml` in stable Rust. It additionally is impossible to use the `RUSTFLAGS` environmental variable.
 
+<div class="rustdoc-alert rustdoc-alert-tip">
+
 > [!TIP]
 >
 > If your project uses nightly Rust by default, you can forego the `#![cfg_attr(...)]` and write `#![feature(register_tool)]` and `#![register_tool(bevy)]` directly. Additionally, you can configure lints using the `[lints.bevy]` table in `Cargo.toml`.
 
+</div>
+
+<div class="rustdoc-alert rustdoc-alert-note">
+
 > [!NOTE]
 >
 > `#[cfg_attr(bevy_lint, ...)]` is only required until `#![register_tool(...)]` is [stabilized](https://github.com/rust-lang/rust/issues/66079), though that requires an RFC before it can move forward.
+
+</div>
 
 ## License
 

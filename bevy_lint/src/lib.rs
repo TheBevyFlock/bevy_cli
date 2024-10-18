@@ -1,5 +1,5 @@
 //! <style>
-//! .rustdoc-hidden { display: none; }
+#![doc = include_str!("../etc/rustdoc.css")]
 //! </style>
 //!
 //! `bevy_lint` is a Rust linter for the [Bevy game engine](https://bevyengine.org).
