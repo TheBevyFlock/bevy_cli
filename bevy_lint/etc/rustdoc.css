@@ -1,0 +1,72 @@
+/*
+ * Extended theme configuration.
+ *
+ * These colors are based off Github's (blue for notes, green for tips, etc.), though the exact
+ * colors are taken from `rustdoc`'s themes.
+ */
+:root[data-theme="light"] {
+    --bevy-alert-important: #6e4fc9;
+    --bevy-alert-tip: #068000; /* eh */
+    --bevy-alert-note: #2196f3;
+}
+
+:root[data-theme="dark"] {
+    --bevy-alert-important: #b78cf2;
+    --bevy-alert-tip: #2bab63;
+    --bevy-alert-note: #008dfd;
+}
+
+:root[data-theme="ayu"] {
+    --bevy-alert-important: #a37acc;
+    --bevy-alert-tip: #b8cc52;
+    --bevy-alert-note: #39afd7;
+}
+
+/* Used to make part of the document hidden in `rustdoc`, but visible in Github. */
+.rustdoc-hidden {
+    display: none;
+}
+
+/*
+ * Alerts are an extension of the `.warning` class, and as such use many of the same rules.
+ *
+ * These alerts are specifically designed to be compatible with Github's alerts, and as such they
+ * hide the `[!NOTE]` text at the beginning of the block.
+ */
+.rustdoc-alert {
+    border-left: 2px solid;
+    margin: 0 0 0.75em 0;
+    position: relative;
+    overflow-x: visible !important;
+}
+
+/* Remove the existing quote margin and setup some padding instead. */
+.rustdoc-alert blockquote {
+    margin: 0;
+    padding: 14px;
+}
+
+/* Sets up an icon next to the alert, just like `.warning`. */
+.rustdoc-alert::before {
+    content: "ⓘ";
+    position: absolute;
+    left: -25px;
+    top: 5px;
+    font-weight: bold;
+    font-size: 1.25rem;
+}
+
+/* The first `<p>` is `[!NOTE]` and related, so we hide it because we're not Github. */
+.rustdoc-alert blockquote > p:first-child {
+    display: none;
+}
+
+/* Color styles for different kinds of alerts. */
+.rustdoc-alert.rustdoc-alert-important { border-left-color: var(--bevy-alert-important); }
+.rustdoc-alert.rustdoc-alert-important::before { color: var(--bevy-alert-important); }
+
+.rustdoc-alert.rustdoc-alert-tip { border-left-color: var(--bevy-alert-tip); }
+.rustdoc-alert.rustdoc-alert-tip::before { color: var(--bevy-alert-tip); }
+
+.rustdoc-alert.rustdoc-alert-note { border-left-color: var(--bevy-alert-note); }
+.rustdoc-alert.rustdoc-alert-note::before { color: var(--bevy-alert-note); }
