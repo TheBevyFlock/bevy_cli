@@ -2,6 +2,10 @@
 
 `bevy_lint` is a custom linter for the [Bevy game engine](https://bevyengine.org), similar to [Clippy](https://doc.rust-lang.org/stable/clippy).
 
+Please note that this project is still a prototype. It may eventually be upstreamed into the main [Bevy Engine organization], but for now is an unofficial community project.
+
+[Bevy Engine organization]: https://github.com/bevyengine
+
 ## Installation
 
 `bevy_lint` uses [`#![feature(rustc_private)]`](https://doc.rust-lang.org/nightly/unstable-book/language-features/rustc-private.html) to link to `rustc` crates. As such, it requires a specific nightly toolchain to be installed.

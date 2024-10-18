@@ -2,6 +2,10 @@
 
 A Bevy CLI tool.
 
+Please note that this project is still a prototype. It may eventually be upstreamed into the main [Bevy Engine organization], but for now is an unofficial community project.
+
+[Bevy Engine organization]: https://github.com/bevyengine
+
 ## Bevy Linter
 
 For more information specific to `bevy_lint`, please see [its `README.md`](bevy_lint/README.md).
