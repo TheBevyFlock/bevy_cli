@@ -53,7 +53,7 @@ pub fn run(args: &RunArgs) -> anyhow::Result<()> {
             println!("Open your app at <{url}>!");
         }
 
-        serve::serve(port, args.profile())?;
+        serve::serve(bin_target, port)?;
     } else {
         // For native builds, wrap `cargo run`
         cargo::run::command().args(cargo_args).ensure_status()?;
@@ -62,7 +62,7 @@ pub fn run(args: &RunArgs) -> anyhow::Result<()> {
     Ok(())
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub(crate) struct BinTarget {
     /// The path to the directory in `target` which contains the binary.
     pub(crate) artifact_directory: PathBuf,

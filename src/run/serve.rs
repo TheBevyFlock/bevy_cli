@@ -2,7 +2,7 @@
 use actix_web::{rt, web, App, HttpResponse, HttpServer, Responder};
 use std::path::Path;
 
-use crate::external_cli::wasm_bindgen;
+use super::BinTarget;
 
 /// If the user didn't provide an `index.html`, serve a default one.
 async fn serve_default_index() -> impl Responder {
@@ -21,18 +21,21 @@ async fn serve_default_index() -> impl Responder {
 }
 
 /// Launch a web server running the Bevy app.
-pub(crate) fn serve(port: u16, profile: &str) -> anyhow::Result<()> {
-    let profile = profile.to_string();
-
+pub(crate) fn serve(bin_target: BinTarget, port: u16) -> anyhow::Result<()> {
     rt::System::new().block_on(
         HttpServer::new(move || {
             let mut app = App::new();
 
             // Serve the build artifacts at the `/build/*` route
-            // A custom `index.html` will have to call `/build/bevy_app.js`
+            // A custom `index.html` will have to call `/build/{bin_name}.js`
             app = app.service(
-                actix_files::Files::new("/build", wasm_bindgen::get_target_folder(&profile))
-                    .path_filter(|path, _| wasm_bindgen::is_bindgen_artifact(path)),
+                actix_files::Files::new("/build", bin_target.artifact_directory.clone())
+                    // This potentially includes artifacts which we will not need,
+                    // but we can't add the bin name to the check due to lifetime requirements
+                    .path_filter(|path, _| {
+                        path.extension().is_some_and(|ext| ext == "js")
+                            || path.ends_with("_bg.wasm")
+                    }),
             );
 
             // If the app has an assets folder, serve it under `/assets`
@@ -45,6 +48,7 @@ pub(crate) fn serve(port: u16, profile: &str) -> anyhow::Result<()> {
                 app = app.service(actix_files::Files::new("/", "./web").index_file("index.html"));
             } else {
                 // If the user doesn't provide a custom web setup, serve a default `index.html`
+                // TODO: Appropriately link to the correct JS bindings
                 app = app.route("/", web::get().to(serve_default_index))
             }
 
