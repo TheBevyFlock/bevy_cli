@@ -1,6 +1,10 @@
+<div class = "rustdoc-hidden">
+
 # `bevy_lint`
 
 `bevy_lint` is a custom linter for the [Bevy game engine](https://bevyengine.org), similar to [Clippy](https://doc.rust-lang.org/stable/clippy).
+
+</div>
 
 Please note that this project is still a prototype. It may eventually be upstreamed into the main [Bevy Engine organization], but for now is an unofficial community project.
 
@@ -54,7 +58,7 @@ $ bevy lint --help
 
 If you want to enable and disable lints beyond their defaults, you must first register `bevy` as a tool:
 
-```rust
+```rust,ignore
 // When `--cfg bevy_lint` is passed, enable the nightly `register_tool` feature and register
 // `bevy`.
 #![cfg_attr(bevy_lint, feature(register_tool), register_tool(bevy))]
@@ -62,7 +66,7 @@ If you want to enable and disable lints beyond their defaults, you must first re
 
 You can now toggle lints and lint groups throughout the crate, as long as they are also behind `#[cfg_attr(...)]`:
 
-```rust
+```rust,ignore
 #![cfg_attr(bevy_lint, warn(bevy::pedantic))]
 
 #[cfg_attr(bevy_lint, deny(bevy::panicking_world_methods))]
@@ -87,8 +91,8 @@ It is currently not possible to use the `[lints.bevy]` table in `Cargo.toml` in 
 
 The Bevy Linter is licensed under either of
 
-- Apache License, Version 2.0 ([`LICENSE-APACHE`](../LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
-- MIT license ([`LICENSE-MIT`](../LICENSE-MIT) or http://opensource.org/licenses/MIT)
+- Apache License, Version 2.0 ([`LICENSE-APACHE`](../LICENSE-APACHE) or <http://www.apache.org/licenses/LICENSE-2.0>)
+- MIT license ([`LICENSE-MIT`](../LICENSE-MIT) or <http://opensource.org/licenses/MIT>)
 
 at your option.
 
