@@ -21,3 +21,10 @@ Feel free to pick an issue from the [issue tracker], fork the repository, and su
 > Some components may still be missing due to a [`rustup` bug](https://github.com/rust-lang/rustup/issues/3255). If you get `can't find crate` errors when trying to build, ensure that you have the toolchain and components installed, based on [`rust-toolchain.toml`](rust-toolchain.toml).
 
 [Rustup]: https://rustup.rs
+
+## Other Resources
+
+Please familiarize yourself with [Bevy's Code of Conduct], which applies to this project as well. Additionally, take a look at [Bevy's Contributing Guide], since the Bevy CLI is modeled off of the Bevy engine.
+
+[Bevy's Code of Conduct]: https://github.com/bevyengine/bevy/blob/main/CODE_OF_CONDUCT.md
+[Bevy's Contributing Guide]: https://bevyengine.org/learn/contribute/introduction/
