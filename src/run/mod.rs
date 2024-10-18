@@ -1,16 +1,11 @@
-use std::{path::PathBuf, ptr::metadata};
+use std::path::PathBuf;
 
-use anyhow::Context;
 use args::RunSubcommands;
 
 use crate::{
     build::ensure_web_setup,
     external_cli::{
-        cargo::{
-            self,
-            metadata::{Metadata, Package, TargetKind},
-            run::CargoRunArgs,
-        },
+        cargo::{self, metadata::Metadata, run::CargoRunArgs},
         wasm_bindgen, CommandHelpers,
     },
 };
@@ -82,13 +77,11 @@ fn select_run_binary<'a>(metadata: &'a Metadata, args: &CargoRunArgs) -> anyhow:
         let package = metadata
             .packages
             .iter()
-            .find(|package| package.name == package_name)
-            .unwrap_or_else(|| {
-                anyhow::bail!("Failed to find package {package_name}");
-            });
+            .find(|package| package.name == *package_name)
+            .ok_or_else(|| anyhow::anyhow!("Failed to find package {package_name}"))?;
         vec![package]
     } else {
-        metadata.packages
+        metadata.packages.iter().collect()
     };
 
     let mut is_example = false;
@@ -100,7 +93,7 @@ fn select_run_binary<'a>(metadata: &'a Metadata, args: &CargoRunArgs) -> anyhow:
             .flat_map(|package| {
                 package
                     .bin_targets()
-                    .filter(|target| target.name == bin_name)
+                    .filter(|target| target.name == *bin_name)
             })
             .collect();
 
@@ -118,7 +111,7 @@ fn select_run_binary<'a>(metadata: &'a Metadata, args: &CargoRunArgs) -> anyhow:
             .flat_map(|package| {
                 package
                     .example_targets()
-                    .filter(|target| target.name == example_name)
+                    .filter(|target| target.name == *example_name)
             })
             .collect();
 
@@ -147,7 +140,7 @@ fn select_run_binary<'a>(metadata: &'a Metadata, args: &CargoRunArgs) -> anyhow:
             // Otherwise, check if there is a default run target defined
             let default_runs: Vec<_> = packages
                 .iter()
-                .filter_map(|package| package.default_run)
+                .filter_map(|package| package.default_run.as_ref())
                 .collect();
 
             if default_runs.is_empty() {
@@ -159,16 +152,16 @@ fn select_run_binary<'a>(metadata: &'a Metadata, args: &CargoRunArgs) -> anyhow:
             } else {
                 let default_run = default_runs[0];
                 bins.iter()
-                    .find(|bin| bin.name == default_run)
-                    .unwrap_or_else(|| {
-                        anyhow::bail!("Didn't find `default_run` binary {default_run}");
-                    })
+                    .find(|bin| bin.name == *default_run)
+                    .ok_or_else(|| {
+                        anyhow::anyhow!("Didn't find `default_run` binary {default_run}")
+                    })?
             }
         }
     };
 
     // Assemble the path where the binary will be put
-    let mut artifact_directory = metadata.target_directory;
+    let mut artifact_directory = metadata.target_directory.clone();
 
     if let Some(target) = &args.compilation_args.target() {
         artifact_directory.push(target);
@@ -181,7 +174,7 @@ fn select_run_binary<'a>(metadata: &'a Metadata, args: &CargoRunArgs) -> anyhow:
     }
 
     Ok(RunBinary {
-        bin_name: target.name,
+        bin_name: target.name.clone(),
         is_example,
         artifact_directory,
     })
