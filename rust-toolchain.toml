@@ -1,4 +1,5 @@
-# If you modify this file, please also update the `clippy_utils` version in `bevy_lint/Cargo.toml`.
+# If you modify this file, please also update the `clippy_utils` version in `bevy_lint/Cargo.toml`
+# and the compatibility table in `bevy_lint/README.md`.
 
 [toolchain]
 # Writing custom lints requires using nightly Rust. We pin to a specific version of nightly version

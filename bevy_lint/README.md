@@ -71,12 +71,19 @@ $ bevy lint --help
 
 ### Configuring Lints
 
-If you want to enable and disable lints beyond their defaults, you must first register `bevy` as a tool:
+Toggling lints and lint groups requires the nightly `register_tool` feature. Even if your project uses stable Rust, you can still use this feature by detecting the `--cfg bevy_lint` flag:
 
 ```rust,ignore
 // When `--cfg bevy_lint` is passed, enable the nightly `register_tool` feature and register
 // `bevy`.
 #![cfg_attr(bevy_lint, feature(register_tool), register_tool(bevy))]
+```
+
+`bevy_lint` checks your project with a nightly toolchain and automatically passes `--cfg bevy_lint`. Make sure to add it to the list of known `--cfg` flags in `Cargo.toml`:
+
+```toml
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ["cfg(bevy_lint)"] }
 ```
 
 You can now toggle lints and lint groups throughout the crate, as long as they are also behind `#[cfg_attr(...)]`:
@@ -90,25 +97,27 @@ fn my_critical_system(world: &mut World) {
 }
 ```
 
-`bevy_lint` checks your project with a nightly toolchain and automatically passes `--cfg bevy_lint`, allowing you to detect when it is enabled. If you do not register `bevy` as a tool, `#[allow(bevy::lint_name)]` and related attributes will fail to compile.
+If you do not register `bevy` as a tool, `#[allow(bevy::lint_name)]` and related attributes will fail to compile.
 
-It is currently not possible to use the `[lints.bevy]` table in `Cargo.toml` in stable Rust. It additionally is impossible to use the `RUSTFLAGS` environmental variable.
+|Lint Configuration|Support|Additional Information|
+|-|-|-|
+|`#[allow(...)]` and related|✅|Must be behind `#[cfg_attr(bevy_lint, ...)]` on stable Rust|
+|`[lints.bevy]` in `Cargo.toml`|⚠️|(Nightly only because `#[register_tool(bevy)]` must not be behind `#[cfg_attr(bevy_lint, ...)]`)|
+|`RUSTFLAGS="-A bevy::lint"`|❌|`RUSTFLAGS` applies to dependencies, but they do not `#[register_tool(bevy)]`|
 
 <div class="rustdoc-alert rustdoc-alert-tip">
 
 > **Tip**
 >
-> If your project uses nightly Rust by default, you can forego the `#![cfg_attr(...)]` and write `#![feature(register_tool)]` and `#![register_tool(bevy)]` directly. Additionally, you can configure lints using the `[lints.bevy]` table in `Cargo.toml`.
+> If your project uses nightly Rust by default, you can forego the `#![cfg_attr(...)]` and write `#![feature(register_tool)]` and `#![register_tool(bevy)]` directly. This will let you configure lints using the `[lints.bevy]` table in `Cargo.toml`.
 
 </div>
 
-<div class="rustdoc-alert rustdoc-alert-note">
+## Compatibility
 
-> **Note**
->
-> `#[cfg_attr(bevy_lint, ...)]` is only required until `#![register_tool(...)]` is [stabilized](https://github.com/rust-lang/rust/issues/66079), though that requires an RFC before it can move forward.
-
-</div>
+|`bevy_lint` Version|Rust Version|Bevy Version|
+|-|-|-|
+|0.1.0-dev|rustc 1.83.0-nightly (18b1161ec 2024-10-02)|0.14|
 
 ## License
 
