@@ -78,10 +78,18 @@ error: called a `World` method that can panic when a non-panicking alternative e
 error: called a `World` method that can panic when a non-panicking alternative exists
   --> tests/ui/panicking_methods/world.rs:59:11
    |
-59 |     world.schedule_scope(Update, |_world, _schedule| {});
+59 |     world.run_schedule(Update);
+   |           ^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: use `world.try_run_schedule(Update)` and handle the `Option` or `Result`
+
+error: called a `World` method that can panic when a non-panicking alternative exists
+  --> tests/ui/panicking_methods/world.rs:63:11
+   |
+63 |     world.schedule_scope(Update, |_world, _schedule| {});
    |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = help: use `world.try_schedule_scope(Update, |_world, _schedule| {})` and handle the `Option` or `Result`
 
-error: aborting due to 10 previous errors
+error: aborting due to 11 previous errors
 
