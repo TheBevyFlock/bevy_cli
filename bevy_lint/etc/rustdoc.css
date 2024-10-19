@@ -27,12 +27,7 @@
     display: none;
 }
 
-/*
- * Alerts are an extension of the `.warning` class, and as such use many of the same rules.
- *
- * These alerts are specifically designed to be compatible with Github's alerts, and as such they
- * hide the `[!NOTE]` text at the beginning of the block.
- */
+/* Alerts are siblings to the `.warning` class, and as such use many of the same rules. */
 .rustdoc-alert {
     border-left: 2px solid;
     margin: 0 0 0.75em 0;
@@ -56,17 +51,15 @@
     font-size: 1.25rem;
 }
 
-/* The first `<p>` is `[!NOTE]` and related, so we hide it because we're not Github. */
-.rustdoc-alert blockquote > p:first-child {
-    display: none;
-}
-
 /* Color styles for different kinds of alerts. */
 .rustdoc-alert.rustdoc-alert-important { border-left-color: var(--bevy-alert-important); }
 .rustdoc-alert.rustdoc-alert-important::before { color: var(--bevy-alert-important); }
+.rustdoc-alert.rustdoc-alert-important blockquote > p:first-child { color: var(--bevy-alert-important); }
 
 .rustdoc-alert.rustdoc-alert-tip { border-left-color: var(--bevy-alert-tip); }
 .rustdoc-alert.rustdoc-alert-tip::before { color: var(--bevy-alert-tip); }
+.rustdoc-alert.rustdoc-alert-tip blockquote > p:first-child { color: var(--bevy-alert-tip); }
 
 .rustdoc-alert.rustdoc-alert-note { border-left-color: var(--bevy-alert-note); }
 .rustdoc-alert.rustdoc-alert-note::before { color: var(--bevy-alert-note); }
+.rustdoc-alert.rustdoc-alert-note blockquote > p:first-child { color: var(--bevy-alert-note); }

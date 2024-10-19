@@ -34,7 +34,7 @@ $ cargo +nightly-2024-10-03 install --git https://github.com/TheBevyFlock/bevy_c
 
 <div class="rustdoc-alert rustdoc-alert-important">
 
-> [!IMPORTANT]
+> **Important**
 >
 > Make sure to specify the correct nightly toolchain (such as `nightly-2024-10-03`) when running `cargo install`.
 
@@ -85,7 +85,7 @@ It is currently not possible to use the `[lints.bevy]` table in `Cargo.toml` in 
 
 <div class="rustdoc-alert rustdoc-alert-tip">
 
-> [!TIP]
+> **Tip**
 >
 > If your project uses nightly Rust by default, you can forego the `#![cfg_attr(...)]` and write `#![feature(register_tool)]` and `#![register_tool(bevy)]` directly. Additionally, you can configure lints using the `[lints.bevy]` table in `Cargo.toml`.
 
@@ -93,7 +93,7 @@ It is currently not possible to use the `[lints.bevy]` table in `Cargo.toml` in 
 
 <div class="rustdoc-alert rustdoc-alert-note">
 
-> [!NOTE]
+> **Note**
 >
 > `#[cfg_attr(bevy_lint, ...)]` is only required until `#![register_tool(...)]` is [stabilized](https://github.com/rust-lang/rust/issues/66079), though that requires an RFC before it can move forward.
 
@@ -103,13 +103,13 @@ It is currently not possible to use the `[lints.bevy]` table in `Cargo.toml` in 
 
 The Bevy Linter is licensed under either of
 
-- Apache License, Version 2.0 ([`LICENSE-APACHE`](../LICENSE-APACHE) or <http://www.apache.org/licenses/LICENSE-2.0>)
-- MIT license ([`LICENSE-MIT`](../LICENSE-MIT) or <http://opensource.org/licenses/MIT>)
+- Apache License, Version 2.0 ([`LICENSE-APACHE`](https://github.com/TheBevyFlock/bevy_cli/blob/main/LICENSE-APACHE) or <http://www.apache.org/licenses/LICENSE-2.0>)
+- MIT license ([`LICENSE-MIT`](https://github.com/TheBevyFlock/bevy_cli/blob/main/LICENSE-MIT) or <http://opensource.org/licenses/MIT>)
 
 at your option.
 
 ## Contributing
 
-Please see [`CONTRIBUTING.md`](../CONTRIBUTING.md) for more information!
+Please see [`CONTRIBUTING.md`](https://github.com/TheBevyFlock/bevy_cli/blob/main/CONTRIBUTING.md) for more information!
 
 Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in the work by you, as defined in the Apache-2.0 license, shall be dual licensed as above, without any additional terms or conditions.
