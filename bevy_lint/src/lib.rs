@@ -4,8 +4,8 @@
 //!
 //! `bevy_lint` is a Rust linter for the [Bevy game engine](https://bevyengine.org).
 //!
-//! This is the primary documentation for its supported lints and lint groups. It is not intended
-//! to be consumed as a library.
+//! This is the primary documentation for its lints and lint groups. It is not intended to be
+//! consumed as a library.
 #![doc = include_str!("../README.md")]
 // Enables linking to `rustc` crates.
 #![feature(rustc_private)]

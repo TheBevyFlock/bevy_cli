@@ -8,18 +8,21 @@
     --bevy-alert-important: #6e4fc9;
     --bevy-alert-tip: #068000; /* eh */
     --bevy-alert-note: #2196f3;
+    --bevy-alert-warning: #ff8e00;
 }
 
 :root[data-theme="dark"] {
     --bevy-alert-important: #b78cf2;
     --bevy-alert-tip: #2bab63;
     --bevy-alert-note: #008dfd;
+    --bevy-alert-warning: #ff8e00;
 }
 
 :root[data-theme="ayu"] {
     --bevy-alert-important: #a37acc;
     --bevy-alert-tip: #b8cc52;
     --bevy-alert-note: #39afd7;
+    --bevy-alert-warning: #ff8e00;
 }
 
 /* Used to make part of the document hidden in `rustdoc`, but visible in Github. */
@@ -51,6 +54,12 @@
     font-size: 1.25rem;
 }
 
+/* Make the alert title the same sans-serif font and size as headings. */
+.rustdoc-alert blockquote > p:first-child {
+    font-family: "Fira Sans", Arial, NanumBarunGothic, sans-serif;
+    font-size: 1.125rem;
+}
+
 /* Color styles for different kinds of alerts. */
 .rustdoc-alert.rustdoc-alert-important { border-left-color: var(--bevy-alert-important); }
 .rustdoc-alert.rustdoc-alert-important::before { color: var(--bevy-alert-important); }
@@ -63,3 +72,7 @@
 .rustdoc-alert.rustdoc-alert-note { border-left-color: var(--bevy-alert-note); }
 .rustdoc-alert.rustdoc-alert-note::before { color: var(--bevy-alert-note); }
 .rustdoc-alert.rustdoc-alert-note blockquote > p:first-child { color: var(--bevy-alert-note); }
+
+.rustdoc-alert.rustdoc-alert-warning { border-left-color: var(--bevy-alert-warning); }
+.rustdoc-alert.rustdoc-alert-warning::before { color: var(--bevy-alert-warning); }
+.rustdoc-alert.rustdoc-alert-warning blockquote > p:first-child { color: var(--bevy-alert-warning); }
