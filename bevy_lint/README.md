@@ -18,7 +18,7 @@
 
 ## Installation
 
-`bevy_lint` imports internal `rustc` crates that are not available on <https://crates.io>. Instead, these crates are distributed as an optional component named `rustc-dev` for [Rustup] toolchains. Because the API of these crates are unstable and bound to break with every release, `bevy_lint` depends on a pinned, specific nightly toolchain.
+In order to install custom lints, `bevy_lint` imports internal `rustc` crates that are not available on <https://crates.io>. Instead, these crates are distributed as an optional component named `rustc-dev` for [Rustup] toolchains. Because the API of these crates are unstable and bound to break with every release, `bevy_lint` depends on a pinned, specific nightly toolchain.
 
 [Rustup]: https://rustup.rs
 
