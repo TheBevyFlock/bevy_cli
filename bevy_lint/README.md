@@ -34,7 +34,7 @@ For example, a value for `$TOOLCHAIN_VERSION` could be `nightly-2024-10-03`. Ple
 
 [^0]: The internal `rustc` crates are distributed as a [dynamic library](https://en.wikipedia.org/wiki/Dynamic_linker) that is loaded each time `bevy_lint` is run. Uninstalling the toolchain removes this library, causing `bevy_lint` to crash.
 
-### Bleeding edge
+### Bleeding Edge
 
 You can install `bevy_lint` directly from the Git repository ([TheBevyFlock/bevy_cli](https://github.com/TheBevyFlock/bevy_cli)) to try out new and unstable features!
 
