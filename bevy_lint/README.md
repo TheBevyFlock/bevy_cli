@@ -115,9 +115,9 @@ If you do not register `bevy` as a tool, `#[allow(bevy::lint_name)]` and related
 
 ## Compatibility
 
-|`bevy_lint` Version|Rust Version|Bevy Version|
-|-|-|-|
-|0.1.0-dev|rustc 1.83.0-nightly (18b1161ec 2024-10-02)|0.14|
+|`bevy_lint` Version|Rust Version|Rustup Toolchain|Bevy Version|
+|-|-|-|-|
+|0.1.0-dev|1.83.0|`nightly-2024-10-03`|0.14|
 
 ## License
 
