@@ -103,7 +103,8 @@ If you do not register `bevy` as a tool, `#[allow(bevy::lint_name)]` and related
 |-|-|-|
 |`#[allow(...)]` and related|✅|Must be behind `#[cfg_attr(bevy_lint, ...)]` on stable Rust|
 |`[lints.bevy]` in `Cargo.toml`|⚠️|(Nightly only because `#[register_tool(bevy)]` must not be behind `#[cfg_attr(bevy_lint, ...)]`)|
-|`RUSTFLAGS="-A bevy::lint"`|❌|`RUSTFLAGS` applies to dependencies, but they do not `#[register_tool(bevy)]`|
+|`[workspace.lints.bevy]`|❌|No current method to register `bevy` as a tool on a workspace level|
+|`RUSTFLAGS="-A bevy::lint"`|❌|`RUSTFLAGS` applies to dependencies, but they do not have `#[register_tool(bevy)]`|
 
 <div class="rustdoc-alert rustdoc-alert-tip">
 
