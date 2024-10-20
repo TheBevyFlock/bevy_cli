@@ -3,7 +3,7 @@
 Thanks for your interest in contributing to `bevy_lint`! Please feel free to skim through the following table of contents:
 
 1. [Setup](01-setup.md)
-2. [Creating a Lint](TODO)
+2. [Creating a Lint](02-creating-a-lint.md)
 3. [Writing and Running Tests](TODO)
 4. [Tips and Tricks](TODO)
 5. [Further Resources](TODO)
