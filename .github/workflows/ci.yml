@@ -6,6 +6,9 @@ on:
   pull_request:
   workflow_dispatch:
 
+env:
+  CARGO_TERM_COLOR: always
+
 jobs:
   extract-rust-version:
     uses: ./.github/workflows/extract-rust-version.yml
