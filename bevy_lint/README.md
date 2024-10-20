@@ -18,26 +18,30 @@
 
 ## Installation
 
-`bevy_lint` uses [`#![feature(rustc_private)]`](https://doc.rust-lang.org/nightly/unstable-book/language-features/rustc-private.html) to link to `rustc` crates. As such, it requires a specific nightly toolchain to be installed.
+`bevy_lint` imports internal `rustc` crates that are not available on <https://crates.io>. Instead, these crates are distributed as an optional component named `rustc-dev` for [Rustup] toolchains. Because the API of these crates are unstable and bound to break with every release, `bevy_lint` depends on a pinned, specific nightly toolchain.
+
+[Rustup]: https://rustup.rs
+
+To see the toolchain required for a specific release of `bevy_lint`, please see the "Rustup Toolchain" column in the [compatibility table](#compatibility). You can install a toolchain with:
+
+```bash
+$ rustup toolchain install $TOOLCHAIN_VERSION \
+      --component rustc-dev \
+      --component llvm-tools-preview
+```
+
+For example, a value for `$TOOLCHAIN_VERSION` could be `nightly-2024-10-03`. Please be aware that you must keep this toolchain installed for `bevy_lint` to function[^0].
+
+[^0]: The internal `rustc` crates are distributed as a [dynamic library](https://en.wikipedia.org/wiki/Dynamic_linker) that is loaded each time `bevy_lint` is run. Uninstalling the toolchain removes this library, causing `bevy_lint` to crash.
 
 ### Bleeding edge
 
 You can install `bevy_lint` directly from the Git repository ([TheBevyFlock/bevy_cli](https://github.com/TheBevyFlock/bevy_cli)) to try out new and unstable features!
 
-First, you must install the toolchain and components described by [`rust-toolchain.toml`](https://github.com/TheBevyFlock/bevy_cli/blob/main/rust-toolchain.toml) using [Rustup]. As of the time of writing (October 17th, 2024), the command may look like this:
+Make sure you have the nightly toolchain corresponding to the latest `-dev` version in the [compatibility table](#compatibility) installed.
 
 ```bash
-$ rustup toolchain install nightly-2024-10-03 \
-      --component rustc-dev \
-      --component llvm-tools-preview
-```
-
-Please be aware that you must keep this toolchain installed for `bevy_lint` to function[^0].
-
-Next, install the actual linter from Git:
-
-```bash
-$ cargo +nightly-2024-10-03 install \
+$ cargo +$TOOLCHAIN_VERSION install \
       --git https://github.com/TheBevyFlock/bevy_cli.git \
       --locked \
       bevy_lint
@@ -47,13 +51,9 @@ $ cargo +nightly-2024-10-03 install \
 
 > **Important**
 >
-> Make sure to specify the correct nightly toolchain (such as `nightly-2024-10-03`) when running `cargo install`.
+> Make sure to specify a `$TOOLCHAIN_VERSION` (such as `nightly-2024-10-03`) when running `cargo install`.
 
 </div>
-
-[Rustup]: https://rustup.rs
-
-[^0]: `bevy_lint` interfaces with `rustc` to setup custom lints. It does not bundle all of `rustc` into the executable, though, and instead dynamically links to `librustc_driver.so` at runtime. `librustc_driver.so` is installed with the toolchain, so removing the toolchain will cause `bevy_lint` to fail to link.
 
 ## Usage
 
