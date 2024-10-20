@@ -56,6 +56,10 @@ fn main() {
     //~^ ERROR: called a `World` method that can panic when a non-panicking alternative exists
     //~| HELP: use `world.get_non_send_resource_mut::<Patrick>()`
 
+    world.run_schedule(Update);
+    //~^ ERROR: called a `World` method that can panic when a non-panicking alternative exists
+    //~| HELP: use `world.try_run_schedule(Update)`
+
     world.schedule_scope(Update, |_world, _schedule| {});
     //~^ ERROR: called a `World` method that can panic when a non-panicking alternative exists
     //~| HELP: use `world.try_schedule_scope(Update, |_world, _schedule| {})`
