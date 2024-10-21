@@ -1,0 +1,73 @@
+name: Docs
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+# Only allow one deployment to run at a time, however do not cancel runs in progress.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  extract-rust-version:
+    uses: ./.github/workflows/extract-rust-version.yml
+
+  build-lint-docs:
+    name: Build `bevy_lint` docs
+    runs-on: ubuntu-latest
+    needs: extract-rust-version
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ needs.extract-rust-version.outputs.channel }}
+          components: ${{ needs.extract-rust-version.outputs.components }}
+
+      - name: Cache build artifacts
+        uses: Leafwing-Studios/cargo-cache@v2
+        with:
+          sweep-cache: true
+
+      - name: Build with `rustdoc`
+        # We don't need to document dependencies since this is not intended to be consumed as a
+        # library. Furthermore, we pass `--lib` to prevent it from documenting binaries
+        # automatically.
+        run: cargo doc --package bevy_lint --no-deps --lib
+
+      - name: Finalize documentation
+        run: |
+          # Redirect root `index.html` to `bevy_lint/index.html`.
+          echo '<meta http-equiv="refresh" content="0; url=bevy_lint/index.html">' > target/doc/index.html
+
+          # Sometimes Github Pages fails to bundle and publish `rustdoc` websites due to the weird
+          # permissions of this file. Remove it, just in case.
+          rm --force target/doc/.lock
+
+      - name: Upload pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: target/doc
+
+  deploy:
+    name: Deploy docs
+    runs-on: ubuntu-latest
+    needs: build-lint-docs
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    # These are the permissions required to deploy websites to Github Pages.
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+      - name: Deploy to Github Pages
+        id: deploy
+        uses: actions/deploy-pages@v4
