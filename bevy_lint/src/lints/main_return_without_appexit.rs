@@ -37,7 +37,8 @@
 
 use crate::declare_bevy_lint;
 use clippy_utils::{
-    diagnostics::span_lint_and_then, is_entrypoint_fn, sym, ty::match_type, visitors::for_each_expr,
+    diagnostics::span_lint_hir_and_then, is_entrypoint_fn, sym, ty::match_type,
+    visitors::for_each_expr,
 };
 use rustc_errors::Applicability;
 use rustc_hir::{
@@ -93,13 +94,15 @@ impl<'tcx> LateLintPass<'tcx> for MainReturnWithoutAppExit {
 
                     // If `src` is a Bevy `App`, emit the lint.
                     if match_type(cx, ty, &crate::paths::APP) {
-                        span_lint_and_then(
+                        span_lint_hir_and_then(
                             cx,
                             MAIN_RETURN_WITHOUT_APPEXIT.lint,
+                            expr.hir_id,
                             method_span,
                             MAIN_RETURN_WITHOUT_APPEXIT.lint.desc,
                             |diag| {
                                 diag.note("`App::run()` returns `AppExit`, which can be used to determine whether the app exited successfully or not");
+
                                 match declaration.output {
                                     // When it is just `fn main()`, we need to suggest the `->`.
                                     FnRetTy::DefaultReturn(fn_return_span) => diag.span_suggestion(
