@@ -1,3 +1,7 @@
+//! <style>
+#![doc = include_str!("../assets/rustdoc.css")]
+//! </style>
+//!
 //! `bevy_lint` is a Rust linter for the [Bevy game engine](https://bevyengine.org).
 //!
 //! This is the primary documentation for its supported lints and lint groups. It is not intended
