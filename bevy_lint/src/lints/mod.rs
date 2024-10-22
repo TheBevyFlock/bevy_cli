@@ -12,6 +12,7 @@ pub mod main_return_without_appexit;
 pub mod missing_reflect;
 pub mod panicking_methods;
 pub mod plugin_not_ending_in_plugin;
+pub mod unused_appexit;
 pub mod zst_query;
 
 pub(crate) static LINTS: &[&BevyLint] = &[
@@ -21,6 +22,7 @@ pub(crate) static LINTS: &[&BevyLint] = &[
     missing_reflect::MISSING_REFLECT,
     panicking_methods::PANICKING_WORLD_METHODS,
     plugin_not_ending_in_plugin::PLUGIN_NOT_ENDING_IN_PLUGIN,
+    unused_appexit::UNUSED_APPEXIT,
     zst_query::ZST_QUERY,
 ];
 
@@ -35,5 +37,6 @@ pub(crate) fn register_passes(store: &mut LintStore) {
     store.register_late_pass(|_| Box::new(missing_reflect::MissingReflect));
     store.register_late_pass(|_| Box::new(panicking_methods::PanickingMethods));
     store.register_late_pass(|_| Box::new(plugin_not_ending_in_plugin::PluginNotEndingInPlugin));
+    store.register_late_pass(|_| Box::new(unused_appexit::UnusedAppExit));
     store.register_late_pass(|_| Box::new(zst_query::ZstQuery));
 }
