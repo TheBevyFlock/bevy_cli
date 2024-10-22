@@ -7,6 +7,7 @@
 //! [`match_def_path()`](clippy_utils::match_def_path).
 
 pub const APP: [&str; 3] = ["bevy_app", "app", "App"];
+pub const COMMANDS: [&str; 4] = ["bevy_ecs", "system", "commands", "Commands"];
 pub const COMPONENT: [&str; 3] = ["bevy_ecs", "component", "Component"];
 // Note that this moves to `bevy_ecs::event::base::Event` in 0.15.
 pub const EVENT: [&str; 3] = ["bevy_ecs", "event", "Event"];
