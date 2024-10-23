@@ -33,5 +33,5 @@ pub(crate) fn register_passes(store: &mut LintStore) {
     store.register_late_pass(|_| Box::new(missing_reflect::MissingReflect));
     store.register_late_pass(|_| Box::new(panicking_methods::PanickingMethods));
     store.register_late_pass(|_| Box::new(plugin_not_ending_in_plugin::PluginNotEndingInPlugin));
-    store.register_late_pass(|_| Box::new(unused_appexit::UnusedAppExit));
+    store.register_late_pass(|_| Box::new(unused_appexit::UnusedAppExit::default()));
 }
