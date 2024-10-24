@@ -1,0 +1,7 @@
+[alias]
+# Build the documentation for `bevy_lint` with all required flags.
+#
+# - `rustdoc`: allows specifying extra `rustdoc` flags at the cost of not documenting dependencies.
+# - `-p bevy_lint --lib`: documents the `bevy_lint` library.
+# - `--extend-css ...`: includes extra CSS used in the documentation.
+doc-lints = "rustdoc -p bevy_lint --lib -- --extend-css bevy_lint/assets/rustdoc.css"
