@@ -134,13 +134,28 @@ impl<'tcx> LateLintPass<'tcx> for BorrowOfReborrowable {
 #[derive(Debug)]
 enum Reborrowable {
     Commands,
+    // Deferred,
+    // DeferredWorld,
+    EntityCommands,
+    // EntityMut,
+    // EntityMutExcept,
+    // FilteredEntityMut,
+    // FilteredResourcesMut,
+    // Mut,
+    // MutUntyped,
+    // NonSendMut,
+    // PtrMut,
     Query,
+    // QueryIterationCursor,
+    // ResMut,
 }
 
 impl Reborrowable {
     fn try_from_ty<'tcx>(cx: &LateContext<'tcx>, ty: Ty<'tcx>) -> Option<Self> {
         if match_type(cx, ty, &crate::paths::COMMANDS) {
             Some(Self::Commands)
+        } else if match_type(cx, ty, &crate::paths::ENTITY_COMMANDS) {
+            Some(Self::EntityCommands)
         } else if match_type(cx, ty, &crate::paths::QUERY) {
             Some(Self::Query)
         } else {
@@ -151,30 +166,31 @@ impl Reborrowable {
     fn lint(&self) -> &'static Lint {
         match self {
             Self::Commands => BORROW_OF_COMMANDS.lint,
+            Self::EntityCommands => BORROW_OF_COMMANDS.lint,
             Self::Query => BORROW_OF_QUERY.lint,
         }
     }
 
-    fn message(&self) -> &'static str {
-        match self {
-            Self::Commands => BORROW_OF_COMMANDS.lint.desc,
-            Self::Query => BORROW_OF_QUERY.lint.desc,
-        }
+    fn message(&self) -> String {
+        let name = self.name();
+        format!("parameter takes `&mut {name}` instead of a re-borrowed `{name}`",)
     }
 
     fn name(&self) -> &'static str {
         match self {
             Self::Commands => "Commands",
+            Self::EntityCommands => "EntityCommands",
             Self::Query => "Query",
         }
     }
 
     fn help(&self) -> String {
-        format!("use `{}` instead", self.name())
+        let name = self.name();
+        format!("use `{name}` instead")
     }
 
     fn suggest(&self, ident: Ident, ty: String) -> String {
-        format!("mut {}: {}", ident, ty)
+        format!("mut {ident}: {ty}")
     }
 }
 
