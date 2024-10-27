@@ -53,19 +53,19 @@ use rustc_span::{def_id::LocalDefId, symbol::Ident, Span};
 declare_bevy_lint! {
     pub BORROW_OF_COMMANDS,
     PEDANTIC,
-    "parameter takes `&mut Commands` instead of a re-borrowed `Commands`",
+    "parameter takes a mutable reference to `Commands` or `EntityCommands` instead of a re-borrowed instance",
 }
 
 declare_bevy_lint! {
     pub BORROW_OF_RESOURCE,
     PEDANTIC,
-    "parameter takes `&mut ResMut` instead of a re-borrowed `ResMut`",
+    "parameter takes a mutable reference to `ResMut` or `NonSendMut` instead of a re-borrowed instance",
 }
 
 declare_bevy_lint! {
     pub BORROW_OF_QUERY,
     PEDANTIC,
-    "parameter takes `&mut Query` instead of a re-borrowed `Query`",
+    "parameter takes a mutable reference to `Query` instead of a re-borrowed instance",
 }
 
 declare_lint_pass! {
@@ -149,7 +149,7 @@ enum Reborrowable {
     // FilteredResourcesMut,
     // Mut,
     // MutUntyped,
-    // NonSendMut,
+    NonSendMut,
     // PtrMut,
     Query,
     // QueryIterationCursor,
@@ -166,6 +166,8 @@ impl Reborrowable {
             Some(Self::Query)
         } else if match_type(cx, ty, &crate::paths::RES_MUT) {
             Some(Self::ResMut)
+        } else if match_type(cx, ty, &crate::paths::NON_SEND_MUT) {
+            Some(Self::NonSendMut)
         } else {
             None
         }
@@ -177,6 +179,7 @@ impl Reborrowable {
             Self::EntityCommands => BORROW_OF_COMMANDS.lint,
             Self::Query => BORROW_OF_QUERY.lint,
             Self::ResMut => BORROW_OF_RESOURCE.lint,
+            Self::NonSendMut => BORROW_OF_RESOURCE.lint,
         }
     }
 
@@ -191,6 +194,7 @@ impl Reborrowable {
             Self::EntityCommands => "EntityCommands",
             Self::Query => "Query",
             Self::ResMut => "ResMut",
+            Self::NonSendMut => "NonSendMut",
         }
     }
 
