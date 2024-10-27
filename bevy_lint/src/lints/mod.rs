@@ -14,6 +14,7 @@ pub mod plugin_not_ending_in_plugin;
 
 pub(crate) static LINTS: &[&BevyLint] = &[
     borrow_of_reborrowable::BORROW_OF_COMMANDS,
+    borrow_of_reborrowable::BORROW_OF_RESOURCE,
     borrow_of_reborrowable::BORROW_OF_QUERY,
     insert_event_resource::INSERT_EVENT_RESOURCE,
     main_return_without_appexit::MAIN_RETURN_WITHOUT_APPEXIT,

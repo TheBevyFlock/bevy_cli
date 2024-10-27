@@ -57,13 +57,19 @@ declare_bevy_lint! {
 }
 
 declare_bevy_lint! {
+    pub BORROW_OF_RESOURCE,
+    PEDANTIC,
+    "parameter takes `&mut ResMut` instead of a re-borrowed `ResMut`",
+}
+
+declare_bevy_lint! {
     pub BORROW_OF_QUERY,
     PEDANTIC,
     "parameter takes `&mut Query` instead of a re-borrowed `Query`",
 }
 
 declare_lint_pass! {
-    BorrowOfReborrowable => [BORROW_OF_COMMANDS.lint, BORROW_OF_QUERY.lint]
+    BorrowOfReborrowable => [BORROW_OF_COMMANDS.lint, BORROW_OF_RESOURCE.lint, BORROW_OF_QUERY.lint]
 }
 
 impl<'tcx> LateLintPass<'tcx> for BorrowOfReborrowable {
@@ -147,7 +153,7 @@ enum Reborrowable {
     // PtrMut,
     Query,
     // QueryIterationCursor,
-    // ResMut,
+    ResMut,
 }
 
 impl Reborrowable {
@@ -158,6 +164,8 @@ impl Reborrowable {
             Some(Self::EntityCommands)
         } else if match_type(cx, ty, &crate::paths::QUERY) {
             Some(Self::Query)
+        } else if match_type(cx, ty, &crate::paths::RES_MUT) {
+            Some(Self::ResMut)
         } else {
             None
         }
@@ -168,6 +176,7 @@ impl Reborrowable {
             Self::Commands => BORROW_OF_COMMANDS.lint,
             Self::EntityCommands => BORROW_OF_COMMANDS.lint,
             Self::Query => BORROW_OF_QUERY.lint,
+            Self::ResMut => BORROW_OF_RESOURCE.lint,
         }
     }
 
@@ -181,6 +190,7 @@ impl Reborrowable {
             Self::Commands => "Commands",
             Self::EntityCommands => "EntityCommands",
             Self::Query => "Query",
+            Self::ResMut => "ResMut",
         }
     }
 

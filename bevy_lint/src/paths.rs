@@ -17,5 +17,6 @@ pub const PLUGIN: [&str; 3] = ["bevy_app", "plugin", "Plugin"];
 pub const QUERY: [&str; 4] = ["bevy_ecs", "system", "query", "Query"];
 pub const QUERY_STATE: [&str; 4] = ["bevy_ecs", "query", "state", "QueryState"];
 pub const REFLECT: [&str; 3] = ["bevy_reflect", "reflect", "Reflect"];
+pub const RES_MUT: [&str; 3] = ["bevy_ecs", "change_detection", "ResMut"];
 pub const RESOURCE: [&str; 4] = ["bevy_ecs", "system", "system_param", "Resource"];
 pub const WORLD: [&str; 3] = ["bevy_ecs", "world", "World"];
