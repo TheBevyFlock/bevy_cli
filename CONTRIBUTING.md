@@ -25,7 +25,7 @@ Feel free to pick an issue from the [issue tracker], fork the repository, and su
 
 ## Other Resources
 
-Please familiarize yourself with [Bevy's Code of Conduct], which applies to this project as well. Additionally take a look at [Bevy's Contributing Guide], since many of the engine's procedures transfer to the CLI.
+Please familiarize yourself with [Bevy's Code of Conduct], which applies to this project as well. Additionally, take a look at [Bevy's Contributing Guide], as many of the engine's procedures transfer to the CLI.
 
 [Bevy's Code of Conduct]: https://github.com/bevyengine/bevy/blob/main/CODE_OF_CONDUCT.md
 [Bevy's Contributing Guide]: https://bevyengine.org/learn/contribute/introduction/

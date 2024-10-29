@@ -7,7 +7,7 @@ A prototype [Bevy] CLI tool intended to streamline common tasks when working on 
 - Out-of-the-box support for bundling projects into WebAssembly
 - An HTTP server for testing these WASM bundles
 
-If you need assistance or want to help, reach out the [`bevy_cli` working group channel] in the [Bevy Discord].
+If you need assistance or want to help, reach out to the [`bevy_cli` working group channel] in the [Bevy Discord].
 
 [Bevy]: https://bevyengine.org
 [initial scope document]: https://hackmd.io/cCHAfbtaSviU_MDnbNHKxg
