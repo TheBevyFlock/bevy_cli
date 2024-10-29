@@ -1,11 +1,31 @@
 # Bevy CLI
 
-A Bevy CLI tool.
+A prototype [Bevy] CLI tool intended to streamline common tasks when working on projects. Please see the [initial scope document] and [original issue] for history and motivation. The CLI's current features include:
 
-## Nightly Rust
+- Project generation from a template
+- [A custom, Bevy-specific linter](bevy_lint/README.md)
+- Out-of-the-box support for bundling projects into WebAssembly
+- An HTTP server for testing these WASM bundles
 
-The Bevy CLI includes a [custom linter](bevy_lint) that integrates directly with `rustc` through [`#![feature(rustc_private)]`](https://doc.rust-lang.org/nightly/unstable-book/language-features/rustc-private.html). Because of this, building this project requires nightly Rust with the `rustc-dev` and `llvm-tools-preview` components. If you use Rustup, a pinned version will be automatically installed when you compile this project based on the contents of [`rust-toolchain.toml`](rust-toolchain.toml).
+If you need assistance or want to help, reach out to the [`bevy_cli` working group channel] in the [Bevy Discord].
 
-> [!WARNING]
->
-> Some components may still be missing due to a [`rustup` bug](https://github.com/rust-lang/rustup/issues/3255). If you get `can't find crate` errors when trying to build, ensure that you have the toolchain and components installed, based on [`rust-toolchain.toml`](rust-toolchain.toml).
+[Bevy]: https://bevyengine.org
+[initial scope document]: https://hackmd.io/cCHAfbtaSviU_MDnbNHKxg
+[original issue]: https://github.com/bevyengine/bevy/issues/436
+[`bevy_cli` working group channel]: https://discord.com/channels/691052431525675048/1278871953721262090
+[Bevy Discord]: https://discord.gg/bevy
+
+## License
+
+The Bevy CLI is licensed under either of
+
+- Apache License, Version 2.0 ([`LICENSE-APACHE`](LICENSE-APACHE) or <http://www.apache.org/licenses/LICENSE-2.0>)
+- MIT license ([`LICENSE-MIT`](LICENSE-MIT) or <http://opensource.org/licenses/MIT>)
+
+at your option.
+
+## Contributing
+
+Please see [`CONTRIBUTING.md`](CONTRIBUTING.md) for more information!
+
+Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in the work by you, as defined in the Apache-2.0 license, shall be dual licensed as above, without any additional terms or conditions.
