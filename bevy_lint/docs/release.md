@@ -8,19 +8,23 @@
 4. Remove the `-dev` suffix from the version in [`Cargo.toml`](../Cargo.toml), and ensure [`Cargo.lock`](../../Cargo.lock) also updates.
 5. Commit all of these changes and open a pull request.
 6. Merge the PR once a core Bevy maintainer approves it with no outstanding issues from other contributors.
-      - This starts the release process, enacting a freeze on all other changes until the release has finished.
+      - This starts the release process, enacting a freeze on all other changes until the release has finished. While maintainers need to be aware of this so they do not merge PRs during this time, the release process should take less than an hour, so it's unlikely to ever be an issue.
 
 ## Release on Github
 
 1. [Create a new Github release](https://github.com/TheBevyFlock/bevy_cli/releases/new).
 2. Set the tag to `lint-vX.Y.Z`.
 3. Set the title to `` `bevy_lint` - vX.Y.Z``
-4. Paste the following into the release description:
+4. Paste and fill out the following template into the release description:
 
 ````markdown
-One-sentence summary of changes. What awesome features can we spotlight? What critical bugs were fixed?
+<!-- One-sentence summary of changes. What awesome features can we spotlight? What critical bugs were fixed? -->
 
-This release uses the `nightly-YYYY-MM-DD` toolchain, based on Rust 1.XX.Y. You can install it from Git with the following commands:
+<!-- You can refer to the compatibility table in `bevy_lint/README.md` for the following two values. -->
+
+This release uses the <!-- `nightly-YYYY-MM-DD` --> toolchain, based on Rust <!-- 1.XX.Y -->. You can install it from Git with the following commands:
+
+<!-- Update `nightly-YYYY-MM-DD` and `lint-vX.Y.Z` in the following code block. -->
 
 ```bash
 $ rustup toolchain install nightly-YYYY-MM-DD \
@@ -30,7 +34,7 @@ $ rustup toolchain install nightly-YYYY-MM-DD \
 $ cargo install --git https://github.com/TheBevyFlock/bevy_cli.git --tag lint-vX.Y.Z --locked bevy_lint
 ```
 
-Paste the changelog for this release here.
+<!-- Paste the changelog for this release here. -->
 ````
 
 5. Check the pre-release box if this is an alpha release, then click "Publish release"!
@@ -42,6 +46,8 @@ Paste the changelog for this release here.
 
 ```markdown
 ## [Unreleased]
+
+<!-- Update `lint-vX.Y.Z` in the link to point to the latest release tag. -->
 
 **All Changes**: [`lint-vX.Y.Z...main`](https://github.com/TheBevyFlock/bevy_cli/compare/lint-vX.Y.Z...main)
 ```
