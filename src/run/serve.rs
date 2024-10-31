@@ -4,13 +4,8 @@ use std::path::Path;
 
 use super::BinTarget;
 
-/// If the user didn't provide an `index.html`, serve a default one.
-async fn serve_default_index() -> impl Responder {
-    let content = include_str!(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/assets/web/index.html"
-    ));
-
+/// Serve a static HTML file with the given content.
+async fn serve_static_html(content: &'static str) -> impl Responder {
     // Build the HTTP response with appropriate headers to serve the content as a file
     HttpResponse::Ok()
         .insert_header((
@@ -20,8 +15,29 @@ async fn serve_default_index() -> impl Responder {
         .body(content)
 }
 
+fn default_index(bin_target: &BinTarget) -> &'static str {
+    let template = include_str!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/assets/web/index.html"
+    ));
+
+    // Insert correct path to JS bindings
+    let index = template.replace(
+        "./build/bevy_app.js",
+        format!("./build/{}.js", bin_target.bin_name).as_str(),
+    );
+
+    // Only static strings can be served in the web app,
+    // so we leak the string memory to convert it to a static reference.
+    // PERF: This is assumed to be used only once and is needed for the rest of the app running
+    // time, making the memory leak acceptable.
+    Box::leak(index.into_boxed_str())
+}
+
 /// Launch a web server running the Bevy app.
 pub(crate) fn serve(bin_target: BinTarget, port: u16) -> anyhow::Result<()> {
+    let index_html = default_index(&bin_target);
+
     rt::System::new().block_on(
         HttpServer::new(move || {
             let mut app = App::new();
@@ -34,7 +50,7 @@ pub(crate) fn serve(bin_target: BinTarget, port: u16) -> anyhow::Result<()> {
                     // but we can't add the bin name to the check due to lifetime requirements
                     .path_filter(|path, _| {
                         path.extension().is_some_and(|ext| ext == "js")
-                            || path.ends_with("_bg.wasm")
+                            || path.extension().is_some_and(|ext| ext == "wasm")
                     }),
             );
 
@@ -49,7 +65,7 @@ pub(crate) fn serve(bin_target: BinTarget, port: u16) -> anyhow::Result<()> {
             } else {
                 // If the user doesn't provide a custom web setup, serve a default `index.html`
                 // TODO: Appropriately link to the correct JS bindings
-                app = app.route("/", web::get().to(serve_default_index))
+                app = app.route("/", web::get().to(|| serve_static_html(index_html)))
             }
 
             app
