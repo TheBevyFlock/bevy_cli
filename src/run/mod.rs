@@ -33,8 +33,8 @@ pub fn run(args: &RunArgs) -> anyhow::Result<()> {
             &args.cargo_args.package_args.package,
             &args.cargo_args.target_args.bin,
             &args.cargo_args.target_args.example,
-            &args.cargo_args.compilation_args.target(args.is_web()),
-            args.cargo_args.compilation_args.profile(),
+            &args.target(),
+            args.profile(),
         )?;
         wasm_bindgen::bundle(&bin_target)?;
 
