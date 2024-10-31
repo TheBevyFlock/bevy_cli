@@ -27,9 +27,11 @@ cargo-generate = "0.22"
 # Better CLI user input
 dialoguer = { version = "0.11.0", default-features = false }
 
-# API interaction
+# JSON serialization.
 serde = { features = ["derive"], version = "1.0.210" }
 serde_json = "1.0.128"
+
+# API interaction
 reqwest = { features = ["blocking", "json"], version = "0.12.7" }
 regex = "1.10.6"
 
