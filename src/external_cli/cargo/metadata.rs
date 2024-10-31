@@ -71,6 +71,8 @@ pub struct Package {
     pub manifest_path: PathBuf,
     /// Optional string that is the default binary picked by cargo run.
     pub default_run: Option<String>,
+    /// A list of direct dependencies for this package.
+    pub dependencies: Vec<Dependency>,
 }
 
 impl Package {
@@ -108,12 +110,13 @@ pub struct Dependency {
 #[derive(Debug, Deserialize, Default, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum DependencyKind {
-    #[default]
-    Normal,
     Dev,
     Build,
+    // While `Dev` and `Build` are represented in their string forms, `Null` is represented as
+    // `null` instead of `"null"` in JSON.
+    #[default]
     #[serde(untagged)]
-    Unknown(String),
+    Null,
 }
 
 #[derive(Debug, Deserialize)]
