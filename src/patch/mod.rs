@@ -6,6 +6,16 @@ use crate::external_cli::cargo::{self, metadata::DependencyKind};
 use anyhow::bail;
 use args::GitRevisionArgs;
 
+/// A list of crates that `bevy_internal` does not depend on, and as such need to be hard-coded.
+const INJECTED_BEVY_CRATES: &[&str] = &[
+    // `bevy_internal` cannot depend on `bevy` because `bevy` depends on `bevy_internal`.
+    "bevy",
+    // `bevy_internal` cannot depend on itself.
+    "bevy_internal",
+    // `bevy` depends on `bevy_dylib` directly, not `bevy_internal`.
+    "bevy_dylib",
+];
+
 pub fn patch(args: &PatchArgs) -> anyhow::Result<()> {
     let metadata = cargo::metadata::metadata()?;
 
@@ -22,24 +32,9 @@ pub fn patch(args: &PatchArgs) -> anyhow::Result<()> {
         );
     };
 
-    // Generate a (potentially empty) string containing the Git repository revision specification.
-    // For example, if `--branch patch-1` was specified, this would be `, branch = "patch-1"`.
-    let revision_fragment = git_revision_fragment(&args.git_revision_args);
+    let injected_bevy_crates = INJECTED_BEVY_CRATES.into_iter().map(|s| s.to_string());
 
-    println!("[patch.crates-io]");
-
-    // These 3 are not dependencies of `bevy_internal`, so they need to be emitted manually.
-    println!("bevy = {{ git = \"{}\"{} }}", args.git, revision_fragment);
-    println!(
-        "bevy_internal = {{ git = \"{}\"{} }}",
-        args.git, revision_fragment
-    );
-    println!(
-        "bevy_dylib = {{ git = \"{}\"{} }}",
-        args.git, revision_fragment
-    );
-
-    for d in bevy_internal
+    let official_bevy_crates = bevy_internal
         .dependencies
         .into_iter()
         // Skip dev-dependencies and build-dependencies.
@@ -47,11 +42,16 @@ pub fn patch(args: &PatchArgs) -> anyhow::Result<()> {
         // While `bevy_internal` doesn't directly depend on any non-Bevy crates currently, that may
         // change in the future. This is a future-proof, in case a crate like `cfg_if` is added.
         .filter(|d| d.name.starts_with("bevy_"))
-    {
-        println!(
-            "{} = {{ git = \"{}\"{} }}",
-            d.name, args.git, revision_fragment
-        );
+        .map(|d| d.name);
+
+    // Generate a (potentially empty) string containing the Git repository revision specification.
+    // For example, if `--branch patch-1` was specified, this would be `, branch = "patch-1"`.
+    let revision_fragment = git_revision_fragment(&args.git_revision_args);
+
+    println!("[patch.crates-io]");
+
+    for d in injected_bevy_crates.chain(official_bevy_crates) {
+        println!("{} = {{ git = \"{}\"{} }}", d, args.git, revision_fragment);
     }
 
     Ok(())
