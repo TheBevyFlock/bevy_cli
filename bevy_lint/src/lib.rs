@@ -28,5 +28,6 @@ pub mod groups;
 mod lint;
 pub mod lints;
 mod paths;
+mod utils;
 
 pub use self::callback::BevyLintCallback;

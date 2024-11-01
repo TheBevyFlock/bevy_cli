@@ -31,13 +31,15 @@
 //! }
 //! ```
 
-use crate::declare_bevy_lint;
+use crate::{
+    declare_bevy_lint,
+    utils::hir_parse::{detuple, generic_type_at},
+};
 use clippy_utils::{
     diagnostics::span_lint_and_help,
     ty::{is_normalizable, match_type},
 };
 use rustc_abi::Size;
-use rustc_hir::{Node, QPath};
 use rustc_hir_analysis::collect::ItemCtxt;
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::{
@@ -136,44 +138,4 @@ fn is_zero_sized<'tcx>(cx: &LateContext<'tcx>, ty: Ty<'tcx>) -> Option<bool> {
     };
 
     Some(layout.size() == Size::ZERO)
-}
-
-/// Returns the list of types inside a tuple type.
-///
-/// If the type is not a tuple, returns a list containing the type itself.
-fn detuple<'hir>(ty: rustc_hir::Ty<'hir>) -> Vec<rustc_hir::Ty<'hir>> {
-    if let rustc_hir::TyKind::Tup(items) = ty.peel_refs().kind {
-        items.to_vec()
-    } else {
-        vec![ty]
-    }
-}
-
-/// Gets the [`rustc_hir::Ty`] for a generic argument at the specified index.
-///
-/// If the generic argument is not a type, returns `None`.
-fn generic_type_at<'tcx>(
-    cx: &LateContext<'tcx>,
-    hir_ty: &'tcx rustc_hir::Ty<'tcx>,
-    index: usize,
-) -> Option<&'tcx rustc_hir::Ty<'tcx>> {
-    let generic_arg = generic_at(hir_ty, index)?;
-    let generic_node = cx.tcx.hir_node(generic_arg.hir_id());
-
-    if let Node::Ty(ty) = generic_node {
-        Some(ty)
-    } else {
-        None
-    }
-}
-/// Returns the [`rustc_hir::GenericArg`] at the given index.
-fn generic_at<'hir>(
-    hir_ty: &'hir rustc_hir::Ty<'hir>,
-    index: usize,
-) -> Option<&'hir rustc_hir::GenericArg<'hir>> {
-    let rustc_hir::TyKind::Path(QPath::Resolved(_, path)) = hir_ty.kind else {
-        return None;
-    };
-
-    path.segments.last()?.args().args.get(index)
 }
