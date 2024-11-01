@@ -1,0 +1,179 @@
+//! Checks for queries that query for a zero-sized type.
+//!
+//! # Motivation
+//!
+//! Zero-sized types (ZSTs) are types that have no size as a result of containing no runtime data.
+//! In Bevy, such types are often used as marker components and are best used as filters.
+//!
+//! # Example
+//!
+//! ```
+//! # use bevy::prelude::*;
+//!
+//! #[derive(Component)]
+//! struct Player;
+//!
+//! fn move_player(mut query: Query<(&mut Transform, &Player)>) {
+//!     // ...
+//! }
+//! ```
+//!
+//! Use instead:
+//!
+//! ```
+//! # use bevy::prelude::*;
+//!
+//! #[derive(Component)]
+//! struct Player;
+//!
+//! fn move_player(query: Query<&mut Transform, With<Player>>) {
+//!     // ...
+//! }
+//! ```
+
+use crate::declare_bevy_lint;
+use clippy_utils::{
+    diagnostics::span_lint_and_help,
+    ty::{is_normalizable, match_type},
+};
+use rustc_abi::Size;
+use rustc_hir::{Node, QPath};
+use rustc_hir_analysis::collect::ItemCtxt;
+use rustc_lint::{LateContext, LateLintPass};
+use rustc_middle::ty::{
+    layout::{LayoutOf, TyAndLayout},
+    Ty,
+};
+use rustc_session::declare_lint_pass;
+
+declare_bevy_lint! {
+    pub ZST_QUERY,
+    RESTRICTION,
+    "query for a zero-sized type"
+}
+
+declare_lint_pass! {
+    ZstQuery => [ZST_QUERY.lint]
+}
+
+impl<'tcx> LateLintPass<'tcx> for ZstQuery {
+    fn check_ty(&mut self, cx: &LateContext<'tcx>, hir_ty: &'tcx rustc_hir::Ty<'tcx>) {
+        let item_cx = ItemCtxt::new(cx.tcx, hir_ty.hir_id.owner.def_id);
+        let ty = item_cx.lower_ty(hir_ty);
+
+        let Some(query_kind) = QueryKind::try_from_ty(cx, ty) else {
+            return;
+        };
+
+        let Some(query_data_ty) = generic_type_at(cx, hir_ty, 2) else {
+            return;
+        };
+
+        for hir_ty in detuple(*query_data_ty) {
+            let ty = item_cx.lower_ty(&hir_ty);
+
+            // We want to make sure we're evaluating `Foo` and not `&Foo`/`&mut Foo`
+            let peeled = ty.peel_refs();
+
+            if !is_zero_sized(cx, peeled).unwrap_or_default() {
+                continue;
+            }
+
+            // TODO: We can also special case `Option<&Foo>`/`Option<&mut Foo>` to
+            //       instead suggest `Has<Foo>`
+            span_lint_and_help(
+                cx,
+                ZST_QUERY.lint,
+                hir_ty.span,
+                ZST_QUERY.lint.desc,
+                None,
+                query_kind.help(&peeled),
+            );
+        }
+    }
+}
+
+enum QueryKind {
+    Query,
+}
+
+impl QueryKind {
+    fn try_from_ty<'tcx>(cx: &LateContext<'tcx>, ty: Ty<'tcx>) -> Option<Self> {
+        if match_type(cx, ty, &crate::paths::QUERY) {
+            Some(Self::Query)
+        } else {
+            None
+        }
+    }
+
+    fn help(&self, ty: &Ty<'_>) -> String {
+        // It should be noted that `With<Foo>` is not always the best filter to suggest.
+        // While it's most often going to be what users want, there's also `Added<Foo>`
+        // and `Changed<Foo>` which might be more appropriate in some cases
+        // (i.e. users are calling `foo.is_added()` or `foo.is_changed()` in the body of
+        // the system).
+        // In the future, we might want to span the usage site of `is_added()`/`is_changed()`
+        // and suggest to use `Added<Foo>`/`Changed<Foo>` instead.
+        match self {
+            Self::Query => format!("consider using a filter instead: `With<{ty}>`"),
+        }
+    }
+}
+
+/// Checks if a type is zero-sized.
+///
+/// Returns:
+/// - `Some(true)` if the type is most likely a ZST
+/// - `Some(false)` if the type is most likely not a ZST
+/// - `None` if we cannot determine the size (e.g., type is not normalizable)
+fn is_zero_sized<'tcx>(cx: &LateContext<'tcx>, ty: Ty<'tcx>) -> Option<bool> {
+    if !is_normalizable(cx, cx.param_env, ty) {
+        return None;
+    }
+
+    let Ok(TyAndLayout { layout, .. }) = cx.layout_of(ty) else {
+        return None;
+    };
+
+    Some(layout.size() == Size::ZERO)
+}
+
+/// Returns the list of types inside a tuple type.
+///
+/// If the type is not a tuple, returns a list containing the type itself.
+fn detuple<'hir>(ty: rustc_hir::Ty<'hir>) -> Vec<rustc_hir::Ty<'hir>> {
+    if let rustc_hir::TyKind::Tup(items) = ty.peel_refs().kind {
+        items.to_vec()
+    } else {
+        vec![ty]
+    }
+}
+
+/// Gets the [`rustc_hir::Ty`] for a generic argument at the specified index.
+///
+/// If the generic argument is not a type, returns `None`.
+fn generic_type_at<'tcx>(
+    cx: &LateContext<'tcx>,
+    hir_ty: &'tcx rustc_hir::Ty<'tcx>,
+    index: usize,
+) -> Option<&'tcx rustc_hir::Ty<'tcx>> {
+    let generic_arg = generic_at(hir_ty, index)?;
+    let generic_node = cx.tcx.hir_node(generic_arg.hir_id());
+
+    if let Node::Ty(ty) = generic_node {
+        Some(ty)
+    } else {
+        None
+    }
+}
+/// Returns the [`rustc_hir::GenericArg`] at the given index.
+fn generic_at<'hir>(
+    hir_ty: &'hir rustc_hir::Ty<'hir>,
+    index: usize,
+) -> Option<&'hir rustc_hir::GenericArg<'hir>> {
+    let rustc_hir::TyKind::Path(QPath::Resolved(_, path)) = hir_ty.kind else {
+        return None;
+    };
+
+    path.segments.last()?.args().args.get(index)
+}
