@@ -6,7 +6,7 @@ use rustc_lint::LateContext;
 /// Returns the list of types inside a tuple type.
 ///
 /// If the type is not a tuple, returns a list containing the type itself.
-pub(crate) fn detuple<'hir>(ty: Ty<'hir>) -> Vec<Ty<'hir>> {
+pub(crate) fn detuple(ty: Ty<'_>) -> Vec<Ty<'_>> {
     if let TyKind::Tup(items) = ty.peel_refs().kind {
         items.to_vec()
     } else {
