@@ -47,36 +47,33 @@ use clippy_utils::{diagnostics::span_lint_and_sugg, ty::match_type};
 use rustc_errors::Applicability;
 use rustc_hir::{intravisit::FnKind, Body, FnDecl, Mutability};
 use rustc_lint::{LateContext, LateLintPass, Lint};
-use rustc_middle::{
-    ty::Interner,
-    ty::{Ty, TyKind, TypeVisitable, TypeVisitor},
-};
+use rustc_middle::ty::{Interner, Ty, TyKind, TypeVisitable, TypeVisitor};
 use rustc_session::declare_lint_pass;
 use rustc_span::{def_id::LocalDefId, symbol::Ident, Span};
 
 declare_bevy_lint! {
-    pub BORROW_OF_COMMANDS,
+    pub BORROWED_COMMANDS,
     PEDANTIC,
     "parameter takes a mutable reference to `Commands` or `EntityCommands` instead of a re-borrowed instance",
 }
 
 declare_bevy_lint! {
-    pub BORROW_OF_RESOURCE,
+    pub BORROWED_RESOURCE,
     PEDANTIC,
     "parameter takes a mutable reference to `ResMut` or `NonSendMut` instead of a re-borrowed instance",
 }
 
 declare_bevy_lint! {
-    pub BORROW_OF_QUERY,
+    pub BORROWED_QUERY,
     PEDANTIC,
     "parameter takes a mutable reference to `Query` instead of a re-borrowed instance",
 }
 
 declare_lint_pass! {
-    BorrowOfReborrowable => [BORROW_OF_COMMANDS.lint, BORROW_OF_RESOURCE.lint, BORROW_OF_QUERY.lint]
+    BorrowedReborrowable => [BORROWED_COMMANDS.lint, BORROWED_RESOURCE.lint, BORROWED_QUERY.lint]
 }
 
-impl<'tcx> LateLintPass<'tcx> for BorrowOfReborrowable {
+impl<'tcx> LateLintPass<'tcx> for BorrowedReborrowable {
     fn check_fn(
         &mut self,
         cx: &LateContext<'tcx>,
@@ -124,7 +121,8 @@ impl<'tcx> LateLintPass<'tcx> for BorrowOfReborrowable {
                 // `for<'a> (&'a mut Commands<'_, '_>) -> EntityCommands<'a>`
                 // to something like:
                 // `for<'a> (Commands<'_, '_>) -> EntityCommands<'a>`
-                // without getting: `error[E0515]: cannot return value referencing function parameter `commands``
+                // without getting: `error[E0515]: cannot return value referencing function
+                // parameter `commands` ``
                 continue;
             }
 
@@ -186,11 +184,11 @@ impl Reborrowable {
 
     fn lint(&self) -> &'static Lint {
         match self {
-            Self::Commands => BORROW_OF_COMMANDS.lint,
-            Self::EntityCommands => BORROW_OF_COMMANDS.lint,
-            Self::Query => BORROW_OF_QUERY.lint,
-            Self::ResMut => BORROW_OF_RESOURCE.lint,
-            Self::NonSendMut => BORROW_OF_RESOURCE.lint,
+            Self::Commands => BORROWED_COMMANDS.lint,
+            Self::EntityCommands => BORROWED_COMMANDS.lint,
+            Self::Query => BORROWED_QUERY.lint,
+            Self::ResMut => BORROWED_RESOURCE.lint,
+            Self::NonSendMut => BORROWED_RESOURCE.lint,
         }
     }
 

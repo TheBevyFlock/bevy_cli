@@ -1,8 +1,8 @@
-//! This tests the `borrow_of_reborrowable` lint, specifically when triggered on the `Query` type.
+//! This tests the `borrowed_reborrowable` lint, specifically when triggered on the `Query` type.
 
 #![feature(register_tool)]
 #![register_tool(bevy)]
-#![deny(bevy::borrow_of_query)]
+#![deny(bevy::borrowed_query)]
 
 use bevy::ecs::system::QueryLens;
 use bevy::prelude::*;

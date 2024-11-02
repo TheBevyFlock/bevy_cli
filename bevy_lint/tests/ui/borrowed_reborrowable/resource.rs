@@ -1,8 +1,8 @@
-//! This tests the `borrow_of_reborrowable` lint, specifically when triggered on the `ResMut` type.
+//! This tests the `borrowed_reborrowable` lint, specifically when triggered on the `ResMut` type.
 
 #![feature(register_tool)]
 #![register_tool(bevy)]
-#![deny(bevy::borrow_of_resource)]
+#![deny(bevy::borrowed_resource)]
 
 use bevy::prelude::*;
 

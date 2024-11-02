@@ -1,8 +1,8 @@
-//! This tests the `borrow_of_reborrowable` lint, specifically when triggered on the `Commands` type.
+//! This tests the `borrowed_reborrowable` lint, specifically when triggered on the `Commands` type.
 
 #![feature(register_tool)]
 #![register_tool(bevy)]
-#![deny(bevy::borrow_of_commands)]
+    #![deny(bevy::borrowed_commands)]
 
 use bevy::ecs::system::EntityCommands;
 use bevy::prelude::*;
