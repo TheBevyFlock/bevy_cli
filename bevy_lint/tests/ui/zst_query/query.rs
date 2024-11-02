@@ -5,6 +5,7 @@
 #![deny(bevy::zst_query)]
 
 use bevy::prelude::*;
+use std::marker::PhantomData;
 
 #[derive(Component)]
 struct Foo;
@@ -16,6 +17,10 @@ struct Bar(u32);
 #[derive(Component)]
 #[allow(dead_code)]
 struct Baz<T: Sized + Send + Sync + 'static>(T);
+
+#[derive(Component)]
+#[allow(dead_code)]
+struct Phantom<T>(PhantomData<T>);
 
 fn main() {
     App::new()
@@ -33,6 +38,7 @@ fn main() {
                 generic_mutable_query::<u32>,
                 immutable_query_tuple,
                 mutable_query_tuple,
+                phantom_data_query,
             ),
         )
         .run();
@@ -67,3 +73,7 @@ fn generic_mutable_query<T: Sized + Send + Sync + 'static>(_query: Query<&mut Ba
 fn immutable_query_tuple(_query: Query<(Entity, &Bar)>) {}
 
 fn mutable_query_tuple(_query: Query<(Entity, &mut Bar)>) {}
+
+//~| HELP: consider using a filter instead: `With<Phantom<Bar>>`
+//~v ERROR: query for a zero-sized type
+fn phantom_data_query(_query: Query<&Phantom<Bar>>) {}
