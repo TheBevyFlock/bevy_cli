@@ -1,7 +1,7 @@
 error: query for a zero-sized type
-  --> tests/ui/zst_query/query.rs:42:32
+  --> tests/ui/zst_query/query.rs:45:32
    |
-42 | fn immutable_zst(_query: Query<&Foo>) {}
+45 | fn immutable_zst(_query: Query<&Foo>) {}
    |                                ^^^^
    |
    = help: consider using a filter instead: `With<Foo>`
@@ -12,25 +12,25 @@ note: the lint level is defined here
    |         ^^^^^^^^^^^^^^^
 
 error: query for a zero-sized type
-  --> tests/ui/zst_query/query.rs:46:30
+  --> tests/ui/zst_query/query.rs:49:30
    |
-46 | fn mutable_zst(_query: Query<&mut Foo>) {}
+49 | fn mutable_zst(_query: Query<&mut Foo>) {}
    |                              ^^^^^^^^
    |
    = help: consider using a filter instead: `With<Foo>`
 
 error: query for a zero-sized type
-  --> tests/ui/zst_query/query.rs:50:47
+  --> tests/ui/zst_query/query.rs:53:47
    |
-50 | fn immutable_zst_tuple(_query: Query<(Entity, &Foo)>) {}
+53 | fn immutable_zst_tuple(_query: Query<(Entity, &Foo)>) {}
    |                                               ^^^^
    |
    = help: consider using a filter instead: `With<Foo>`
 
 error: query for a zero-sized type
-  --> tests/ui/zst_query/query.rs:54:45
+  --> tests/ui/zst_query/query.rs:57:45
    |
-54 | fn mutable_zst_tuple(_query: Query<(Entity, &mut Foo)>) {}
+57 | fn mutable_zst_tuple(_query: Query<(Entity, &mut Foo)>) {}
    |                                             ^^^^^^^^
    |
    = help: consider using a filter instead: `With<Foo>`

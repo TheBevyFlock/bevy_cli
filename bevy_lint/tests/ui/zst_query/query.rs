@@ -22,6 +22,7 @@ fn main() {
         .add_systems(
             Startup,
             (
+                unit_query,
                 immutable_zst,
                 mutable_zst,
                 immutable_zst_tuple,
@@ -36,6 +37,8 @@ fn main() {
         )
         .run();
 }
+
+fn unit_query(_query: Query<()>) {}
 
 //~| HELP: consider using a filter instead: `With<Foo>`
 //~v ERROR: query for a zero-sized type
