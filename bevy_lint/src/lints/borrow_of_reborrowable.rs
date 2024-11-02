@@ -9,6 +9,10 @@
 //!
 //! The only time this isn't true is when the function returns referenced data
 //! that is bound to the mutable reference of the re-borrowable type.
+//! 
+//! # Known Issues
+//!
+//! This lint does not currently support closures.
 //!
 //! # Example
 //!
@@ -87,58 +91,58 @@ impl<'tcx> LateLintPass<'tcx> for BorrowOfReborrowable {
             return;
         }
 
-        // We are already inside of the function item,
-        // so we can use `instantiate_identity` to discharge the binder
+        // We use `instantiate_identity` to discharge the binder since we don't
+        // mind using placeholders for any bound arguments
         let fn_sig = cx.tcx.fn_sig(def_id).instantiate_identity();
 
         let arg_names = cx.tcx.fn_arg_names(def_id);
 
-        fn_sig.inputs().map_bound(|args| {
-            for (arg_index, arg_ty) in args.iter().enumerate() {
-                let TyKind::Ref(region, ty, Mutability::Mut) = arg_ty.kind() else {
-                    // We only care about `&mut` parameters
-                    continue;
-                };
+        let args = fn_sig.inputs().skip_binder();
 
-                let peeled_ty = ty.peel_refs();
+        for (arg_index, arg_ty) in args.iter().enumerate() {
+            let TyKind::Ref(region, ty, Mutability::Mut) = arg_ty.kind() else {
+                // We only care about `&mut` parameters
+                continue;
+            };
 
-                let Some(reborrowable) = Reborrowable::try_from_ty(cx, peeled_ty) else {
-                    // The type is not one of our known re-borrowable types
-                    continue;
-                };
+            let peeled_ty = ty.peel_refs();
 
-                let is_output_bound_to_arg = fn_sig
-                    .output()
-                    .visit_with(&mut ContainsRegion(*region))
-                    .is_break();
+            let Some(reborrowable) = Reborrowable::try_from_ty(cx, peeled_ty) else {
+                // The type is not one of our known re-borrowable types
+                continue;
+            };
 
-                if is_output_bound_to_arg {
-                    // We don't want to suggest re-borrowing if the return type's
-                    // lifetime is bound to the argument's reference.
-                    // This is because it's impossible to convert something like:
-                    // `for<'a> (&'a mut Commands<'_, '_>) -> EntityCommands<'a>`
-                    // to something like:
-                    // `for<'a> (Commands<'_, '_>) -> EntityCommands<'a>`
-                    // without getting: `error[E0515]: cannot return value referencing function parameter `commands``
-                    continue;
-                }
+            let is_output_bound_to_arg = fn_sig
+                .output()
+                .visit_with(&mut ContainsRegion(*region))
+                .is_break();
 
-                let arg_ident = arg_names[arg_index];
-                let span = decl.inputs[arg_index].span.to(arg_ident.span);
-
-                span_lint_and_sugg(
-                    cx,
-                    reborrowable.lint(),
-                    span,
-                    reborrowable.message(),
-                    reborrowable.help(),
-                    reborrowable.suggest(arg_ident, peeled_ty.to_string()),
-                    // Not machine-applicable since the function body may need to
-                    // also be updated to account for the removed ref
-                    Applicability::MaybeIncorrect,
-                );
+            if is_output_bound_to_arg {
+                // We don't want to suggest re-borrowing if the return type's
+                // lifetime is bound to the argument's reference.
+                // This is because it's impossible to convert something like:
+                // `for<'a> (&'a mut Commands<'_, '_>) -> EntityCommands<'a>`
+                // to something like:
+                // `for<'a> (Commands<'_, '_>) -> EntityCommands<'a>`
+                // without getting: `error[E0515]: cannot return value referencing function parameter `commands``
+                continue;
             }
-        });
+
+            let arg_ident = arg_names[arg_index];
+            let span = decl.inputs[arg_index].span.to(arg_ident.span);
+
+            span_lint_and_sugg(
+                cx,
+                reborrowable.lint(),
+                span,
+                reborrowable.message(),
+                reborrowable.help(),
+                reborrowable.suggest(arg_ident, peeled_ty.to_string()),
+                // Not machine-applicable since the function body may need to
+                // also be updated to account for the removed ref
+                Applicability::MaybeIncorrect,
+            );
+        }
     }
 }
 
