@@ -76,12 +76,17 @@ impl<'tcx> LateLintPass<'tcx> for BorrowOfReborrowable {
     fn check_fn(
         &mut self,
         cx: &LateContext<'tcx>,
-        _: FnKind<'tcx>,
+        kind: FnKind<'tcx>,
         decl: &'tcx FnDecl<'tcx>,
         _: &'tcx Body<'tcx>,
         _: Span,
         def_id: LocalDefId,
     ) {
+        // Closures are not currently supported, as `tcx.fn_sig()` crashes for them.
+        if let FnKind::Closure = kind {
+            return;
+        }
+
         // We are already inside of the function item,
         // so we can use `instantiate_identity` to discharge the binder
         let fn_sig = cx.tcx.fn_sig(def_id).instantiate_identity();
@@ -137,7 +142,7 @@ impl<'tcx> LateLintPass<'tcx> for BorrowOfReborrowable {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 enum Reborrowable {
     Commands,
     // Deferred,
@@ -158,19 +163,21 @@ enum Reborrowable {
 
 impl Reborrowable {
     fn try_from_ty<'tcx>(cx: &LateContext<'tcx>, ty: Ty<'tcx>) -> Option<Self> {
-        if match_type(cx, ty, &crate::paths::COMMANDS) {
-            Some(Self::Commands)
-        } else if match_type(cx, ty, &crate::paths::ENTITY_COMMANDS) {
-            Some(Self::EntityCommands)
-        } else if match_type(cx, ty, &crate::paths::QUERY) {
-            Some(Self::Query)
-        } else if match_type(cx, ty, &crate::paths::RES_MUT) {
-            Some(Self::ResMut)
-        } else if match_type(cx, ty, &crate::paths::NON_SEND_MUT) {
-            Some(Self::NonSendMut)
-        } else {
-            None
+        const PATH_MAP: &[(&[&str], Reborrowable)] = &[
+            (&crate::paths::COMMANDS, Reborrowable::Commands),
+            (&crate::paths::ENTITY_COMMANDS, Reborrowable::EntityCommands),
+            (&crate::paths::QUERY, Reborrowable::Query),
+            (&crate::paths::RES_MUT, Reborrowable::ResMut),
+            (&crate::paths::NON_SEND_MUT, Reborrowable::NonSendMut),
+        ];
+
+        for &(path, reborrowable) in PATH_MAP {
+            if match_type(cx, ty, path) {
+                return Some(reborrowable);
+            }
         }
+
+        None
     }
 
     fn lint(&self) -> &'static Lint {
