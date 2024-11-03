@@ -15,6 +15,7 @@ async fn serve_static_html(content: &'static str) -> impl Responder {
         .body(content)
 }
 
+/// Create the default `index.html` if the user didn't provide one.
 fn default_index(bin_target: &BinTarget) -> &'static str {
     let template = include_str!(concat!(
         env!("CARGO_MANIFEST_DIR"),
@@ -64,7 +65,6 @@ pub(crate) fn serve(bin_target: BinTarget, port: u16) -> anyhow::Result<()> {
                 app = app.service(actix_files::Files::new("/", "./web").index_file("index.html"));
             } else {
                 // If the user doesn't provide a custom web setup, serve a default `index.html`
-                // TODO: Appropriately link to the correct JS bindings
                 app = app.route("/", web::get().to(|| serve_static_html(index_html)))
             }
 
