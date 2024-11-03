@@ -9,12 +9,6 @@
 //! `Plugin` is to be a Bevy plugin. As such, it is common practice to suffix plugin names with
 //! "Plugin" to signal how they should be used.
 //!
-//! # Known issues
-//!
-//! Due to technical reasons, if you wish to silence this lint you need to annotate the
-//! `impl Plugin for T` line with `#[allow(bevy::plugin_not_ending_in_plugin)]`, not the `struct T`
-//! line.
-//!
 //! # Example
 //!
 //! ```
@@ -44,9 +38,9 @@
 //! ```
 
 use crate::declare_bevy_lint;
-use clippy_utils::{diagnostics::span_lint_and_then, match_def_path, path_res};
+use clippy_utils::{diagnostics::span_lint_hir_and_then, match_def_path, path_res};
 use rustc_errors::Applicability;
-use rustc_hir::{def::Res, Item, ItemKind};
+use rustc_hir::{def::Res, HirId, Item, ItemKind, OwnerId};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_session::declare_lint_pass;
 use rustc_span::symbol::Ident;
@@ -70,14 +64,14 @@ impl<'tcx> LateLintPass<'tcx> for PluginNotEndingInPlugin {
             // ...where the trait is a path to user code... (I don't believe this will ever be
             // false, since the alternatives are primitives, `Self`, and others that wouldn't make
             // since in this scenario.)
-            && let Res::Def(_, def_id) = of_trait.path.res
+            && let Res::Def(_, trait_def_id) = of_trait.path.res
             // ...where the trait being implemented is Bevy's `Plugin`...
-            && match_def_path(cx, def_id, &crate::paths::PLUGIN)
+            && match_def_path(cx, trait_def_id, &crate::paths::PLUGIN)
         {
             // Try to resolve where this type was originally defined. This will result in a `DefId`
             // pointing to the original `struct Foo` definition, or `impl <T>` if it's a generic
             // parameter.
-            let Some(def_id) = path_res(cx, impl_.self_ty).opt_def_id() else {
+            let Some(struct_def_id) = path_res(cx, impl_.self_ty).opt_def_id() else {
                 return;
             };
 
@@ -87,7 +81,7 @@ impl<'tcx> LateLintPass<'tcx> for PluginNotEndingInPlugin {
                 .generics
                 .params
                 .iter()
-                .any(|param| param.def_id.to_def_id() == def_id)
+                .any(|param| param.def_id.to_def_id() == struct_def_id)
             {
                 return;
             }
@@ -95,31 +89,48 @@ impl<'tcx> LateLintPass<'tcx> for PluginNotEndingInPlugin {
             // Find the original name and span of the type. (We don't use the name from the path,
             // since that can be spoofed through `use Foo as FooPlugin`.)
             let Some(Ident {
-                name: self_name,
-                span: self_span,
-            }) = cx.tcx.opt_item_ident(def_id)
+                name: struct_name,
+                span: struct_span,
+            }) = cx.tcx.opt_item_ident(struct_def_id)
             else {
                 return;
             };
 
             // If the type's name ends in "Plugin", exit.
-            if self_name.as_str().ends_with("Plugin") {
+            if struct_name.as_str().ends_with("Plugin") {
                 return;
             }
 
-            span_lint_and_then(
+            // Convert the `DefId` of the structure to a `LocalDefId`. If it cannot be converted
+            // then the struct is from an external crate, in which case this lint should not be
+            // emitted. (The user cannot easily rename that struct if they didn't define it.)
+            let Some(struct_local_def_id) = struct_def_id.as_local() else {
+                return;
+            };
+
+            // Convert struct `LocalDefId` to an `HirId` so that we can emit the lint for the
+            // correct HIR node.
+            let struct_hir_id: HirId = OwnerId {
+                def_id: struct_local_def_id,
+            }
+            .into();
+
+            span_lint_hir_and_then(
                 cx,
                 PLUGIN_NOT_ENDING_IN_PLUGIN.lint,
-                item.span,
+                struct_hir_id,
+                struct_span,
                 PLUGIN_NOT_ENDING_IN_PLUGIN.lint.desc,
                 |diag| {
                     diag.span_suggestion(
-                        self_span,
+                        struct_span,
                         "rename the plugin",
-                        format!("{self_name}Plugin"),
+                        format!("{struct_name}Plugin"),
                         // There may be other references that also need to be renamed.
                         Applicability::MaybeIncorrect,
                     );
+
+                    diag.span_note(item.span, "`Plugin` implemented here");
                 },
             );
         }
