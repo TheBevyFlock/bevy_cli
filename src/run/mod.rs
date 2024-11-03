@@ -70,13 +70,15 @@ pub(crate) struct BinTarget {
     pub(crate) bin_name: String,
 }
 
-/// Determine which package should be run.
+/// Determine which binary target should be run.
 ///
-/// We first take a look at the `--bin` and `--package` args.
-/// If they are not defined, we try to determine the package automatically with the information
-/// provided by cargo metadata.
-/// We first look for the `default_run` definition and otherwise check if there is only a single
-/// binary package that could be run.
+/// The `--package` arg narrows down the search space to the given package,
+/// while the `--bin` and `--example` args determine the binary target within the selected packages.
+///
+/// If the search couldn't be narrowed down to a single binary,
+/// the `default_run` option is taken into account.
+///
+/// The path to the compiled binary is determined via the compilation target and profile.
 pub(crate) fn select_run_binary(
     metadata: &Metadata,
     package_name: &Option<String>,

@@ -24,6 +24,7 @@ impl BuildArgs {
         self.cargo_args.compilation_args.profile()
     }
 
+    /// The targeted platform.
     pub(crate) fn target(&self) -> Option<String> {
         self.cargo_args.compilation_args.target(self.is_web())
     }
