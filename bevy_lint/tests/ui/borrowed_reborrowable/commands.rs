@@ -2,7 +2,7 @@
 
 #![feature(register_tool)]
 #![register_tool(bevy)]
-#![deny(bevy::borrowed_commands)]
+#![deny(bevy::borrowed_reborrowable)]
 
 use bevy::ecs::system::EntityCommands;
 use bevy::prelude::*;

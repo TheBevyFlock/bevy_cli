@@ -2,7 +2,7 @@
 
 #![feature(register_tool)]
 #![register_tool(bevy)]
-#![deny(bevy::borrowed_query)]
+#![deny(bevy::borrowed_reborrowable)]
 
 use bevy::ecs::system::QueryLens;
 use bevy::prelude::*;

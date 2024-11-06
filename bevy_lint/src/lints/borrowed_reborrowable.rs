@@ -9,7 +9,7 @@
 //!
 //! The only time this isn't true is when the function returns referenced data
 //! that is bound to the mutable reference of the re-borrowable type.
-//! 
+//!
 //! # Known Issues
 //!
 //! This lint does not currently support closures.
@@ -46,31 +46,19 @@ use crate::declare_bevy_lint;
 use clippy_utils::{diagnostics::span_lint_and_sugg, ty::match_type};
 use rustc_errors::Applicability;
 use rustc_hir::{intravisit::FnKind, Body, FnDecl, Mutability};
-use rustc_lint::{LateContext, LateLintPass, Lint};
+use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::{Interner, Ty, TyKind, TypeVisitable, TypeVisitor};
 use rustc_session::declare_lint_pass;
 use rustc_span::{def_id::LocalDefId, symbol::Ident, Span};
 
 declare_bevy_lint! {
-    pub BORROWED_COMMANDS,
+    pub BORROWED_REBORROWABLE,
     PEDANTIC,
-    "parameter takes a mutable reference to `Commands` or `EntityCommands` instead of a re-borrowed instance",
-}
-
-declare_bevy_lint! {
-    pub BORROWED_RESOURCE,
-    PEDANTIC,
-    "parameter takes a mutable reference to `ResMut` or `NonSendMut` instead of a re-borrowed instance",
-}
-
-declare_bevy_lint! {
-    pub BORROWED_QUERY,
-    PEDANTIC,
-    "parameter takes a mutable reference to `Query` instead of a re-borrowed instance",
+    "parameter takes a mutable reference to a re-borrowable type",
 }
 
 declare_lint_pass! {
-    BorrowedReborrowable => [BORROWED_COMMANDS.lint, BORROWED_RESOURCE.lint, BORROWED_QUERY.lint]
+    BorrowedReborrowable => [BORROWED_REBORROWABLE.lint]
 }
 
 impl<'tcx> LateLintPass<'tcx> for BorrowedReborrowable {
@@ -131,7 +119,7 @@ impl<'tcx> LateLintPass<'tcx> for BorrowedReborrowable {
 
             span_lint_and_sugg(
                 cx,
-                reborrowable.lint(),
+                BORROWED_REBORROWABLE.lint,
                 span,
                 reborrowable.message(),
                 reborrowable.help(),
@@ -180,16 +168,6 @@ impl Reborrowable {
         }
 
         None
-    }
-
-    fn lint(&self) -> &'static Lint {
-        match self {
-            Self::Commands => BORROWED_COMMANDS.lint,
-            Self::EntityCommands => BORROWED_COMMANDS.lint,
-            Self::Query => BORROWED_QUERY.lint,
-            Self::ResMut => BORROWED_RESOURCE.lint,
-            Self::NonSendMut => BORROWED_RESOURCE.lint,
-        }
     }
 
     fn message(&self) -> String {

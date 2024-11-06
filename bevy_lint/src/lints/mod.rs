@@ -13,9 +13,7 @@ pub mod panicking_methods;
 pub mod plugin_not_ending_in_plugin;
 
 pub(crate) static LINTS: &[&BevyLint] = &[
-    borrowed_reborrowable::BORROWED_COMMANDS,
-    borrowed_reborrowable::BORROWED_RESOURCE,
-    borrowed_reborrowable::BORROWED_QUERY,
+    borrowed_reborrowable::BORROWED_REBORROWABLE,
     insert_event_resource::INSERT_EVENT_RESOURCE,
     main_return_without_appexit::MAIN_RETURN_WITHOUT_APPEXIT,
     panicking_methods::PANICKING_QUERY_METHODS,
