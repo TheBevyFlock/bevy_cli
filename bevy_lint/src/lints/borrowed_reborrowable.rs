@@ -49,7 +49,11 @@ use rustc_hir::{intravisit::FnKind, Body, FnDecl, Mutability};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::{Interner, Ty, TyKind, TypeVisitable, TypeVisitor};
 use rustc_session::declare_lint_pass;
-use rustc_span::{def_id::LocalDefId, symbol::Ident, Span};
+use rustc_span::{
+    def_id::LocalDefId,
+    symbol::{kw, Ident},
+    Span,
+};
 
 declare_bevy_lint! {
     pub BORROWED_REBORROWABLE,
@@ -89,6 +93,12 @@ impl<'tcx> LateLintPass<'tcx> for BorrowedReborrowable {
                 // We only care about `&mut` parameters
                 continue;
             };
+
+            let arg_ident = arg_names[arg_index];
+            if arg_ident.name == kw::SelfLower {
+                // Skip `&mut self` parameters
+                continue;
+            }
 
             let peeled_ty = ty.peel_refs();
 
