@@ -56,3 +56,9 @@ ui_test = "0.27.1"
 [package.metadata.rust-analyzer]
 # Enables Rust-Analyzer support for `rustc` crates.
 rustc_private = true
+
+[package.metadata.docs.rs]
+# Unlike `cargo doc-lints`, docs.rs doesn't know this crate is in a workspace, it just receives the
+# archive resulting from `cargo package`. In this scenario, we do not need to specify `bevy_lint` before
+# `assets/rustdoc.css`.
+rustdoc-args = ["--extend-css", "assets/rustdoc.css"]
