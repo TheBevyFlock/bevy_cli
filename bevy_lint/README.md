@@ -42,6 +42,33 @@ rustup run $TOOLCHAIN_VERSION cargo install \
 
 Make sure to replace `$TOOLCHAIN_VERSION` and `$TAG` in the above command. The tag for a specific release can be found in the [releases tab](https://github.com/TheBevyFlock/bevy_cli/releases). For example, the tag for 0.1.0 is `lint-v0.1.0`.
 
+## Usage
+
+`bevy_lint` has the same API as the `cargo check` command:
+
+```bash
+bevy_lint --help
+```
+
+If you have the Bevy CLI installed, the linter is also available through the `lint` subcommand:
+
+```bash
+bevy lint --help
+```
+
+The linter passes `--cfg bevy_lint` when it checks your code, allowing you to detect it:
+
+```rust
+#[cfg(bevy_lint)]
+```
+
+If you use this, you may also need to register `bevy_lint` as a valid `cfg` flag in your `Cargo.toml`:
+
+```toml
+[lints.rust]
+unexpected_cfg = { level = "warn", check-cfg = ["cfg(bevy_lint)"] }
+```
+
 ## Compatibility
 
 |`bevy_lint` Version|Rust Version|Rustup Toolchain|Bevy Version|
