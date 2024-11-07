@@ -6,6 +6,14 @@
 
 </div>
 
+<div class="rustdoc-alert rustdoc-alert-warning">
+
+> **Warning**
+>
+> This is an unofficial community project, hacked upon by the Bevy CLI working group until it is eventually upstreamed into the main [Bevy Engine organization](https://github.com/bevyengine). Pardon our rough edges!
+
+</div>
+
 ## Compatibility
 
 |`bevy_lint` Version|Rust Version|Rustup Toolchain|Bevy Version|
