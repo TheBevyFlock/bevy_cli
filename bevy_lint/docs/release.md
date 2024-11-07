@@ -28,11 +28,15 @@ This release uses the <!-- `nightly-YYYY-MM-DD` --> toolchain, based on Rust <!-
 <!-- Update `nightly-YYYY-MM-DD` and `lint-vX.Y.Z` in the following code block. -->
 
 ```bash
-$ rustup toolchain install nightly-YYYY-MM-DD \
-      --component rustc-dev \
-      --component llvm-tools-preview
+rustup toolchain install nightly-YYYY-MM-DD \
+    --component rustc-dev \
+    --component llvm-tools-preview
 
-$ cargo install --git https://github.com/TheBevyFlock/bevy_cli.git --tag lint-vX.Y.Z --locked bevy_lint
+rustup run nightly-YYYY-MM-DD cargo install \    
+    --git https://github.com/TheBevyFlock/bevy_cli.git \
+    --tag lint-vX.Y.Z \
+    --locked \
+    bevy_lint
 ```
 
 <!-- Paste the changelog for this release here. -->
