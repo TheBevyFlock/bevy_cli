@@ -56,10 +56,28 @@ If you have the Bevy CLI installed, the linter is also available through the `li
 bevy lint --help
 ```
 
+<div class="rustdoc-alert rustdoc-alert-note">
+
+> **Note**
+>
+> `bevy_lint` checks your code with the nightly toolchain it was installed with, meaning you _do_ have access to unstable features when it is called. This is best used when [detecting `bevy_lint`](#detecting-bevy_lint).
+
+</div>
+
+### Detecting `bevy_lint`
+
 The linter passes `--cfg bevy_lint` when it checks your code, allowing you to detect it:
 
-```rust
+```rust,ignore
+// Conditionally include this function only when `bevy_lint` is used.
 #[cfg(bevy_lint)]
+fn foo() {
+    // ...
+}
+
+// Conditionally add an attribute only when `bevy_lint` is used.
+#[cfg_attr(bevy_lint, ...)]
+struct Foo;
 ```
 
 If you use this, you may also need to register `bevy_lint` as a valid `cfg` flag in your `Cargo.toml`:
