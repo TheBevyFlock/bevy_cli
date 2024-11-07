@@ -1,6 +1,10 @@
+<div class = "rustdoc-hidden">
+
 # `bevy_lint`
 
 `bevy_lint` is a custom linter for the [Bevy game engine](https://bevyengine.org), similar to [Clippy](https://doc.rust-lang.org/stable/clippy).
+
+</div>
 
 ## Compatibility
 
