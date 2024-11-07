@@ -143,3 +143,9 @@ The Bevy Linter is licensed under either of
 - MIT license ([`LICENSE-MIT`](https://github.com/TheBevyFlock/bevy_cli/blob/main/LICENSE-MIT) or <http://opensource.org/licenses/MIT>)
 
 at your option.
+
+## Contributing
+
+Please see [`CONTRIBUTING.md`](https://github.com/TheBevyFlock/bevy_cli/blob/main/CONTRIBUTING.md) for the CLI for more information! There is also a linter-specific contributing guide in the [`docs` folder](https://github.com/TheBevyFlock/bevy_cli/tree/main/bevy_lint/docs).
+
+Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in the work by you, as defined in the Apache-2.0 license, shall be dual licensed as above, without any additional terms or conditions.
