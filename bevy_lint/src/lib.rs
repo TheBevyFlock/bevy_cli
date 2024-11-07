@@ -1,8 +1,9 @@
 //! `bevy_lint` is a custom linter for the [Bevy game engine](https://bevyengine.org), similar to
 //! [Clippy](https://doc.rust-lang.org/stable/clippy).
 //!
-//! This is the primary documentation for its lints and lint groups. This is not intended to be
-//! consumed as a library.
+//! This is the primary documentation for its lints and lint groups. `bevy_lint` is not intended to
+//! be consumed as a library. You can find the documentation for individual lints in the [`lints`]
+//! module, and the documentation for lint groups in the [`groups`] module.
 #![doc = include_str!("../README.md")]
 // Enables linking to `rustc` crates.
 #![feature(rustc_private)]
