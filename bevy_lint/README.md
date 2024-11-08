@@ -87,11 +87,22 @@ If you use this, you may also need to register `bevy_lint` as a valid `cfg` flag
 unexpected_cfg = { level = "warn", check-cfg = ["cfg(bevy_lint)"] }
 ```
 
-### Configuring Lints
+### Registering `bevy` as a Tool
 
-If you wish to enable and disable certain lints, you must register `bevy` as a tool. Not doing so will cause `#[allow(bevy::lint_name)]` and related attributes to fail to compile.
+When you run `bevy_lint` on a project, `rustc` knows an exact list of all `bevy::` lints registered. With this it can detect that `bevy::missing_reflect` is valid and `bevy::uh_oh` isn't, and emit a corresponding warning.
 
-You can register a new tool using the `#![register_tool(...)]` attribute, which is [currently unstable](https://doc.rust-lang.org/nightly/unstable-book/language-features/register-tool.html). This isn't an issue if you [detect when `bevy_lint` is enabled](#detecting-bevy_lint), since it is guaranteed to check your code using nightly Rust.
+When you run normal `cargo check`, however, it does not know about _any_ `bevy::` lints. In order to avoid erroring on _all_ usages of `bevy::`, but to still provide good diagnostics on typos, the `#![register_tool(...)]` attribute was introduced.
+
+```rust,ignore
+// Note that this is nightly-only. We'll get to that in a second!
+#![register_tool(bevy)]
+```
+
+Using `#![register_tool(bevy)]` tells the compiler that `bevy` is a valid name in attributes, even if it does not know what `bevy` is.[^rustfmt-skip] When `cargo check` now runs over a project with `#[warn(bevy::lint_name)]`, it will simply skip it instead of emitting an error. (But running `bevy_lint` will still detect and check this attribute as normal.)
+
+[^rustfmt-skip]: If you've ever used `#[rustfmt::skip]` in your code, this is how `rustc` avoids erroring on it. However unlike the `bevy` namespace, `rustfmt` is registered automatically without a need for `#![register_tool(rustfmt)]` due to it being an official tool.
+
+If you wish to refer to a `bevy` lint at all in your code or configuration (usually to [toggle it](#toggling-lints)), you must add `#![register_tool(bevy)]` to each crate root. Unfortunately, `#![register_tool(...)]` is [currently unstable](https://doc.rust-lang.org/nightly/unstable-book/language-features/register-tool.html), meaning you need to add `#![feature(register_tool)]` to your code as well. This isn't an issue if you [detect when `bevy_lint` is enabled](#detecting-bevy_lint), since it is guaranteed to check your code using nightly Rust.
 
 ```rust,ignore
 // When `bevy_lint` is used, enable the `register_tool` feature and register the `bevy` namespace
@@ -99,9 +110,23 @@ You can register a new tool using the `#![register_tool(...)]` attribute, which 
 #![cfg_attr(bevy_lint, feature(register_tool), register_tool(bevy))]
 ```
 
+<div class="rustdoc-alert rustdoc-alert-tip">
+
+> **Tip**
+>
+> If your project already uses nightly Rust, you can forego the `#[cfg_attr(bevy_lint, ...)]` attributes and write `#![feature(register_tool)]` and `#![register_tool(bevy)]` directly!
+
+</div>
+
+### Toggling Lints
+
+If you wish to enable and disable certain lints, you must first [register `bevy` as a tool](#registering-bevy-as-a-tool). Not doing so will cause `#[allow(bevy::lint_name)]` and related attributes to fail to compile.
+
 You can now toggle lints throughout your project, as long as they too are behind `#[cfg_attr(bevy_lint, ...)]`:
 
 ```rust,ignore
+#![cfg_attr(bevy_lint, feature(register_tool), register_tool(bevy))]
+
 // Enable pedantic lints, which are off by default.
 #![cfg_attr(bevy_lint, warn(bevy::pedantic))]
 
@@ -112,22 +137,14 @@ fn my_critical_system(world: &mut World) {
 }
 ```
 
-There are several other ways to configure lints, but they have varying levels of support:
+There are several other ways to toggle lints, but they have varying levels of support:
 
-|Lint Configuration|Support|Additional Information|
+|Method|Support|Additional Information|
 |-|-|-|
 |`#[allow(...)]` and related|✅|Must be behind `#[cfg_attr(bevy_lint, ...)]` on stable Rust.|
 |`[lints.bevy]` in `Cargo.toml`|⚠️|Nightly only because `#[register_tool(bevy)]` must always be enabled.|
-|`[workspace.lints.bevy]`|⚠️|Nightly only (same as `[lints.bevy]`) and prints a warning each time `cargo` is executed.|
+|`[workspace.lints.bevy]` in `Cargo.toml`|⚠️|Nightly only (same as `[lints.bevy]`) and prints a warning each time `cargo` is executed.|
 |`RUSTFLAGS="-A bevy::lint"`|❌|`RUSTFLAGS` applies to dependencies, but they do not have `#[register_tool(bevy)]`.|
-
-<div class="rustdoc-alert rustdoc-alert-tip">
-
-> **Tip**
->
-> If your project already uses nightly Rust, you can forego the `#[cfg_attr(bevy_lint, ...)]` attributes and write `#![feature(register_tool)]` and `#![register_tool(bevy)]` directly. This will let you configure lints using the `[lints.bevy]` table in `Cargo.toml`.
-
-</div>
 
 ## Compatibility
 
