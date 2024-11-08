@@ -16,7 +16,7 @@
 
 ## Installation
 
-`bevy_lint` depends on a pinned nightly version of Rust with the `rustc-dev` Rustup component. You can refer to the [compatibility table](#compatibility) to see which version of the linter requires which toolchain.
+`bevy_lint` depends on a pinned nightly version of Rust with the `rustc-dev` Rustup component. This is because `bevy_lint` uses [internal `rustc` crates](https://doc.rust-lang.org/nightly/nightly-rustc/) that can only be imported with the permanently-unstable [`rustc_private` feature](https://doc.rust-lang.org/nightly/unstable-book/language-features/rustc-private.html). You can refer to the [compatibility table](#compatibility) to see which version of the linter requires which toolchain.
 
 You can install the toolchain with:
 
