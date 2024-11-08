@@ -118,7 +118,7 @@ There are several other ways to configure lints, but they have varying levels of
 |-|-|-|
 |`#[allow(...)]` and related|✅|Must be behind `#[cfg_attr(bevy_lint, ...)]` on stable Rust.|
 |`[lints.bevy]` in `Cargo.toml`|⚠️|Nightly only because `#[register_tool(bevy)]` must always be enabled.|
-|`[workspace.lints.bevy]`|❌|No current method to register `bevy` as a tool on a workspace level.|
+|`[workspace.lints.bevy]`|⚠️|Nightly only (same as `[lints.bevy]`) and prints a warning each time `cargo` is executed.|
 |`RUSTFLAGS="-A bevy::lint"`|❌|`RUSTFLAGS` applies to dependencies, but they do not have `#[register_tool(bevy)]`.|
 
 <div class="rustdoc-alert rustdoc-alert-tip">
