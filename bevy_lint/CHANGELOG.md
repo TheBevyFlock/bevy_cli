@@ -7,9 +7,9 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 [Keep a Changelog]: https://keepachangelog.com/en/1.1.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
 
-## [Unreleased]
+## 0.1.0 - 2024-11-DD <!-- TODO: Set the day before this is merged. -->
 
-**All Changes**: [`17834eb...main`](https://github.com/TheBevyFlock/bevy_cli/compare/17834eb...main)
+**All Changes**: [`17834eb...lint-v0.1.0`](https://github.com/TheBevyFlock/bevy_cli/compare/17834eb...lint-v0.1.0)
 
 ### Added
 
