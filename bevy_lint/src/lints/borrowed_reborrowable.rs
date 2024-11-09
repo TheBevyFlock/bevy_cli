@@ -145,30 +145,36 @@ impl<'tcx> LateLintPass<'tcx> for BorrowedReborrowable {
 #[derive(Debug, Copy, Clone)]
 enum Reborrowable {
     Commands,
-    // Deferred,
-    // DeferredWorld,
+    Deferred,
+    DeferredWorld,
     EntityCommands,
-    // EntityMut,
-    // EntityMutExcept,
-    // FilteredEntityMut,
-    // FilteredResourcesMut,
-    // Mut,
-    // MutUntyped,
+    EntityMut,
+    FilteredEntityMut,
+    Mut,
+    MutUntyped,
     NonSendMut,
-    // PtrMut,
+    PtrMut,
     Query,
-    // QueryIterationCursor,
     ResMut,
 }
 
 impl Reborrowable {
     fn try_from_ty<'tcx>(cx: &LateContext<'tcx>, ty: Ty<'tcx>) -> Option<Self> {
+        use crate::paths::*;
+
         const PATH_MAP: &[(&[&str], Reborrowable)] = &[
-            (&crate::paths::COMMANDS, Reborrowable::Commands),
-            (&crate::paths::ENTITY_COMMANDS, Reborrowable::EntityCommands),
-            (&crate::paths::QUERY, Reborrowable::Query),
-            (&crate::paths::RES_MUT, Reborrowable::ResMut),
-            (&crate::paths::NON_SEND_MUT, Reborrowable::NonSendMut),
+            (&COMMANDS, Reborrowable::Commands),
+            (&DEFERRED, Reborrowable::Deferred),
+            (&DEFERRED_WORLD, Reborrowable::DeferredWorld),
+            (&ENTITY_COMMANDS, Reborrowable::EntityCommands),
+            (&ENTITY_MUT, Reborrowable::EntityMut),
+            (&FILTERED_ENTITY_MUT, Reborrowable::FilteredEntityMut),
+            (&MUT, Reborrowable::Mut),
+            (&MUT_UNTYPED, Reborrowable::MutUntyped),
+            (&NON_SEND_MUT, Reborrowable::NonSendMut),
+            (&PTR_MUT, Reborrowable::PtrMut),
+            (&QUERY, Reborrowable::Query),
+            (&RES_MUT, Reborrowable::ResMut),
         ];
 
         for &(path, reborrowable) in PATH_MAP {
@@ -188,10 +194,17 @@ impl Reborrowable {
     fn name(&self) -> &'static str {
         match self {
             Self::Commands => "Commands",
+            Self::Deferred => "Deferred",
+            Self::DeferredWorld => "DeferredWorld",
             Self::EntityCommands => "EntityCommands",
+            Self::EntityMut => "EntityMut",
+            Self::FilteredEntityMut => "FilteredEntityMut",
+            Self::Mut => "Mut",
+            Self::MutUntyped => "MutUntyped",
+            Self::NonSendMut => "NonSendMut",
+            Self::PtrMut => "PtrMut",
             Self::Query => "Query",
             Self::ResMut => "ResMut",
-            Self::NonSendMut => "NonSendMut",
         }
     }
 
