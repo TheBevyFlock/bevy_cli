@@ -12,7 +12,13 @@
 //!
 //! # Known Issues
 //!
-//! This lint does not currently support closures.
+//! This lint does not currently support the `Fn` traits or function pointers.
+//! 
+//! This means the following types will not be caught by the lint:
+//! 
+//! - `impl FnOnce(&mut Commands)`
+//! - `Box<dyn FnMut(&mut Commands)>`
+//! - `fn(&mut Commands)`
 //!
 //! # Example
 //!
@@ -75,14 +81,12 @@ impl<'tcx> LateLintPass<'tcx> for BorrowedReborrowable {
         _: Span,
         def_id: LocalDefId,
     ) {
-        // Closures are not currently supported, as `tcx.fn_sig()` crashes for them.
-        if let FnKind::Closure = kind {
-            return;
-        }
-
         // We use `instantiate_identity` to discharge the binder since we don't
         // mind using placeholders for any bound arguments
-        let fn_sig = cx.tcx.fn_sig(def_id).instantiate_identity();
+        let fn_sig = match kind {
+            FnKind::Closure => cx.tcx.closure_user_provided_sig(def_id).value,
+            _ => cx.tcx.fn_sig(def_id).instantiate_identity(),
+        };
 
         let arg_names = cx.tcx.fn_arg_names(def_id);
 
