@@ -50,7 +50,7 @@ Make sure to replace `$TOOLCHAIN_VERSION` and `$TAG` in the above command. The t
 bevy_lint --help
 ```
 
-If you have the Bevy CLI installed, the linter is also available through the `lint` subcommand:
+If you have the [Bevy CLI](https://github.com/TheBevyFlock/bevy_cli) installed, the linter is also available through the `lint` subcommand:
 
 ```bash
 bevy lint --help
