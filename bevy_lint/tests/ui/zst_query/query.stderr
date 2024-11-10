@@ -1,10 +1,10 @@
 error: query for a zero-sized type
-  --> tests/ui/zst_query/query.rs:51:32
+  --> tests/ui/zst_query/query.rs:53:32
    |
-51 | fn immutable_zst(_query: Query<&Foo>) {}
+53 | fn immutable_zst(_query: Query<&ZST>) {}
    |                                ^^^^
    |
-   = help: consider using a filter instead: `With<Foo>`
+   = help: consider using a filter instead: `With<ZST>`
 note: the lint level is defined here
   --> tests/ui/zst_query/query.rs:5:9
    |
@@ -12,36 +12,52 @@ note: the lint level is defined here
    |         ^^^^^^^^^^^^^^^
 
 error: query for a zero-sized type
-  --> tests/ui/zst_query/query.rs:55:30
+  --> tests/ui/zst_query/query.rs:57:30
    |
-55 | fn mutable_zst(_query: Query<&mut Foo>) {}
+57 | fn mutable_zst(_query: Query<&mut ZST>) {}
    |                              ^^^^^^^^
    |
-   = help: consider using a filter instead: `With<Foo>`
+   = help: consider using a filter instead: `With<ZST>`
 
 error: query for a zero-sized type
-  --> tests/ui/zst_query/query.rs:59:47
+  --> tests/ui/zst_query/query.rs:61:47
    |
-59 | fn immutable_zst_tuple(_query: Query<(Entity, &Foo)>) {}
+61 | fn immutable_zst_tuple(_query: Query<(Entity, &ZST)>) {}
    |                                               ^^^^
    |
-   = help: consider using a filter instead: `With<Foo>`
+   = help: consider using a filter instead: `With<ZST>`
 
 error: query for a zero-sized type
-  --> tests/ui/zst_query/query.rs:63:45
+  --> tests/ui/zst_query/query.rs:65:45
    |
-63 | fn mutable_zst_tuple(_query: Query<(Entity, &mut Foo)>) {}
+65 | fn mutable_zst_tuple(_query: Query<(Entity, &mut ZST)>) {}
    |                                             ^^^^^^^^
    |
-   = help: consider using a filter instead: `With<Foo>`
+   = help: consider using a filter instead: `With<ZST>`
 
 error: query for a zero-sized type
-  --> tests/ui/zst_query/query.rs:79:37
+  --> tests/ui/zst_query/query.rs:77:40
    |
-79 | fn phantom_data_query(_query: Query<&Phantom<Bar>>) {}
-   |                                     ^^^^^^^^^^^^^
+77 | fn generic_immutable_zst(_query: Query<&Generic<ZST>>) {}
+   |                                        ^^^^^^^^^^^^^
    |
-   = help: consider using a filter instead: `With<Phantom<Bar>>`
+   = help: consider using a filter instead: `With<Generic<ZST>>`
 
-error: aborting due to 5 previous errors
+error: query for a zero-sized type
+  --> tests/ui/zst_query/query.rs:81:38
+   |
+81 | fn generic_mutable_zst(_query: Query<&mut Generic<ZST>>) {}
+   |                                      ^^^^^^^^^^^^^^^^^
+   |
+   = help: consider using a filter instead: `With<Generic<ZST>>`
+
+error: query for a zero-sized type
+  --> tests/ui/zst_query/query.rs:89:37
+   |
+89 | fn phantom_data_query(_query: Query<&Phantom<NonZST>>) {}
+   |                                     ^^^^^^^^^^^^^^^^
+   |
+   = help: consider using a filter instead: `With<Phantom<NonZST>>`
+
+error: aborting due to 7 previous errors
 

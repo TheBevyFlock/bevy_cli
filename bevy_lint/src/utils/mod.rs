@@ -1,1 +1,1 @@
-pub(crate) mod hir_parse;
+pub mod hir_parse;
