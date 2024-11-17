@@ -1,6 +1,8 @@
 //! All lints offered by `bevy_lint`.
 //!
-//! Click on each module to learn more about individual lints.
+//! Click on each module to learn more about individual lints. Within each module is a static that
+//! documents a lint's name, group, and short description, such as
+//! [`missing_reflect::MISSING_REFLECT`].
 
 use crate::lint::BevyLint;
 use rustc_lint::{Lint, LintStore};
