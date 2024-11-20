@@ -37,10 +37,9 @@ jobs:
           sweep-cache: true
 
       - name: Build with `rustdoc`
-        # We don't need to document dependencies since this is not intended to be consumed as a
-        # library. Furthermore, we pass `--lib` to prevent it from documenting binaries
-        # automatically.
-        run: cargo doc --package bevy_lint --no-deps --lib
+        # This alias calls `cargo rustdoc` with additional arguments, as specified by
+        # `.cargo/config.toml`.
+        run: cargo doc-lints
 
       - name: Finalize documentation
         run: |
