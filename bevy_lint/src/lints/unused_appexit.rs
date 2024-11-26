@@ -102,7 +102,9 @@ impl<'tcx> LateLintPass<'tcx> for UnusedAppExit {
             // `App` and `&mut App` are allowed.
             let ty = cx.typeck_results().expr_ty(src).peel_refs();
 
-            // If `src` is a Bevy `App` and the returned `AppExit` is not used, emit the lint.
+            // If `src` is a Bevy `App` and the returned `AppExit` is not used, emit the lint. The
+            // biggest player in this check is the `is_expr_used_or_unified()` function, which
+            // checks if `AppExit` is handled.
             if match_type(cx, ty, &crate::paths::APP) && !is_expr_used_or_unified(cx.tcx, expr) {
                 span_lint_and_then(
                     cx,
