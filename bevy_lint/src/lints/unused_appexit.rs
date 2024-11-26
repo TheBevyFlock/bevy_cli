@@ -1,4 +1,60 @@
-//! TODO
+//! Checks for instances where `App::run()` is called but does not handle the returned `AppExit`.
+//!
+//! # Motivation
+//!
+//! `AppExit` is used to determine whether the `App` exited successful or due to an error (such as
+//! when the render thread panics). Handling `AppExit` is useful for warning about errors that may
+//! otherwise be silent.
+//!
+//! # Example
+//!
+//! ```
+//! # use bevy::prelude::*;
+//! #
+//! fn main() {
+//!     // `AppExit` is discarded, oh no!
+//!     App::new().run();
+//! }
+//! ```
+//!
+//! The easiest method to fix this lint is to return `AppExit` from the `main()` function. This
+//! sets the exit code of the process to 1 on an error:
+//!
+//! ```
+//! # use bevy::prelude::*;
+//! #
+//! fn main() -> AppExit {
+//!     // Note the removed semicolon.
+//!     App::new().run()
+//! }
+//! ```
+//!
+//! You may also choose to emit the error directly, such as when you're compiling for WASM where
+//! the exit code is not visible nor meaningful:
+//!
+//! ```
+//! # use bevy::prelude::*;
+//! #
+//! fn main() -> AppExit {
+//!     let app_exit = App::new().run();
+//!
+//!     if let AppExit::Error(code) {
+//!         error!("App exited with an error, exit code {code}.");
+//!     }
+//!
+//!     app_exit
+//! }
+//! ```
+//!
+//! If you truly wish to silence the lint, you can store `AppExit` in `_`:
+//!
+//! ```
+//! # use bevy::prelude::*;
+//! #
+//! fn main() {
+//!     let _ = App::new().run();
+//! }
+//! ```
 
 use clippy_utils::{
     diagnostics::span_lint_and_then, is_expr_used_or_unified, source::snippet_opt, sym,
