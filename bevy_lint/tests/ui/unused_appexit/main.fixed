@@ -6,5 +6,5 @@ use bevy::prelude::*;
 
 fn main() {
     //~v ERROR: called `App::run()` without handling the returned `AppExit`
-    let _app_exit = App::new().run();;
+    let _app_exit = App::new().run();
 }

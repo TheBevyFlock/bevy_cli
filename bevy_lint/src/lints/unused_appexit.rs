@@ -119,7 +119,7 @@ impl<'tcx> LateLintPass<'tcx> for UnusedAppExit {
                             diag.span_suggestion(
                                 expr.span,
                                 "try",
-                                format!("let _app_exit = {snippet};"),
+                                format!("let _app_exit = {snippet}"),
                                 // I believe this should always be machine applicable. We are
                                 // matching an expression, which is always matched in the grammar
                                 // for `let` statements.
