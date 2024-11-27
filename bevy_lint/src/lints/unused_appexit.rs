@@ -38,7 +38,7 @@
 //! fn main() -> AppExit {
 //!     let app_exit = App::new().run();
 //!
-//!     if let AppExit::Error(code) {
+//!     if let AppExit::Error(code) = app_exit {
 //!         error!("App exited with an error, exit code {code}.");
 //!     }
 //!
