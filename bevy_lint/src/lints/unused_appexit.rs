@@ -61,7 +61,7 @@ use clippy_utils::{
     ty::match_type,
 };
 use rustc_errors::Applicability;
-use rustc_hir::{Expr, ExprKind};
+use rustc_hir::{Expr, ExprKind, HirId, Item, ItemKind, Node};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_session::impl_lint_pass;
 use rustc_span::Symbol;
@@ -112,24 +112,83 @@ impl<'tcx> LateLintPass<'tcx> for UnusedAppExit {
                     method_span,
                     UNUSED_APPEXIT.lint.desc,
                     |diag| {
-                        diag.note("`App::run()` returns `AppExit`, which is used to determine whether the app exited successfully or not");
-                        diag.help("`AppExit` implements `Termination`, so it can be returned directly from `fn main()`");
+                        let snippet = snippet_opt(cx, expr.span);
 
-                        if let Some(snippet) = snippet_opt(cx, expr.span) {
-                            diag.span_suggestion(
-                                expr.span,
-                                "try",
-                                format!("let _app_exit = {snippet}"),
-                                // I believe this should always be machine applicable. We are
-                                // matching an expression, which is always matched in the grammar
-                                // for `let` statements.
-                                // See <https://doc.rust-lang.org/reference/statements.html#let-statements>.
-                                Applicability::MachineApplicable,
+                        diag.note("`App::run()` returns `AppExit`, which is used to determine whether the app exited successfully or not");
+
+                        if is_within_main_fn(cx, expr.hir_id) {
+                            diag.help("`AppExit` implements `Termination`, so it can be returned directly from `fn main()`");
+
+                            if let Some(snippet) = snippet {
+                                diag.span_suggestion(
+                                    expr.span,
+                                    "try",
+                                    format!("return {snippet}"),
+                                    Applicability::MaybeIncorrect,
+                                );
+                            }
+                        } else {
+                            diag.help(
+                                "Consider logging a warning if the returned `AppExit` is an error.",
                             );
+
+                            if let Some(snippet) = snippet {
+                                diag.span_suggestion(
+                                    expr.span,
+                                    "try",
+                                    format!("let _app_exit = {snippet}"),
+                                    // I believe this should always be machine applicable. We are
+                                    // matching an expression, which is always allowed in the
+                                    // grammar for `let` statements.
+                                    // See <https://doc.rust-lang.org/reference/statements.html#let-statements>.
+                                    Applicability::MachineApplicable,
+                                );
+                            }
                         }
                     },
                 );
             }
         }
     }
+}
+
+fn is_within_main_fn<'tcx>(cx: &LateContext<'tcx>, hir_id: HirId) -> bool {
+    let hir = cx.tcx.hir();
+
+    // Find the `DefId` of the entrypoint function.
+    let Some((entry_fn_id, _)) = cx.tcx.entry_fn(()) else {
+        // There is no entrypoint function, so the `HirId` cannot be within it. Exit early!
+        return false;
+    };
+
+    // Iterate over all parents of the `HirId`, checking if one of them is the entrypoint function.
+    for (parent_id, parent) in hir.parent_iter(hir_id) {
+        // If this parent is an owner (and not an expression or something else), extract it's
+        // `OwnerId`. If it is not an owner, it cannot be a function, so we continue traversing up
+        // the tree.
+        let Some(parent_id) = parent_id.as_owner() else {
+            continue;
+        };
+
+        // If the parent is `fn main()`, return true!
+        if parent_id.to_def_id() == entry_fn_id {
+            return true;
+        }
+
+        // If the parent is another function, but not the entrypoint, return false. We don't want to
+        // emit a match for functions within functions.
+        if matches!(
+            parent,
+            Node::Item(Item {
+                kind: ItemKind::Fn(_, _, _),
+                ..
+            })
+        ) {
+            return false;
+        }
+    }
+
+    // If none of the parents match the above, we are not within an entrypoint function. Return
+    // false.
+    false
 }

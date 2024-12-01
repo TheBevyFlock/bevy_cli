@@ -4,7 +4,7 @@ error: called `App::run()` without handling the returned `AppExit`
 9 |     App::new().run();
   |     -----------^^^^^
   |     |
-  |     help: try: `let _app_exit = App::new().run()`
+  |     help: try: `return App::new().run()`
   |
   = note: `App::run()` returns `AppExit`, which is used to determine whether the app exited successfully or not
   = help: `AppExit` implements `Termination`, so it can be returned directly from `fn main()`
