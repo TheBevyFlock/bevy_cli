@@ -61,7 +61,7 @@ use clippy_utils::{
     ty::match_type,
 };
 use rustc_errors::Applicability;
-use rustc_hir::{Expr, ExprKind, HirId, Item, ItemKind, Node};
+use rustc_hir::{Expr, ExprKind, FnRetTy, FnSig, HirId, Item, ItemKind, Node};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_session::impl_lint_pass;
 use rustc_span::Symbol;
@@ -116,17 +116,33 @@ impl<'tcx> LateLintPass<'tcx> for UnusedAppExit {
 
                         diag.note("`App::run()` returns `AppExit`, which is used to determine whether the app exited successfully or not");
 
-                        if is_within_main_fn(cx, expr.hir_id) {
+                        if let Some(entry_fn_sig) = is_within_main_fn(cx, expr.hir_id) {
                             diag.help("`AppExit` implements `Termination`, so it can be returned directly from `fn main()`");
 
                             if let Some(snippet) = snippet {
                                 diag.span_suggestion(
                                     expr.span,
-                                    "try",
+                                    "return the result of `App::run()`",
                                     format!("return {snippet}"),
+                                    // This return block may not always run in the case that it is
+                                    // behind an `if` statement. This will cause an error, because
+                                    // there could be branches in the function that do not return
+                                    // anything.
                                     Applicability::MaybeIncorrect,
                                 );
                             }
+
+                            diag.span_suggestion(
+                                entry_fn_sig.decl.output.span(),
+                                "set the return type of `fn main()`",
+                                match entry_fn_sig.decl.output {
+                                    FnRetTy::DefaultReturn(_) => " -> AppExit",
+                                    FnRetTy::Return(_) => "AppExit",
+                                },
+                                // This is for the same reason as the previous suggestion, but also
+                                // because we are potentially replacing an existing return type.
+                                Applicability::MaybeIncorrect,
+                            );
                         } else {
                             diag.help(
                                 "Consider logging a warning if the returned `AppExit` is an error.",
@@ -152,13 +168,13 @@ impl<'tcx> LateLintPass<'tcx> for UnusedAppExit {
     }
 }
 
-fn is_within_main_fn<'tcx>(cx: &LateContext<'tcx>, hir_id: HirId) -> bool {
+fn is_within_main_fn<'tcx>(cx: &LateContext<'tcx>, hir_id: HirId) -> Option<&'tcx FnSig<'tcx>> {
     let hir = cx.tcx.hir();
 
     // Find the `DefId` of the entrypoint function.
     let Some((entry_fn_id, _)) = cx.tcx.entry_fn(()) else {
         // There is no entrypoint function, so the `HirId` cannot be within it. Exit early!
-        return false;
+        return None;
     };
 
     // Iterate over all parents of the `HirId`, checking if one of them is the entrypoint function.
@@ -172,7 +188,11 @@ fn is_within_main_fn<'tcx>(cx: &LateContext<'tcx>, hir_id: HirId) -> bool {
 
         // If the parent is `fn main()`, return true!
         if parent_id.to_def_id() == entry_fn_id {
-            return true;
+            return Some(
+                parent
+                    .fn_sig()
+                    .expect("Found an entrypoint function without a function signature."),
+            );
         }
 
         // If the parent is another function, but not the entrypoint, return false. We don't want to
@@ -184,11 +204,11 @@ fn is_within_main_fn<'tcx>(cx: &LateContext<'tcx>, hir_id: HirId) -> bool {
                 ..
             })
         ) {
-            return false;
+            return None;
         }
     }
 
     // If none of the parents match the above, we are not within an entrypoint function. Return
     // false.
-    false
+    None
 }

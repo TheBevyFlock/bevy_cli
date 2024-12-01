@@ -2,9 +2,7 @@ error: called `App::run()` without handling the returned `AppExit`
  --> tests/ui/unused_appexit/main.rs:9:16
   |
 9 |     App::new().run();
-  |     -----------^^^^^
-  |     |
-  |     help: try: `return App::new().run()`
+  |                ^^^^^
   |
   = note: `App::run()` returns `AppExit`, which is used to determine whether the app exited successfully or not
   = help: `AppExit` implements `Termination`, so it can be returned directly from `fn main()`
@@ -13,6 +11,14 @@ note: the lint level is defined here
   |
 3 | #![deny(bevy::unused_appexit)]
   |         ^^^^^^^^^^^^^^^^^^^^
+help: return the result of `App::run()`
+  |
+9 |     return App::new().run();
+  |     ~~~~~~~~~~~~~~~~~~~~~~~
+help: set the return type of `fn main()`
+  |
+7 | fn main() -> AppExit {
+  |           ++++++++++
 
 error: aborting due to 1 previous error
 
