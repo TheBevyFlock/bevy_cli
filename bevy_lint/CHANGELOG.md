@@ -9,7 +9,11 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 
 ## [Unreleased]
 
-**All Changes**: [`17834eb...main`](https://github.com/TheBevyFlock/bevy_cli/compare/17834eb...main)
+**All Changes**: [`lint-v0.1.0...main`](https://github.com/TheBevyFlock/bevy_cli/compare/lint-v0.1.0...main)
+
+## 0.1.0 - 2024-11-17
+
+**All Changes**: [`17834eb...lint-v0.1.0`](https://github.com/TheBevyFlock/bevy_cli/compare/17834eb...lint-v0.1.0)
 
 ### Added
 
@@ -20,3 +24,4 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 - Lints `panicking_query_methods` and `panicking_world_methods` to `restriction` ([#95](https://github.com/TheBevyFlock/bevy_cli/pull/95))
 - Lint `plugin_not_ending_in_plugin` to `style` ([#111](https://github.com/TheBevyFlock/bevy_cli/pull/111))
 - Lint `missing_reflect` to `restriction` ([#139](https://github.com/TheBevyFlock/bevy_cli/pull/139))
+- Lint `zst_query` to `restriction` ([#168](https://github.com/TheBevyFlock/bevy_cli/pull/168))

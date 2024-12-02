@@ -21,6 +21,12 @@
 ````markdown
 <!-- One-sentence summary of changes. What awesome features can we spotlight? What critical bugs were fixed? -->
 
+You can find the live documentation for this release [here](https://thebevyflock.github.io/bevy_cli/bevy_lint/).
+
+> [!WARNING]
+>
+> This is an unofficial community project, hacked upon by the Bevy CLI working group until it is eventually upstreamed into the main [Bevy Engine organization](https://github.com/bevyengine). Pardon our rough edges, and please consider [submitting an issue](https://github.com/TheBevyFlock/bevy_cli/issues) if you run into trouble!
+
 <!-- You can refer to the compatibility table in `bevy_lint/README.md` for the following two values. -->
 
 This release uses the <!-- `nightly-YYYY-MM-DD` --> toolchain, based on Rust <!-- 1.XX.Y -->. You can install it from Git with the following commands:
@@ -28,14 +34,18 @@ This release uses the <!-- `nightly-YYYY-MM-DD` --> toolchain, based on Rust <!-
 <!-- Update `nightly-YYYY-MM-DD` and `lint-vX.Y.Z` in the following code block. -->
 
 ```bash
-$ rustup toolchain install nightly-YYYY-MM-DD \
-      --component rustc-dev \
-      --component llvm-tools-preview
+rustup toolchain install nightly-YYYY-MM-DD \
+    --component rustc-dev \
+    --component llvm-tools-preview
 
-$ cargo install --git https://github.com/TheBevyFlock/bevy_cli.git --tag lint-vX.Y.Z --locked bevy_lint
+rustup run nightly-YYYY-MM-DD cargo install \    
+    --git https://github.com/TheBevyFlock/bevy_cli.git \
+    --tag lint-vX.Y.Z \
+    --locked \
+    bevy_lint
 ```
 
-<!-- Paste the changelog for this release here. -->
+<!-- Paste the changelog for this release here. Make sure to include the "All Changes" link. :) -->
 ````
 
 5. Check the pre-release box if this is an alpha release, then click "Publish release"!
@@ -54,5 +64,6 @@ $ cargo install --git https://github.com/TheBevyFlock/bevy_cli.git --tag lint-vX
 ```
 
 2. Bump the version in [`Cargo.toml`](../Cargo.toml) to the next `-dev` version, and ensure [`Cargo.lock`](../../Cargo.lock) also updates.
-3. Commit all of these changes and open a pull request.
-4. Merge the PR after it has been approved, unblocking frozen pull requests.
+3. Add a new row to the compatibility table for the new `-dev` version in [`README.md`](../README.md).
+4. Commit all of these changes and open a pull request.
+5. Merge the PR after it has been approved, unblocking frozen pull requests.

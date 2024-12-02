@@ -1,6 +1,6 @@
 [package]
 name = "bevy_lint"
-version = "0.1.0-dev"
+version = "0.2.0-dev"
 authors = ["BD103"]
 edition = "2021"
 description = "A collection of lints for the Bevy game engine"
@@ -25,16 +25,13 @@ name = "ui"
 harness = false
 
 [dependencies]
+# Contains a series of useful utilities when writing lints. The version is chosen to work with the
+# currently pinned nightly Rust version. When the Rust version changes, this too needs to be
+# updated!
+clippy_utils = "=0.1.85"
+
 # Easy error propagation and contexts.
 anyhow = "1.0.86"
-
-# Contains a series of useful utilities when writing lints. The version and commit were chosen to
-# work with the currently pinned nightly Rust version. When the Rust version changes, this too
-# needs to be updated!
-[dependencies.clippy_utils]
-version = "=0.1.83"
-git = "https://github.com/rust-lang/rust-clippy"
-rev = "dae1be90eeb20d1d5b7b30d3fc4f2a119cee638b"
 
 [build-dependencies]
 # Parse `rust-toolchain.toml` at build time.
@@ -56,3 +53,9 @@ ui_test = "0.27.1"
 [package.metadata.rust-analyzer]
 # Enables Rust-Analyzer support for `rustc` crates.
 rustc_private = true
+
+[package.metadata.docs.rs]
+# Unlike `cargo doc-lints`, docs.rs doesn't know this crate is in a workspace, it just receives the
+# archive resulting from `cargo package`. In this scenario, we do not need to specify `bevy_lint` before
+# `assets/rustdoc.css`.
+rustdoc-args = ["--extend-css", "assets/rustdoc.css"]
