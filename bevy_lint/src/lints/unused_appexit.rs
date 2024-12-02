@@ -145,18 +145,17 @@ impl<'tcx> LateLintPass<'tcx> for UnusedAppExit {
                             );
                         } else {
                             diag.help(
-                                "Consider logging a warning if the returned `AppExit` is an error.",
+                                "consider logging a warning if the returned `AppExit` is an error",
                             );
 
                             if let Some(snippet) = snippet {
                                 diag.span_suggestion(
                                     expr.span,
-                                    "try",
+                                    "handle the returned `AppExit`",
                                     format!("let _app_exit = {snippet}"),
-                                    // I believe this should always be machine applicable. We are
-                                    // matching an expression, which is always allowed in the
-                                    // grammar for `let` statements.
-                                    // See <https://doc.rust-lang.org/reference/statements.html#let-statements>.
+                                    // This should always be machine applicable. We are matching an
+                                    // expression, which is always allowed in the grammar for `let`
+                                    // statements. See <https://doc.rust-lang.org/reference/statements.html#let-statements>.
                                     Applicability::MachineApplicable,
                                 );
                             }
