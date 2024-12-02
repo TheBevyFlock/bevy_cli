@@ -1,5 +1,5 @@
 use anyhow::Result;
-use bevy_cli::{build::BuildArgs, run::RunArgs};
+use bevy_cli::{build::BuildArgs, patch::PatchArgs, run::RunArgs};
 use clap::{Args, Parser, Subcommand};
 
 fn main() -> Result<()> {
@@ -9,9 +9,10 @@ fn main() -> Result<()> {
         Subcommands::New(new) => {
             bevy_cli::template::generate_template(&new.name, &new.template, &new.branch)?;
         }
-        Subcommands::Lint { args } => bevy_cli::lint::lint(args)?,
         Subcommands::Build(args) => bevy_cli::build::build(&args)?,
         Subcommands::Run(args) => bevy_cli::run::run(&args)?,
+        Subcommands::Patch(args) => bevy_cli::patch::patch(&args)?,
+        Subcommands::Lint { args } => bevy_cli::lint::lint(args)?,
     }
 
     Ok(())
@@ -38,6 +39,16 @@ pub enum Subcommands {
     Build(BuildArgs),
     /// Run your Bevy app.
     Run(RunArgs),
+    /// Generates the `[patch.crates-io]` table when overriding Bevy's source.
+    /// 
+    /// This command is useful when you want to migrate an existing project to an unstable version
+    /// of Bevy or a custom fork. It outputs a `[patch.crates-io]` table to override all official
+    /// Bevy crates in a workspace, meant to be appended to the root `Cargo.toml` file of your
+    /// project.
+    /// 
+    /// Please note that the version in the patched Bevy's repository must correspond to the
+    /// version in your `Cargo.toml`, or it will resolve to <https://crates.io> instead.
+    Patch(PatchArgs),
     /// Check the current project using Bevy-specific lints.
     ///
     /// This command requires `bevy_lint` to be installed, and will fail if it is not. Please see
