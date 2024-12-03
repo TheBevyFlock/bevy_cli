@@ -42,6 +42,7 @@ pub(crate) fn serve(bin_target: BinTarget, port: u16) -> anyhow::Result<()> {
     rt::System::new().block_on(
         HttpServer::new(move || {
             let mut app = App::new();
+            let bin_target = bin_target.clone();
 
             // Serve the build artifacts at the `/build/*` route
             // A custom `index.html` will have to call `/build/{bin_name}.js`
@@ -49,9 +50,13 @@ pub(crate) fn serve(bin_target: BinTarget, port: u16) -> anyhow::Result<()> {
                 actix_files::Files::new("/build", bin_target.artifact_directory.clone())
                     // This potentially includes artifacts which we will not need,
                     // but we can't add the bin name to the check due to lifetime requirements
-                    .path_filter(|path, _| {
-                        path.extension().is_some_and(|ext| ext == "js")
-                            || path.extension().is_some_and(|ext| ext == "wasm")
+                    .path_filter(move |path, _| {
+                        path.file_stem().is_some_and(|stem| {
+                            // Using `.starts_with` instead of equality, because of the `_bg` suffix
+                            // of the WASM bindings
+                            stem.to_string_lossy().starts_with(&bin_target.bin_name)
+                        }) && (path.extension().is_some_and(|ext| ext == "js")
+                            || path.extension().is_some_and(|ext| ext == "wasm"))
                     }),
             );
 
