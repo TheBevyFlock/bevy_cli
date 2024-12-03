@@ -178,6 +178,10 @@ fn is_within_main_fn<'tcx>(cx: &LateContext<'tcx>, hir_id: HirId) -> Option<&'tc
 
     // Iterate over all parents of the `HirId`, checking if one of them is the entrypoint function.
     for (parent_id, parent) in hir.parent_iter(hir_id) {
+        if let Node::Expr(Expr { kind: ExprKind::Closure(_), .. }) = parent {
+            return None;
+        }
+
         // If this parent is an owner (and not an expression or something else), extract it's
         // `OwnerId`. If it is not an owner, it cannot be a function, so we continue traversing up
         // the tree.

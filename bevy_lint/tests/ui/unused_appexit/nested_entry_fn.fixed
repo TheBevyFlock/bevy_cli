@@ -6,7 +6,7 @@ use bevy::prelude::*;
 
 fn main() {
     let _closure = || {
-        App::new().run();
+        let _app_exit = App::new().run();
         //~^ ERROR: called `App::run()` without handling the returned `AppExit`
     };
 
@@ -16,7 +16,7 @@ fn main() {
     }
 
     let _async_block = async {
-        App::new().run();
+        let _app_exit = App::new().run();
         //~^ ERROR: called `App::run()` without handling the returned `AppExit`
     };
 }
