@@ -2,7 +2,11 @@
 
 Thanks for your interest in contributing to `bevy_lint`! Please feel free to skim through the following table of contents:
 
-- [Release Checklist](release.md)
+- [Tutorials](tutorials/)
+- [How-to](how-to/)
+    1. [How to Release `bevy_lint`](how-to/release.md)
+- [Reference](reference/)
+- [Explanations](explanations/)
 
 > [!IMPORTANT]
 >

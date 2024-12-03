@@ -1,4 +1,4 @@
-# Release Checklist
+# How to Release `bevy_lint`
 
 ## Kick-off Pull Request
 
