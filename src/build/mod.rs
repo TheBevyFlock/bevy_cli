@@ -21,10 +21,10 @@ pub fn build(args: &BuildArgs) -> anyhow::Result<()> {
         println!("Bundling JavaScript bindings...");
         let bin_target = select_run_binary(
             &metadata,
-            &args.cargo_args.package_args.package,
-            &args.cargo_args.target_args.bin,
-            &args.cargo_args.target_args.example,
-            &args.target(),
+            args.cargo_args.package_args.package.as_deref(),
+            args.cargo_args.target_args.bin.as_deref(),
+            args.cargo_args.target_args.example.as_deref(),
+            args.target().as_deref(),
             args.profile(),
         )?;
         wasm_bindgen::bundle(&bin_target)?;

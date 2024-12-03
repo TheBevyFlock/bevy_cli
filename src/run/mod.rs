@@ -30,10 +30,10 @@ pub fn run(args: &RunArgs) -> anyhow::Result<()> {
         println!("Bundling JavaScript bindings...");
         let bin_target = select_run_binary(
             &metadata,
-            &args.cargo_args.package_args.package,
-            &args.cargo_args.target_args.bin,
-            &args.cargo_args.target_args.example,
-            &args.target(),
+            args.cargo_args.package_args.package.as_deref(),
+            args.cargo_args.target_args.bin.as_deref(),
+            args.cargo_args.target_args.example.as_deref(),
+            args.target().as_deref(),
             args.profile(),
         )?;
         wasm_bindgen::bundle(&bin_target)?;
@@ -81,10 +81,10 @@ pub(crate) struct BinTarget {
 /// The path to the compiled binary is determined via the compilation target and profile.
 pub(crate) fn select_run_binary(
     metadata: &Metadata,
-    package_name: &Option<String>,
-    bin_name: &Option<String>,
-    example_name: &Option<String>,
-    compile_target: &Option<String>,
+    package_name: Option<&str>,
+    bin_name: Option<&str>,
+    example_name: Option<&str>,
+    compile_target: Option<&str>,
     compile_profile: &str,
 ) -> anyhow::Result<BinTarget> {
     // Determine which packages the binary could be in
