@@ -4,7 +4,8 @@ Thanks for your interest in contributing to `bevy_lint`! Please feel free to ski
 
 - [Tutorials](tutorials/)
 - [How-to](how-to/)
-    1. [How to Release `bevy_lint`](how-to/release.md)
+    - [How to Work with Types](how-to/types.md)
+    - [How to Release `bevy_lint`](how-to/release.md)
 - [Reference](reference/)
 - [Explanations](explanations/)
 
