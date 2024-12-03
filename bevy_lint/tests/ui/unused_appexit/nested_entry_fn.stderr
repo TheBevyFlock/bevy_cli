@@ -1,0 +1,52 @@
+error: called `App::run()` without handling the returned `AppExit`
+ --> tests/ui/unused_appexit/nested_entry_fn.rs:9:20
+  |
+9 |         App::new().run();
+  |                    ^^^^^
+  |
+  = note: `App::run()` returns `AppExit`, which is used to determine whether the app exited successfully or not
+  = help: `AppExit` implements `Termination`, so it can be returned directly from `fn main()`
+note: the lint level is defined here
+ --> tests/ui/unused_appexit/nested_entry_fn.rs:3:9
+  |
+3 | #![deny(bevy::unused_appexit)]
+  |         ^^^^^^^^^^^^^^^^^^^^
+help: return the result of `App::run()`
+  |
+9 |         return App::new().run();
+  |         ~~~~~~~~~~~~~~~~~~~~~~~
+help: set the return type of `fn main()`
+  |
+7 | fn main() -> AppExit {
+  |           ++++++++++
+
+error: called `App::run()` without handling the returned `AppExit`
+  --> tests/ui/unused_appexit/nested_entry_fn.rs:14:20
+   |
+14 |         App::new().run();
+   |         -----------^^^^^
+   |         |
+   |         help: handle the returned `AppExit`: `let _app_exit = App::new().run()`
+   |
+   = note: `App::run()` returns `AppExit`, which is used to determine whether the app exited successfully or not
+   = help: consider logging a warning if the returned `AppExit` is an error
+
+error: called `App::run()` without handling the returned `AppExit`
+  --> tests/ui/unused_appexit/nested_entry_fn.rs:19:20
+   |
+19 |         App::new().run();
+   |                    ^^^^^
+   |
+   = note: `App::run()` returns `AppExit`, which is used to determine whether the app exited successfully or not
+   = help: `AppExit` implements `Termination`, so it can be returned directly from `fn main()`
+help: return the result of `App::run()`
+   |
+19 |         return App::new().run();
+   |         ~~~~~~~~~~~~~~~~~~~~~~~
+help: set the return type of `fn main()`
+   |
+7  | fn main() -> AppExit {
+   |           ++++++++++
+
+error: aborting due to 3 previous errors
+
