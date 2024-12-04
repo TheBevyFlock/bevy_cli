@@ -8,9 +8,8 @@
 
 pub const APP: [&str; 3] = ["bevy_app", "app", "App"];
 pub const COMPONENT: [&str; 3] = ["bevy_ecs", "component", "Component"];
-// Note that this moves to `bevy_ecs::event::base::Event` in 0.15.
-pub const EVENT: [&str; 3] = ["bevy_ecs", "event", "Event"];
-pub const EVENTS: [&str; 3] = ["bevy_ecs", "event", "Events"];
+pub const EVENT: [&str; 4] = ["bevy_ecs", "event", "base", "Event"];
+pub const EVENTS: [&str; 4] = ["bevy_ecs", "event", "collections", "Events"];
 pub const PLUGIN: [&str; 3] = ["bevy_app", "plugin", "Plugin"];
 pub const QUERY: [&str; 4] = ["bevy_ecs", "system", "query", "Query"];
 pub const QUERY_STATE: [&str; 4] = ["bevy_ecs", "query", "state", "QueryState"];
