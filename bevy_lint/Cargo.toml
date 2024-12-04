@@ -41,7 +41,7 @@ toml_edit = { version = "0.22.22", default-features = false, features = [
 
 [dev-dependencies]
 # Used when running UI tests.
-bevy = { version = "0.14.2", default-features = false }
+bevy = { version = "0.15.0", default-features = false }
 
 # Used to deserialize `--message-format=json` messages from Cargo.
 serde = { version = "1.0.210", features = ["derive"] }
