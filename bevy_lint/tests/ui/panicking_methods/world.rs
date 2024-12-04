@@ -28,10 +28,12 @@ fn main() {
     //~^ ERROR: called a `World` method that can panic when a non-panicking alternative exists
     //~| HELP: use `world.get_entity_mut(bob)`
 
+    #[expect(deprecated, reason = "While this method is deprecated, we should still check for it while it exists.")]
     world.many_entities([bob]);
     //~^ ERROR: called a `World` method that can panic when a non-panicking alternative exists
     //~| HELP: use `world.get_many_entities([bob])`
 
+    #[expect(deprecated, reason = "While this method is deprecated, we should still check for it while it exists.")]
     world.many_entities_mut([bob]);
     //~^ ERROR: called a `World` method that can panic when a non-panicking alternative exists
     //~| HELP: use `world.get_many_entities_mut([bob])`
