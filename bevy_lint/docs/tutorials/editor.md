@@ -18,4 +18,10 @@ There can be a few extra steps required to get code-completion and syntax highli
 
 ## Neovim
 
-TODO :)
+> [!NOTE]
+> 
+> This requires rust-analyzer to be already set up and configure with Neovim
+
+For Neovim the easiest way to configure rust-analyzer for rustc types is to use [neoconf.nvim], which allows importing settings from [`.vscode/settings.json`].
+
+[neoconf.nvim]: https://github.com/folke/neoconf.nvim/
