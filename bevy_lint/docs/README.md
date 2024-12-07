@@ -3,8 +3,8 @@
 Thanks for your interest in contributing to `bevy_lint`! Please feel free to skim through the following table of contents:
 
 - [Tutorials](tutorials/)
-    - [Setting up your Editor](tutorials/editor.md)
 - [How-to](how-to/)
+    - [Setting up your Editor](how-to/editor.md)
     - [How to Work with Types](how-to/types.md)
     - [How to Release `bevy_lint`](how-to/release.md)
 - [Reference](reference/)
