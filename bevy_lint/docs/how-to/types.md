@@ -68,7 +68,7 @@ Often you'll have an [`rustc_hir::Ty`], but you need [`ty::Ty`]. This is a proce
 
 It is important to use the right context for the right situation, or the compiler may panic!
 
-Also note that this conversion is one-directional that cannot be easily reversed. While [`rustc_hir::Ty`]s are associated with a specific span of code, [`ty::Ty`]s are not. For more information, please see [`rustc_hir::Ty` vs `ty::Ty`] from the `rustc` Dev Guide.
+Also note that this conversion is one-directional and cannot be easily reversed. While [`rustc_hir::Ty`]s are associated with a specific span of code, [`ty::Ty`]s are not. For more information, please see [`rustc_hir::Ty` vs `ty::Ty`] from the `rustc` Dev Guide.
 
 [`rustc_hir::Ty`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir/hir/struct.Ty.html
 [`ty::Ty`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/struct.Ty.html

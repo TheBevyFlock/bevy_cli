@@ -1,6 +1,6 @@
 # Setting up your Editor
 
-There can be a few extra steps required to get code-completion and syntax highlighting setup with your editor!
+There can be a few extra steps required to get code completion and syntax highlighting setup with your editor.
 
 > [!NOTE]
 >
