@@ -92,3 +92,16 @@ fn check_local(&mut self, cx: &LateContext<'tcx>, let_stmt: &LetStmt<'tcx>) {
 ```
 
 [`TypeckResults::node_type()`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/typeck_results/struct.TypeckResults.html#method.node_type
+
+### Outside Bodies
+
+When outside of a body, you must construct an [`ItemCtxt`]:
+
+```rust
+fn check_ty(&mut self, cx: &LateContext<'tcx>, hir_ty: &rustc_hir::Ty<'tcx>) {
+    // `ItemCtxt` needs a ` LocalDefId` of the item that this type is within, which we access
+    // through the the type's `HirId`'s owner.
+    let item_cx = ItemCtxt::new(cx.tcx, hir_ty.hir_id.owner.def_id);
+    let ty = item_cx.lower_ty(hir_ty);
+}
+```
