@@ -2,9 +2,9 @@
 
 > [!NOTE]
 >
-> This document assumes you are working with [`rustc_middle::ty::Ty`], not [`rustc_hir::Ty`], unless explicitly stated otherwise.
+> This document assumes you are working with [`ty::Ty`], not [`rustc_hir::Ty`], unless explicitly stated otherwise.
 >
-> [`rustc_middle::ty::Ty`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/struct.Ty.html
+> [`ty::Ty`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/struct.Ty.html
 > [`rustc_hir::Ty`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir/hir/struct.Ty.html
 
 ## Getting the Type of an Expression
@@ -59,19 +59,19 @@ All path constants are defined in [`paths.rs`](../../src/paths.rs). If you add a
 [`App`]: https://docs.rs/bevy/latest/bevy/app/struct.App.html
 [`match_type()`]: https://doc.rust-lang.org/nightly/nightly-rustc/clippy_utils/ty/fn.match_type.html
 
-## Getting `rustc_middle::ty::Ty` from `rustc_hir::Ty`
+## Getting `ty::Ty` from `rustc_hir::Ty`
 
-Often you'll have an [`rustc_hir::Ty`], but you need [`rustc_middle::ty::Ty`]. This is a process known as _lowering_, and it is accomplished through two different structures:
+Often you'll have an [`rustc_hir::Ty`], but you need [`ty::Ty`]. This is a process known as _lowering_, and it is accomplished through two different structures:
 
 - [`FnCtxt`]: Used to type-check bodies of functions, closures, and `const`s. (Anything with expressions and statements.)
 - [`ItemCtxt`]: Used to type-check item signatures.
 
 It is important to use the right context for the right situation, or the compiler may panic!
 
-Also note that this conversion is one-directional that cannot be easily reversed. While [`rustc_hir::Ty`]s are associated with a specific span of code, [`rustc_middle::ty::Ty`]s are not. For more information, please see [`rustc_hir::Ty` vs `ty::Ty`] from the `rustc` Dev Guide.
+Also note that this conversion is one-directional that cannot be easily reversed. While [`rustc_hir::Ty`]s are associated with a specific span of code, [`ty::Ty`]s are not. For more information, please see [`rustc_hir::Ty` vs `ty::Ty`] from the `rustc` Dev Guide.
 
 [`rustc_hir::Ty`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir/hir/struct.Ty.html
-[`rustc_middle::ty::Ty`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/struct.Ty.html
+[`ty::Ty`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/struct.Ty.html
 [`FnCtxt`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir_typeck/fn_ctxt/struct.FnCtxt.html
 [`ItemCtxt`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir_analysis/collect/struct.ItemCtxt.html
 [`rustc_hir::Ty` vs `ty::Ty`]: https://rustc-dev-guide.rust-lang.org/ty.html#rustc_hirty-vs-tyty
@@ -84,7 +84,7 @@ Instead of manually constructing a [`FnCtxt`], it is easier to go through [`Type
 fn check_local(&mut self, cx: &LateContext<'tcx>, let_stmt: &LetStmt<'tcx>) {
     // Extract the type `T` from `let name: T = ...`, if it is specified.
     if let Some(hir_ty) = let_stmt.ty {
-        // Find the `rustc_middle::ty::Ty` for this `rustc_hir::Ty`. The reason this does not panic
+        // Find the `ty::Ty` for this `rustc_hir::Ty`. The reason this does not panic
         // is because the type is from a `let` statement, which must be within a body.
         let ty = cx.typeck_results().node_type(hir_ty.hir_id);
     }
