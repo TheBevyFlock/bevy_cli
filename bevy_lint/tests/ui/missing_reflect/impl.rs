@@ -37,4 +37,6 @@ impl Component for MyEvent {
 }
 
 //~v NOTE: `Event` implemented here
-impl Event for MyEvent {}
+impl Event for MyEvent {
+    type Traversal = ();
+}
