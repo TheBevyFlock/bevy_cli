@@ -58,6 +58,7 @@ macro_rules! declare_bevy_lint {
                 is_externally_loaded: true,
                 feature_gate: None,
                 crate_level_only: false,
+                eval_always: false,
             },
             group: &$crate::groups::$group,
         };

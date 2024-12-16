@@ -1,6 +1,19 @@
 //! Lint groups that can be toggled together.
 //!
-//! Each lint is organized within a specific category, such as [`PERFORMANCE`] or [`STYLE`].
+//! Each [lint](crate::lints) is organized within a specific category, such as [`PERFORMANCE`] or
+//! [`STYLE`]. The following groups are enabled by default:
+//!
+//! - [`CORRECTNESS`]
+//! - [`SUSPICIOUS`]
+//! - [`COMPLEXITY`]
+//! - [`PERFORMANCE`]
+//! - [`STYLE`]
+//!
+//! The following groups are disabled by default:
+//!
+//! - [`PEDANTIC`]
+//! - [`RESTRICTION`]
+//! - [`NURSERY`]
 
 use crate::{
     lint::{BevyLint, LintGroup},

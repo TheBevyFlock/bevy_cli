@@ -6,6 +6,10 @@
 
 </div>
 
+- [Documentation](https://thebevyflock.github.io/bevy_cli/bevy_lint/)
+- [Repository](https://github.com/TheBevyFlock/bevy_cli)
+- [Issue Tracker](https://github.com/TheBevyFlock/bevy_cli/issues?q=is%3Aopen+is%3Aissue+label%3AA-Linter)
+
 <div class="rustdoc-alert rustdoc-alert-warning">
 
 > **Warning**
@@ -26,7 +30,7 @@ rustup toolchain install $TOOLCHAIN_VERSION \
     --component llvm-tools-preview
 ```
 
-For example, you would replace `$TOOLCHAIN_VERSION` with `nightly-2024-10-03` if you were installing `bevy_lint` 0.1.0, based on the [compatibility table](#compatibility). Please be aware that you must keep this toolchain installed for `bevy_lint` to function[^keep-toolchain-installed].
+For example, you would replace `$TOOLCHAIN_VERSION` with `nightly-2024-11-14` if you were installing `bevy_lint` 0.1.0, based on the [compatibility table](#compatibility). Please be aware that you must keep this toolchain installed for `bevy_lint` to function[^keep-toolchain-installed].
 
 [^keep-toolchain-installed]: `bevy_lint` imports internal `rustc` libraries in order to hook into the compiler process. These crates are stored in a [dynamic library](https://en.wikipedia.org/wiki/Dynamic_linker) that is installed with the `rustc-dev` component and loaded by `bevy_lint` at runtime. Uninstalling the nightly toolchain would remove this dynamic library, causing `bevy_lint` to fail.
 
@@ -150,7 +154,8 @@ There are several other ways to toggle lints, but they have varying levels of su
 
 |`bevy_lint` Version|Rust Version|Rustup Toolchain|Bevy Version|
 |-|-|-|-|
-|0.1.0-dev|1.83.0|`nightly-2024-10-03`|0.14|
+|0.2.0-dev|1.84.0|`nightly-2024-11-28`|0.14|
+|0.1.0|1.84.0|`nightly-2024-11-14`|0.14|
 
 The Rust version in the above table specifies what [version of the Rust language](https://github.com/rust-lang/rust/releases) can be compiled with `bevy_lint`. Code written for a later version of Rust may not compile. (This is not usually an issue, though, because `bevy_lint`'s Rust version is kept 1 to 2 releases ahead of stable Rust.)
 
