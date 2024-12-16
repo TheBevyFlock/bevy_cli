@@ -13,9 +13,9 @@
 //! # Known Issues
 //!
 //! This lint does not currently support the `Fn` traits or function pointers.
-//! 
+//!
 //! This means the following types will not be caught by the lint:
-//! 
+//!
 //! - `impl FnOnce(&mut Commands)`
 //! - `Box<dyn FnMut(&mut Commands)>`
 //! - `fn(&mut Commands)`
