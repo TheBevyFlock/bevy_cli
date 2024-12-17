@@ -141,10 +141,7 @@ impl<'tcx> LateLintPass<'tcx> for BorrowedReborrowable {
                 continue;
             }
 
-            // TODO: Remove this :(
-            let peeled_ty = ty.peel_refs();
-
-            let Some(reborrowable) = Reborrowable::try_from_ty(cx, peeled_ty) else {
+            let Some(reborrowable) = Reborrowable::try_from_ty(cx, *ty) else {
                 // The type is not one of our known re-borrowable types
                 continue;
             };
@@ -174,7 +171,7 @@ impl<'tcx> LateLintPass<'tcx> for BorrowedReborrowable {
                 span,
                 reborrowable.message(),
                 reborrowable.help(),
-                reborrowable.suggest(arg_ident, peeled_ty.to_string()),
+                reborrowable.suggest(arg_ident, ty.to_string()),
                 // Not machine-applicable since the function body may need to
                 // also be updated to account for the removed ref
                 Applicability::MaybeIncorrect,
