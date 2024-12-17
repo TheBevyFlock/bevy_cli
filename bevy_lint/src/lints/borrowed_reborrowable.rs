@@ -62,7 +62,7 @@
 //! emit any warning:
 //!
 //! ```
-//! # use bevy::prelude::*;
+//! # use bevy::{prelude::*, ecs::system::EntityCommands};
 //! #
 //! fn system(mut commands: Commands) {
 //!     let entity_commands = helper_function(&mut commands);
