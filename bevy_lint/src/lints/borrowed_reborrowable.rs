@@ -1,21 +1,25 @@
 //! Checks for function parameters that take a mutable reference to a
-//! re-borrwable type.
+//! re-borrowable type.
 //!
 //! # Motivation
 //!
-//! Mutable references to re-borrwable types can almost always be readily
-//! converted back to an owned instance of itself, albeit with an appropriately
-//! shorter lifetime.
+//! Several Bevy types look like they are owned, when in reality they contain an `&mut` reference
+//! to the data owned by the ECS. `Commands` and `Query` are examples of such types that _pretend_
+//! to own data for better user ergonomics.
 //!
-//! The only time this isn't true is when the function returns referenced data
-//! that is bound to the mutable reference of the re-borrowable type.
+//! This can be an issue when a user writes a function that takes a mutable reference to one of
+//! these types, not realizing that it itself is _already_ a reference. These mutable references
+//! can almost always be readily converted back to an owned instance of the type, which is a cheap
+//! operation that avoids nested references.
+//!
+//! The only time a re-borrowable type cannot be re-borrowed is when the function returns
+//! referenced data that is bound to the mutable reference of the re-borrowable type.
 //!
 //! # Known Issues
 //!
-//! This lint does not currently support the `Fn` traits or function pointers.
-//! 
-//! This means the following types will not be caught by the lint:
-//! 
+//! This lint does not currently support the [`Fn`] traits or function pointers. This means the
+//! following types will not be caught by the lint:
+//!
 //! - `impl FnOnce(&mut Commands)`
 //! - `Box<dyn FnMut(&mut Commands)>`
 //! - `fn(&mut Commands)`
@@ -24,26 +28,52 @@
 //!
 //! ```
 //! # use bevy::prelude::*;
+//! #
 //! fn system(mut commands: Commands) {
-//!   helper_function(&mut commands);
+//!     helper_function(&mut commands);
 //! }
 //!
+//! // This takes `&mut Commands`, but it doesn't need to!
 //! fn helper_function(commands: &mut Commands) {
-//!   // ...
+//!     // ...
 //! }
+//! #
+//! # bevy::ecs::system::assert_is_system(system);
 //! ```
 //!
 //! Use instead:
 //!
 //! ```
 //! # use bevy::prelude::*;
+//! #
 //! fn system(mut commands: Commands) {
-//!   helper_function(commands.reborrow());
+//!     // Convert `&mut Commands` to `Commands`.
+//!     helper_function(commands.reborrow());
 //! }
 //!
 //! fn helper_function(mut commands: Commands) {
-//!   // ...
+//!     // ...
 //! }
+//! #
+//! # bevy::ecs::system::assert_is_system(system);
+//! ```
+//!
+//! The following is an example where a type cannot be re-borrowed, for which this lint will not
+//! emit any warning:
+//!
+//! ```
+//! # use bevy::{prelude::*, ecs::system::EntityCommands};
+//! #
+//! fn system(mut commands: Commands) {
+//!     let entity_commands = helper_function(&mut commands);
+//! }
+//!
+//! // Note how this function returns a reference with the same lifetime as `Commands`.
+//! fn helper_function<'a>(commands: &'a mut Commands) -> EntityCommands<'a> {
+//!     commands.spawn_empty()
+//! }
+//! #
+//! # bevy::ecs::system::assert_is_system(system);
 //! ```
 
 use std::ops::ControlFlow;
@@ -81,10 +111,10 @@ impl<'tcx> LateLintPass<'tcx> for BorrowedReborrowable {
         _: Span,
         def_id: LocalDefId,
     ) {
-        // We use `instantiate_identity` to discharge the binder since we don't
-        // mind using placeholders for any bound arguments
         let fn_sig = match kind {
             FnKind::Closure => cx.tcx.closure_user_provided_sig(def_id).value,
+            // We use `instantiate_identity` to discharge the binder since we don't
+            // mind using placeholders for any bound arguments
             _ => cx.tcx.fn_sig(def_id).instantiate_identity(),
         };
 
@@ -99,14 +129,19 @@ impl<'tcx> LateLintPass<'tcx> for BorrowedReborrowable {
             };
 
             let arg_ident = arg_names[arg_index];
+
+            // This lint would emit a warning on `&mut self` if `self` was reborrowable. This isn't
+            // useful, though, because it would hurt the ergonomics of using methods of
+            // reborrowable types.
+            //
+            // To avoid this, we skip any parameter named `self`. This won't false-positive on
+            // other function arguments named `self`, since it is a special keyword that is
+            // disallowed in other positions.
             if arg_ident.name == kw::SelfLower {
-                // Skip `&mut self` parameters
                 continue;
             }
 
-            let peeled_ty = ty.peel_refs();
-
-            let Some(reborrowable) = Reborrowable::try_from_ty(cx, peeled_ty) else {
+            let Some(reborrowable) = Reborrowable::try_from_ty(cx, *ty) else {
                 // The type is not one of our known re-borrowable types
                 continue;
             };
@@ -128,7 +163,6 @@ impl<'tcx> LateLintPass<'tcx> for BorrowedReborrowable {
                 continue;
             }
 
-            let arg_ident = arg_names[arg_index];
             let span = decl.inputs[arg_index].span.to(arg_ident.span);
 
             span_lint_and_sugg(
@@ -137,7 +171,7 @@ impl<'tcx> LateLintPass<'tcx> for BorrowedReborrowable {
                 span,
                 reborrowable.message(),
                 reborrowable.help(),
-                reborrowable.suggest(arg_ident, peeled_ty.to_string()),
+                reborrowable.suggest(arg_ident, ty.to_string()),
                 // Not machine-applicable since the function body may need to
                 // also be updated to account for the removed ref
                 Applicability::MaybeIncorrect,
