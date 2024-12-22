@@ -2,7 +2,7 @@
 use actix_web::{rt, web, App, HttpResponse, HttpServer, Responder};
 use std::path::Path;
 
-use super::BinTarget;
+use super::{bundle::default_index, BinTarget};
 
 /// Serve a static HTML file with the given content.
 async fn serve_static_html(content: &'static str) -> impl Responder {
@@ -13,26 +13,6 @@ async fn serve_static_html(content: &'static str) -> impl Responder {
             "text/html; charset=utf-8",
         ))
         .body(content)
-}
-
-/// Create the default `index.html` if the user didn't provide one.
-fn default_index(bin_target: &BinTarget) -> &'static str {
-    let template = include_str!(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/assets/web/index.html"
-    ));
-
-    // Insert correct path to JS bindings
-    let index = template.replace(
-        "./build/bevy_app.js",
-        format!("./build/{}.js", bin_target.bin_name).as_str(),
-    );
-
-    // Only static strings can be served in the web app,
-    // so we leak the string memory to convert it to a static reference.
-    // PERF: This is assumed to be used only once and is needed for the rest of the app running
-    // time, making the memory leak acceptable.
-    Box::leak(index.into_boxed_str())
 }
 
 /// Launch a web server running the Bevy app.
