@@ -67,7 +67,15 @@ pub fn create_bundle(
 
         // TODO: Copy assets
 
-        // TODO: Copy index
+        let index_path = base_path.join("index.html");
+        match linked.index {
+            Index::File(path) => {
+                fs::copy(path, index_path)?;
+            }
+            Index::Static(contents) => {
+                fs::write(index_path, contents)?;
+            }
+        }
 
         Ok(WebBundle::Packed(PackedBundle { path: base_path }))
     } else {
