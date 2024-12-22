@@ -50,4 +50,8 @@ pub struct RunWebArgs {
     /// Open the app in the browser.
     #[arg(short = 'o', long = "open", action = ArgAction::SetTrue, default_value_t = false)]
     pub open: bool,
+
+    // Bundle all web artifacts into a single folder.
+    #[arg(short = 'b', long = "bundle", action = ArgAction::SetTrue, default_value_t = false)]
+    pub create_bundle: bool,
 }

@@ -13,6 +13,7 @@ use crate::{
 pub use self::args::RunArgs;
 
 mod args;
+mod bundle;
 mod serve;
 
 pub fn run(args: &RunArgs) -> anyhow::Result<()> {
