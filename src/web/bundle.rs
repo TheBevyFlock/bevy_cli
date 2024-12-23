@@ -91,9 +91,13 @@ pub fn create_web_bundle(
         .join(profile)
         .join(bin_target.bin_name);
 
+    // Remove the previous bundle
+    // The error can be ignored, because the folder doesn't need to exist yet
+    // and the files will also be overwritten if they already exist
+    let _ = fs::remove_dir_all(&base_path);
+
     // Build artifacts
     fs::create_dir_all(base_path.join("build"))?;
-    println!("Create build folder");
     fs::copy(
         linked.build_artifact_path.join(&linked.wasm_file_name),
         base_path.join("build").join(&linked.wasm_file_name),
