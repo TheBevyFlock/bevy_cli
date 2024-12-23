@@ -34,12 +34,23 @@ pub struct PackedBundle {
     pub path: PathBuf,
 }
 
+/// A bundle of all the files needed to serve the app in the web.
 #[derive(Debug, Clone)]
 pub enum WebBundle {
+    /// A bundle that needs to be linked together, keeping the files at their original places.
+    /// Most useful during development, to avoid additional copy operations and duplication.
     Linked(LinkedBundle),
+    /// A bundle packed into a single folder, ready to be deployed on a web server.
     Packed(PackedBundle),
 }
 
+/// Create a bundle of all the files needed for serving the app in the web.
+///
+/// If `packed` is set to `true`, the files will be packed together in a single folder.
+/// Use this option e.g. to upload it to a web server.
+///
+/// Otherwise, the assets and build artifacts will be kept at their original place
+/// to avoid duplication.
 pub fn create_web_bundle(
     metadata: &Metadata,
     profile: &str,
