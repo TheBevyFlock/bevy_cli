@@ -79,6 +79,7 @@ pub fn create_web_bundle(
         index: if custom_web_folder.join("index.html").exists() {
             Index::Folder(custom_web_folder.to_path_buf())
         } else {
+            println!("No custom `web` folder found, using defaults.");
             Index::Static(default_index(&bin_target))
         },
     };
