@@ -4,6 +4,8 @@ use std::{
     path::{Path, PathBuf},
 };
 
+use anyhow::Context;
+
 use crate::{external_cli::cargo::metadata::Metadata, run::BinTarget};
 
 #[derive(Debug, Clone)]
@@ -101,32 +103,37 @@ pub fn create_web_bundle(
     fs::copy(
         linked.build_artifact_path.join(&linked.wasm_file_name),
         base_path.join("build").join(&linked.wasm_file_name),
-    )?;
+    )
+    .context("failed to copy WASM artifact")?;
     fs::copy(
         linked.build_artifact_path.join(&linked.js_file_name),
         base_path.join("build").join(&linked.js_file_name),
-    )?;
+    )
+    .context("failed to copy JS artifact")?;
 
     // Assets
     if let Some(assets_path) = linked.assets_path {
+        let new_assets_path = base_path.join("assets");
+        fs::create_dir_all(&new_assets_path)?;
         fs_extra::dir::copy(
             assets_path,
-            base_path.join("assets"),
+            &new_assets_path,
             &fs_extra::dir::CopyOptions {
                 overwrite: true,
                 ..Default::default()
             },
-        )?;
+        )
+        .context("failed to copy assets")?;
     }
 
     // Index
     let index_path = base_path.join("index.html");
     match linked.index {
         Index::Folder(path) => {
-            fs::copy(path, index_path)?;
+            fs::copy(path, index_path).context("failed to copy custom web assets")?;
         }
         Index::Static(contents) => {
-            fs::write(index_path, contents)?;
+            fs::write(index_path, contents).context("failed to create index.html")?;
         }
     }
 
