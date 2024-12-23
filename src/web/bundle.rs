@@ -4,7 +4,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use super::{cargo::metadata::Metadata, BinTarget};
+use crate::{external_cli::cargo::metadata::Metadata, run::BinTarget};
 
 #[derive(Debug, Clone)]
 pub enum Index {

@@ -2,7 +2,6 @@ use std::path::PathBuf;
 
 use anyhow::Context;
 use args::RunSubcommands;
-use bundle::create_web_bundle;
 
 use crate::{
     build::ensure_web_setup,
@@ -10,12 +9,12 @@ use crate::{
         cargo::{self, metadata::Metadata},
         wasm_bindgen, CommandHelpers,
     },
+    web::bundle::create_web_bundle,
 };
 
 pub use self::args::RunArgs;
 
 mod args;
-mod bundle;
 mod serve;
 
 pub fn run(args: &RunArgs) -> anyhow::Result<()> {

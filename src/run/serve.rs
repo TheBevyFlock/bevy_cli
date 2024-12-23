@@ -1,7 +1,7 @@
 //! Serving the app locally for the browser.
 use actix_web::{rt, web, App, HttpResponse, HttpServer, Responder};
 
-use super::bundle::{LinkedBundle, PackedBundle, WebBundle};
+use crate::web::bundle::{Index, LinkedBundle, PackedBundle, WebBundle};
 
 /// Serve a static HTML file with the given content.
 async fn serve_static_html(content: &'static str) -> impl Responder {
@@ -50,12 +50,12 @@ pub(crate) fn serve(web_bundle: WebBundle, port: u16) -> anyhow::Result<()> {
                     }
 
                     match index {
-                        super::bundle::Index::Folder(path) => {
+                        Index::Folder(path) => {
                             app = app.service(
                                 actix_files::Files::new("/", path).index_file("index.html"),
                             );
                         }
-                        super::bundle::Index::Static(contents) => {
+                        Index::Static(contents) => {
                             app = app.route("/", web::get().to(move || serve_static_html(contents)))
                         }
                     }
