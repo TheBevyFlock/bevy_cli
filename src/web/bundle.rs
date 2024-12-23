@@ -113,11 +113,9 @@ pub fn create_web_bundle(
 
     // Assets
     if let Some(assets_path) = linked.assets_path {
-        let new_assets_path = base_path.join("assets");
-        fs::create_dir_all(&new_assets_path)?;
         fs_extra::dir::copy(
             assets_path,
-            &new_assets_path,
+            &base_path,
             &fs_extra::dir::CopyOptions {
                 overwrite: true,
                 ..Default::default()
@@ -130,7 +128,16 @@ pub fn create_web_bundle(
     let index_path = base_path.join("index.html");
     match linked.index {
         Index::Folder(path) => {
-            fs::copy(path, index_path).context("failed to copy custom web assets")?;
+            fs_extra::dir::copy(
+                path,
+                &base_path,
+                &fs_extra::dir::CopyOptions {
+                    overwrite: true,
+                    content_only: true,
+                    ..Default::default()
+                },
+            )
+            .context("failed to copy custom web assets")?;
         }
         Index::Static(contents) => {
             fs::write(index_path, contents).context("failed to create index.html")?;
