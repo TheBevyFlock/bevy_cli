@@ -53,5 +53,5 @@ pub struct RunWebArgs {
 
     // Bundle all web artifacts into a single folder.
     #[arg(short = 'b', long = "bundle", action = ArgAction::SetTrue, default_value_t = false)]
-    pub create_bundle: bool,
+    pub create_packed_bundle: bool,
 }

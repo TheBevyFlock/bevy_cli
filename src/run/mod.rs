@@ -9,7 +9,7 @@ use crate::{
         cargo::{self, metadata::Metadata},
         wasm_bindgen, CommandHelpers,
     },
-    web::bundle::create_web_bundle,
+    web::bundle::{create_web_bundle, PackedBundle, WebBundle},
 };
 
 pub use self::args::RunArgs;
@@ -44,9 +44,13 @@ pub fn run(args: &RunArgs) -> anyhow::Result<()> {
             &metadata,
             args.profile(),
             bin_target,
-            web_args.create_bundle,
+            web_args.create_packed_bundle,
         )
         .context("Failed to create web bundle")?;
+
+        if let WebBundle::Packed(PackedBundle { path }) = &web_bundle {
+            println!("Created bundle at file://{}", path.display());
+        }
 
         let port = web_args.port;
         let url = format!("http://localhost:{port}");
