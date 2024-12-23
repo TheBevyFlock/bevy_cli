@@ -26,7 +26,7 @@ pub enum WebBundle {
     Packed(PackedBundle),
 }
 
-pub fn create_bundle(
+pub fn create_web_bundle(
     metadata: &Metadata,
     profile: &str,
     bin_target: BinTarget,
@@ -50,37 +50,48 @@ pub fn create_bundle(
         index: Index::Static(default_index(&bin_target)),
     };
 
-    if packed {
-        let base_path = metadata
-            .target_directory
-            .join("bevy_web")
-            .join(profile)
-            .join(bin_target.bin_name);
-
-        // Build artifacts
-        fs::create_dir_all(base_path.join("build"))?;
-        fs::copy(
-            linked.wasm_path,
-            base_path.join("build").join(&wasm_file_name),
-        )?;
-        fs::copy(linked.js_path, base_path.join("build").join(&js_file_name))?;
-
-        // TODO: Copy assets
-
-        let index_path = base_path.join("index.html");
-        match linked.index {
-            Index::File(path) => {
-                fs::copy(path, index_path)?;
-            }
-            Index::Static(contents) => {
-                fs::write(index_path, contents)?;
-            }
-        }
-
-        Ok(WebBundle::Packed(PackedBundle { path: base_path }))
-    } else {
-        Ok(WebBundle::Linked(linked))
+    if !packed {
+        return Ok(WebBundle::Linked(linked));
     }
+
+    let base_path = metadata
+        .target_directory
+        .join("bevy_web")
+        .join(profile)
+        .join(bin_target.bin_name);
+
+    // Build artifacts
+    fs::create_dir_all(base_path.join("build"))?;
+    fs::copy(
+        linked.wasm_path,
+        base_path.join("build").join(&wasm_file_name),
+    )?;
+    fs::copy(linked.js_path, base_path.join("build").join(&js_file_name))?;
+
+    // Assets
+    if let Some(assets_path) = linked.assets_path {
+        fs_extra::dir::copy(
+            assets_path,
+            base_path.join("assets"),
+            &fs_extra::dir::CopyOptions {
+                overwrite: true,
+                ..Default::default()
+            },
+        )?;
+    }
+
+    // Index
+    let index_path = base_path.join("index.html");
+    match linked.index {
+        Index::File(path) => {
+            fs::copy(path, index_path)?;
+        }
+        Index::Static(contents) => {
+            fs::write(index_path, contents)?;
+        }
+    }
+
+    Ok(WebBundle::Packed(PackedBundle { path: base_path }))
 }
 
 /// Create the default `index.html` if the user didn't provide one.
