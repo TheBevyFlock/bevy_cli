@@ -8,21 +8,29 @@ use super::{cargo::metadata::Metadata, BinTarget};
 
 #[derive(Debug, Clone)]
 pub enum Index {
+    /// The folder containing a custom index.html file.
     Folder(PathBuf),
+    /// A static string representing the index.html file.
     Static(&'static str),
 }
 
 #[derive(Debug, Clone)]
 pub struct LinkedBundle {
+    /// The path to the folder containing the WASM and JS build artifacts.
     pub build_artifact_path: PathBuf,
+    /// The name of the WASM artifact, in the build folder.
     pub wasm_file_name: OsString,
+    /// The name of the JS artifact, in the build folder.
     pub js_file_name: OsString,
+    /// The path to the Bevy assets folder, if it exists.
     pub assets_path: Option<PathBuf>,
+    /// The index file to serve.
     pub index: Index,
 }
 
 #[derive(Debug, Clone)]
 pub struct PackedBundle {
+    /// The path to the folder containing the packed web bundle.
     pub path: PathBuf,
 }
 
@@ -44,6 +52,8 @@ pub fn create_web_bundle(
     let wasm_file_name = OsString::from(format!("{}_bg.wasm", bin_target.bin_name));
     let js_file_name = OsString::from(format!("{}.js", bin_target.bin_name));
 
+    let custom_web_folder = Path::new("web");
+
     let linked = LinkedBundle {
         build_artifact_path: bin_target.artifact_directory.clone(),
         wasm_file_name,
@@ -53,8 +63,11 @@ pub fn create_web_bundle(
         } else {
             None
         },
-        // TODO: Determine if index is customized
-        index: Index::Static(default_index(&bin_target)),
+        index: if custom_web_folder.join("index.html").exists() {
+            Index::Folder(custom_web_folder.to_path_buf())
+        } else {
+            Index::Static(default_index(&bin_target))
+        },
     };
 
     if !packed {
@@ -69,6 +82,7 @@ pub fn create_web_bundle(
 
     // Build artifacts
     fs::create_dir_all(base_path.join("build"))?;
+    println!("Create build folder");
     fs::copy(
         linked.build_artifact_path.join(&linked.wasm_file_name),
         base_path.join("build").join(&linked.wasm_file_name),
