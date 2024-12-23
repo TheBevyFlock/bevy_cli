@@ -1,6 +1,8 @@
 use std::path::PathBuf;
 
+use anyhow::Context;
 use args::RunSubcommands;
+use bundle::create_web_bundle;
 
 use crate::{
     build::ensure_web_setup,
@@ -39,6 +41,14 @@ pub fn run(args: &RunArgs) -> anyhow::Result<()> {
         )?;
         wasm_bindgen::bundle(&bin_target)?;
 
+        let web_bundle = create_web_bundle(
+            &metadata,
+            args.profile(),
+            bin_target,
+            web_args.create_bundle,
+        )
+        .context("Failed to create web bundle")?;
+
         let port = web_args.port;
         let url = format!("http://localhost:{port}");
 
@@ -54,7 +64,7 @@ pub fn run(args: &RunArgs) -> anyhow::Result<()> {
             println!("Open your app at <{url}>!");
         }
 
-        serve::serve(bin_target, port)?;
+        serve::serve(web_bundle, port)?;
     } else {
         // For native builds, wrap `cargo run`
         cargo::run::command().args(cargo_args).ensure_status()?;

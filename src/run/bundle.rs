@@ -1,26 +1,32 @@
 use std::{
+    ffi::OsString,
     fs,
     path::{Path, PathBuf},
 };
 
 use super::{cargo::metadata::Metadata, BinTarget};
 
+#[derive(Debug, Clone)]
 pub enum Index {
-    File(PathBuf),
+    Folder(PathBuf),
     Static(&'static str),
 }
 
+#[derive(Debug, Clone)]
 pub struct LinkedBundle {
-    wasm_path: PathBuf,
-    js_path: PathBuf,
-    assets_path: Option<PathBuf>,
-    index: Index,
+    pub build_artifact_path: PathBuf,
+    pub wasm_file_name: OsString,
+    pub js_file_name: OsString,
+    pub assets_path: Option<PathBuf>,
+    pub index: Index,
 }
 
+#[derive(Debug, Clone)]
 pub struct PackedBundle {
-    path: PathBuf,
+    pub path: PathBuf,
 }
 
+#[derive(Debug, Clone)]
 pub enum WebBundle {
     Linked(LinkedBundle),
     Packed(PackedBundle),
@@ -35,12 +41,13 @@ pub fn create_web_bundle(
     let assets_path = Path::new("assets");
     // The "_bg" suffix is needed to reference the bindings created by wasm_bindgen,
     // instead of the artifact created directly by cargo.
-    let wasm_file_name = format!("{}_bg.wasm", bin_target.bin_name);
-    let js_file_name = format!("{}.js", bin_target.bin_name);
+    let wasm_file_name = OsString::from(format!("{}_bg.wasm", bin_target.bin_name));
+    let js_file_name = OsString::from(format!("{}.js", bin_target.bin_name));
 
     let linked = LinkedBundle {
-        wasm_path: bin_target.artifact_directory.join(&wasm_file_name),
-        js_path: bin_target.artifact_directory.join(&js_file_name),
+        build_artifact_path: bin_target.artifact_directory.clone(),
+        wasm_file_name,
+        js_file_name,
         assets_path: if assets_path.exists() {
             Some(assets_path.to_owned())
         } else {
@@ -63,10 +70,13 @@ pub fn create_web_bundle(
     // Build artifacts
     fs::create_dir_all(base_path.join("build"))?;
     fs::copy(
-        linked.wasm_path,
-        base_path.join("build").join(&wasm_file_name),
+        linked.build_artifact_path.join(&linked.wasm_file_name),
+        base_path.join("build").join(&linked.wasm_file_name),
     )?;
-    fs::copy(linked.js_path, base_path.join("build").join(&js_file_name))?;
+    fs::copy(
+        linked.build_artifact_path.join(&linked.js_file_name),
+        base_path.join("build").join(&linked.js_file_name),
+    )?;
 
     // Assets
     if let Some(assets_path) = linked.assets_path {
@@ -83,7 +93,7 @@ pub fn create_web_bundle(
     // Index
     let index_path = base_path.join("index.html");
     match linked.index {
-        Index::File(path) => {
+        Index::Folder(path) => {
             fs::copy(path, index_path)?;
         }
         Index::Static(contents) => {
@@ -95,7 +105,7 @@ pub fn create_web_bundle(
 }
 
 /// Create the default `index.html` if the user didn't provide one.
-pub fn default_index(bin_target: &BinTarget) -> &'static str {
+fn default_index(bin_target: &BinTarget) -> &'static str {
     let template = include_str!(concat!(
         env!("CARGO_MANIFEST_DIR"),
         "/assets/web/index.html"
