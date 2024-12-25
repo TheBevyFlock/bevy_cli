@@ -11,6 +11,7 @@ use crate::{
 };
 
 pub use self::args::RunArgs;
+use self::cargo::metadata::Package;
 
 mod args;
 mod serve;
@@ -64,6 +65,7 @@ pub fn run(args: &RunArgs) -> anyhow::Result<()> {
 
 #[derive(Debug, Clone)]
 pub(crate) struct BinTarget {
+    pub(crate) package: Package,
     /// The path to the directory in `target` which contains the binary.
     pub(crate) artifact_directory: PathBuf,
     /// The name of the binary (without any extensions).
@@ -101,7 +103,7 @@ pub(crate) fn select_run_binary(
 
     let mut is_example = false;
 
-    let target = if let Some(bin_name) = bin_name {
+    let (target, package) = if let Some(bin_name) = bin_name {
         // The user specified a concrete binary
         let bins: Vec<_> = packages
             .iter()
@@ -109,6 +111,7 @@ pub(crate) fn select_run_binary(
                 package
                     .bin_targets()
                     .filter(|target| target.name == *bin_name)
+                    .map(move |target| (target, package))
             })
             .collect();
 
@@ -127,6 +130,7 @@ pub(crate) fn select_run_binary(
                 package
                     .example_targets()
                     .filter(|target| target.name == *example_name)
+                    .map(move |target| (target, package))
             })
             .collect();
 
@@ -144,7 +148,7 @@ pub(crate) fn select_run_binary(
         // If there is only one binary, pick that one
         let bins: Vec<_> = packages
             .iter()
-            .flat_map(|package| package.bin_targets())
+            .flat_map(|package| package.bin_targets().map(move |target| (target, package)))
             .collect();
 
         if bins.is_empty() {
@@ -166,8 +170,9 @@ pub(crate) fn select_run_binary(
                 );
             } else {
                 let default_run = default_runs[0];
-                bins.iter()
-                    .find(|bin| bin.name == *default_run)
+                *bins
+                    .iter()
+                    .find(|(bin, _)| bin.name == *default_run)
                     .ok_or_else(|| {
                         anyhow::anyhow!("Didn't find `default_run` binary {default_run}")
                     })?
@@ -189,6 +194,7 @@ pub(crate) fn select_run_binary(
     }
 
     Ok(BinTarget {
+        package: (**package).clone(),
         bin_name: target.name.clone(),
         artifact_directory,
     })
