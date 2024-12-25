@@ -1,6 +1,8 @@
-use std::path::PathBuf;
+use std::{fs, path::PathBuf};
 
+use anyhow::Context;
 use args::RunSubcommands;
+use toml_edit::DocumentMut;
 
 use crate::{
     build::ensure_web_setup,
@@ -17,18 +19,12 @@ mod args;
 mod serve;
 
 pub fn run(args: &RunArgs) -> anyhow::Result<()> {
-    let cargo_args = args.cargo_args_builder();
+    let mut cargo_args = args.cargo_args_builder();
 
     if let Some(RunSubcommands::Web(web_args)) = &args.subcommand {
         ensure_web_setup()?;
 
         let metadata = cargo::metadata::metadata_with_args(["--no-deps"])?;
-
-        // If targeting the web, run a web server with the WASM build
-        println!("Compiling to WebAssembly...");
-        cargo::build::command().args(cargo_args).ensure_status()?;
-
-        println!("Bundling JavaScript bindings...");
         let bin_target = select_run_binary(
             &metadata,
             args.cargo_args.package_args.package.as_deref(),
@@ -37,6 +33,35 @@ pub fn run(args: &RunArgs) -> anyhow::Result<()> {
             args.target().as_deref(),
             args.profile(),
         )?;
+        let package_toml = fs::read_to_string(&bin_target.package.manifest_path)
+            .context("failed to read package manifest")?
+            .parse::<DocumentMut>()
+            .context("failed to parse package manifest")?;
+
+        // Add default web profiles if they don't exist yet
+        if package_toml
+            .get("profile")
+            .is_none_or(|profiles| profiles.get("web").is_none())
+        {
+            cargo_args = cargo_args.add_with_value("--config", r#"profile.web.inherits="dev""#);
+        }
+        if package_toml
+            .get("profile")
+            .is_none_or(|profiles| profiles.get("web-release").is_none())
+        {
+            cargo_args = cargo_args
+                .add_with_value("--config", r#"profile.web-release.inherits="release""#)
+                // Optimize for size
+                .add_with_value("--config", r#"profile.web-release.opt-level="s""#)
+                // Strip debug info to slightly reduce file size
+                .add_with_value("--config", r#"profile.web-release.strip="debuginfo""#);
+        }
+
+        // If targeting the web, run a web server with the WASM build
+        println!("Compiling to WebAssembly...");
+        cargo::build::command().args(cargo_args).ensure_status()?;
+
+        println!("Bundling JavaScript bindings...");
         wasm_bindgen::bundle(&bin_target)?;
 
         let port = web_args.port;
