@@ -103,7 +103,6 @@ impl CargoCompilationArgs {
         };
 
         ArgBuilder::new()
-            .add_flag_if("--release", self.is_release)
             .add_with_value("--profile", self.profile(is_web))
             .add_opt_value("--jobs", &self.jobs.map(|jobs| jobs.to_string()))
             .add_flag_if("--keep-going", self.is_keep_going)
