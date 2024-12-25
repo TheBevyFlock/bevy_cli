@@ -70,11 +70,17 @@ impl CargoCompilationArgs {
     /// The profile used to compile the app.
     ///
     /// This is determined by the `--release` and `--profile` arguments.
-    pub(crate) fn profile(&self) -> &str {
-        if self.is_release {
-            "release"
-        } else if let Some(profile) = &self.profile {
+    pub(crate) fn profile(&self, is_web: bool) -> &str {
+        if let Some(profile) = &self.profile {
             profile
+        } else if is_web {
+            if self.is_release {
+                "web-release"
+            } else {
+                "web"
+            }
+        } else if self.is_release {
+            "release"
         } else {
             "debug"
         }
