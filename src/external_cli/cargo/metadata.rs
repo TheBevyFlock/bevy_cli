@@ -57,7 +57,7 @@ pub struct Metadata {
     pub workspace_root: PathBuf,
 }
 
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Debug, Deserialize)]
 pub struct Package {
     /// The name of the package.
     pub name: String,
@@ -131,7 +131,7 @@ pub enum DependencyKind {
     Unknown(String),
 }
 
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Debug, Deserialize)]
 pub struct Target {
     pub kind: Vec<TargetKind>,
     /// The name of the target.
@@ -140,7 +140,7 @@ pub struct Target {
     pub name: String,
 }
 
-#[derive(Debug, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 pub enum TargetKind {
     Lib,
