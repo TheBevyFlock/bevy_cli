@@ -1,8 +1,6 @@
-use std::{fs, path::PathBuf};
+use std::path::PathBuf;
 
-use anyhow::Context;
 use args::RunSubcommands;
-use toml_edit::DocumentMut;
 
 use crate::{
     build::ensure_web_setup,
@@ -10,6 +8,7 @@ use crate::{
         cargo::{self, metadata::Metadata},
         wasm_bindgen, CommandHelpers,
     },
+    web::profiles::configure_default_web_profiles,
 };
 
 pub use self::args::RunArgs;
@@ -33,29 +32,8 @@ pub fn run(args: &RunArgs) -> anyhow::Result<()> {
             args.target().as_deref(),
             args.profile(),
         )?;
-        let package_toml = fs::read_to_string(&bin_target.package.manifest_path)
-            .context("failed to read package manifest")?
-            .parse::<DocumentMut>()
-            .context("failed to parse package manifest")?;
 
-        // Add default web profiles if they don't exist yet
-        if package_toml
-            .get("profile")
-            .is_none_or(|profiles| profiles.get("web").is_none())
-        {
-            cargo_args = cargo_args.add_with_value("--config", r#"profile.web.inherits="dev""#);
-        }
-        if package_toml
-            .get("profile")
-            .is_none_or(|profiles| profiles.get("web-release").is_none())
-        {
-            cargo_args = cargo_args
-                .add_with_value("--config", r#"profile.web-release.inherits="release""#)
-                // Optimize for size
-                .add_with_value("--config", r#"profile.web-release.opt-level="s""#)
-                // Strip debug info to slightly reduce file size
-                .add_with_value("--config", r#"profile.web-release.strip="debuginfo""#);
-        }
+        cargo_args = cargo_args.append(configure_default_web_profiles(&metadata, &bin_target)?);
 
         // If targeting the web, run a web server with the WASM build
         println!("Compiling to WebAssembly...");
