@@ -1,6 +1,7 @@
 use crate::{
     external_cli::{cargo, rustup, wasm_bindgen, CommandHelpers},
     run::select_run_binary,
+    web::profiles::configure_default_web_profiles,
 };
 
 pub use self::args::BuildArgs;
@@ -8,17 +9,12 @@ pub use self::args::BuildArgs;
 mod args;
 
 pub fn build(args: &BuildArgs) -> anyhow::Result<()> {
-    let cargo_args = args.cargo_args_builder();
+    let mut cargo_args = args.cargo_args_builder();
 
     if args.is_web() {
         ensure_web_setup()?;
 
         let metadata = cargo::metadata::metadata_with_args(["--no-deps"])?;
-
-        println!("Compiling to WebAssembly...");
-        cargo::build::command().args(cargo_args).ensure_status()?;
-
-        println!("Bundling JavaScript bindings...");
         let bin_target = select_run_binary(
             &metadata,
             args.cargo_args.package_args.package.as_deref(),
@@ -27,6 +23,13 @@ pub fn build(args: &BuildArgs) -> anyhow::Result<()> {
             args.target().as_deref(),
             args.profile(),
         )?;
+
+        cargo_args = cargo_args.append(configure_default_web_profiles(&metadata, &bin_target)?);
+
+        println!("Compiling to WebAssembly...");
+        cargo::build::command().args(cargo_args).ensure_status()?;
+
+        println!("Bundling JavaScript bindings...");
         wasm_bindgen::bundle(&bin_target)?;
     } else {
         cargo::build::command().args(cargo_args).ensure_status()?;
