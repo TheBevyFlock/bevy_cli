@@ -89,11 +89,11 @@ fn configure_web_release_profile() -> ArgBuilder {
 fn configure_profile(profile: &str, inherits: &str, config: HashMap<&str, &str>) -> ArgBuilder {
     let mut args = ArgBuilder::new().add_with_value(
         "--config",
-        format!(r#"profile.{profile}.inherits="{inherits}"#),
+        format!(r#"profile.{profile}.inherits="{inherits}""#),
     );
 
     for (key, value) in config {
-        args = args.add_with_value("--config", format!(r#"profile.{profile}.{key}="{value}"#));
+        args = args.add_with_value("--config", format!(r#"profile.{profile}.{key}="{value}""#));
     }
 
     args
