@@ -8,6 +8,7 @@ use crate::{
     run::BinTarget,
 };
 
+/// Create `--config` args to configure the default profiles to use when compiling for the web.
 pub(crate) fn configure_default_web_profiles(
     metadata: &Metadata,
     bin_target: &BinTarget,
@@ -40,6 +41,7 @@ pub(crate) fn configure_default_web_profiles(
     Ok(args)
 }
 
+/// Check whether the user defined the given profile either in the package or workspace.
 fn is_profile_defined(
     package_manifest: &DocumentMut,
     workspace_manifest: Option<&DocumentMut>,
@@ -97,4 +99,33 @@ fn configure_profile(profile: &str, inherits: &str, config: HashMap<&str, &str>)
     }
 
     args
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn should_detect_defined_profile() {
+        let manifest = r#"
+        [profile.web]
+        inherits = "dev"
+        "#
+        .parse()
+        .unwrap();
+
+        assert!(is_profile_defined_in_manifest(&manifest, "web"));
+    }
+
+    #[test]
+    fn should_detect_missing_profile() {
+        let manifest = r#"
+        [profile.foo]
+        inherits = "dev"
+        "#
+        .parse()
+        .unwrap();
+
+        assert!(!is_profile_defined_in_manifest(&manifest, "web"));
+    }
 }
