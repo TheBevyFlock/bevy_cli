@@ -41,15 +41,18 @@ pub(crate) fn configure_default_web_profiles(
     Ok(args)
 }
 
-/// Check whether the user defined the given profile either in the package or workspace.
+/// Check whether the user defined the profile in the workspace or package.
 fn is_profile_defined(
     package_manifest: &DocumentMut,
     workspace_manifest: Option<&DocumentMut>,
     profile: &str,
 ) -> bool {
-    is_profile_defined_in_manifest(package_manifest, profile)
-        || workspace_manifest
-            .is_some_and(|manifest| is_profile_defined_in_manifest(manifest, profile))
+    if let Some(manifest) = workspace_manifest {
+        // If the package is in a workspace, the profile must also be defined in the workspace
+        is_profile_defined_in_manifest(manifest, profile)
+    } else {
+        is_profile_defined_in_manifest(package_manifest, profile)
+    }
 }
 
 fn is_profile_defined_in_manifest(manifest: &DocumentMut, profile: &str) -> bool {
