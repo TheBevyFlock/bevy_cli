@@ -3,56 +3,26 @@ use std::{collections::HashMap, fs};
 use anyhow::Context as _;
 use toml_edit::DocumentMut;
 
-use crate::{
-    external_cli::{arg_builder::ArgBuilder, cargo::metadata::Metadata},
-    run::BinTarget,
-};
+use crate::external_cli::{arg_builder::ArgBuilder, cargo::metadata::Metadata};
 
 /// Create `--config` args to configure the default profiles to use when compiling for the web.
-pub(crate) fn configure_default_web_profiles(
-    metadata: &Metadata,
-    bin_target: &BinTarget,
-) -> anyhow::Result<ArgBuilder> {
-    let package_manifest = fs::read_to_string(&bin_target.package.manifest_path)
-        .context("failed to read package manifest")?
+pub(crate) fn configure_default_web_profiles(metadata: &Metadata) -> anyhow::Result<ArgBuilder> {
+    let manifest = fs::read_to_string(metadata.workspace_root.join("Cargo.toml"))
+        .context("failed to read workspace manifest")?
         .parse::<DocumentMut>()
-        .context("failed to parse package manifest")?;
-    let workspace_manifest = metadata.workspace_root.as_ref().and_then(|root| {
-        fs::read_to_string(root.join("Cargo.toml"))
-            .ok()?
-            .parse::<DocumentMut>()
-            .ok()
-    });
+        .context("failed to parse workspace manifest")?;
 
     let mut args = ArgBuilder::new();
 
-    if !is_profile_defined(&package_manifest, workspace_manifest.as_ref(), "web") {
+    if !is_profile_defined_in_manifest(&manifest, "web") {
         args = args.append(configure_web_profile());
     }
 
-    if !is_profile_defined(
-        &package_manifest,
-        workspace_manifest.as_ref(),
-        "web-release",
-    ) {
+    if !is_profile_defined_in_manifest(&manifest, "web-release") {
         args = args.append(configure_web_release_profile());
     }
 
     Ok(args)
-}
-
-/// Check whether the user defined the profile in the workspace or package.
-fn is_profile_defined(
-    package_manifest: &DocumentMut,
-    workspace_manifest: Option<&DocumentMut>,
-    profile: &str,
-) -> bool {
-    if let Some(manifest) = workspace_manifest {
-        // If the package is in a workspace, the profile must also be defined in the workspace
-        is_profile_defined_in_manifest(manifest, profile)
-    } else {
-        is_profile_defined_in_manifest(package_manifest, profile)
-    }
 }
 
 fn is_profile_defined_in_manifest(manifest: &DocumentMut, profile: &str) -> bool {

@@ -33,7 +33,7 @@ pub fn run(args: &RunArgs) -> anyhow::Result<()> {
             args.profile(),
         )?;
 
-        cargo_args = cargo_args.append(configure_default_web_profiles(&metadata, &bin_target)?);
+        cargo_args = cargo_args.append(configure_default_web_profiles(&metadata)?);
 
         // If targeting the web, run a web server with the WASM build
         println!("Compiling to WebAssembly...");

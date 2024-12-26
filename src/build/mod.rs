@@ -24,7 +24,7 @@ pub fn build(args: &BuildArgs) -> anyhow::Result<()> {
             args.profile(),
         )?;
 
-        cargo_args = cargo_args.append(configure_default_web_profiles(&metadata, &bin_target)?);
+        cargo_args = cargo_args.append(configure_default_web_profiles(&metadata)?);
 
         println!("Compiling to WebAssembly...");
         cargo::build::command().args(cargo_args).ensure_status()?;
