@@ -38,6 +38,11 @@ pub fn run(args: &RunArgs) -> anyhow::Result<()> {
         )?;
         wasm_bindgen::bundle(&bin_target)?;
 
+        #[cfg(feature = "wasm-opt")]
+        if args.is_release() {
+            crate::web::wasm_opt::optimize_bin(&bin_target)?;
+        }
+
         let port = web_args.port;
         let url = format!("http://localhost:{port}");
 
