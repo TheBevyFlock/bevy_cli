@@ -1,4 +1,4 @@
-use std::{fs, os::unix::fs::MetadataExt, path::Path, time::Instant};
+use std::{fs, path::Path, time::Instant};
 
 use anyhow::Context as _;
 
@@ -19,13 +19,13 @@ fn optimize_path(path: &Path) -> anyhow::Result<()> {
     println!("Optimizing with wasm-opt...");
 
     let start = Instant::now();
-    let size_before = fs::File::open(path)?.metadata()?.size();
+    let size_before = fs::metadata(path)?.len();
 
     wasm_opt::OptimizationOptions::new_optimize_for_size()
         .run(path, path)
         .context("failed to optimize with wasm-opt")?;
 
-    let size_after = fs::File::open(path)?.metadata()?.size();
+    let size_after = fs::metadata(path)?.len();
     let size_reduction = 1. - (size_after as f32) / (size_before as f32);
     let duration = Instant::now() - start;
 
