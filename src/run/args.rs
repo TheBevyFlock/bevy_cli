@@ -8,6 +8,10 @@ pub struct RunArgs {
     #[command(subcommand)]
     pub subcommand: Option<RunSubcommands>,
 
+    /// Confirm all prompts automatically.
+    #[arg(long = "yes", default_value_t = false)]
+    pub silent: bool,
+
     /// Commands to forward to `cargo run`.
     #[clap(flatten)]
     pub cargo_args: CargoRunArgs,

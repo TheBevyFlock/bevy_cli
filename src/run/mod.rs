@@ -19,7 +19,7 @@ pub fn run(args: &RunArgs) -> anyhow::Result<()> {
     let cargo_args = args.cargo_args_builder();
 
     if let Some(RunSubcommands::Web(web_args)) = &args.subcommand {
-        ensure_web_setup()?;
+        ensure_web_setup(args.silent)?;
 
         let metadata = cargo::metadata::metadata_with_args(["--no-deps"])?;
 

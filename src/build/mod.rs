@@ -11,7 +11,7 @@ pub fn build(args: &BuildArgs) -> anyhow::Result<()> {
     let cargo_args = args.cargo_args_builder();
 
     if args.is_web() {
-        ensure_web_setup()?;
+        ensure_web_setup(args.silent)?;
 
         let metadata = cargo::metadata::metadata_with_args(["--no-deps"])?;
 
@@ -35,11 +35,11 @@ pub fn build(args: &BuildArgs) -> anyhow::Result<()> {
     Ok(())
 }
 
-pub(crate) fn ensure_web_setup() -> anyhow::Result<()> {
+pub(crate) fn ensure_web_setup(silent: bool) -> anyhow::Result<()> {
     // `wasm32-unknown-unknown` compilation target
-    rustup::install_target_if_needed("wasm32-unknown-unknown")?;
+    rustup::install_target_if_needed("wasm32-unknown-unknown", silent)?;
     // `wasm-bindgen-cli` for bundling
-    cargo::install::if_needed(wasm_bindgen::PROGRAM, wasm_bindgen::PACKAGE, true, false)?;
+    cargo::install::if_needed(wasm_bindgen::PROGRAM, wasm_bindgen::PACKAGE, !silent, false)?;
 
     Ok(())
 }
