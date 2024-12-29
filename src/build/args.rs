@@ -1,4 +1,4 @@
-use clap::{Args, Subcommand};
+use clap::{ArgAction, Args, Subcommand};
 
 use crate::external_cli::{arg_builder::ArgBuilder, cargo::build::CargoBuildArgs};
 
@@ -16,7 +16,7 @@ pub struct BuildArgs {
 impl BuildArgs {
     /// Determine if the app is being built for the web.
     pub(crate) fn is_web(&self) -> bool {
-        matches!(self.subcommand, Some(BuildSubcommands::Web))
+        matches!(self.subcommand, Some(BuildSubcommands::Web(_)))
     }
 
     /// Whether to build with optimizations.
@@ -44,5 +44,12 @@ impl BuildArgs {
 #[derive(Debug, Subcommand)]
 pub enum BuildSubcommands {
     /// Build your app for the browser.
-    Web,
+    Web(BuildWebArgs),
+}
+
+#[derive(Debug, Args)]
+pub struct BuildWebArgs {
+    // Bundle all web artifacts into a single folder.
+    #[arg(short = 'b', long = "bundle", action = ArgAction::SetTrue, default_value_t = false)]
+    pub create_packed_bundle: bool,
 }

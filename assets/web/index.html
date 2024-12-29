@@ -65,6 +65,7 @@
 
     <script type="module">
       // Starting the game
+      // The template uses `bevy_app.js`, which will be replaced by the name of the generated JS entrypoint when creating the local web server
       import init from "./build/bevy_app.js";
       init().catch((error) => {
         if (

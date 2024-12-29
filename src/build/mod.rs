@@ -1,6 +1,9 @@
+use args::BuildSubcommands;
+
 use crate::{
     external_cli::{cargo, rustup, wasm_bindgen, CommandHelpers},
     run::select_run_binary,
+    web::bundle::{create_web_bundle, PackedBundle, WebBundle},
 };
 
 pub use self::args::BuildArgs;
@@ -10,7 +13,7 @@ mod args;
 pub fn build(args: &BuildArgs) -> anyhow::Result<()> {
     let cargo_args = args.cargo_args_builder();
 
-    if args.is_web() {
+    if let Some(BuildSubcommands::Web(web_args)) = &args.subcommand {
         ensure_web_setup()?;
 
         let metadata = cargo::metadata::metadata_with_args(["--no-deps"])?;
@@ -32,6 +35,14 @@ pub fn build(args: &BuildArgs) -> anyhow::Result<()> {
         #[cfg(feature = "wasm-opt")]
         if args.is_release() {
             crate::web::wasm_opt::optimize_bin(&bin_target)?;
+        }
+
+        if web_args.create_packed_bundle {
+            let web_bundle = create_web_bundle(&metadata, args.profile(), bin_target, true)?;
+
+            if let WebBundle::Packed(PackedBundle { path }) = &web_bundle {
+                println!("Created bundle at file://{}", path.display());
+            }
         }
     } else {
         cargo::build::command().args(cargo_args).ensure_status()?;
