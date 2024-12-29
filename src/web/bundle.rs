@@ -10,17 +10,17 @@ use crate::{external_cli::cargo::metadata::Metadata, run::BinTarget};
 
 #[derive(Debug, Clone)]
 pub enum Index {
-    /// The folder containing a custom index.html file.
+    /// The folder containing a custom `index.html` file.
     Folder(PathBuf),
-    /// A static string representing the index.html file.
+    /// A static string representing the contents of `index.html`.
     Static(&'static str),
 }
 
 #[derive(Debug, Clone)]
 pub struct LinkedBundle {
-    /// The path to the folder containing the WASM and JS build artifacts.
+    /// The path to the folder containing the Wasm and JS build artifacts.
     pub build_artifact_path: PathBuf,
-    /// The name of the WASM artifact, in the build folder.
+    /// The name of the Wasm artifact, in the build folder.
     pub wasm_file_name: OsString,
     /// The name of the JS artifact, in the build folder.
     pub js_file_name: OsString,
@@ -148,7 +148,8 @@ pub fn create_web_bundle(
     Ok(WebBundle::Packed(PackedBundle { path: base_path }))
 }
 
-/// Create the default `index.html` if the user didn't provide one.
+/// Returns the contents of the default `index.html`,
+/// customized to use the name of the generated binary.
 fn default_index(bin_target: &BinTarget) -> &'static str {
     let template = include_str!(concat!(
         env!("CARGO_MANIFEST_DIR"),
