@@ -40,6 +40,11 @@ pub fn run(args: &RunArgs) -> anyhow::Result<()> {
         )?;
         wasm_bindgen::bundle(&bin_target)?;
 
+        #[cfg(feature = "wasm-opt")]
+        if args.is_release() {
+            crate::web::wasm_opt::optimize_bin(&bin_target)?;
+        }
+
         let web_bundle = create_web_bundle(
             &metadata,
             args.profile(),
