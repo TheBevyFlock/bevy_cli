@@ -27,7 +27,7 @@ fn optimize_path(path: &Path) -> anyhow::Result<()> {
 
     let size_after = fs::metadata(path)?.len();
     let size_reduction = 1. - (size_after as f32) / (size_before as f32);
-    let duration = Instant::now() - start;
+    let duration = start.elapsed();
 
     println!(
         "    Finished in {duration:.2?}. Size reduced by {:.0}%.",
