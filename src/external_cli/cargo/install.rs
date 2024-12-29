@@ -21,6 +21,7 @@ fn is_installed(program: &str) -> bool {
 pub(crate) fn if_needed(
     program: &str,
     package: &str,
+    package_version: Option<&str>,
     ask_user: bool,
     hidden: bool,
 ) -> anyhow::Result<bool> {
@@ -42,15 +43,19 @@ pub(crate) fn if_needed(
     let mut cmd = Command::new(super::program());
     cmd.arg("install").arg(package);
 
+    if let Some(version) = package_version {
+        cmd.arg("--version").arg(version);
+    }
+
     let status = if hidden {
         cmd.output()?.status
     } else {
         cmd.status()?
     };
 
-    if !status.success() {
-        Err(anyhow::anyhow!("Failed to install `{program}`."))
-    } else {
+    if status.success() {
         Ok(true)
+    } else {
+        Err(anyhow::anyhow!("Failed to install `{program}`."))
     }
 }

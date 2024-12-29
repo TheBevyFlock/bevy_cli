@@ -36,10 +36,27 @@ pub fn build(args: &BuildArgs) -> anyhow::Result<()> {
 }
 
 pub(crate) fn ensure_web_setup() -> anyhow::Result<()> {
+    // The resolved dependency graph is needed to ensure the `wasm-bindgen-cli` version matches
+    // exactly the `wasm-bindgen` version
+    let metadata = cargo::metadata::metadata()?;
+
+    let wasm_bindgen_version = metadata
+        .packages
+        .iter()
+        .find(|package| package.name == "wasm-bindgen")
+        .map(|package| package.version.to_string())
+        .ok_or_else(|| anyhow::anyhow!("Failed to find wasm-bindgen"))?;
+
     // `wasm32-unknown-unknown` compilation target
     rustup::install_target_if_needed("wasm32-unknown-unknown")?;
     // `wasm-bindgen-cli` for bundling
-    cargo::install::if_needed(wasm_bindgen::PROGRAM, wasm_bindgen::PACKAGE, true, false)?;
+    cargo::install::if_needed(
+        wasm_bindgen::PROGRAM,
+        wasm_bindgen::PACKAGE,
+        Some(&wasm_bindgen_version),
+        true,
+        false,
+    )?;
 
     Ok(())
 }
