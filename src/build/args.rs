@@ -19,6 +19,12 @@ impl BuildArgs {
         matches!(self.subcommand, Some(BuildSubcommands::Web))
     }
 
+    /// Whether to build with optimizations.
+    #[cfg(feature = "wasm-opt")]
+    pub(crate) fn is_release(&self) -> bool {
+        self.cargo_args.compilation_args.is_release
+    }
+
     /// The profile used to compile the app.
     pub(crate) fn profile(&self) -> &str {
         self.cargo_args.compilation_args.profile(self.is_web())

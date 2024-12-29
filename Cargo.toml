@@ -14,6 +14,11 @@ default-run = "bevy"
 name = "bevy"
 path = "src/bin/main.rs"
 
+[features]
+# To optimize the Wasm binaries
+# Increases compile times (of the CLI) quite a bit
+wasm-opt = ["dep:wasm-opt"]
+
 [dependencies]
 # CLI argument parsing
 clap = { version = "4.5.16", features = ["derive"] }
@@ -45,3 +50,6 @@ webbrowser = "1.0.2"
 
 # Parsing the Cargo manifest
 toml_edit = "0.22.22"
+
+# Optimizing Wasm binaries
+wasm-opt = { version = "0.116.1", optional = true }

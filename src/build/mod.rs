@@ -31,6 +31,11 @@ pub fn build(args: &BuildArgs) -> anyhow::Result<()> {
 
         println!("Bundling JavaScript bindings...");
         wasm_bindgen::bundle(&bin_target)?;
+
+        #[cfg(feature = "wasm-opt")]
+        if args.is_release() {
+            crate::web::wasm_opt::optimize_bin(&bin_target)?;
+        }
     } else {
         cargo::build::command().args(cargo_args).ensure_status()?;
     }
