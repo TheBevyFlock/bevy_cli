@@ -10,7 +10,7 @@ pub struct BuildArgs {
 
     /// Confirm all prompts automatically.
     #[arg(long = "yes", default_value_t = false)]
-    pub silent: bool,
+    pub skip_prompts: bool,
 
     /// Arguments to forward to `cargo build`.
     #[clap(flatten)]

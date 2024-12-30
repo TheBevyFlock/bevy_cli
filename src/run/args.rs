@@ -10,7 +10,7 @@ pub struct RunArgs {
 
     /// Confirm all prompts automatically.
     #[arg(long = "yes", default_value_t = false)]
-    pub silent: bool,
+    pub skip_prompts: bool,
 
     /// Commands to forward to `cargo run`.
     #[clap(flatten)]

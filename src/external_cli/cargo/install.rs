@@ -21,7 +21,7 @@ fn is_installed(program: &str) -> bool {
 pub(crate) fn if_needed(
     program: &str,
     package: &str,
-    ask_user: bool,
+    skip_prompts: bool,
     hidden: bool,
 ) -> anyhow::Result<bool> {
     if is_installed(program) {
@@ -29,7 +29,7 @@ pub(crate) fn if_needed(
     }
 
     // Abort if the user doesn't want to install it
-    if ask_user
+    if !skip_prompts
         && !Confirm::new()
             .with_prompt(format!(
                 "`{program}` is missing, should I install it for you?"
