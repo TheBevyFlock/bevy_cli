@@ -8,6 +8,10 @@ pub struct BuildArgs {
     #[clap(subcommand)]
     pub subcommand: Option<BuildSubcommands>,
 
+    /// Confirm all prompts automatically.
+    #[arg(long = "yes", default_value_t = false)]
+    pub skip_prompts: bool,
+
     /// Arguments to forward to `cargo build`.
     #[clap(flatten)]
     pub cargo_args: CargoBuildArgs,
