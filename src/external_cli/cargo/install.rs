@@ -28,7 +28,7 @@ pub(crate) fn if_needed(
     program: &str,
     package: &str,
     package_version: Option<&str>,
-    ask_user: bool,
+    skip_prompts: bool,
     hidden: bool,
 ) -> anyhow::Result<bool> {
     let mut prompt: Option<String> = None;
@@ -55,7 +55,7 @@ pub(crate) fn if_needed(
     }
 
     // Abort if the user doesn't want to install it
-    if ask_user
+    if !skip_prompts
         && !Confirm::new()
             .with_prompt(
                 prompt.unwrap_or_else(|| {

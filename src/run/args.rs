@@ -8,6 +8,10 @@ pub struct RunArgs {
     #[command(subcommand)]
     pub subcommand: Option<RunSubcommands>,
 
+    /// Confirm all prompts automatically.
+    #[arg(long = "yes", default_value_t = false)]
+    pub skip_prompts: bool,
+
     /// Commands to forward to `cargo run`.
     #[clap(flatten)]
     pub cargo_args: CargoRunArgs,
@@ -17,6 +21,12 @@ impl RunArgs {
     /// Whether to run the app in the browser.
     pub(crate) fn is_web(&self) -> bool {
         matches!(self.subcommand, Some(RunSubcommands::Web(_)))
+    }
+
+    /// Whether to build with optimizations.
+    #[cfg(feature = "wasm-opt")]
+    pub(crate) fn is_release(&self) -> bool {
+        self.cargo_args.compilation_args.is_release
     }
 
     /// The profile used to compile the app.
@@ -50,4 +60,8 @@ pub struct RunWebArgs {
     /// Open the app in the browser.
     #[arg(short = 'o', long = "open", action = ArgAction::SetTrue, default_value_t = false)]
     pub open: bool,
+
+    // Bundle all web artifacts into a single folder.
+    #[arg(short = 'b', long = "bundle", action = ArgAction::SetTrue, default_value_t = false)]
+    pub create_packed_bundle: bool,
 }

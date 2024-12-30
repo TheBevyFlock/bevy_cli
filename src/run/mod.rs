@@ -1,5 +1,6 @@
 use std::path::PathBuf;
 
+use anyhow::Context;
 use args::RunSubcommands;
 
 use crate::{
@@ -8,6 +9,7 @@ use crate::{
         cargo::{self, metadata::Metadata},
         wasm_bindgen, CommandHelpers,
     },
+    web::bundle::{create_web_bundle, PackedBundle, WebBundle},
 };
 
 pub use self::args::RunArgs;
@@ -19,7 +21,7 @@ pub fn run(args: &RunArgs) -> anyhow::Result<()> {
     let cargo_args = args.cargo_args_builder();
 
     if let Some(RunSubcommands::Web(web_args)) = &args.subcommand {
-        ensure_web_setup()?;
+        ensure_web_setup(args.skip_prompts)?;
 
         let metadata = cargo::metadata::metadata_with_args(["--no-deps"])?;
 
@@ -38,6 +40,23 @@ pub fn run(args: &RunArgs) -> anyhow::Result<()> {
         )?;
         wasm_bindgen::bundle(&bin_target)?;
 
+        #[cfg(feature = "wasm-opt")]
+        if args.is_release() {
+            crate::web::wasm_opt::optimize_bin(&bin_target)?;
+        }
+
+        let web_bundle = create_web_bundle(
+            &metadata,
+            args.profile(),
+            bin_target,
+            web_args.create_packed_bundle,
+        )
+        .context("Failed to create web bundle")?;
+
+        if let WebBundle::Packed(PackedBundle { path }) = &web_bundle {
+            println!("Created bundle at file://{}", path.display());
+        }
+
         let port = web_args.port;
         let url = format!("http://localhost:{port}");
 
@@ -53,7 +72,7 @@ pub fn run(args: &RunArgs) -> anyhow::Result<()> {
             println!("Open your app at <{url}>!");
         }
 
-        serve::serve(bin_target, port)?;
+        serve::serve(web_bundle, port)?;
     } else {
         // For native builds, wrap `cargo run`
         cargo::run::command().args(cargo_args).ensure_status()?;
