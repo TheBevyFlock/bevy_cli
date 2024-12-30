@@ -1,18 +1,24 @@
-use std::process::{exit, Command};
+use std::{
+    process::{exit, Command},
+    str::FromStr,
+};
 
 use dialoguer::Confirm;
+use semver::Version;
+
+use crate::external_cli::wasm_bindgen;
+
+use self::wasm_bindgen::wasm_bindgen_cli_version;
 
 /// Check if the given program is installed on the system.
 ///
 /// This assumes that the program offers a `--version` flag.
-fn is_installed(program: &str) -> bool {
-    let output = Command::new(program).arg("--version").output();
-
-    if let Ok(output) = output {
-        output.status.success()
-    } else {
-        false
-    }
+fn is_installed(program: &str) -> Option<Vec<u8>> {
+    Command::new(program)
+        .arg("--version")
+        .output()
+        .map(|output| output.stdout)
+        .ok()
 }
 
 /// Checks if the program is installed and installs it if it isn't.
@@ -25,16 +31,37 @@ pub(crate) fn if_needed(
     ask_user: bool,
     hidden: bool,
 ) -> anyhow::Result<bool> {
-    if is_installed(program) {
-        return Ok(false);
+    let mut prompt: Option<String> = None;
+
+    if let Some(stdout) = is_installed(program) {
+        let Some(package_version) = package_version else {
+            // If no `package_version` is specified and the program is installed,
+            // there is nothing to do.
+            return Ok(false);
+        };
+        // If `package_version` is specified, check if the installed version matches the desired
+        //`package_version`
+        if package == wasm_bindgen::PACKAGE {
+            let version = wasm_bindgen_cli_version(stdout)?;
+            let desired_version = Version::from_str(package_version)?;
+            if version == desired_version {
+                return Ok(false);
+            }
+            prompt = Some(format!(
+                "`{program}:{version}` is installed, but \
+                version `{desired_version}` is required. Install and replace?"
+            ));
+        }
     }
 
     // Abort if the user doesn't want to install it
     if ask_user
         && !Confirm::new()
-            .with_prompt(format!(
-                "`{program}` is missing, should I install it for you?"
-            ))
+            .with_prompt(
+                prompt.unwrap_or_else(|| {
+                    format!("`{program}` is missing, should I install it for you?")
+                }),
+            )
             .interact()?
     {
         exit(1);
