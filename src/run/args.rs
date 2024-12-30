@@ -8,6 +8,10 @@ pub struct RunArgs {
     #[command(subcommand)]
     pub subcommand: Option<RunSubcommands>,
 
+    /// Confirm all prompts automatically.
+    #[arg(long = "yes", default_value_t = false)]
+    pub skip_prompts: bool,
+
     /// Commands to forward to `cargo run`.
     #[clap(flatten)]
     pub cargo_args: CargoRunArgs,
@@ -56,4 +60,8 @@ pub struct RunWebArgs {
     /// Open the app in the browser.
     #[arg(short = 'o', long = "open", action = ArgAction::SetTrue, default_value_t = false)]
     pub open: bool,
+
+    // Bundle all web artifacts into a single folder.
+    #[arg(short = 'b', long = "bundle", action = ArgAction::SetTrue, default_value_t = false)]
+    pub create_packed_bundle: bool,
 }
