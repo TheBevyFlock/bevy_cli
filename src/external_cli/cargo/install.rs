@@ -39,10 +39,12 @@ pub(crate) fn if_needed(
             // there is nothing to do.
             return Ok(false);
         };
-        // If `package_version` is specified, check if the installed version matches the desired
-        //`package_version`
+
+        // Its important that the `wasm-bindgen-cli` and the `wasm-bindgen` version match exactly,
+        // therefore compare the desired `package_version` with the installed
+        // `wasm-bindgen-cli` version
         if package == wasm_bindgen::PACKAGE {
-            let version = wasm_bindgen_cli_version(stdout)?;
+            let version = wasm_bindgen_cli_version(&stdout)?;
             let desired_version = Version::from_str(package_version)?;
             if version == desired_version {
                 return Ok(false);

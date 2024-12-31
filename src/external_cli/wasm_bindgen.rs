@@ -30,8 +30,8 @@ pub(crate) fn bundle(bin_target: &BinTarget) -> anyhow::Result<()> {
 }
 
 /// Transforms the output from `wasm-bindgen --version` into a [Version].
-pub(crate) fn wasm_bindgen_cli_version(stdout: Vec<u8>) -> anyhow::Result<Version> {
-    let stdout = String::from_utf8(stdout)?;
+pub(crate) fn wasm_bindgen_cli_version(stdout: &[u8]) -> anyhow::Result<Version> {
+    let stdout = String::from_utf8_lossy(stdout);
     // Example stdout from `wasm-bindgen --version`: wasm-bindgen 0.2.99
     stdout
         .split_whitespace()
