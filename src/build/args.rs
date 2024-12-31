@@ -31,7 +31,7 @@ impl BuildArgs {
 
     /// The profile used to compile the app.
     pub(crate) fn profile(&self) -> &str {
-        self.cargo_args.compilation_args.profile()
+        self.cargo_args.compilation_args.profile(self.is_web())
     }
 
     /// The targeted platform.

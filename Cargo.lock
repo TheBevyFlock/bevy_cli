@@ -490,6 +490,7 @@ dependencies = [
  "actix-web",
  "anyhow",
  "cargo-generate",
+ "cc",
  "clap",
  "dialoguer",
  "fs_extra",
@@ -498,6 +499,7 @@ dependencies = [
  "semver",
  "serde",
  "serde_json",
+ "toml_edit",
  "wasm-opt",
  "webbrowser",
 ]
