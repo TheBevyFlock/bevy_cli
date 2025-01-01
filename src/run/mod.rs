@@ -1,5 +1,6 @@
 use std::path::PathBuf;
 
+use anyhow::Context;
 use args::RunSubcommands;
 
 use crate::{
@@ -7,6 +8,10 @@ use crate::{
     external_cli::{
         cargo::{self, metadata::Metadata},
         wasm_bindgen, CommandHelpers,
+    },
+    web::{
+        bundle::{create_web_bundle, PackedBundle, WebBundle},
+        profiles::configure_default_web_profiles,
     },
 };
 
@@ -16,18 +21,12 @@ mod args;
 mod serve;
 
 pub fn run(args: &RunArgs) -> anyhow::Result<()> {
-    let cargo_args = args.cargo_args_builder();
+    let mut cargo_args = args.cargo_args_builder();
 
     if let Some(RunSubcommands::Web(web_args)) = &args.subcommand {
-        ensure_web_setup()?;
+        ensure_web_setup(args.skip_prompts)?;
 
         let metadata = cargo::metadata::metadata_with_args(["--no-deps"])?;
-
-        // If targeting the web, run a web server with the WASM build
-        println!("Compiling to WebAssembly...");
-        cargo::build::command().args(cargo_args).ensure_status()?;
-
-        println!("Bundling JavaScript bindings...");
         let bin_target = select_run_binary(
             &metadata,
             args.cargo_args.package_args.package.as_deref(),
@@ -36,7 +35,32 @@ pub fn run(args: &RunArgs) -> anyhow::Result<()> {
             args.target().as_deref(),
             args.profile(),
         )?;
+
+        cargo_args = cargo_args.append(configure_default_web_profiles(&metadata)?);
+
+        // If targeting the web, run a web server with the WASM build
+        println!("Compiling to WebAssembly...");
+        cargo::build::command().args(cargo_args).ensure_status()?;
+
+        println!("Bundling JavaScript bindings...");
         wasm_bindgen::bundle(&bin_target)?;
+
+        #[cfg(feature = "wasm-opt")]
+        if args.is_release() {
+            crate::web::wasm_opt::optimize_bin(&bin_target)?;
+        }
+
+        let web_bundle = create_web_bundle(
+            &metadata,
+            args.profile(),
+            bin_target,
+            web_args.create_packed_bundle,
+        )
+        .context("Failed to create web bundle")?;
+
+        if let WebBundle::Packed(PackedBundle { path }) = &web_bundle {
+            println!("Created bundle at file://{}", path.display());
+        }
 
         let port = web_args.port;
         let url = format!("http://localhost:{port}");
@@ -53,7 +77,7 @@ pub fn run(args: &RunArgs) -> anyhow::Result<()> {
             println!("Open your app at <{url}>!");
         }
 
-        serve::serve(bin_target, port)?;
+        serve::serve(web_bundle, port)?;
     } else {
         // For native builds, wrap `cargo run`
         cargo::run::command().args(cargo_args).ensure_status()?;

@@ -70,11 +70,17 @@ impl CargoCompilationArgs {
     /// The profile used to compile the app.
     ///
     /// This is determined by the `--release` and `--profile` arguments.
-    pub(crate) fn profile(&self) -> &str {
-        if self.is_release {
-            "release"
-        } else if let Some(profile) = &self.profile {
+    pub(crate) fn profile(&self, is_web: bool) -> &str {
+        if let Some(profile) = &self.profile {
             profile
+        } else if is_web {
+            if self.is_release {
+                "web-release"
+            } else {
+                "web"
+            }
+        } else if self.is_release {
+            "release"
         } else {
             "debug"
         }
@@ -97,8 +103,7 @@ impl CargoCompilationArgs {
         };
 
         ArgBuilder::new()
-            .add_flag_if("--release", self.is_release)
-            .add_opt_value("--profile", &self.profile)
+            .add_with_value("--profile", self.profile(is_web))
             .add_opt_value("--jobs", &self.jobs.map(|jobs| jobs.to_string()))
             .add_flag_if("--keep-going", self.is_keep_going)
             .add_opt_value("--target", &target)

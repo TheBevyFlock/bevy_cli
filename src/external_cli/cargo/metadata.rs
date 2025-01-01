@@ -45,15 +45,16 @@ pub struct Metadata {
     /// List of members of the workspace.
     ///
     /// Each entry is the Package ID for the package.
-    pub workspace_members: Option<Vec<String>>,
+    pub workspace_members: Vec<String>,
     /// List of default members of the workspace.
     ///
     /// Each entry is the Package ID for the package.
-    pub workspace_default_members: Option<Vec<String>>,
+    pub workspace_default_members: Vec<String>,
     /// The absolute path to the build directory where Cargo places its output.
     pub target_directory: PathBuf,
     /// The absolute path to the root of the workspace.
-    pub workspace_root: Option<PathBuf>,
+    /// This will be the root of the package if no workspace is used.
+    pub workspace_root: PathBuf,
 }
 
 #[derive(Debug, Deserialize)]
