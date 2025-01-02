@@ -1,4 +1,5 @@
-use std::process::Command;
+use semver::Version;
+use std::{process::Command, str::FromStr};
 
 use crate::{external_cli::CommandHelpers, run::BinTarget};
 
@@ -26,4 +27,20 @@ pub(crate) fn bundle(bin_target: &BinTarget) -> anyhow::Result<()> {
         .ensure_status()?;
 
     Ok(())
+}
+
+/// Transforms the output from `wasm-bindgen --version` into a [Version].
+pub(crate) fn wasm_bindgen_cli_version(stdout: &[u8]) -> anyhow::Result<Version> {
+    let stdout = String::from_utf8_lossy(stdout);
+    // Example stdout from `wasm-bindgen --version`: wasm-bindgen 0.2.99
+    stdout
+        .split_whitespace()
+        .nth(1)
+        .ok_or_else(|| {
+            anyhow::anyhow!(
+                "unexpected output format: {}, expected format to be: `wasm-bindgen <version>`",
+                stdout
+            )
+        })
+        .and_then(|version| Version::from_str(version).map_err(|e| anyhow::anyhow!(e)))
 }
