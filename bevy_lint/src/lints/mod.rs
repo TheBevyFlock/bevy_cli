@@ -9,20 +9,20 @@ use rustc_lint::{Lint, LintStore};
 
 pub mod borrowed_reborrowable;
 pub mod insert_event_resource;
-pub mod main_return_without_appexit;
 pub mod missing_reflect;
 pub mod panicking_methods;
 pub mod plugin_not_ending_in_plugin;
+pub mod unused_appexit;
 pub mod zst_query;
 
 pub(crate) static LINTS: &[&BevyLint] = &[
     borrowed_reborrowable::BORROWED_REBORROWABLE,
     insert_event_resource::INSERT_EVENT_RESOURCE,
-    main_return_without_appexit::MAIN_RETURN_WITHOUT_APPEXIT,
     panicking_methods::PANICKING_QUERY_METHODS,
     missing_reflect::MISSING_REFLECT,
     panicking_methods::PANICKING_WORLD_METHODS,
     plugin_not_ending_in_plugin::PLUGIN_NOT_ENDING_IN_PLUGIN,
+    unused_appexit::UNUSED_APPEXIT,
     zst_query::ZST_QUERY,
 ];
 
@@ -34,9 +34,9 @@ pub(crate) fn register_lints(store: &mut LintStore) {
 pub(crate) fn register_passes(store: &mut LintStore) {
     store.register_late_pass(|_| Box::new(borrowed_reborrowable::BorrowedReborrowable));
     store.register_late_pass(|_| Box::new(insert_event_resource::InsertEventResource));
-    store.register_late_pass(|_| Box::new(main_return_without_appexit::MainReturnWithoutAppExit));
     store.register_late_pass(|_| Box::new(missing_reflect::MissingReflect));
     store.register_late_pass(|_| Box::new(panicking_methods::PanickingMethods));
     store.register_late_pass(|_| Box::new(plugin_not_ending_in_plugin::PluginNotEndingInPlugin));
+    store.register_late_pass(|_| Box::new(unused_appexit::UnusedAppExit::default()));
     store.register_late_pass(|_| Box::new(zst_query::ZstQuery));
 }
