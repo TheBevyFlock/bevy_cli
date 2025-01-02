@@ -1,0 +1,14 @@
+error: Expression returns `()` and results in an empty bundle being inserted
+  --> tests/ui/insert_empty_bundle/main.rs:15:64
+   |
+15 |         Transform::from_translation(Vec3::new(0.75, 0.0, 0.0)).rotate_z(PI / 4.0),
+   |                                                                ^^^^^^^^
+   |
+note: the lint level is defined here
+  --> tests/ui/insert_empty_bundle/main.rs:3:9
+   |
+3  | #![deny(bevy::insert_empty_bundle)]
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: aborting due to 1 previous error
+

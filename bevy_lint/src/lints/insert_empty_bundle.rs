@@ -1,6 +1,6 @@
 use std::ops::ControlFlow;
 
-use clippy_utils::{sym, ty::match_type, visitors::for_each_expr};
+use clippy_utils::{diagnostics::span_lint, sym, ty::match_type, visitors::for_each_expr};
 use rustc_hir::{Expr, ExprKind};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_session::impl_lint_pass;
@@ -46,12 +46,39 @@ impl<'tcx> LateLintPass<'tcx> for InsertEmptyBundle {
         {
             return;
         }
+
         // iterate through all `Expr` inside the method `args` tuple, check if any return `()`
         for_each_expr(cx, args, |expr| {
-            let ExprKind::MethodCall(path, _src, _args, _method_span) = expr.kind else {
-                return ControlFlow::<()>::Continue(());
+            // get the expression of the Call
+            let (expr, span) = match expr.kind {
+                ExprKind::Call(expr, _) => (expr, expr.span),
+                ExprKind::MethodCall(path, _, _, _) => (expr, path.ident.span),
+                // If the expression was not of `kind` `Call` or `MethodCall`,
+                // continue to the next Expression
+                _ => return ControlFlow::<()>::Continue(()),
             };
-            dbg!(&path);
+
+            let ty = cx.typeck_results().type_dependent_def_id(expr.hir_id);
+
+            if let Some(ty) = ty {
+                // Check if the return type of a function signature is of type `unit`
+                if cx
+                    .tcx
+                    .fn_sig(ty)
+                    .skip_binder()
+                    .output()
+                    .skip_binder()
+                    .is_unit()
+                {
+                    span_lint(
+                        cx,
+                        INSERT_EMPTY_BUNDLE.lint,
+                        span,
+                        "Expression returns `()` and results in an empty bundle being inserted",
+                    );
+                }
+            }
+
             ControlFlow::<()>::Continue(())
         });
     }
