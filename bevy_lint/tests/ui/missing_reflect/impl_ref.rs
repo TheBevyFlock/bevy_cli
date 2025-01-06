@@ -42,4 +42,6 @@ impl Component for &'static &'static &'static MyEvent {
 }
 
 //~v NOTE: `Event` implemented here
-impl Event for &'static &'static &'static MyEvent {}
+impl Event for &'static &'static &'static MyEvent {
+    type Traversal = ();
+}
