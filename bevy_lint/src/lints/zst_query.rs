@@ -51,7 +51,7 @@ use rustc_session::declare_lint_pass;
 declare_bevy_lint! {
     pub ZST_QUERY,
     RESTRICTION,
-    "query for a zero-sized type"
+    "query for a zero-sized type",
 }
 
 declare_lint_pass! {

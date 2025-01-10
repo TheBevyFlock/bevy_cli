@@ -91,13 +91,13 @@ use rustc_span::{Span, Symbol};
 declare_bevy_lint! {
     pub PANICKING_QUERY_METHODS,
     RESTRICTION,
-    "called a `Query` or `QueryState` method that can panic when a non-panicking alternative exists"
+    "called a `Query` or `QueryState` method that can panic when a non-panicking alternative exists",
 }
 
 declare_bevy_lint! {
     pub PANICKING_WORLD_METHODS,
     RESTRICTION,
-    "called a `World` method that can panic when a non-panicking alternative exists"
+    "called a `World` method that can panic when a non-panicking alternative exists",
 }
 
 declare_lint_pass! {
