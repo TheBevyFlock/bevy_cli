@@ -9,21 +9,21 @@ use rustc_span::Symbol;
 use crate::declare_bevy_lint;
 
 declare_bevy_lint! {
-    pub INSERT_EMPTY_BUNDLE,
+    pub UNIT_COMPONENT_INSERTION,
     SUSPICIOUS,
     "method returns `()` and will spawn an empty bundle",
 }
 
 impl_lint_pass! {
-    InsertEmptyBundle => [INSERT_EMPTY_BUNDLE.lint]
+    UnitComponentInsertion => [UNIT_COMPONENT_INSERTION.lint]
 }
 
-pub struct InsertEmptyBundle {
+pub struct UnitComponentInsertion {
     /// A cached [`Symbol`] representing the interned string `"spawn"`.
     spawn_symbol: Symbol,
 }
 
-impl Default for InsertEmptyBundle {
+impl Default for UnitComponentInsertion {
     fn default() -> Self {
         Self {
             spawn_symbol: sym!(spawn),
@@ -31,7 +31,7 @@ impl Default for InsertEmptyBundle {
     }
 }
 
-impl<'tcx> LateLintPass<'tcx> for InsertEmptyBundle {
+impl<'tcx> LateLintPass<'tcx> for UnitComponentInsertion {
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &'tcx Expr<'tcx>) {
         // Find a method call.
         let ExprKind::MethodCall(path, src, args, _method_span) = expr.kind else {
@@ -72,7 +72,7 @@ impl<'tcx> LateLintPass<'tcx> for InsertEmptyBundle {
                 {
                     span_lint(
                         cx,
-                        INSERT_EMPTY_BUNDLE.lint,
+                        UNIT_COMPONENT_INSERTION.lint,
                         span,
                         "Expression returns `()` and results in an empty bundle being inserted",
                     );

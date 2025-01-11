@@ -1,6 +1,6 @@
 #![feature(register_tool)]
 #![register_tool(bevy)]
-#![deny(bevy::insert_empty_bundle)]
+#![deny(bevy::unit_component_insertion)]
 
 use bevy::prelude::*;
 use std::f32::consts::PI;
