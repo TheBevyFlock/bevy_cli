@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use anyhow::Context;
 use args::RunSubcommands;
@@ -200,20 +200,90 @@ pub(crate) fn select_run_binary(
     };
 
     // Assemble the path where the binary will be put
-    let mut artifact_directory = metadata.target_directory.clone();
-
-    if let Some(target) = compile_target {
-        artifact_directory.push(target);
-    }
-
-    artifact_directory.push(compile_profile);
-
-    if is_example {
-        artifact_directory.push("examples");
-    }
+    let artifact_directory = get_artifact_directory(
+        &metadata.target_directory,
+        compile_target,
+        compile_profile,
+        is_example,
+    );
 
     Ok(BinTarget {
         bin_name: target.name.clone(),
         artifact_directory,
     })
+}
+
+/// Determine the path to the directory which contains the compilation artifacts.
+fn get_artifact_directory(
+    target_directory: &Path,
+    target: Option<&str>,
+    profile: &str,
+    is_example: bool,
+) -> PathBuf {
+    let mut artifact_directory = target_directory.to_owned();
+
+    if let Some(target) = target {
+        artifact_directory.push(target);
+    }
+
+    if profile == "dev" {
+        // For some reason, the dev profile has a debug folder instead
+        artifact_directory.push("debug");
+    } else {
+        artifact_directory.push(profile);
+    }
+
+    if is_example {
+        artifact_directory.push("examples");
+    }
+
+    artifact_directory
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_artifact_directory_dev_native() {
+        let actual = get_artifact_directory(Path::new("/target"), None, "dev", false);
+        assert_eq!(actual, Path::new("/target/debug"));
+    }
+
+    #[test]
+    fn test_artifact_directory_release_native() {
+        let actual = get_artifact_directory(Path::new("/target"), None, "release", false);
+        assert_eq!(actual, Path::new("/target/release"));
+    }
+
+    #[test]
+    fn test_artifact_directory_dev_native_example() {
+        let actual = get_artifact_directory(Path::new("/target"), None, "dev", true);
+        assert_eq!(actual, Path::new("/target/debug/examples"));
+    }
+
+    #[test]
+    fn test_artifact_directory_dev_web() {
+        let actual = get_artifact_directory(
+            Path::new("/target"),
+            Some("wasm32-unknown-unknown"),
+            "web",
+            false,
+        );
+        assert_eq!(actual, Path::new("/target/wasm32-unknown-unknown/web"));
+    }
+
+    #[test]
+    fn test_artifact_directory_release_web() {
+        let actual = get_artifact_directory(
+            Path::new("/target"),
+            Some("wasm32-unknown-unknown"),
+            "web-release",
+            false,
+        );
+        assert_eq!(
+            actual,
+            Path::new("/target/wasm32-unknown-unknown/web-release")
+        );
+    }
 }

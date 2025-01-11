@@ -82,7 +82,7 @@ impl CargoCompilationArgs {
         } else if self.is_release {
             "release"
         } else {
-            "debug"
+            "dev"
         }
     }
 
