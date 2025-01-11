@@ -55,7 +55,7 @@ pub struct LintGroup {
 /// }
 /// ```
 #[macro_export]
-// #[doc(hidden)]
+#[doc(hidden)]
 macro_rules! declare_bevy_lint {
     {
         $(#[$attr:meta])*
