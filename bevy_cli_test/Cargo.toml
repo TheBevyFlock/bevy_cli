@@ -1,0 +1,11 @@
+[workspace]
+members = ["bevy_default"]
+
+[package]
+name = "bevy_cli_test"
+description = "A workspace to test bevy_cli commands."
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[dependencies]
