@@ -4,8 +4,7 @@ A prototype [Bevy] CLI tool intended to streamline common tasks when working on 
 
 - Project generation from a template
 - [A custom, Bevy-specific linter](bevy_lint/README.md)
-- Out-of-the-box support for bundling projects into WebAssembly
-- An HTTP server for testing these WASM bundles
+- Out-of-the-box support for building and running your Bevy app in the browser
 
 If you need assistance or want to help, reach out to the [`bevy_cli` working group channel] in the [Bevy Discord].
 
@@ -14,6 +13,73 @@ If you need assistance or want to help, reach out to the [`bevy_cli` working gro
 [original issue]: https://github.com/bevyengine/bevy/issues/436
 [`bevy_cli` working group channel]: https://discord.com/channels/691052431525675048/1278871953721262090
 [Bevy Discord]: https://discord.gg/bevy
+
+## Installation
+
+At this point, the CLI is not published as a package yet and needs to be installed via git:
+
+```cli
+cargo install --path cargo install --git https://github.com/TheBevyFlock/bevy_cli bevy_cli
+```
+
+## Bevy web apps
+
+The CLI makes it easy to build and run web apps made with Bevy, using `bevy build web` and `bevy run web`.
+It takes care of compiling the app to Wasm, creating JavaScript bindings and serving it on a local web server to test it out.
+Necessary tools will also be installed automatically.
+
+> [!NOTE]
+>
+> The arguments you know from `cargo` (like `--release`) must be placed before the `web` subcommand, while the web-specific options (like `--open`) must be placed afterwards, e.g.
+>
+> ```cli
+> bevy run --release web --open
+> ```
+
+### Running in the browser
+
+Use the `bevy run web` command to run your app in the browser.
+The app will be automatically served on a local web server, use the `--open` flag to automatically open it in the browser.
+
+The server will provide a default `index.html` serving as entrypoint for your app.
+It features a loading screen and some other utilities.
+If you want to customize it, simply create a `web/index.html` file to override the default behavior.
+Other files in the `web` folder will also be included in your application.
+
+### Creating web bundles
+
+To deploy your app on a web server, it's often necessary to bundle the binary, assets and web files into a single folder.
+Using `bevy build web --bundle`, the CLI can create this bundle for you automatically.
+It will be available in the `target/bevy_web` folder, see the command's output for the full file path.
+
+### Compilation profiles
+
+Web apps have different needs than native builds when it comes to compilation.
+For example, binary size is a lot more important for web apps, as it has a big influence on the loading times.
+
+The Bevy CLI provides custom `web` and `web-release` compilation profiles, which are optimized for web apps.
+They are used by default for the web sub-commands (depending on the `--release` flag).
+
+The profiles can be customized as usual in `Cargo.toml`:
+
+```toml
+[profile.web-release]
+inherits = "release"
+opt-level = "z"
+```
+
+Alternatively, you can change the profile entirely, e.g. `bevy run --profile=foo web`.
+
+### Usage in CI
+
+The CLI may include interactive prompts if parts of the required tooling is not installed on the system.
+These prompts will break your pipeline if they are triggered in CI.
+
+To avoid this problem, use the `--yes` flag to automatically confirm the prompts:
+
+```cli
+bevy build --yes web
+```
 
 ## License
 
