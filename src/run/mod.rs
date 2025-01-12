@@ -215,12 +215,12 @@ pub(crate) fn select_run_binary(
 
 /// Determine the path to the directory which contains the compilation artifacts.
 fn get_artifact_directory(
-    target_directory: PathBuf,
+    target_directory: impl Into<PathBuf>,
     target: Option<&str>,
     profile: &str,
     is_example: bool,
 ) -> PathBuf {
-    let mut artifact_directory = target_directory;
+    let mut artifact_directory = target_directory.into();
 
     if let Some(target) = target {
         artifact_directory.push(target);
@@ -243,6 +243,7 @@ fn get_artifact_directory(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::path::Path;
 
     #[test]
     fn test_artifact_directory_dev_native() {
