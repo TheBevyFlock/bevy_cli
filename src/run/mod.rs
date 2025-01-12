@@ -1,4 +1,4 @@
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 use anyhow::Context;
 use args::RunSubcommands;
@@ -201,7 +201,7 @@ pub(crate) fn select_run_binary(
 
     // Assemble the path where the binary will be put
     let artifact_directory = get_artifact_directory(
-        &metadata.target_directory,
+        metadata.target_directory.clone(),
         compile_target,
         compile_profile,
         is_example,
@@ -215,12 +215,12 @@ pub(crate) fn select_run_binary(
 
 /// Determine the path to the directory which contains the compilation artifacts.
 fn get_artifact_directory(
-    target_directory: &Path,
+    target_directory: PathBuf,
     target: Option<&str>,
     profile: &str,
     is_example: bool,
 ) -> PathBuf {
-    let mut artifact_directory = target_directory.to_owned();
+    let mut artifact_directory = target_directory;
 
     if let Some(target) = target {
         artifact_directory.push(target);
