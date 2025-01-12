@@ -188,14 +188,12 @@ pub(crate) fn select_run_binary(
                 anyhow::bail!(
                     "Found multiple `default_run` definitions, I don't know which one to pick!"
                 );
-            } else {
-                let default_run = default_runs[0];
-                bins.iter()
-                    .find(|bin| bin.name == *default_run)
-                    .ok_or_else(|| {
-                        anyhow::anyhow!("Didn't find `default_run` binary {default_run}")
-                    })?
             }
+
+            let default_run = default_runs[0];
+            bins.iter()
+                .find(|bin| bin.name == *default_run)
+                .ok_or_else(|| anyhow::anyhow!("Didn't find `default_run` binary {default_run}"))?
         }
     };
 
