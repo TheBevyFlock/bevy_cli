@@ -3,7 +3,10 @@ use args::BuildSubcommands;
 use crate::{
     external_cli::{cargo, rustup, wasm_bindgen, CommandHelpers},
     run::select_run_binary,
-    web::bundle::{create_web_bundle, PackedBundle, WebBundle},
+    web::{
+        bundle::{create_web_bundle, PackedBundle, WebBundle},
+        profiles::configure_default_web_profiles,
+    },
 };
 
 pub use self::args::BuildArgs;
@@ -11,17 +14,12 @@ pub use self::args::BuildArgs;
 mod args;
 
 pub fn build(args: &BuildArgs) -> anyhow::Result<()> {
-    let cargo_args = args.cargo_args_builder();
+    let mut cargo_args = args.cargo_args_builder();
 
     if let Some(BuildSubcommands::Web(web_args)) = &args.subcommand {
         ensure_web_setup(args.skip_prompts)?;
 
         let metadata = cargo::metadata::metadata_with_args(["--no-deps"])?;
-
-        println!("Compiling to WebAssembly...");
-        cargo::build::command().args(cargo_args).ensure_status()?;
-
-        println!("Bundling JavaScript bindings...");
         let bin_target = select_run_binary(
             &metadata,
             args.cargo_args.package_args.package.as_deref(),
@@ -30,6 +28,13 @@ pub fn build(args: &BuildArgs) -> anyhow::Result<()> {
             args.target().as_deref(),
             args.profile(),
         )?;
+
+        cargo_args = cargo_args.append(configure_default_web_profiles(&metadata)?);
+
+        println!("Compiling to WebAssembly...");
+        cargo::build::command().args(cargo_args).ensure_status()?;
+
+        println!("Bundling JavaScript bindings...");
         wasm_bindgen::bundle(&bin_target)?;
 
         #[cfg(feature = "wasm-opt")]

@@ -20,73 +20,73 @@ error: called a `World` method that can panic when a non-panicking alternative e
    = help: use `world.get_entity_mut(bob)` and handle the `Option` or `Result`
 
 error: called a `World` method that can panic when a non-panicking alternative exists
-  --> tests/ui/panicking_methods/world.rs:31:11
+  --> tests/ui/panicking_methods/world.rs:32:11
    |
-31 |     world.many_entities([bob]);
+32 |     world.many_entities([bob]);
    |           ^^^^^^^^^^^^^^^^^^^^
    |
    = help: use `world.get_many_entities([bob])` and handle the `Option` or `Result`
 
 error: called a `World` method that can panic when a non-panicking alternative exists
-  --> tests/ui/panicking_methods/world.rs:35:11
+  --> tests/ui/panicking_methods/world.rs:37:11
    |
-35 |     world.many_entities_mut([bob]);
+37 |     world.many_entities_mut([bob]);
    |           ^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = help: use `world.get_many_entities_mut([bob])` and handle the `Option` or `Result`
 
 error: called a `World` method that can panic when a non-panicking alternative exists
-  --> tests/ui/panicking_methods/world.rs:39:11
+  --> tests/ui/panicking_methods/world.rs:41:11
    |
-39 |     world.resource::<Jeffrey>();
+41 |     world.resource::<Jeffrey>();
    |           ^^^^^^^^^^^^^^^^^^^^^
    |
    = help: use `world.get_resource::<Jeffrey>()` and handle the `Option` or `Result`
 
 error: called a `World` method that can panic when a non-panicking alternative exists
-  --> tests/ui/panicking_methods/world.rs:43:11
+  --> tests/ui/panicking_methods/world.rs:45:11
    |
-43 |     world.resource_mut::<Jeffrey>();
+45 |     world.resource_mut::<Jeffrey>();
    |           ^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = help: use `world.get_resource_mut::<Jeffrey>()` and handle the `Option` or `Result`
 
 error: called a `World` method that can panic when a non-panicking alternative exists
-  --> tests/ui/panicking_methods/world.rs:47:11
+  --> tests/ui/panicking_methods/world.rs:49:11
    |
-47 |     world.resource_ref::<Jeffrey>();
+49 |     world.resource_ref::<Jeffrey>();
    |           ^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = help: use `world.get_resource_ref::<Jeffrey>()` and handle the `Option` or `Result`
 
 error: called a `World` method that can panic when a non-panicking alternative exists
-  --> tests/ui/panicking_methods/world.rs:51:11
+  --> tests/ui/panicking_methods/world.rs:53:11
    |
-51 |     world.non_send_resource::<Patrick>();
+53 |     world.non_send_resource::<Patrick>();
    |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = help: use `world.get_non_send_resource::<Patrick>()` and handle the `Option` or `Result`
 
 error: called a `World` method that can panic when a non-panicking alternative exists
-  --> tests/ui/panicking_methods/world.rs:55:11
+  --> tests/ui/panicking_methods/world.rs:57:11
    |
-55 |     world.non_send_resource_mut::<Patrick>();
+57 |     world.non_send_resource_mut::<Patrick>();
    |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = help: use `world.get_non_send_resource_mut::<Patrick>()` and handle the `Option` or `Result`
 
 error: called a `World` method that can panic when a non-panicking alternative exists
-  --> tests/ui/panicking_methods/world.rs:59:11
+  --> tests/ui/panicking_methods/world.rs:61:11
    |
-59 |     world.run_schedule(Update);
+61 |     world.run_schedule(Update);
    |           ^^^^^^^^^^^^^^^^^^^^
    |
    = help: use `world.try_run_schedule(Update)` and handle the `Option` or `Result`
 
 error: called a `World` method that can panic when a non-panicking alternative exists
-  --> tests/ui/panicking_methods/world.rs:63:11
+  --> tests/ui/panicking_methods/world.rs:65:11
    |
-63 |     world.schedule_scope(Update, |_world, _schedule| {});
+65 |     world.schedule_scope(Update, |_world, _schedule| {});
    |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = help: use `world.try_schedule_scope(Update, |_world, _schedule| {})` and handle the `Option` or `Result`

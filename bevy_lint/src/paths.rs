@@ -13,9 +13,8 @@ pub const DEFERRED: [&str; 4] = ["bevy_ecs", "system", "system_param", "Deferred
 pub const DEFERRED_WORLD: [&str; 4] = ["bevy_ecs", "world", "deferred_world", "DeferredWorld"];
 pub const ENTITY_COMMANDS: [&str; 4] = ["bevy_ecs", "system", "commands", "EntityCommands"];
 pub const ENTITY_MUT: [&str; 4] = ["bevy_ecs", "world", "entity_ref", "EntityMut"];
-// Note that this moves to `bevy_ecs::event::base::Event` in 0.15.
-pub const EVENT: [&str; 3] = ["bevy_ecs", "event", "Event"];
-pub const EVENTS: [&str; 3] = ["bevy_ecs", "event", "Events"];
+pub const EVENT: [&str; 4] = ["bevy_ecs", "event", "base", "Event"];
+pub const EVENTS: [&str; 4] = ["bevy_ecs", "event", "collections", "Events"];
 pub const FILTERED_ENTITY_MUT: [&str; 4] = ["bevy_ecs", "world", "entity_ref", "FilteredEntityMut"];
 pub const MUT: [&str; 3] = ["bevy_ecs", "change_detection", "Mut"];
 pub const MUT_UNTYPED: [&str; 3] = ["bevy_ecs", "change_detection", "MutUntyped"];

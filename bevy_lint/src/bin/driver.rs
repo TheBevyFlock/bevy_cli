@@ -39,7 +39,9 @@ fn main() -> ExitCode {
         args.remove(0);
 
         // Call the compiler with our custom callback.
-        RunCompiler::new(&args, &mut BevyLintCallback).run()
+        RunCompiler::new(&args, &mut BevyLintCallback).run();
+
+        Ok(())
     });
 
     // We truncate the `i32` to a `u8`. `catch_with_exit_code()` currently only returns 1 or 0, so
