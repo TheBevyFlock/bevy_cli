@@ -19,7 +19,7 @@ If you need assistance or want to help, reach out to the [`bevy_cli` working gro
 At this point, the CLI is not published as a package yet and needs to be installed via git:
 
 ```cli
-cargo install --git https://github.com/TheBevyFlock/bevy_cli bevy_cli
+cargo install --git https://github.com/TheBevyFlock/bevy_cli --locked bevy_cli
 ```
 
 ## Bevy web apps
