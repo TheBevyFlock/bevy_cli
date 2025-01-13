@@ -84,22 +84,34 @@ impl<'tcx> LateLintPass<'tcx> for UnitComponentInsertion {
 
         // iterate through all `Expr` inside the method `args` tuple, check if any return `()`
         for_each_expr(cx, args, |expr| {
-            // get the expression of the Call
-            let (expr, span) = match expr.kind {
-                ExprKind::Call(expr, _) => (expr, expr.span),
-                ExprKind::MethodCall(path, _, _, _) => (expr, path.ident.span),
+            // get the expression definition of the Call
+            let (def_id, span) = match expr.kind {
+                ExprKind::Call(
+                    &Expr {
+                        kind: ExprKind::Path(ref path),
+                        hir_id,
+                        span,
+                        ..
+                    },
+                    _,
+                ) => {
+                    let def_id = cx.qpath_res(path, hir_id).opt_def_id();
+                    (def_id, span)
+                }
+                ExprKind::MethodCall(path, _, _, _) => (
+                    cx.typeck_results().type_dependent_def_id(expr.hir_id),
+                    path.ident.span,
+                ),
                 // If the expression was not of `kind` `Call` or `MethodCall`,
                 // continue to the next Expression
                 _ => return ControlFlow::<()>::Continue(()),
             };
 
-            let ty = cx.typeck_results().type_dependent_def_id(expr.hir_id);
-
-            if let Some(ty) = ty {
+            if let Some(def_id) = def_id {
                 // Check if the return type of a function signature is of type `unit`
                 if cx
                     .tcx
-                    .fn_sig(ty)
+                    .fn_sig(def_id)
                     .skip_binder()
                     .output()
                     .skip_binder()
