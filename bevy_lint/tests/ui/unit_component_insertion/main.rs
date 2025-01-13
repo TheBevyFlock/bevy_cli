@@ -13,6 +13,6 @@ fn test(mut commands: Commands) {
     commands.spawn((
         Name::new("Decal"),
         Transform::from_translation(Vec3::new(0.75, 0.0, 0.0)).rotate_z(PI / 4.0),
-        //~^ ERROR: Expression returns `()` and results in an empty bundle being inserted
+        //~^ ERROR: Expression returns `unit` and results in an empty component insertion
     ));
 }

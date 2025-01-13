@@ -1,4 +1,4 @@
-error: Expression returns `()` and results in an empty bundle being inserted
+error: Expression returns `unit` and results in an empty component insertion
   --> tests/ui/unit_component_insertion/main.rs:15:64
    |
 15 |         Transform::from_translation(Vec3::new(0.75, 0.0, 0.0)).rotate_z(PI / 4.0),

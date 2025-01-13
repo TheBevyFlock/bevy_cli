@@ -1,3 +1,38 @@
+//! Checks for method or function calls inside of `commands.spawn` that return unit `()`
+//!
+//! # Motivation
+//!
+//! In Bevy, the `commands.spawn` method is used to create entities in the ECS with the given
+//! `Bundle`. A `Bundle` can be a tuple of `Component` that should be added to this entity. If a
+//! Value of type `()` is mistakenly passed, it results in an empty component being added.
+//!
+//! # Example
+//!
+//! ```rust
+//! # use bevy::prelude::*;
+//! # use std::f32::consts::PI;
+//! #
+//! fn main() {
+//!     App::new().add_systems(Startup, test);
+//! }
+//!
+//! fn test(mut commands: Commands) {
+//!     commands.spawn((
+//!         Name::new("Decal"),
+//!         Transform::from_translation(Vec3::new(0.75, 0.0, 0.0)).rotate_z(PI / 4.0),
+//!     ));
+//! }
+//! ```
+//!
+//! ```text
+//! warning: Expression returns `unit` and results in an empty component insertion
+//!   --> src/main.rs:15:64
+//!    |
+//! 15 | ...Vec3::new(0.75, 0.0, 0.0)).rotate_z(PI / 4.0),
+//!    |                               ^^^^^^^^
+//!    |
+//!    = note: `#[warn(bevy::unit_component_insertion)]` on by default
+//! ```
 use std::ops::ControlFlow;
 
 use clippy_utils::{diagnostics::span_lint, sym, ty::match_type, visitors::for_each_expr};
@@ -11,7 +46,7 @@ use crate::declare_bevy_lint;
 declare_bevy_lint! {
     pub UNIT_COMPONENT_INSERTION,
     SUSPICIOUS,
-    "method returns `()` and will spawn an empty bundle",
+    "method returns `unit` and will be inserted as a component",
 }
 
 impl_lint_pass! {
@@ -74,7 +109,7 @@ impl<'tcx> LateLintPass<'tcx> for UnitComponentInsertion {
                         cx,
                         UNIT_COMPONENT_INSERTION.lint,
                         span,
-                        "Expression returns `()` and results in an empty bundle being inserted",
+                        "Expression returns `unit` and results in an empty component insertion",
                     );
                 }
             }
