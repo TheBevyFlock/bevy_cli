@@ -101,3 +101,33 @@ macro_rules! declare_bevy_lint {
         };
     };
 }
+
+#[macro_export]
+#[doc(hidden)]
+macro_rules! declare_bevy_lint_pass {
+    (
+        $(#[$attr:meta])*
+        $vis:vis $name:ident => [$($lint:expr),* $(,)?],
+
+        $(
+            @default = {
+                $($default_field:ident: $default_ty:ty = $default_value:expr)*,
+            },
+        )?
+    ) => {
+        $(#[$attr])*
+        $vis struct $name {
+            $($($default_field: $default_ty)*,)?
+        }
+
+        impl ::std::default::Default for $name {
+            fn default() -> Self {
+                Self {
+                    $($($default_field: $default_value)*,)?
+                }
+            }
+        }
+
+        ::rustc_lint_defs::impl_lint_pass!($name => [$($lint),*]);
+    };
+}
