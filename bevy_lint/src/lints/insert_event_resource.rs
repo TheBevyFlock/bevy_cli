@@ -35,7 +35,7 @@
 //! App::new().add_event::<MyEvent>().run();
 //! ```
 
-use crate::declare_bevy_lint;
+use crate::{declare_bevy_lint, declare_bevy_lint_pass};
 use clippy_utils::{
     diagnostics::span_lint_and_sugg, source::snippet_with_applicability, sym, ty::match_type,
 };
@@ -43,7 +43,6 @@ use rustc_errors::Applicability;
 use rustc_hir::{Expr, ExprKind, GenericArg, GenericArgs, Path, PathSegment, QPath};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::{Ty, TyKind};
-use rustc_session::declare_lint_pass;
 use rustc_span::Span;
 use std::borrow::Cow;
 
@@ -53,8 +52,8 @@ declare_bevy_lint! {
     "called `App::insert_resource(Events<T>)` or `App::init_resource::<Events<T>>()` instead of `App::add_event::<T>()`",
 }
 
-declare_lint_pass! {
-    InsertEventResource => [INSERT_EVENT_RESOURCE.lint]
+declare_bevy_lint_pass! {
+    pub InsertEventResource => [INSERT_EVENT_RESOURCE.lint],
 }
 
 impl<'tcx> LateLintPass<'tcx> for InsertEventResource {

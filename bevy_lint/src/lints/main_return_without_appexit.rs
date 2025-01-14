@@ -30,7 +30,7 @@
 //! }
 //! ```
 
-use crate::declare_bevy_lint;
+use crate::{declare_bevy_lint, declare_bevy_lint_pass};
 use clippy_utils::{
     diagnostics::span_lint_hir_and_then, is_entrypoint_fn, sym, ty::match_type,
     visitors::for_each_expr,
@@ -40,7 +40,6 @@ use rustc_hir::{
     def_id::LocalDefId, intravisit::FnKind, Body, ExprKind, FnDecl, FnRetTy, Ty, TyKind,
 };
 use rustc_lint::{LateContext, LateLintPass};
-use rustc_session::declare_lint_pass;
 use rustc_span::Span;
 use std::ops::ControlFlow;
 
@@ -50,8 +49,8 @@ declare_bevy_lint! {
     "an entrypoint that calls `App::run()` does not return `AppExit`",
 }
 
-declare_lint_pass! {
-    MainReturnWithoutAppExit => [MAIN_RETURN_WITHOUT_APPEXIT.lint]
+declare_bevy_lint_pass! {
+    pub MainReturnWithoutAppExit => [MAIN_RETURN_WITHOUT_APPEXIT.lint],
 }
 
 impl<'tcx> LateLintPass<'tcx> for MainReturnWithoutAppExit {
