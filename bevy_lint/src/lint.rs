@@ -131,19 +131,19 @@ macro_rules! declare_bevy_lint_pass {
 
         $(
             @default = {
-                $($default_field:ident: $default_ty:ty = $default_value:expr)*,
+                $($default_field:ident: $default_ty:ty = $default_value:expr),* $(,)?
             },
         )?
     ) => {
         $(#[$attr])*
         $vis struct $name {
-            $($($default_field: $default_ty)*,)?
+            $($($default_field: $default_ty),*)?
         }
 
         impl ::std::default::Default for $name {
             fn default() -> Self {
                 Self {
-                    $($($default_field: $default_value)*,)?
+                    $($($default_field: $default_value),*)?
                 }
             }
         }
