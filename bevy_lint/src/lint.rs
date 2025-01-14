@@ -102,6 +102,26 @@ macro_rules! declare_bevy_lint {
     };
 }
 
+/// Creates a new [`LintPass`](rustc_lint::LintPass).
+///
+/// This is based on [`declare_lint_pass!`](rustc_lint_defs::declare_lint_pass), but supports more
+/// options.
+///
+/// # Example
+///
+/// ```ignore
+/// declare_bevy_lint_pass! {
+///     // Declares which lints are emitted by this lint pass.
+///     pub LintPassName => [LINT_NAME.lint],
+///
+///     // The following are optional fields, and may be excluded.
+///     //
+///     // Declares fields of the lint pass that are set when `LintPassName::default()` is called.
+///     @default = {
+///         component_sym: Symbol = Symbol::intern("component"),
+///     },
+/// }
+/// ```
 #[macro_export]
 #[doc(hidden)]
 macro_rules! declare_bevy_lint_pass {
