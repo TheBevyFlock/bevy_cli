@@ -118,7 +118,7 @@ macro_rules! declare_bevy_lint {
 ///     //
 ///     // Declares fields of the lint pass that are set when `LintPassName::default()` is called.
 ///     @default = {
-///         component_sym: Symbol = Symbol::intern("component"),
+///         component: Symbol = Symbol::intern("component"),
 ///     },
 /// }
 /// ```

@@ -43,7 +43,7 @@ use rustc_errors::Applicability;
 use rustc_hir::{Expr, ExprKind, GenericArg, GenericArgs, Path, PathSegment, QPath};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::{Ty, TyKind};
-use rustc_span::Span;
+use rustc_span::{Span, Symbol};
 use std::borrow::Cow;
 
 declare_bevy_lint! {
@@ -54,6 +54,10 @@ declare_bevy_lint! {
 
 declare_bevy_lint_pass! {
     pub InsertEventResource => [INSERT_EVENT_RESOURCE.lint],
+    @default = {
+        insert_resource: Symbol = sym!(insert_resource),
+        init_resource: Symbol = sym!(init_resource),
+    },
 }
 
 impl<'tcx> LateLintPass<'tcx> for InsertEventResource {
@@ -72,10 +76,10 @@ impl<'tcx> LateLintPass<'tcx> for InsertEventResource {
             // If the method is `App::insert_resource()` or `App::init_resource()`, check it with
             // its corresponding function.
             match path.ident.name {
-                symbol if symbol == sym!(insert_resource) => {
+                symbol if symbol == self.insert_resource => {
                     check_insert_resource(cx, args, method_span)
                 }
-                symbol if symbol == sym!(init_resource) => {
+                symbol if symbol == self.init_resource => {
                     check_init_resource(cx, path, method_span)
                 }
                 _ => {}
