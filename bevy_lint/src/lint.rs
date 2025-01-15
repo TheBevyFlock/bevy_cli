@@ -114,7 +114,7 @@ macro_rules! declare_bevy_lint {
 ///     // Declares which lints are emitted by this lint pass.
 ///     pub LintPassName => [LINT_NAME.lint],
 ///
-///     // The following are optional fields, and may be excluded.
+///     // The following are optional fields, and may be omitted.
 ///     //
 ///     // Declares fields of the lint pass that are set when `LintPassName::default()` is called.
 ///     @default = {
