@@ -53,7 +53,7 @@ pub fn run(args: &RunArgs) -> anyhow::Result<()> {
         let web_bundle = create_web_bundle(
             &metadata,
             args.profile(),
-            bin_target,
+            &bin_target,
             web_args.create_packed_bundle,
         )
         .context("Failed to create web bundle")?;
