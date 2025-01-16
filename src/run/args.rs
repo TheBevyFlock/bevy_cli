@@ -7,7 +7,7 @@ use crate::{
 
 use super::cargo::build::{CargoBuildArgs, CargoPackageBuildArgs, CargoTargetBuildArgs};
 
-#[derive(Debug, Args)]
+#[derive(Debug, Args, Clone)]
 pub struct RunArgs {
     /// The subcommands available for the run command.
     #[command(subcommand)]
@@ -28,35 +28,19 @@ impl RunArgs {
         matches!(self.subcommand, Some(RunSubcommands::Web(_)))
     }
 
-    /// Whether to build with optimizations.
-    #[cfg(feature = "wasm-opt")]
-    pub(crate) fn is_release(&self) -> bool {
-        self.cargo_args.compilation_args.is_release
-    }
-
-    /// The profile used to compile the app.
-    pub(crate) fn profile(&self) -> &str {
-        self.cargo_args.compilation_args.profile(self.is_web())
-    }
-
-    /// The targeted platform.
-    pub(crate) fn target(&self) -> Option<String> {
-        self.cargo_args.compilation_args.target(self.is_web())
-    }
-
     /// Generate arguments for `cargo`.
     pub(crate) fn cargo_args_builder(&self) -> ArgBuilder {
         self.cargo_args.args_builder(self.is_web())
     }
 }
 
-#[derive(Debug, Subcommand)]
+#[derive(Debug, Subcommand, Clone)]
 pub enum RunSubcommands {
     /// Run your app in the browser.
     Web(RunWebArgs),
 }
 
-#[derive(Debug, Args)]
+#[derive(Debug, Args, Clone)]
 pub struct RunWebArgs {
     /// The port to run the web server on.
     #[arg(short, long, default_value_t = 4000)]

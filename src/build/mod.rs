@@ -1,9 +1,9 @@
-use anyhow::bail;
+use anyhow::{bail, Context as _};
 use args::{BuildArgs, BuildSubcommands};
 
 use crate::{
     external_cli::{cargo, rustup, wasm_bindgen, CommandHelpers},
-    run::{select_run_binary, BinTarget},
+    run::select_run_binary,
     web::{
         bundle::{create_web_bundle, PackedBundle, WebBundle},
         profiles::configure_default_web_profiles,
@@ -32,7 +32,7 @@ pub fn build(args: &BuildArgs) -> anyhow::Result<()> {
 /// - Optimizing the Wasm binary (in release mode)
 /// - Creating JavaScript bindings
 /// - Creating a bundled folder (if requested)
-fn build_web(args: &BuildArgs) -> anyhow::Result<BinTarget> {
+pub fn build_web(args: &BuildArgs) -> anyhow::Result<WebBundle> {
     let Some(BuildSubcommands::Web(web_args)) = &args.subcommand else {
         bail!("tried to build for the web without matching arguments");
     };
@@ -64,15 +64,19 @@ fn build_web(args: &BuildArgs) -> anyhow::Result<BinTarget> {
         crate::web::wasm_opt::optimize_bin(&bin_target)?;
     }
 
-    if web_args.create_packed_bundle {
-        let web_bundle = create_web_bundle(&metadata, args.profile(), &bin_target, true)?;
+    let web_bundle = create_web_bundle(
+        &metadata,
+        args.profile(),
+        &bin_target,
+        web_args.create_packed_bundle,
+    )
+    .context("Failed to create web bundle")?;
 
-        if let WebBundle::Packed(PackedBundle { path }) = &web_bundle {
-            println!("Created bundle at file://{}", path.display());
-        }
+    if let WebBundle::Packed(PackedBundle { path }) = &web_bundle {
+        println!("Created bundle at file://{}", path.display());
     }
 
-    Ok(bin_target)
+    Ok(web_bundle)
 }
 
 pub(crate) fn ensure_web_setup(skip_prompts: bool) -> anyhow::Result<()> {
