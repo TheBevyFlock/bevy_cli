@@ -1,6 +1,11 @@
 use clap::{ArgAction, Args, Subcommand};
 
-use crate::external_cli::{arg_builder::ArgBuilder, cargo::run::CargoRunArgs};
+use crate::{
+    build::args::{BuildArgs, BuildSubcommands, BuildWebArgs},
+    external_cli::{arg_builder::ArgBuilder, cargo::run::CargoRunArgs},
+};
+
+use super::cargo::build::{CargoBuildArgs, CargoPackageBuildArgs, CargoTargetBuildArgs};
 
 #[derive(Debug, Args)]
 pub struct RunArgs {
@@ -64,4 +69,39 @@ pub struct RunWebArgs {
     // Bundle all web artifacts into a single folder.
     #[arg(short = 'b', long = "bundle", action = ArgAction::SetTrue, default_value_t = false)]
     pub create_packed_bundle: bool,
+}
+
+impl From<RunArgs> for BuildArgs {
+    fn from(args: RunArgs) -> Self {
+        BuildArgs {
+            skip_prompts: args.skip_prompts,
+            cargo_args: CargoBuildArgs {
+                compilation_args: args.cargo_args.compilation_args,
+                feature_args: args.cargo_args.feature_args,
+                manifest_args: args.cargo_args.manifest_args,
+                package_args: CargoPackageBuildArgs {
+                    package: args.cargo_args.package_args.package,
+                    is_workspace: false,
+                    exclude: None,
+                },
+                target_args: CargoTargetBuildArgs {
+                    bin: args.cargo_args.target_args.bin,
+                    example: args.cargo_args.target_args.example,
+                    is_all_targets: false,
+                    is_benches: false,
+                    is_bins: false,
+                    is_examples: false,
+                    is_lib: false,
+                    is_tests: false,
+                    bench: None,
+                    test: None,
+                },
+            },
+            subcommand: args.subcommand.map(|subcommand| match subcommand {
+                RunSubcommands::Web(web_args) => BuildSubcommands::Web(BuildWebArgs {
+                    create_packed_bundle: web_args.create_packed_bundle,
+                }),
+            }),
+        }
+    }
 }

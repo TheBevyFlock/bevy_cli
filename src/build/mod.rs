@@ -1,5 +1,5 @@
 use anyhow::bail;
-use args::BuildSubcommands;
+use args::{BuildArgs, BuildSubcommands};
 
 use crate::{
     external_cli::{cargo, rustup, wasm_bindgen, CommandHelpers},
@@ -10,9 +10,7 @@ use crate::{
     },
 };
 
-pub use self::args::BuildArgs;
-
-mod args;
+pub mod args;
 
 pub fn build(args: &BuildArgs) -> anyhow::Result<()> {
     if args.is_web() {
