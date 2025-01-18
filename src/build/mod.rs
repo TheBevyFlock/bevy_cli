@@ -12,7 +12,7 @@ use crate::{
 
 pub mod args;
 
-pub fn build(args: &BuildArgs) -> anyhow::Result<()> {
+pub fn build(args: &mut BuildArgs) -> anyhow::Result<()> {
     if args.is_web() {
         build_web(args)?;
     } else {
@@ -32,7 +32,7 @@ pub fn build(args: &BuildArgs) -> anyhow::Result<()> {
 /// - Optimizing the Wasm binary (in release mode)
 /// - Creating JavaScript bindings
 /// - Creating a bundled folder (if requested)
-pub fn build_web(args: &BuildArgs) -> anyhow::Result<WebBundle> {
+pub fn build_web(args: &mut BuildArgs) -> anyhow::Result<WebBundle> {
     let Some(BuildSubcommands::Web(web_args)) = &args.subcommand else {
         bail!("tried to build for the web without matching arguments");
     };
@@ -49,9 +49,11 @@ pub fn build_web(args: &BuildArgs) -> anyhow::Result<WebBundle> {
         args.profile(),
     )?;
 
-    let cargo_args = args
-        .cargo_args_builder()
-        .append(configure_default_web_profiles(&metadata)?);
+    let mut profile_args = configure_default_web_profiles(&metadata)?;
+    profile_args.append(&mut args.cargo_args.config);
+    args.cargo_args.config = profile_args;
+
+    let cargo_args = args.cargo_args_builder();
 
     println!("Compiling to WebAssembly...");
     cargo::build::command().args(cargo_args).ensure_status()?;

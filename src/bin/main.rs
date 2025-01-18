@@ -10,7 +10,7 @@ fn main() -> Result<()> {
             bevy_cli::template::generate_template(&new.name, &new.template, &new.branch)?;
         }
         Subcommands::Lint { args } => bevy_cli::lint::lint(args)?,
-        Subcommands::Build(args) => bevy_cli::build::build(&args)?,
+        Subcommands::Build(mut args) => bevy_cli::build::build(&mut args)?,
         Subcommands::Run(args) => bevy_cli::run::run(&args)?,
     }
 
