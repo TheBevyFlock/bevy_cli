@@ -60,6 +60,7 @@ impl From<RunArgs> for BuildArgs {
         BuildArgs {
             skip_prompts: args.skip_prompts,
             cargo_args: CargoBuildArgs {
+                config: args.cargo_args.config,
                 compilation_args: args.cargo_args.compilation_args,
                 feature_args: args.cargo_args.feature_args,
                 manifest_args: args.cargo_args.manifest_args,
