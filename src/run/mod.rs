@@ -1,17 +1,12 @@
 use std::path::PathBuf;
 
-use anyhow::Context;
 use args::RunSubcommands;
 
 use crate::{
-    build::ensure_web_setup,
+    build::build_web,
     external_cli::{
         cargo::{self, metadata::Metadata},
-        wasm_bindgen, CommandHelpers,
-    },
-    web::{
-        bundle::{create_web_bundle, PackedBundle, WebBundle},
-        profiles::configure_default_web_profiles,
+        CommandHelpers,
     },
 };
 
@@ -21,46 +16,9 @@ mod args;
 mod serve;
 
 pub fn run(args: &RunArgs) -> anyhow::Result<()> {
-    let mut cargo_args = args.cargo_args_builder();
-
     if let Some(RunSubcommands::Web(web_args)) = &args.subcommand {
-        ensure_web_setup(args.skip_prompts)?;
-
-        let metadata = cargo::metadata::metadata_with_args(["--no-deps"])?;
-        let bin_target = select_run_binary(
-            &metadata,
-            args.cargo_args.package_args.package.as_deref(),
-            args.cargo_args.target_args.bin.as_deref(),
-            args.cargo_args.target_args.example.as_deref(),
-            args.target().as_deref(),
-            args.profile(),
-        )?;
-
-        cargo_args = cargo_args.append(configure_default_web_profiles(&metadata)?);
-
-        // If targeting the web, run a web server with the WASM build
-        println!("Compiling to WebAssembly...");
-        cargo::build::command().args(cargo_args).ensure_status()?;
-
-        println!("Bundling JavaScript bindings...");
-        wasm_bindgen::bundle(&bin_target)?;
-
-        #[cfg(feature = "wasm-opt")]
-        if args.is_release() {
-            crate::web::wasm_opt::optimize_bin(&bin_target)?;
-        }
-
-        let web_bundle = create_web_bundle(
-            &metadata,
-            args.profile(),
-            bin_target,
-            web_args.create_packed_bundle,
-        )
-        .context("Failed to create web bundle")?;
-
-        if let WebBundle::Packed(PackedBundle { path }) = &web_bundle {
-            println!("Created bundle at file://{}", path.display());
-        }
+        let build_args = args.clone().into();
+        let web_bundle = build_web(&build_args)?;
 
         let port = web_args.port;
         let url = format!("http://localhost:{port}");
@@ -79,6 +37,7 @@ pub fn run(args: &RunArgs) -> anyhow::Result<()> {
 
         serve::serve(web_bundle, port)?;
     } else {
+        let cargo_args = args.cargo_args_builder();
         // For native builds, wrap `cargo run`
         cargo::run::command().args(cargo_args).ensure_status()?;
     }
@@ -188,32 +147,101 @@ pub(crate) fn select_run_binary(
                 anyhow::bail!(
                     "Found multiple `default_run` definitions, I don't know which one to pick!"
                 );
-            } else {
-                let default_run = default_runs[0];
-                bins.iter()
-                    .find(|bin| bin.name == *default_run)
-                    .ok_or_else(|| {
-                        anyhow::anyhow!("Didn't find `default_run` binary {default_run}")
-                    })?
             }
+
+            let default_run = default_runs[0];
+            bins.iter()
+                .find(|bin| bin.name == *default_run)
+                .ok_or_else(|| anyhow::anyhow!("Didn't find `default_run` binary {default_run}"))?
         }
     };
 
     // Assemble the path where the binary will be put
-    let mut artifact_directory = metadata.target_directory.clone();
-
-    if let Some(target) = compile_target {
-        artifact_directory.push(target);
-    }
-
-    artifact_directory.push(compile_profile);
-
-    if is_example {
-        artifact_directory.push("examples");
-    }
+    let artifact_directory = get_artifact_directory(
+        metadata.target_directory.clone(),
+        compile_target,
+        compile_profile,
+        is_example,
+    );
 
     Ok(BinTarget {
         bin_name: target.name.clone(),
         artifact_directory,
     })
+}
+
+/// Determine the path to the directory which contains the compilation artifacts.
+fn get_artifact_directory(
+    target_directory: impl Into<PathBuf>,
+    target: Option<&str>,
+    profile: &str,
+    is_example: bool,
+) -> PathBuf {
+    let mut artifact_directory = target_directory.into();
+
+    if let Some(target) = target {
+        artifact_directory.push(target);
+    }
+
+    if profile == "dev" {
+        // For some reason, the dev profile has a debug folder instead
+        artifact_directory.push("debug");
+    } else {
+        artifact_directory.push(profile);
+    }
+
+    if is_example {
+        artifact_directory.push("examples");
+    }
+
+    artifact_directory
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::path::Path;
+
+    #[test]
+    fn test_artifact_directory_dev_native() {
+        let actual = get_artifact_directory(Path::new("/target"), None, "dev", false);
+        assert_eq!(actual, Path::new("/target/debug"));
+    }
+
+    #[test]
+    fn test_artifact_directory_release_native() {
+        let actual = get_artifact_directory(Path::new("/target"), None, "release", false);
+        assert_eq!(actual, Path::new("/target/release"));
+    }
+
+    #[test]
+    fn test_artifact_directory_dev_native_example() {
+        let actual = get_artifact_directory(Path::new("/target"), None, "dev", true);
+        assert_eq!(actual, Path::new("/target/debug/examples"));
+    }
+
+    #[test]
+    fn test_artifact_directory_dev_web() {
+        let actual = get_artifact_directory(
+            Path::new("/target"),
+            Some("wasm32-unknown-unknown"),
+            "web",
+            false,
+        );
+        assert_eq!(actual, Path::new("/target/wasm32-unknown-unknown/web"));
+    }
+
+    #[test]
+    fn test_artifact_directory_release_web() {
+        let actual = get_artifact_directory(
+            Path::new("/target"),
+            Some("wasm32-unknown-unknown"),
+            "web-release",
+            false,
+        );
+        assert_eq!(
+            actual,
+            Path::new("/target/wasm32-unknown-unknown/web-release")
+        );
+    }
 }

@@ -7,8 +7,10 @@ error: defined an event without a `Reflect` implementation
 note: `Event` implemented here
   --> tests/ui/missing_reflect/impl_ref.rs:45:1
    |
-45 | impl Event for &'static &'static &'static MyEvent {}
-   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+45 | / impl Event for &'static &'static &'static MyEvent {
+46 | |     type Traversal = ();
+47 | | }
+   | |_^
 note: the lint level is defined here
   --> tests/ui/missing_reflect/impl_ref.rs:13:9
    |

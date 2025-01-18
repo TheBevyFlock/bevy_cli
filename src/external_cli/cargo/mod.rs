@@ -13,7 +13,7 @@ fn program() -> OsString {
     env::var_os("BEVY_CLI_CARGO").unwrap_or("cargo".into())
 }
 
-#[derive(Debug, Args)]
+#[derive(Debug, Args, Clone)]
 #[command(next_help_heading = "Feature Selection")]
 pub struct CargoFeatureArgs {
     /// Space or comma separated list of features to activate
@@ -38,7 +38,7 @@ impl CargoFeatureArgs {
     }
 }
 
-#[derive(Debug, Args)]
+#[derive(Debug, Args, Clone)]
 #[command(next_help_heading = "Compilation Options")]
 pub struct CargoCompilationArgs {
     /// Build artifacts in release mode, with optimizations.
@@ -82,7 +82,7 @@ impl CargoCompilationArgs {
         } else if self.is_release {
             "release"
         } else {
-            "debug"
+            "dev"
         }
     }
 
@@ -111,7 +111,7 @@ impl CargoCompilationArgs {
     }
 }
 
-#[derive(Debug, Args)]
+#[derive(Debug, Args, Clone)]
 #[command(next_help_heading = "Manifest Options")]
 pub struct CargoManifestArgs {
     /// Path to Cargo.toml

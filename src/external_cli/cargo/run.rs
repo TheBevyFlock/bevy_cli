@@ -13,7 +13,7 @@ pub(crate) fn command() -> Command {
     command
 }
 
-#[derive(Debug, Args)]
+#[derive(Debug, Args, Clone)]
 pub struct CargoRunArgs {
     /// Override a configuration value.
     ///
@@ -47,7 +47,7 @@ impl CargoRunArgs {
     }
 }
 
-#[derive(Debug, Args)]
+#[derive(Debug, Args, Clone)]
 #[command(next_help_heading = "Package Selection")]
 pub struct CargoPackageRunArgs {
     /// Package with the target to run
@@ -61,7 +61,7 @@ impl CargoPackageRunArgs {
     }
 }
 
-#[derive(Debug, Args)]
+#[derive(Debug, Args, Clone)]
 #[command(next_help_heading = "Target Selection")]
 pub struct CargoTargetRunArgs {
     /// Build only the specified binary.

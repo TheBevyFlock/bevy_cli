@@ -1,5 +1,5 @@
 use anyhow::Result;
-use bevy_cli::{build::BuildArgs, run::RunArgs};
+use bevy_cli::{build::args::BuildArgs, run::RunArgs};
 use clap::{Args, Parser, Subcommand};
 
 fn main() -> Result<()> {
