@@ -128,7 +128,7 @@ impl ArgBuilder {
     {
         let arg: String = name.into();
 
-        for value in value_list.into_iter() {
+        for value in value_list {
             self = self.add_with_value(&arg, value);
         }
 
