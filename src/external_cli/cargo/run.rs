@@ -4,7 +4,7 @@ use clap::Args;
 
 use crate::external_cli::arg_builder::ArgBuilder;
 
-use super::{program, CargoCompilationArgs, CargoFeatureArgs, CargoManifestArgs};
+use super::{program, CargoCommonArgs, CargoCompilationArgs, CargoFeatureArgs, CargoManifestArgs};
 
 /// Create a command to run `cargo run`.
 pub(crate) fn command() -> Command {
@@ -13,8 +13,10 @@ pub(crate) fn command() -> Command {
     command
 }
 
-#[derive(Debug, Args)]
+#[derive(Debug, Args, Clone)]
 pub struct CargoRunArgs {
+    #[clap(flatten)]
+    pub common_args: CargoCommonArgs,
     #[clap(flatten)]
     pub package_args: CargoPackageRunArgs,
     #[clap(flatten)]
@@ -30,6 +32,7 @@ pub struct CargoRunArgs {
 impl CargoRunArgs {
     pub(crate) fn args_builder(&self, is_web: bool) -> ArgBuilder {
         ArgBuilder::new()
+            .append(self.common_args.args_builder())
             .append(self.package_args.args_builder())
             .append(self.target_args.args_builder())
             .append(self.feature_args.args_builder())
@@ -38,7 +41,7 @@ impl CargoRunArgs {
     }
 }
 
-#[derive(Debug, Args)]
+#[derive(Debug, Args, Clone)]
 #[command(next_help_heading = "Package Selection")]
 pub struct CargoPackageRunArgs {
     /// Package with the target to run
@@ -52,7 +55,7 @@ impl CargoPackageRunArgs {
     }
 }
 
-#[derive(Debug, Args)]
+#[derive(Debug, Args, Clone)]
 #[command(next_help_heading = "Target Selection")]
 pub struct CargoTargetRunArgs {
     /// Build only the specified binary.

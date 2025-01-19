@@ -56,7 +56,7 @@ pub enum WebBundle {
 pub fn create_web_bundle(
     metadata: &Metadata,
     profile: &str,
-    bin_target: BinTarget,
+    bin_target: &BinTarget,
     packed: bool,
 ) -> anyhow::Result<WebBundle> {
     let assets_path = Path::new("assets");
@@ -80,7 +80,7 @@ pub fn create_web_bundle(
             Index::Folder(custom_web_folder.to_path_buf())
         } else {
             println!("No custom `web` folder found, using defaults.");
-            Index::Static(default_index(&bin_target))
+            Index::Static(default_index(bin_target))
         },
     };
 
@@ -92,7 +92,7 @@ pub fn create_web_bundle(
         .target_directory
         .join("bevy_web")
         .join(profile)
-        .join(bin_target.bin_name);
+        .join(&bin_target.bin_name);
 
     // Remove the previous bundle
     // The error can be ignored, because the folder doesn't need to exist yet

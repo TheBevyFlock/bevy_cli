@@ -13,7 +13,7 @@ fn program() -> OsString {
     env::var_os("BEVY_CLI_CARGO").unwrap_or("cargo".into())
 }
 
-#[derive(Debug, Args)]
+#[derive(Debug, Args, Clone)]
 #[command(next_help_heading = "Feature Selection")]
 pub struct CargoFeatureArgs {
     /// Space or comma separated list of features to activate
@@ -38,7 +38,7 @@ impl CargoFeatureArgs {
     }
 }
 
-#[derive(Debug, Args)]
+#[derive(Debug, Args, Clone)]
 #[command(next_help_heading = "Compilation Options")]
 pub struct CargoCompilationArgs {
     /// Build artifacts in release mode, with optimizations.
@@ -111,7 +111,7 @@ impl CargoCompilationArgs {
     }
 }
 
-#[derive(Debug, Args)]
+#[derive(Debug, Args, Clone)]
 #[command(next_help_heading = "Manifest Options")]
 pub struct CargoManifestArgs {
     /// Path to Cargo.toml
@@ -143,5 +143,23 @@ impl CargoManifestArgs {
             .add_flag_if("--locked", self.is_locked)
             .add_flag_if("--offline", self.is_offline)
             .add_flag_if("--frozen", self.is_frozen)
+    }
+}
+
+/// Common options available for `cargo` commands.
+#[derive(Debug, Args, Clone)]
+pub struct CargoCommonArgs {
+    /// Override a configuration value.
+    ///
+    /// The argument should be in TOML syntax of KEY=VALUE,
+    /// or provided as a path to an extra configuration file.
+    /// This flag may be specified multiple times.
+    #[clap(long = "config", value_name = "KEY=VALUE|PATH")]
+    pub config: Vec<String>,
+}
+
+impl CargoCommonArgs {
+    pub(crate) fn args_builder(&self) -> ArgBuilder {
+        ArgBuilder::new().add_values_separately("--config", self.config.iter())
     }
 }
