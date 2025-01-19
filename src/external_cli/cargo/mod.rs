@@ -145,3 +145,21 @@ impl CargoManifestArgs {
             .add_flag_if("--frozen", self.is_frozen)
     }
 }
+
+/// Common options available for `cargo` commands.
+#[derive(Debug, Args, Clone)]
+pub struct CargoCommonArgs {
+    /// Override a configuration value.
+    ///
+    /// The argument should be in TOML syntax of KEY=VALUE,
+    /// or provided as a path to an extra configuration file.
+    /// This flag may be specified multiple times.
+    #[clap(long = "config", value_name = "KEY=VALUE|PATH")]
+    pub config: Vec<String>,
+}
+
+impl CargoCommonArgs {
+    pub(crate) fn args_builder(&self) -> ArgBuilder {
+        ArgBuilder::new().add_values_separately("--config", self.config.iter())
+    }
+}

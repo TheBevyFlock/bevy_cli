@@ -1,5 +1,6 @@
 /// A helper to make passing arguments to [`Command`](std::process::Command) more convenient.
 #[derive(Debug, Clone)]
+#[must_use]
 pub struct ArgBuilder(Vec<String>);
 
 impl ArgBuilder {
@@ -83,7 +84,7 @@ impl ArgBuilder {
         }
     }
 
-    /// Add an argument with multiple values.
+    /// Add an argument with multiple values, separated by commas.
     ///
     /// # Example
     ///
@@ -105,6 +106,33 @@ impl ArgBuilder {
         } else {
             self.add_with_value(name, values.join(","))
         }
+    }
+
+    /// Add an argument with multiple values, reusing the same argument name.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use bevy_cli::external_cli::arg_builder::ArgBuilder;
+    /// let features = ["dev", "file_watcher"];
+    /// ArgBuilder::new().add_values_separately("--features", features);
+    /// ```
+    pub fn add_values_separately<N, V>(
+        mut self,
+        name: N,
+        value_list: impl IntoIterator<Item = V>,
+    ) -> Self
+    where
+        N: Into<String>,
+        V: Into<String>,
+    {
+        let arg: String = name.into();
+
+        for value in value_list {
+            self = self.add_with_value(&arg, value);
+        }
+
+        self
     }
 
     /// Add all arguments from the other builder to this one.
@@ -205,6 +233,32 @@ mod tests {
     #[test]
     fn add_value_list_empty_list_no_changes() {
         let args = ArgBuilder::new().add_value_list("--features", Vec::<String>::new());
+        assert_eq!(
+            args.into_iter().collect::<Vec<String>>(),
+            Vec::<String>::new()
+        );
+    }
+
+    #[test]
+    fn add_values_separately_adds_multiple_args() {
+        let args = ArgBuilder::new().add_values_separately(
+            "--config",
+            [r#"profile.web.inherits="dev""#, "profile.web.debug=false"],
+        );
+        assert_eq!(
+            args.into_iter().collect::<Vec<String>>(),
+            vec![
+                "--config",
+                r#"profile.web.inherits="dev""#,
+                "--config",
+                "profile.web.debug=false"
+            ]
+        );
+    }
+
+    #[test]
+    fn add_values_separately_empty_no_changes() {
+        let args = ArgBuilder::new().add_values_separately("--config", Vec::<String>::new());
         assert_eq!(
             args.into_iter().collect::<Vec<String>>(),
             Vec::<String>::new()
