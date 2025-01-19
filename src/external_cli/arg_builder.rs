@@ -240,6 +240,32 @@ mod tests {
     }
 
     #[test]
+    fn add_values_separately_adds_multiple_args() {
+        let args = ArgBuilder::new().add_values_separately(
+            "--config",
+            [r#"profile.web.inherits="dev""#, "profile.web.debug=false"],
+        );
+        assert_eq!(
+            args.into_iter().collect::<Vec<String>>(),
+            vec![
+                "--config",
+                r#"profile.web.inherits="dev""#,
+                "--config",
+                "profile.web.debug=false"
+            ]
+        );
+    }
+
+    #[test]
+    fn add_values_separately_empty_no_changes() {
+        let args = ArgBuilder::new().add_values_separately("--config", Vec::<String>::new());
+        assert_eq!(
+            args.into_iter().collect::<Vec<String>>(),
+            Vec::<String>::new()
+        );
+    }
+
+    #[test]
     fn append_adds_args_after_self() {
         let args = ArgBuilder::new()
             .arg("one")
