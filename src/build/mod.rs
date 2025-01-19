@@ -52,8 +52,8 @@ pub fn build_web(args: &mut BuildArgs) -> anyhow::Result<WebBundle> {
     let mut profile_args = configure_default_web_profiles(&metadata)?;
     // `--config` args are resolved from left to right,
     // so the default configuration needs to come before the user args
-    profile_args.append(&mut args.cargo_args.config);
-    args.cargo_args.config = profile_args;
+    profile_args.append(&mut args.cargo_args.common_args.config);
+    args.cargo_args.common_args.config = profile_args;
 
     let cargo_args = args.cargo_args_builder();
 

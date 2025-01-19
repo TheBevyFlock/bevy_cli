@@ -4,7 +4,7 @@ use clap::Args;
 
 use crate::external_cli::arg_builder::ArgBuilder;
 
-use super::{program, CargoCompilationArgs, CargoFeatureArgs, CargoManifestArgs};
+use super::{program, CargoCommonArgs, CargoCompilationArgs, CargoFeatureArgs, CargoManifestArgs};
 
 /// Create a command to run `cargo run`.
 pub(crate) fn command() -> Command {
@@ -15,14 +15,8 @@ pub(crate) fn command() -> Command {
 
 #[derive(Debug, Args, Clone)]
 pub struct CargoRunArgs {
-    /// Override a configuration value.
-    ///
-    /// The argument should be in TOML syntax of KEY=VALUE,
-    /// or provided as a path to an extra configuration file.
-    /// This flag may be specified multiple times.
-    #[clap(long = "config", value_name = "KEY=VALUE|PATH")]
-    pub config: Vec<String>,
-
+    #[clap(flatten)]
+    pub common_args: CargoCommonArgs,
     #[clap(flatten)]
     pub package_args: CargoPackageRunArgs,
     #[clap(flatten)]
@@ -38,12 +32,12 @@ pub struct CargoRunArgs {
 impl CargoRunArgs {
     pub(crate) fn args_builder(&self, is_web: bool) -> ArgBuilder {
         ArgBuilder::new()
+            .append(self.common_args.args_builder())
             .append(self.package_args.args_builder())
             .append(self.target_args.args_builder())
             .append(self.feature_args.args_builder())
             .append(self.compilation_args.args_builder(is_web))
             .append(self.manifest_args.args_builder())
-            .add_values_separately("--config", self.config.iter())
     }
 }
 
