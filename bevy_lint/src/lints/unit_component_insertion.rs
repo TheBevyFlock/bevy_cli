@@ -38,10 +38,9 @@ use std::ops::ControlFlow;
 use clippy_utils::{diagnostics::span_lint, sym, ty::match_type, visitors::for_each_expr};
 use rustc_hir::{Expr, ExprKind};
 use rustc_lint::{LateContext, LateLintPass};
-use rustc_session::impl_lint_pass;
 use rustc_span::Symbol;
 
-use crate::declare_bevy_lint;
+use crate::{declare_bevy_lint, declare_bevy_lint_pass};
 
 declare_bevy_lint! {
     pub UNIT_COMPONENT_INSERTION,
@@ -49,21 +48,11 @@ declare_bevy_lint! {
     "method returns `unit` and will be inserted as a component",
 }
 
-impl_lint_pass! {
-    UnitComponentInsertion => [UNIT_COMPONENT_INSERTION.lint]
-}
-
-pub struct UnitComponentInsertion {
-    /// A cached [`Symbol`] representing the interned string `"spawn"`.
-    spawn_symbol: Symbol,
-}
-
-impl Default for UnitComponentInsertion {
-    fn default() -> Self {
-        Self {
-            spawn_symbol: sym!(spawn),
-        }
-    }
+declare_bevy_lint_pass! {
+    pub UnitComponentInsertion => [UNIT_COMPONENT_INSERTION.lint],
+    @default = {
+        spawn: Symbol = sym!(spawn),
+    },
 }
 
 impl<'tcx> LateLintPass<'tcx> for UnitComponentInsertion {
@@ -76,9 +65,7 @@ impl<'tcx> LateLintPass<'tcx> for UnitComponentInsertion {
         let src_ty = cx.typeck_results().expr_ty(src).peel_refs();
 
         // If the method call was not to `commands.spawn` we skip it.
-        if !(match_type(cx, src_ty, &crate::paths::COMMANDS)
-            && path.ident.name == self.spawn_symbol)
-        {
+        if !(match_type(cx, src_ty, &crate::paths::COMMANDS) && path.ident.name == self.spawn) {
             return;
         }
 
