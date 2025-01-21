@@ -33,6 +33,10 @@ clippy_utils = "=0.1.86"
 # Easy error propagation and contexts.
 anyhow = "1.0.86"
 
+# Configuration deserialization.
+serde = { version = "1.0.210", features = ["derive"] }
+toml = { version = "0.8.19", default-features = false, features = ["parse"] }
+
 [build-dependencies]
 # Parse `rust-toolchain.toml` at build time.
 toml_edit = { version = "0.22.22", default-features = false, features = [
