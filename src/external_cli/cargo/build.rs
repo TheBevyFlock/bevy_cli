@@ -4,7 +4,7 @@ use clap::{ArgAction, Args};
 
 use crate::external_cli::arg_builder::ArgBuilder;
 
-use super::{program, CargoCompilationArgs, CargoFeatureArgs, CargoManifestArgs};
+use super::{program, CargoCommonArgs, CargoCompilationArgs, CargoFeatureArgs, CargoManifestArgs};
 
 /// Create a command to run `cargo build`.
 pub(crate) fn command() -> Command {
@@ -15,6 +15,8 @@ pub(crate) fn command() -> Command {
 
 #[derive(Debug, Args)]
 pub struct CargoBuildArgs {
+    #[clap(flatten)]
+    pub common_args: CargoCommonArgs,
     #[clap(flatten)]
     pub package_args: CargoPackageBuildArgs,
     #[clap(flatten)]
@@ -30,6 +32,7 @@ pub struct CargoBuildArgs {
 impl CargoBuildArgs {
     pub(crate) fn args_builder(&self, is_web: bool) -> ArgBuilder {
         ArgBuilder::new()
+            .append(self.common_args.args_builder())
             .append(self.package_args.args_builder())
             .append(self.target_args.args_builder())
             .append(self.feature_args.args_builder())

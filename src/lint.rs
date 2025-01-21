@@ -42,7 +42,7 @@ pub fn find_bevy_lint() -> anyhow::Result<PathBuf> {
     } else {
         ensure!(
             bevy_lint_path.exists(),
-            "`bevy_lint` could not be found at {}. Please follow the instructions at <https://github.com/TheBevyFlock/bevy_cli> to install it.",
+            "`bevy_lint` could not be found at {}. Please follow the instructions at <https://thebevyflock.github.io/bevy_cli/bevy_lint/#installation> to install it.",
             bevy_lint_path.display(),
         );
     }

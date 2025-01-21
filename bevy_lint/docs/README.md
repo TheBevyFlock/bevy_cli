@@ -7,6 +7,7 @@ Thanks for your interest in contributing to `bevy_lint`! Please feel free to ski
     - [Setting up your Editor](how-to/editor.md)
     - [How to Work with Types](how-to/types.md)
     - [How to Release `bevy_lint`](how-to/release.md)
+    - [Bump to a Newer Version of Rust](how-to/bump-rust.md)
 - [Reference](reference/)
 - [Explanations](explanations/)
 

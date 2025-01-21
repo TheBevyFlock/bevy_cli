@@ -5,3 +5,4 @@ pub mod external_cli;
 pub mod lint;
 pub mod run;
 pub mod template;
+pub(crate) mod web;

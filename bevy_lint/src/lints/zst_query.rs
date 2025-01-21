@@ -32,7 +32,7 @@
 //! ```
 
 use crate::{
-    declare_bevy_lint,
+    declare_bevy_lint, declare_bevy_lint_pass,
     utils::hir_parse::{detuple, generic_type_at},
 };
 use clippy_utils::{
@@ -46,16 +46,15 @@ use rustc_middle::ty::{
     layout::{LayoutOf, TyAndLayout},
     Ty,
 };
-use rustc_session::declare_lint_pass;
 
 declare_bevy_lint! {
     pub ZST_QUERY,
     RESTRICTION,
-    "query for a zero-sized type"
+    "query for a zero-sized type",
 }
 
-declare_lint_pass! {
-    ZstQuery => [ZST_QUERY.lint]
+declare_bevy_lint_pass! {
+    pub ZstQuery => [ZST_QUERY.lint],
 }
 
 impl<'tcx> LateLintPass<'tcx> for ZstQuery {
