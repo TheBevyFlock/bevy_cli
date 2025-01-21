@@ -1,8 +1,8 @@
-use crate::declare_bevy_lint;
+use crate::{declare_bevy_lint, declare_bevy_lint_pass};
 use cargo_metadata::MetadataCommand;
 use clippy_utils::{diagnostics::span_lint, sym};
 use rustc_lint::{LateContext, LateLintPass};
-use rustc_session::{impl_lint_pass, utils::was_invoked_from_cargo};
+use rustc_session::utils::was_invoked_from_cargo;
 use rustc_span::{BytePos, Pos, SourceFile, Span, Symbol, SyntaxContext};
 use serde::Deserialize;
 use std::{collections::BTreeMap, ops::Range};
@@ -16,21 +16,11 @@ declare_bevy_lint! {
     "duplicate bevy dependencies",
 }
 
-impl_lint_pass!(Cargo => [
-    DUPLICATE_BEVY_DEPENDENCIES.lint
-]);
-
-pub struct Cargo {
-    /// A cached [`Symbol`] representing the interned string `"bevy"`.
-    bevy_symbol: Symbol,
-}
-
-impl Default for Cargo {
-    fn default() -> Self {
-        Self {
-            bevy_symbol: sym!(bevy),
-        }
-    }
+declare_bevy_lint_pass! {
+    pub Cargo => [DUPLICATE_BEVY_DEPENDENCIES.lint],
+    @default = {
+        bevy: Symbol = sym!(bevy),
+    },
 }
 
 impl LateLintPass<'_> for Cargo {
@@ -42,7 +32,7 @@ impl LateLintPass<'_> for Cargo {
 
         match MetadataCommand::new().exec() {
             Ok(metadata) => {
-                duplicate_bevy_dependencies::check(cx, &metadata, self.bevy_symbol);
+                duplicate_bevy_dependencies::check(cx, &metadata, self.bevy);
             }
             Err(e) => {
                 span_lint(

@@ -45,4 +45,5 @@ pub(crate) fn register_passes(store: &mut LintStore) {
         Box::new(plugin_not_ending_in_plugin::PluginNotEndingInPlugin::default())
     });
     store.register_late_pass(|_| Box::new(zst_query::ZstQuery::default()));
+    store.register_late_pass(|_| Box::new(cargo::Cargo::default()));
 }
