@@ -116,11 +116,24 @@ macro_rules! declare_bevy_lint {
 ///
 ///     // The following are optional fields, and may be omitted.
 ///     //
+///     // Declares fields of the lint pass that are deserialized from `Cargo.toml`. These fields
+///     // must implement `serde::Deserialize`, and will fall back to their `Default` value if
+///     // unspecified in `Cargo.toml.`
+///     @config "lint_name" = {
+///         foo: Option<String>,
+///         bar: bool,
+///     },
+///
 ///     // Declares fields of the lint pass that are set when `LintPassName::default()` is called.
 ///     @default = {
 ///         component: Symbol = Symbol::intern("component"),
 ///     },
 /// }
+/// ```
+///
+/// ```toml
+/// [package.metadata.bevy_lint]
+/// lint_name = { foo = "Some text...", bar = true }
 /// ```
 #[macro_export]
 #[doc(hidden)]
@@ -130,6 +143,12 @@ macro_rules! declare_bevy_lint_pass {
         $vis:vis $name:ident => [$($lint:expr),* $(,)?],
 
         $(
+            @config $config_name:literal = {
+                $($config_field:ident: $config_ty:ty),* $(,)?
+            },
+        )?
+
+        $(
             @default = {
                 $($default_field:ident: $default_ty:ty = $default_value:expr),* $(,)?
             },
@@ -137,13 +156,29 @@ macro_rules! declare_bevy_lint_pass {
     ) => {
         $(#[$attr])*
         $vis struct $name {
-            $($($default_field: $default_ty),*)?
+            $($($config_field: $config_ty,)*)?
+            $($($default_field: $default_ty,)*)?
         }
 
         impl ::std::default::Default for $name {
             fn default() -> Self {
+                $(
+                    #[derive(::serde::Deserialize, ::std::default::Default)]
+                    struct Config {
+                        $(
+                            #[serde(default)]
+                            $config_field: $config_ty,
+                        )*
+                    }
+
+                    let Config {
+                        $($config_field),*
+                    } = $crate::config::load_lint_config($config_name).unwrap_or_default();
+                )?
+
                 Self {
-                    $($($default_field: $default_value),*)?
+                    $($($config_field,)*)?
+                    $($($default_field: $default_value,)*)?
                 }
             }
         }
