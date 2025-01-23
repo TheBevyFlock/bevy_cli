@@ -86,7 +86,7 @@ bevy build --yes web
 The `bevy new` command lets you easily scaffold a new Bevy project using a custom template or a minimal template provided by [Bevy](https://github.com/TheBevyFlock/bevy_new_minimal).
 Templates are just GitHub repositories and can be specified with the `-t` flag.
 
-### Ussage
+### Usage
 
 If no template is omitted, the default minimal template will be chosen.
 
