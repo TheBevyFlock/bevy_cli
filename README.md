@@ -81,6 +81,27 @@ To avoid this problem, use the `--yes` flag to automatically confirm the prompts
 bevy build --yes web
 ```
 
+## Bevy scaffolding
+
+The `bevy new` command lets you easily scaffold a new Bevy project using a custom template or a minimal template provided by [Bevy](https://github.com/TheBevyFlock/bevy_new_minimal).
+Templates are just GitHub repositories and can be specified with the `-t` flag.
+
+### Ussage
+
+If no template is omitted, the default minimal template will be chosen.
+
+```cli
+bevy new my-project
+```
+
+To use a specific template, provide the full GitHub URL
+
+```cli
+bevy new my-project -t https://github.com/TheBevyFlock/bevy_new_2d
+```
+
+Additionally, any repo prefixed with `bevy_new_` from the [TheBevyFlock](https://github.com/TheBevyFlock) will be usable via its shortcut form i.e. `2d` will use the template [bevy_new_2d](https://github.com/TheBevyFlock/bevy_new_2d).
+
 ## License
 
 The Bevy CLI is licensed under either of
