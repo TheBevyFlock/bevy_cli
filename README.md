@@ -88,7 +88,7 @@ Templates are just GitHub repositories and can be specified with the `-t` flag.
 
 ### Usage
 
-If no template is omitted, the [default minimal template](https://github.com/TheBevyFlock/bevy_new_minimal) will be chosen.
+If the template is omitted, the [default minimal template](https://github.com/TheBevyFlock/bevy_new_minimal) will be chosen.
 
 ```sh
 bevy new my-project
