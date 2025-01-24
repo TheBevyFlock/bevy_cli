@@ -22,7 +22,7 @@
 //! ```
 //!
 //! Lint output:
-//! error: Mismatching versions of `bevy` found
+//! error: Mismatching versions of `bevy` found, leafwing-input-manager used bevy version ^0.13
 //!   --> Cargo.toml:11:26
 //!    |
 //! 11 | leafwing-input-manager = "0.13"
@@ -127,7 +127,10 @@ fn lint_with_target_version(
                 cx,
                 DUPLICATE_BEVY_DEPENDENCIES.lint,
                 toml_span(cargo_toml_reference.span(), file),
-                "Mismatching versions of `bevy` found".to_string(),
+                format!(
+                    "Mismatching versions of `bevy` found, {} used bevy version {}",
+                    mismatching_dependency.0, mismatching_dependency.1
+                ),
                 |diag| {
                     diag.span_help(
                         bevy_cargo_toml_span,

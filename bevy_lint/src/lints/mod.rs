@@ -48,8 +48,5 @@ pub(crate) fn register_passes(store: &mut LintStore) {
     });
     store.register_late_pass(|_| Box::new(zst_query::ZstQuery::default()));
     store.register_late_pass(|_| Box::new(insert_unit_bundle::InsertUnitBundle::default()));
-    store.register_late_pass(|_| {
-        Box::new(duplicate_bevy_dependencies::DuplicateBevyDependencies::default())
-    });
     store.register_late_pass(|_| Box::new(cargo::Cargo::default()));
 }

@@ -34,9 +34,6 @@ clippy_utils = "=0.1.86"
 anyhow = "1.0.86"
 # Easy structured output for `cargo metadata`, used for cargo lints
 cargo_metadata = "0.19"
-# Deserializes the Cargo.toml for cargo lints
-toml = "0.8.19"
-serde = { version = "1.0.210", features = ["derive"] }
 
 # Configuration deserialization.
 serde = { version = "1.0.210", features = ["derive"] }
