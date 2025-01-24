@@ -100,7 +100,11 @@ To use a specific template, provide the full GitHub URL
 bevy new my-project -t https://github.com/TheBevyFlock/bevy_new_2d
 ```
 
-Additionally, any repo prefixed with `bevy_new_` from the [TheBevyFlock](https://github.com/TheBevyFlock) will be usable via its shortcut form i.e. `2d` will use the template [bevy_new_2d](https://github.com/TheBevyFlock/bevy_new_2d).
+Additionally, any repo prefixed with `bevy_new_` from the [TheBevyFlock](https://github.com/TheBevyFlock) will be usable via its shortcut form i.e. `-t 2d` will use the template [bevy_new_2d](https://github.com/TheBevyFlock/bevy_new_2d).
+
+```cli
+bevy new my-project -t 2d
+```
 
 ## License
 
