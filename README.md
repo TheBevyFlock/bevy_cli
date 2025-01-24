@@ -83,7 +83,7 @@ bevy build --yes web
 
 ## Bevy scaffolding
 
-The `bevy new` command lets you easily scaffold a new Bevy project using a custom template or a minimal template provided by [Bevy](https://github.com/TheBevyFlock/bevy_new_minimal).
+The `bevy new` command lets you easily scaffold a new Bevy project using a custom template or a [minimal template provided by Bevy](https://github.com/TheBevyFlock/bevy_new_minimal).
 Templates are just GitHub repositories and can be specified with the `-t` flag.
 
 ### Usage
