@@ -1,4 +1,4 @@
-error: Mismatching versions of `bevy` found
+error: Mismatching versions of `bevy` found, leafwing-input-manager used bevy version ^0.13
   --> Cargo.toml:11:26
    |
 11 | leafwing-input-manager = "0.13"
