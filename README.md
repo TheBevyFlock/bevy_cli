@@ -18,7 +18,7 @@ If you need assistance or want to help, reach out to the [`bevy_cli` working gro
 
 At this point, the CLI is not published as a package yet and needs to be installed via git:
 
-```cli
+```sh
 cargo install --git https://github.com/TheBevyFlock/bevy_cli --locked bevy_cli
 ```
 
@@ -32,7 +32,7 @@ Necessary tools will also be installed automatically.
 >
 > The arguments you know from `cargo` (like `--release`) must be placed before the `web` subcommand, while the web-specific options (like `--open`) must be placed afterwards, e.g.
 >
-> ```cli
+> ```sh
 > bevy run --release web --open
 > ```
 
@@ -77,7 +77,7 @@ These prompts will break your pipeline if they are triggered in CI.
 
 To avoid this problem, use the `--yes` flag to automatically confirm the prompts:
 
-```cli
+```sh
 bevy build --yes web
 ```
 
