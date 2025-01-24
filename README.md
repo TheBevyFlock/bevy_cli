@@ -18,7 +18,7 @@ If you need assistance or want to help, reach out to the [`bevy_cli` working gro
 
 At this point, the CLI is not published as a package yet and needs to be installed via git:
 
-```cli
+```sh
 cargo install --git https://github.com/TheBevyFlock/bevy_cli --locked bevy_cli
 ```
 
@@ -32,7 +32,7 @@ Necessary tools will also be installed automatically.
 >
 > The arguments you know from `cargo` (like `--release`) must be placed before the `web` subcommand, while the web-specific options (like `--open`) must be placed afterwards, e.g.
 >
-> ```cli
+> ```sh
 > bevy run --release web --open
 > ```
 
@@ -77,9 +77,31 @@ These prompts will break your pipeline if they are triggered in CI.
 
 To avoid this problem, use the `--yes` flag to automatically confirm the prompts:
 
-```cli
+```sh
 bevy build --yes web
 ```
+
+## Linter
+
+The CLI has 1st-party support for `bevy_lint`, the static analysis tool that checks over your code (similar to Clippy!). It must be installed first using the [installation guide], but then you can run the linter with the `lint` subcommand:
+
+```sh
+bevy lint
+```
+
+This command uses the same arguments as `cargo check`:
+
+```sh
+bevy lint --workspace --all-features
+```
+
+You can view a full list of supported options with:
+
+```sh
+bevy lint -- --help
+```
+
+[installation guide]: https://thebevyflock.github.io/bevy_cli/bevy_lint/index.html#installation
 
 ## License
 
