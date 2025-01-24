@@ -48,7 +48,7 @@ fn run_ui_cargo() {
     config.program.input_file_flag = CommandBuilder::cargo().input_file_flag;
     config.program.out_dir_flag = CommandBuilder::cargo().out_dir_flag;
     // Do not print cargo log messages
-    config.program.args = vec!["--quiet".into()];
+    config.program.args = vec!["--quiet".into(), "--color".into(), "never".into()];
 
     let current_exe_path = env::current_exe().unwrap();
     let deps_path = current_exe_path.parent().unwrap();
