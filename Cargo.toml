@@ -65,3 +65,4 @@ cc = "=1.2.2"
 [dev-dependencies]
 # Forcing tests that can't be parallelized to be run sequentially
 serial_test = "3.2.0"
+assert_cmd = "2.0.16"
