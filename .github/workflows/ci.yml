@@ -35,8 +35,10 @@ jobs:
         with:
           sweep-cache: true
 
+      # The CLI's UI tests depend on Bevy with default features.
+      # This requires extra packages, such as `alsa` and `udev`, to be installed on Linux.
       - name: Install Linux dependencies for Bevy
-        uses: ./.github/actions/install-linux-deps
+        uses: bevyengine/bevy/.github/actions/install-linux-deps@v0.15.1
 
       - name: Run tests
         run: |
