@@ -56,7 +56,7 @@ fn executable(binary: &str) -> String {
 
 #[test]
 #[serial]
-fn should_build_native_debug() -> anyhow::Result<()> {
+fn should_build_native_dev() -> anyhow::Result<()> {
     let target_artifact_path = target_path().join("debug");
     clean_target_artifacts(&target_artifact_path)?;
 
@@ -87,7 +87,7 @@ fn should_build_native_release() -> anyhow::Result<()> {
 
 #[test]
 #[serial]
-fn should_build_web_debug() -> anyhow::Result<()> {
+fn should_build_web_dev() -> anyhow::Result<()> {
     let target_artifact_path = target_path().join("wasm32-unknown-unknown").join("web");
     clean_target_artifacts(&target_artifact_path)?;
 
