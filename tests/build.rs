@@ -57,13 +57,12 @@ fn executable(binary: &str) -> String {
 #[test]
 #[serial]
 fn should_build_native_debug() -> anyhow::Result<()> {
+    let target_artifact_path = target_path().join("debug");
+    clean_target_artifacts(&target_artifact_path)?;
+
     let mut cmd = Command::cargo_bin("bevy")?;
     cmd.current_dir(test_path())
         .args(["build", "-p=bevy_default", "--yes"]);
-
-    let target_artifact_path = target_path().join("debug");
-
-    clean_target_artifacts(&target_artifact_path)?;
 
     cmd.assert().success();
 
@@ -74,14 +73,12 @@ fn should_build_native_debug() -> anyhow::Result<()> {
 #[test]
 #[serial]
 fn should_build_native_release() -> anyhow::Result<()> {
+    let target_artifact_path = target_path().join("release");
+    clean_target_artifacts(&target_artifact_path)?;
+
     let mut cmd = Command::cargo_bin("bevy")?;
     cmd.current_dir(test_path())
         .args(["build", "-p=bevy_default", "--yes", "--release"]);
-
-    let target_artifact_path = target_path().join("release");
-
-    clean_target_artifacts(&target_artifact_path)?;
-
     cmd.assert().success();
 
     ensure_path_exists(target_artifact_path.join(executable("bevy_default")))
@@ -91,13 +88,12 @@ fn should_build_native_release() -> anyhow::Result<()> {
 #[test]
 #[serial]
 fn should_build_web_debug() -> anyhow::Result<()> {
+    let target_artifact_path = target_path().join("wasm32-unknown-unknown").join("web");
+    clean_target_artifacts(&target_artifact_path)?;
+
     let mut cmd = Command::cargo_bin("bevy")?;
     cmd.current_dir(test_path())
         .args(["build", "-p=bevy_default", "--yes", "web"]);
-
-    let target_artifact_path = target_path().join("wasm32-unknown-unknown").join("web");
-
-    clean_target_artifacts(&target_artifact_path)?;
 
     cmd.assert().success();
 
@@ -112,15 +108,14 @@ fn should_build_web_debug() -> anyhow::Result<()> {
 #[test]
 #[serial]
 fn should_build_web_release() -> anyhow::Result<()> {
-    let mut cmd = Command::cargo_bin("bevy")?;
-    cmd.current_dir(test_path())
-        .args(["build", "-p=bevy_default", "--release", "--yes", "web"]);
-
     let target_artifact_path = target_path()
         .join("wasm32-unknown-unknown")
         .join("web-release");
-
     clean_target_artifacts(&target_artifact_path)?;
+
+    let mut cmd = Command::cargo_bin("bevy")?;
+    cmd.current_dir(test_path())
+        .args(["build", "-p=bevy_default", "--release", "--yes", "web"]);
 
     cmd.assert().success();
 
