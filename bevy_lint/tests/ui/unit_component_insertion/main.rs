@@ -15,8 +15,15 @@ fn test(mut commands: Commands) {
         Name::new("Decal"),
         Transform::from_translation(Vec3::new(0.75, 0.0, 0.0)).rotate_z(PI / 4.0),
         //~^ ERROR: Expression returns `unit` and results in an empty component insertion
-        example()
+        example(),
         //~^ ERROR: Expression returns `unit` and results in an empty component insertion
+        (),
+        //~^ ERROR: Expression returns `unit` and results in an empty component insertion
+        {
+            example();
+
+            Transform::from_translation(Vec3::ONE)
+        },
     ));
 }
 
