@@ -1,37 +1,60 @@
-//! Checks for method or function calls inside of `commands.spawn` that return unit `()`
+//! Checks for a call to `Commands::spawn()` that inserts unit `()` as a component.
 //!
 //! # Motivation
 //!
-//! In Bevy, the `commands.spawn` method is used to create entities in the ECS with the given
-//! `Bundle`. A `Bundle` can be a tuple of `Component` that should be added to this entity. If a
-//! Value of type `()` is mistakenly passed, it results in an empty component being added.
+//! It is possible to use `Commands::spawn()` to spawn an entity with a unit `()` component, since
+//! unit implements `Bundle`. Unit is not a `Component`, however, and will be ignored instead of
+//! added to the entity.
+//!
+//! Trying to spawn an entity with unit is discouraged because, not only does it not do anything,
+//! but it can lead to misleading code.
 //!
 //! # Example
 //!
-//! ```rust
+//! ```
 //! # use bevy::prelude::*;
 //! # use std::f32::consts::PI;
 //! #
-//! fn main() {
-//!     App::new().add_systems(Startup, test);
+//! fn spawn_new(mut commands: Commands) {
+//!     commands.spawn(());
 //! }
 //!
-//! fn test(mut commands: Commands) {
+//! fn spawn_decal(mut commands: Commands) {
 //!     commands.spawn((
 //!         Name::new("Decal"),
+//!         // This is misleading! `Transform::rotate_z()` returns a unit `()`, not a `Transform`!
+//!         // No `Transform` will be inserted into the entity with this!
 //!         Transform::from_translation(Vec3::new(0.75, 0.0, 0.0)).rotate_z(PI / 4.0),
 //!     ));
 //! }
+//! #
+//! # bevy::ecs::system::assert_is_system(spawn_new);
+//! # bevy::ecs::system::assert_is_system(spawn_decal);
 //! ```
 //!
-//! ```text
-//! warning: Expression returns `unit` and results in an empty component insertion
-//!   --> src/main.rs:15:64
-//!    |
-//! 15 | ...Vec3::new(0.75, 0.0, 0.0)).rotate_z(PI / 4.0),
-//!    |                               ^^^^^^^^
-//!    |
-//!    = note: `#[warn(bevy::unit_component_insertion)]` on by default
+//! Use instead:
+//!
+//! ```
+//! # use bevy::prelude::*;
+//! # use std::f32::consts::PI;
+//! #
+//! fn spawn_new(mut commands: Commands) {
+//!     // `Commands::spawn_empty()` is preferred if you do not add any components.
+//!     commands.spawn_empty();
+//! }
+//!
+//! fn spawn_decal(mut commands: Commands) {
+//!     commands.spawn((
+//!         Name::new("Decal"),
+//!         // `Transform::with_rotation()` returns a `Transform`, so it will be inserted into the
+//!         // entity.
+//!         Transform::from_translation(Vec3::new(0.75, 0.0, 0.0))
+//!             .with_rotation(Quat::from_rotation_z(PI / 4.0)),
+//!     ));
+//! }
+//! #
+//! # bevy::ecs::system::assert_is_system(spawn_new);
+//! # bevy::ecs::system::assert_is_system(spawn_decal);
 //! ```
 
 use clippy_utils::{diagnostics::span_lint, sym, ty::match_type};
@@ -45,7 +68,7 @@ use crate::{declare_bevy_lint, declare_bevy_lint_pass};
 declare_bevy_lint! {
     pub UNIT_COMPONENT_INSERTION,
     SUSPICIOUS,
-    "method returns `unit` and will be inserted as a component",
+    "inserted a `Bundle` containing a unit `()` type",
 }
 
 declare_bevy_lint_pass! {
@@ -58,13 +81,13 @@ declare_bevy_lint_pass! {
 impl<'tcx> LateLintPass<'tcx> for UnitComponentInsertion {
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &'tcx Expr<'tcx>) {
         // Find a method call.
-        let ExprKind::MethodCall(path, src, args, _method_span) = expr.kind else {
+        let ExprKind::MethodCall(path, src, args, _) = expr.kind else {
             return;
         };
 
         let src_ty = cx.typeck_results().expr_ty(src).peel_refs();
 
-        // If the method call was not to `commands.spawn` we skip it.
+        // If the method call was not to `Commands::spawn()` we skip it.
         if !(match_type(cx, src_ty, &crate::paths::COMMANDS) && path.ident.name == self.spawn) {
             return;
         }
@@ -84,11 +107,11 @@ impl<'tcx> LateLintPass<'tcx> for UnitComponentInsertion {
         for path in unit_paths {
             let span = path.into_span(bundle_expr);
 
-                    span_lint(
-                        cx,
-                        UNIT_COMPONENT_INSERTION.lint,
-                        span,
-                "Expression returns `unit` and results in an empty component insertion",
+            span_lint(
+                cx,
+                UNIT_COMPONENT_INSERTION.lint,
+                span,
+                UNIT_COMPONENT_INSERTION.lint.desc,
             );
         }
     }
@@ -196,7 +219,7 @@ fn find_units_in_tuple(ty: Ty<'_>) -> Vec<TuplePath> {
                 current_path.push(i);
                 inner(ty, current_path, unit_paths);
                 current_path.pop();
-    }
+            }
         }
     }
 
