@@ -33,12 +33,12 @@
 //!    |
 //!    = note: `#[warn(bevy::unit_component_insertion)]` on by default
 //! ```
-use std::ops::ControlFlow;
 
-use clippy_utils::{diagnostics::span_lint, sym, ty::match_type, visitors::for_each_expr};
+use clippy_utils::{diagnostics::span_lint, sym, ty::match_type};
 use rustc_hir::{Expr, ExprKind};
 use rustc_lint::{LateContext, LateLintPass};
-use rustc_span::Symbol;
+use rustc_middle::ty::{Ty, TyKind};
+use rustc_span::{Span, Symbol};
 
 use crate::{declare_bevy_lint, declare_bevy_lint_pass};
 
@@ -69,51 +69,141 @@ impl<'tcx> LateLintPass<'tcx> for UnitComponentInsertion {
             return;
         }
 
-        // iterate through all `Expr` inside the method `args` tuple, check if any return `()`
-        for_each_expr(cx, args, |expr| {
-            // get the expression definition of the Call
-            let (def_id, span) = match expr.kind {
-                ExprKind::Call(
-                    &Expr {
-                        kind: ExprKind::Path(ref path),
-                        hir_id,
-                        span,
-                        ..
-                    },
-                    _,
-                ) => {
-                    let def_id = cx.qpath_res(path, hir_id).opt_def_id();
-                    (def_id, span)
-                }
-                ExprKind::MethodCall(path, _, _, _) => (
-                    cx.typeck_results().type_dependent_def_id(expr.hir_id),
-                    path.ident.span,
-                ),
-                // If the expression was not of `kind` `Call` or `MethodCall`,
-                // continue to the next Expression
-                _ => return ControlFlow::<()>::Continue(()),
-            };
+        // Extract the expression of the bundle being spawned.
+        let [bundle_expr] = args else {
+            return;
+        };
 
-            if let Some(def_id) = def_id {
-                // Check if the return type of a function signature is of type `unit`
-                if cx
-                    .tcx
-                    .fn_sig(def_id)
-                    .skip_binder()
-                    .output()
-                    .skip_binder()
-                    .is_unit()
-                {
+        // Find the type of the bundle.
+        let bundle_ty = cx.typeck_results().expr_ty(bundle_expr);
+
+        // Find the path to all units within the bundle type.
+        let unit_paths = find_units_in_tuple(bundle_ty);
+
+        // Emit the lint for all unit tuple paths.
+        for path in unit_paths {
+            let span = path.into_span(bundle_expr);
+
                     span_lint(
                         cx,
                         UNIT_COMPONENT_INSERTION.lint,
                         span,
-                        "Expression returns `unit` and results in an empty component insertion",
-                    );
-                }
+                "Expression returns `unit` and results in an empty component insertion",
+            );
+        }
+    }
+}
+
+/// Represents the path to an item within a nested tuple.
+///
+/// # Example
+///
+/// Each number within the [`TuplePath`] represents an index into the tuple. An empty path
+/// represents the root tuple, while a path of `TuplePath([0])` represents the first item within
+/// that tuple.
+///
+/// ```ignore
+/// // TuplePath([])
+/// (
+///     // TuplePath([0])
+///     Name::new("Foo"),
+///     // TuplePath([1])
+///     (
+///         // TuplePath([1, 0])
+///         (),
+///         // TuplePath([1, 1])
+///         Transform::default(),
+///         // TuplePath([1, 2])
+///         Visibility::Hidden,
+///     ),
+///     // TuplePath([2])
+///     (),
+/// )
+/// ```
+#[derive(Clone)]
+#[repr(transparent)]
+struct TuplePath(Vec<usize>);
+
+impl TuplePath {
+    /// Creates an empty [`TuplePath`].
+    fn new() -> Self {
+        Self(Vec::new())
+    }
+
+    /// Pushes an index to the end of the path.
+    fn push(&mut self, i: usize) {
+        self.0.push(i);
+    }
+
+    /// Pops the last index in the path.
+    fn pop(&mut self) -> Option<usize> {
+        self.0.pop()
+    }
+
+    /// Finds the [`Span`] of the item represented by this path given the root tuple.
+    fn into_span(self, root_tuple: &Expr) -> Span {
+        let mut tuple = root_tuple;
+
+        for i in self.0 {
+            let ExprKind::Tup(items) = tuple.kind else {
+                panic!("");
+            };
+
+            tuple = &items[i];
+        }
+
+        tuple.span
+    }
+}
+
+/// Returns the [`TuplePath`]s to all unit types within a tuple type.
+///
+/// # Example
+///
+/// Given a type:
+///
+/// ```ignore
+/// type MyBundle = (
+///     Name,
+///     (
+///         (),
+///         Transform,
+///         Visibility,
+///     ),
+///     (),
+/// );
+/// ```
+///
+/// This function would return:
+///
+/// ```ignore
+/// [
+///     TuplePath([1, 0]),
+///     TuplePath([2]),
+/// ]
+/// ```
+///
+/// See [`TuplePath`]'s documentation for more information.
+fn find_units_in_tuple(ty: Ty<'_>) -> Vec<TuplePath> {
+    fn inner(ty: Ty<'_>, current_path: &mut TuplePath, unit_paths: &mut Vec<TuplePath>) {
+        if let TyKind::Tuple(types) = ty.kind() {
+            if types.is_empty() {
+                unit_paths.push(current_path.clone());
+                return;
             }
 
-            ControlFlow::<()>::Continue(())
-        });
+            for (i, ty) in types.into_iter().enumerate() {
+                current_path.push(i);
+                inner(ty, current_path, unit_paths);
+                current_path.pop();
     }
+        }
+    }
+
+    let mut current_path = TuplePath::new();
+    let mut unit_paths = Vec::new();
+
+    inner(ty, &mut current_path, &mut unit_paths);
+
+    unit_paths
 }
