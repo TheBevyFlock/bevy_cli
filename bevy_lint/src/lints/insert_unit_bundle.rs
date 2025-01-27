@@ -66,19 +66,19 @@ use rustc_span::{Span, Symbol};
 use crate::{declare_bevy_lint, declare_bevy_lint_pass};
 
 declare_bevy_lint! {
-    pub UNIT_COMPONENT_INSERTION,
+    pub INSERT_UNIT_BUNDLE,
     SUSPICIOUS,
     "inserted a `Bundle` containing a unit `()` type",
 }
 
 declare_bevy_lint_pass! {
-    pub UnitComponentInsertion => [UNIT_COMPONENT_INSERTION.lint],
+    pub InsertUnitBundle => [INSERT_UNIT_BUNDLE.lint],
     @default = {
         spawn: Symbol = sym!(spawn),
     },
 }
 
-impl<'tcx> LateLintPass<'tcx> for UnitComponentInsertion {
+impl<'tcx> LateLintPass<'tcx> for InsertUnitBundle {
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &'tcx Expr<'tcx>) {
         // Find a method call.
         let ExprKind::MethodCall(path, src, args, _) = expr.kind else {
@@ -109,9 +109,9 @@ impl<'tcx> LateLintPass<'tcx> for UnitComponentInsertion {
 
             span_lint(
                 cx,
-                UNIT_COMPONENT_INSERTION.lint,
+                INSERT_UNIT_BUNDLE.lint,
                 span,
-                UNIT_COMPONENT_INSERTION.lint.desc,
+                INSERT_UNIT_BUNDLE.lint.desc,
             );
         }
     }

@@ -9,20 +9,20 @@ use rustc_lint::{Lint, LintStore};
 
 pub mod borrowed_reborrowable;
 pub mod insert_event_resource;
+pub mod insert_unit_bundle;
 pub mod main_return_without_appexit;
 pub mod missing_reflect;
 pub mod panicking_methods;
 pub mod plugin_not_ending_in_plugin;
-pub mod unit_component_insertion;
 pub mod zst_query;
 
 pub(crate) static LINTS: &[&BevyLint] = &[
     borrowed_reborrowable::BORROWED_REBORROWABLE,
     insert_event_resource::INSERT_EVENT_RESOURCE,
-    unit_component_insertion::UNIT_COMPONENT_INSERTION,
+    insert_unit_bundle::INSERT_UNIT_BUNDLE,
     main_return_without_appexit::MAIN_RETURN_WITHOUT_APPEXIT,
-    panicking_methods::PANICKING_QUERY_METHODS,
     missing_reflect::MISSING_REFLECT,
+    panicking_methods::PANICKING_QUERY_METHODS,
     panicking_methods::PANICKING_WORLD_METHODS,
     plugin_not_ending_in_plugin::PLUGIN_NOT_ENDING_IN_PLUGIN,
     zst_query::ZST_QUERY,
@@ -45,7 +45,5 @@ pub(crate) fn register_passes(store: &mut LintStore) {
         Box::new(plugin_not_ending_in_plugin::PluginNotEndingInPlugin::default())
     });
     store.register_late_pass(|_| Box::new(zst_query::ZstQuery::default()));
-    store.register_late_pass(|_| {
-        Box::new(unit_component_insertion::UnitComponentInsertion::default())
-    });
+    store.register_late_pass(|_| Box::new(insert_unit_bundle::InsertUnitBundle::default()));
 }

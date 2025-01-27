@@ -1,0 +1,34 @@
+warning: unused variable: `foo`
+  --> tests/ui/insert_unit_bundle/main.rs:30:9
+   |
+30 |     let foo = 1;
+   |         ^^^ help: if this is intentional, prefix it with an underscore: `_foo`
+   |
+   = note: `#[warn(unused_variables)]` on by default
+
+error: inserted a `Bundle` containing a unit `()` type
+  --> tests/ui/insert_unit_bundle/main.rs:15:9
+   |
+15 |         Transform::from_translation(Vec3::new(0.75, 0.0, 0.0)).rotate_z(PI / 4.0),
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: the lint level is defined here
+  --> tests/ui/insert_unit_bundle/main.rs:3:9
+   |
+3  | #![deny(bevy::insert_unit_bundle)]
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: inserted a `Bundle` containing a unit `()` type
+  --> tests/ui/insert_unit_bundle/main.rs:17:9
+   |
+17 |         example(),
+   |         ^^^^^^^^^
+
+error: inserted a `Bundle` containing a unit `()` type
+  --> tests/ui/insert_unit_bundle/main.rs:19:9
+   |
+19 |         (),
+   |         ^^
+
+error: aborting due to 3 previous errors; 1 warning emitted
+

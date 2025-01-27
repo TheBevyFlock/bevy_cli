@@ -1,7 +1,6 @@
 #![feature(register_tool)]
 #![register_tool(bevy)]
-#![deny(bevy::unit_component_insertion)]
-#![allow(unused_variables)]
+#![deny(bevy::insert_unit_bundle)]
 
 use bevy::prelude::*;
 use std::f32::consts::PI;
@@ -14,11 +13,11 @@ fn test(mut commands: Commands) {
     commands.spawn((
         Name::new("Decal"),
         Transform::from_translation(Vec3::new(0.75, 0.0, 0.0)).rotate_z(PI / 4.0),
-        //~^ ERROR: Expression returns `unit` and results in an empty component insertion
+        //~^ ERROR: inserted a `Bundle` containing a unit `()` type
         example(),
-        //~^ ERROR: Expression returns `unit` and results in an empty component insertion
+        //~^ ERROR: inserted a `Bundle` containing a unit `()` type
         (),
-        //~^ ERROR: Expression returns `unit` and results in an empty component insertion
+        //~^ ERROR: inserted a `Bundle` containing a unit `()` type
         {
             example();
 
