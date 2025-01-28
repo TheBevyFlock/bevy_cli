@@ -57,11 +57,11 @@
 //! # bevy::ecs::system::assert_is_system(spawn_decal);
 //! ```
 
-use clippy_utils::{diagnostics::span_lint, sym, ty::match_type};
+use clippy_utils::{diagnostics::span_lint_hir, sym, ty::match_type};
 use rustc_hir::{Expr, ExprKind};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::{Ty, TyKind};
-use rustc_span::{Span, Symbol};
+use rustc_span::Symbol;
 
 use crate::{declare_bevy_lint, declare_bevy_lint_pass};
 
@@ -105,12 +105,13 @@ impl<'tcx> LateLintPass<'tcx> for InsertUnitBundle {
 
         // Emit the lint for all unit tuple paths.
         for path in unit_paths {
-            let span = path.into_span(bundle_expr);
+            let expr = path.into_expr(bundle_expr);
 
-            span_lint(
+            span_lint_hir(
                 cx,
                 INSERT_UNIT_BUNDLE.lint,
-                span,
+                expr.hir_id,
+                expr.span,
                 INSERT_UNIT_BUNDLE.lint.desc,
             );
         }
@@ -163,8 +164,8 @@ impl TuplePath {
         self.0.pop()
     }
 
-    /// Finds the [`Span`] of the item represented by this path given the root tuple.
-    fn into_span(self, root_tuple: &Expr) -> Span {
+    /// Finds the [`Expr`] of the item represented by this path given the root tuple.
+    fn into_expr<'tcx>(self, root_tuple: &'tcx Expr<'tcx>) -> &'tcx Expr<'tcx> {
         let mut tuple = root_tuple;
 
         for i in self.0 {
@@ -175,7 +176,7 @@ impl TuplePath {
             tuple = &items[i];
         }
 
-        tuple.span
+        tuple
     }
 }
 
