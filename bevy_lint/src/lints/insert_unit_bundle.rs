@@ -196,7 +196,10 @@ impl TuplePath {
 
         for i in self.0 {
             let ExprKind::Tup(items) = tuple.kind else {
-                panic!("");
+                panic!(
+                    "Expected a tuple expression, but found {:?} instead",
+                    tuple.kind
+                );
             };
 
             tuple = &items[i];
