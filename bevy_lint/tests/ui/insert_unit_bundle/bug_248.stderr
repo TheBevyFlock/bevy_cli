@@ -1,0 +1,15 @@
+error: inserted a `Bundle` containing a unit `()` type
+  --> tests/ui/insert_unit_bundle/bug_248.rs:16:20
+   |
+16 |     commands.spawn(bundle());
+   |                    ^^^^^^^^
+   |
+   = note: unit `()` types are skipped instead of spawned
+note: the lint level is defined here
+  --> tests/ui/insert_unit_bundle/bug_248.rs:7:9
+   |
+7  | #![deny(bevy::insert_unit_bundle)]
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: aborting due to 1 previous error
+
