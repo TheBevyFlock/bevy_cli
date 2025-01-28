@@ -191,15 +191,19 @@ impl TuplePath {
     }
 
     /// Finds the [`Expr`] of the item represented by this path given the root tuple.
+    ///
+    /// In the event the path is invalid in some way (such as if an expected tuple is not found),
+    /// this will return the expression closest to the target.
     fn into_expr<'tcx>(self, root_tuple: &'tcx Expr<'tcx>) -> &'tcx Expr<'tcx> {
         let mut tuple = root_tuple;
 
         for i in self.0 {
             let ExprKind::Tup(items) = tuple.kind else {
-                panic!(
-                    "Expected a tuple expression, but found {:?} instead",
-                    tuple.kind
-                );
+                // If the path is invalid in some way, return the expression nearest to the target.
+                // This is usually the case when the bundle is created outside of
+                // `Commands::spawn()`, such as with `commands.spawn(my_helper())` instead of the
+                // expected `commands.spawn((Foo, Bar, ()))`.
+                return tuple;
             };
 
             tuple = &items[i];
