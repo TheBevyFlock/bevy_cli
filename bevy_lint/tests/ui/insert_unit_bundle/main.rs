@@ -10,9 +10,6 @@ fn main() {
 }
 
 fn my_system(mut commands: Commands) {
-    commands.spawn(());
-    //~^ ERROR: inserted a `Bundle` containing a unit `()` type
-
     commands.spawn((
         Name::new("Decal"),
         Transform::from_translation(Vec3::new(0.75, 0.0, 0.0)).rotate_z(PI / 4.0),

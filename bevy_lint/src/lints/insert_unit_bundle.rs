@@ -57,7 +57,8 @@
 //! # bevy::ecs::system::assert_is_system(spawn_decal);
 //! ```
 
-use clippy_utils::{diagnostics::span_lint_hir, sym, ty::match_type};
+use clippy_utils::{diagnostics::span_lint_hir_and_then, sym, ty::match_type};
+use rustc_errors::Applicability;
 use rustc_hir::{Expr, ExprKind};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::{Ty, TyKind};
@@ -81,7 +82,7 @@ declare_bevy_lint_pass! {
 impl<'tcx> LateLintPass<'tcx> for InsertUnitBundle {
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &'tcx Expr<'tcx>) {
         // Find a method call.
-        let ExprKind::MethodCall(path, src, args, _) = expr.kind else {
+        let ExprKind::MethodCall(path, src, args, method_span) = expr.kind else {
             return;
         };
 
@@ -100,6 +101,28 @@ impl<'tcx> LateLintPass<'tcx> for InsertUnitBundle {
         // Find the type of the bundle.
         let bundle_ty = cx.typeck_results().expr_ty(bundle_expr);
 
+        // Special-case `commands.spawn(())` and suggest `Commands::spawn_empty()` instead.
+        if bundle_ty.is_unit() {
+            span_lint_hir_and_then(
+                cx,
+                INSERT_UNIT_BUNDLE.lint,
+                bundle_expr.hir_id,
+                bundle_expr.span,
+                INSERT_UNIT_BUNDLE.lint.desc,
+                |diag| {
+                    diag.note("unit `()` types are skipped instead of spawned")
+                        .span_suggestion(
+                            method_span,
+                            "try",
+                            "spawn_empty()",
+                            Applicability::MachineApplicable,
+                        );
+                },
+            );
+
+            return;
+        }
+
         // Find the path to all units within the bundle type.
         let unit_paths = find_units_in_tuple(bundle_ty);
 
@@ -107,12 +130,15 @@ impl<'tcx> LateLintPass<'tcx> for InsertUnitBundle {
         for path in unit_paths {
             let expr = path.into_expr(bundle_expr);
 
-            span_lint_hir(
+            span_lint_hir_and_then(
                 cx,
                 INSERT_UNIT_BUNDLE.lint,
                 expr.hir_id,
                 expr.span,
                 INSERT_UNIT_BUNDLE.lint.desc,
+                |diag| {
+                    diag.note("unit `()` types are skipped instead of spawned");
+                },
             );
         }
     }
