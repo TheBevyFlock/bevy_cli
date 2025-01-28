@@ -30,8 +30,6 @@ fn my_system(mut commands: Commands) {
                 Transform::default()
             },
         ),
-        #[allow(bevy::insert_unit_bundle)]
-        (),
     ));
 }
 
