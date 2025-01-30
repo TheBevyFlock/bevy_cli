@@ -66,7 +66,7 @@ macro_rules! declare_bevy_lint {
         $(@crate_level_only = $crate_level_only:expr,)?
         $(@eval_always = $eval_always:expr,)?
     } => {
-        /// Click me for more information.
+        /// Click me for lint properties.
         ///
         /// ```ignore
         /// Lint {
@@ -120,6 +120,7 @@ macro_rules! declare_bevy_lint {
 ///     // must implement `serde::Deserialize`, and will fall back to their `Default` value if
 ///     // unspecified in `Cargo.toml.`
 ///     @config "lint_name" = {
+///         /// Optional doc comment, which will be displayed in the docs.
 ///         foo: Option<String>,
 ///         bar: bool,
 ///     },
@@ -144,7 +145,10 @@ macro_rules! declare_bevy_lint_pass {
 
         $(
             @config $config_name:literal = {
-                $($config_field:ident: $config_ty:ty),* $(,)?
+                $(
+                    $(#[doc = $config_doc:literal])*
+                    $config_field:ident: $config_ty:ty
+                ),* $(,)?
             },
         )?
 
@@ -154,6 +158,29 @@ macro_rules! declare_bevy_lint_pass {
             },
         )?
     ) => {
+        /// Click me configuration info.
+        ///
+        /// ```ignore
+        /// Config {
+        $($(
+            $(#[doc = concat!("    ///", $config_doc)])*
+            #[doc = concat!("    ", stringify!($config_field), ": ", stringify!($config_ty), ",")]
+        )*)?
+        /// }
+        /// ```
+        ///
+        $(
+        /// # Example
+        ///
+        /// ```toml
+        /// [package.metadata.bevy_lint]
+        #[doc = concat!($config_name, " = {")]
+        $(
+            #[doc = concat!("    ", stringify!($config_field), " = <", stringify!($config_ty), ">,")]
+        )*
+        /// }
+        /// ```
+        )?
         $(#[$attr])*
         $vis struct $name {
             $($($config_field: $config_ty,)*)?

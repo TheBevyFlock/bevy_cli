@@ -2,7 +2,8 @@
 //!
 //! Click on each module to learn more about individual lints. Within each module is a static that
 //! documents a lint's name, group, and short description, such as
-//! [`missing_reflect::MISSING_REFLECT`].
+//! [`missing_reflect::MISSING_REFLECT`], and a struct that documents that a lint's configuration,
+//! such as [`missing_reflect::MissingReflect`].
 
 use crate::lint::BevyLint;
 use rustc_lint::{Lint, LintStore};
