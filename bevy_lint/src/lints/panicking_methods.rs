@@ -82,7 +82,7 @@ use clippy_utils::{
     source::{snippet, snippet_opt},
     ty::match_type,
 };
-use rustc_hir::{Expr, ExprKind, GenericArgs};
+use rustc_hir::{def::Res, Expr, ExprKind, GenericArgs};
 use rustc_lint::{LateContext, LateLintPass, Lint};
 use rustc_middle::ty::Ty;
 use rustc_span::{Span, Symbol};
@@ -105,6 +105,31 @@ declare_bevy_lint_pass! {
 
 impl<'tcx> LateLintPass<'tcx> for PanickingMethods {
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &Expr<'tcx>) {
+        if let ExprKind::Call(path, _) = &expr.kind {
+            if let Some(def_id) = cx.typeck_results().type_dependent_def_id(path.hir_id) {
+                if let Some(impl_def_id) = cx.tcx.impl_of_method(def_id) {
+                    let impl_ty = cx.tcx.type_of(impl_def_id).instantiate_identity();
+                    // Check if `src` is a type that has panicking methods (e.g. `Query`), else
+                    // exit.
+                    let Some(panicking_type) = PanickingType::try_from_ty(cx, impl_ty) else {
+                        return;
+                    };
+
+                    if let ExprKind::Path(qpath) = path.kind {
+                        let res = cx.qpath_res(&qpath, path.hir_id);
+                        if let Res::Def(_, def_id) = res {
+                            let func_name = cx.tcx.item_name(def_id);
+                            dbg!(func_name);
+                        }
+                    }
+
+                    // Get a list of methods that panic and their alternatives for the specific
+                    // query variant.
+                    let _panicking_alternatives = panicking_type.alternatives();
+                }
+            }
+        }
+
         // Find a method call.
         if let ExprKind::MethodCall(path, src, args, method_span) = expr.kind {
             // Get the type of `src` for `src.method()`. We peel all references to that `Foo`,
