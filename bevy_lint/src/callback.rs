@@ -4,7 +4,8 @@ use rustc_driver::Callbacks;
 use rustc_interface::interface::Config;
 use rustc_lint_defs::RegisteredTools;
 use rustc_middle::ty::TyCtxt;
-use rustc_span::Ident;
+use rustc_session::utils::was_invoked_from_cargo;
+use rustc_span::{Ident, Symbol};
 
 /// A pointer to the original [`registered_tools()`](TyCtxt::registered_tools) query function.
 ///
@@ -51,6 +52,32 @@ impl Callbacks for BevyLintCallback {
             // Overwrite the query with our own custom version.
             providers.queries.registered_tools = registered_tools;
         });
+
+        // Clone the input so we can `move` it into our custom `psess_created()`.
+        let input = config.input.clone();
+
+        config.psess_created = Some(Box::new(move |psess| {
+            if !was_invoked_from_cargo() {
+                return;
+            }
+
+            let file_depinfo = psess.file_depinfo.get_mut();
+
+            for workspace in [false, true] {
+                // Get the paths to the crate or workspace `Cargo.toml`, if they exist.
+                let manifest_path = crate::utils::cargo::locate_manifest(&input, workspace);
+
+                // If locating the manifest was successful, try to convert the path into a UTF-8
+                // string that we can intern.
+                if let Ok(path) = manifest_path
+                    && let Some(path) = path.to_str()
+                {
+                    // Insert the manifest path into `file_depinfo`. Now if the manifest is
+                    // changed, checks will re-run.
+                    file_depinfo.insert(Symbol::intern(path));
+                }
+            }
+        }));
     }
 }
 
