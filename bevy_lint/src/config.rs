@@ -19,12 +19,22 @@ pub fn load_config(compiler_config: &mut Config) {
         return;
     }
 
-    let Some(manifest) = load_cargo_manifest(compiler_config) else {
-        return;
-    };
+    // Load the linter configuration for both the workspace and crate `Cargo.toml`s.
+    let workspace_config = load_cargo_manifest(compiler_config, true)
+        .and_then(|manifest| deserialize_linter_config(manifest, true));
 
-    let Some(config) = deserialize_linter_config(manifest) else {
-        return;
+    let crate_config = load_cargo_manifest(compiler_config, false)
+        .and_then(|manifest| deserialize_linter_config(manifest, false));
+
+    let config = match (workspace_config, crate_config) {
+        // If only one of the configs are specified, just use that.
+        (Some(config), None) | (None, Some(config)) => config,
+        // If both configs are specified, merge them.
+        (Some(workspace_config), Some(crate_config)) => {
+            merge_linter_configs(workspace_config, crate_config)
+        }
+        // If neither of the configs are specified, exit.
+        (None, None) => return,
     };
 
     insert_lint_levels(compiler_config, &config);
@@ -34,15 +44,16 @@ pub fn load_config(compiler_config: &mut Config) {
 
 /// Returns the contents of `Cargo.toml` associated with the crate being compiled.
 ///
-/// This will return [`None`] if `Cargo.toml` cannot be located or read.
-fn load_cargo_manifest(compiler_config: &Config) -> Option<String> {
+/// This will return [`None`] if `Cargo.toml` cannot be located or read. If `workspace` is true,
+/// this will instead return the workspace `Cargo.toml`.
+fn load_cargo_manifest(compiler_config: &Config, workspace: bool) -> Option<String> {
     let Input::File(ref input_path) = compiler_config.input else {
         // A string was passed directly to the compiler, not a file, so we cannot locate the Cargo
         // project.
         return None;
     };
 
-    let manifest_path = crate::utils::cargo::locate_manifest(input_path, false).ok()?;
+    let manifest_path = crate::utils::cargo::locate_manifest(input_path, workspace).ok()?;
 
     std::fs::read_to_string(manifest_path).ok()
 }
@@ -50,33 +61,60 @@ fn load_cargo_manifest(compiler_config: &Config) -> Option<String> {
 /// Returns the [`Table`] representing `[package.metadata.bevy_lint]` given the string contents of
 /// `Cargo.toml`.
 ///
-/// This will return [`None`] if [`toml`] cannot deserialize the `manifest`.
-fn deserialize_linter_config(manifest: String) -> Option<Table> {
+/// This will return [`None`] if [`toml`] cannot deserialize the `manifest`, or if
+/// `[package.metadata.bevy_lint]` is not specified. If `workspace` is true, this will instead
+/// return the [`Table`] for `[workspace.metadata.bevy_lint]`.
+fn deserialize_linter_config(manifest: String, workspace: bool) -> Option<Table> {
     /// Represents `Cargo.toml` in the following format:
     ///
     /// ```toml
     /// [package.metadata.bevy_lint]
     /// lint_name = "level"
     /// other_lint_name = { level = "level", foo = 8, bar = false }
+    ///
+    /// [workspace.metadata.bevy_lint]
+    /// yet_another_lint_name = "level"
     /// ```
     #[derive(Deserialize)]
     struct Manifest {
-        package: Package,
+        package: Option<PackageOrWorkspace>,
+        workspace: Option<PackageOrWorkspace>,
     }
 
     #[derive(Deserialize)]
-    struct Package {
-        metadata: Metadata,
+    struct PackageOrWorkspace {
+        metadata: Option<Metadata>,
     }
 
     #[derive(Deserialize)]
     struct Metadata {
-        bevy_lint: Table,
+        bevy_lint: Option<Table>,
     }
 
     toml::from_str::<Manifest>(&manifest)
-        .map(|manifest| manifest.package.metadata.bevy_lint)
         .ok()
+        .and_then(|manifest| {
+            if workspace {
+                manifest.workspace
+            } else {
+                manifest.package
+            }
+        })
+        .and_then(|package_or_workspace| package_or_workspace.metadata)
+        .and_then(|metadata| metadata.bevy_lint)
+}
+
+/// Merges the [`Table`]s for the workspace and crate linter configs together.
+///
+/// The crate `Cargo.toml` takes precedence, so its configuration will overwrite the workspace's
+/// configuration.
+fn merge_linter_configs(mut workspace_config: Table, crate_config: Table) -> Table {
+    for (lint_name, lint_config) in crate_config {
+        // `Map::insert()` overwrite an existing value with a new one, if one already existed.
+        workspace_config.insert(lint_name, lint_config);
+    }
+
+    workspace_config
 }
 
 /// Informs the compiler of `Cargo.toml` lint level configuration.
