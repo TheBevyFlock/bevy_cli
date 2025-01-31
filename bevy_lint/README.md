@@ -68,6 +68,18 @@ bevy lint --help
 
 </div>
 
+### Toggling Lints in `Cargo.toml`
+
+You can set the default level for lints in `Cargo.toml` using the `[package.metadata.bevy_lint]` table:
+
+```toml
+[package.metadata.bevy_lint]
+missing_reflect = "warn"
+panicking_methods = { level = "forbid" }
+```
+
+Note that unlike [Cargo's `[lints]` table](https://doc.rust-lang.org/cargo/reference/manifest.html#the-lints-section), the `priority` field is not supported. Furthermore, if you wish to use `#[allow(...)]` and related attributes inside your code for Bevy-specific lints, please see [Toggling Lints in Code](#toggling-lints-in-code).
+
 ### Detecting `bevy_lint`
 
 The linter passes `--cfg bevy_lint` when it checks your code, allowing you to detect it:
@@ -106,11 +118,10 @@ Using `#![register_tool(bevy)]` tells the compiler that `bevy` is a valid name i
 
 [^rustfmt-skip]: If you've ever used `#[rustfmt::skip]` in your code, this is how `rustc` avoids erroring on it. However unlike the `bevy` namespace, `rustfmt` is registered automatically without a need for `#![register_tool(rustfmt)]` due to it being an official tool.
 
-If you wish to refer to a `bevy` lint at all in your code or configuration (usually to [toggle it](#toggling-lints)), you must add `#![register_tool(bevy)]` to each crate root. Unfortunately, `#![register_tool(...)]` is [currently unstable](https://doc.rust-lang.org/nightly/unstable-book/language-features/register-tool.html), meaning you need to add `#![feature(register_tool)]` to your code as well. This isn't an issue if you [detect when `bevy_lint` is enabled](#detecting-bevy_lint), since it is guaranteed to check your code using nightly Rust.
+If you wish to refer to a `bevy` lint at all in your code (usually to [toggle it](#toggling-lints-in-code)), you must add `#![register_tool(bevy)]` to each crate root. Unfortunately, `#![register_tool(...)]` is [currently unstable](https://doc.rust-lang.org/nightly/unstable-book/language-features/register-tool.html), meaning you need to add `#![feature(register_tool)]` to your code as well. This isn't an issue if you [detect when `bevy_lint` is enabled](#detecting-bevy_lint), since it is guaranteed to check your code using nightly Rust.
 
 ```rust,ignore
-// When `bevy_lint` is used, enable the `register_tool` feature and register the `bevy` namespace
-// as a tool.
+// When `bevy_lint` is used, enable the `register_tool` feature and register `bevy` as a tool.
 #![cfg_attr(bevy_lint, feature(register_tool), register_tool(bevy))]
 ```
 
@@ -118,15 +129,15 @@ If you wish to refer to a `bevy` lint at all in your code or configuration (usua
 
 > **Tip**
 >
-> If your project already uses nightly Rust, you can forego the `#[cfg_attr(bevy_lint, ...)]` attributes and write `#![feature(register_tool)]` and `#![register_tool(bevy)]` directly!
+> If your project already uses nightly Rust, you can forego the `#[cfg_attr(bevy_lint, ...)]` attributes and write `#![feature(register_tool)]` and `#![register_tool(bevy)]` directly! Cool!
 
 </div>
 
-### Toggling Lints
+### Toggling Lints in Code
 
-If you wish to enable and disable certain lints, you must first [register `bevy` as a tool](#registering-bevy-as-a-tool). Not doing so will cause `#[allow(bevy::lint_name)]` and related attributes to fail to compile.
+It is possible to set lint levels on a case-by-case basis inside your code, but it requires a few more steps than [setting the levels for the entire crate in `Cargo.toml`](#toggling-lints-in-cargotoml). First, you must [register `bevy` as a tool](#registering-bevy-as-a-tool). Not doing so will cause `#[allow(bevy::lint_name)]` and related attributes to fail to compile.
 
-You can now toggle lints throughout your project, as long as they too are behind `#[cfg_attr(bevy_lint, ...)]`:
+Once `bevy` is registered, you can toggle lints throughout your code, as long as they too are behind `#[cfg_attr(bevy_lint, ...)]`:
 
 ```rust,ignore
 #![cfg_attr(bevy_lint, feature(register_tool), register_tool(bevy))]
@@ -141,10 +152,11 @@ fn my_critical_system(world: &mut World) {
 }
 ```
 
-There are several other ways to toggle lints, but they have varying levels of support:
+There are several other ways to toggle lints, although some have varying levels of support:
 
 |Method|Support|Additional Information|
 |-|-|-|
+|`[package.metadata.bevy_lint]`|✅|See [Toggling Lints in `Cargo.toml`](#toggling-lints-in-cargotoml).|
 |`#[allow(...)]` and related|✅|Must be behind `#[cfg_attr(bevy_lint, ...)]` on stable Rust.|
 |`[lints.bevy]` in `Cargo.toml`|⚠️|Nightly only because `#[register_tool(bevy)]` must always be enabled.|
 |`[workspace.lints.bevy]` in `Cargo.toml`|⚠️|Nightly only (same as `[lints.bevy]`) and prints a warning each time `cargo` is executed.|
