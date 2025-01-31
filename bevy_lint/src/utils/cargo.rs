@@ -4,10 +4,12 @@
 
 use std::{
     io,
-    path::{Path, PathBuf},
+    path::PathBuf,
     process::{Command, Stdio},
     str,
 };
+
+use rustc_session::config::Input;
 
 /// The name of the `cargo` executable.
 const CARGO: &str = "cargo";
@@ -19,7 +21,16 @@ const CARGO: &str = "cargo";
 /// workspace instead.
 ///
 /// [`cargo locate-project`]: https://doc.rust-lang.org/cargo/commands/cargo-locate-project.html
-pub fn locate_manifest(relative_to: &Path, workspace: bool) -> io::Result<PathBuf> {
+pub fn locate_manifest(relative_to: &Input, workspace: bool) -> io::Result<PathBuf> {
+    let Input::File(relative_to) = relative_to else {
+        // A string was passed directly to the compiler, not a file, so we cannot locate the Cargo
+        // project.
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidInput,
+            "given a string as input, instead of a file path",
+        ));
+    };
+
     let mut command = Command::new(CARGO);
 
     command

@@ -2,7 +2,7 @@ use std::sync::RwLock;
 
 use rustc_interface::Config;
 use rustc_lint::Level;
-use rustc_session::{config::Input, utils::was_invoked_from_cargo};
+use rustc_session::utils::was_invoked_from_cargo;
 use serde::Deserialize;
 use toml::{Table, Value};
 
@@ -47,15 +47,9 @@ pub fn load_config(compiler_config: &mut Config) {
 /// This will return [`None`] if `Cargo.toml` cannot be located or read. If `workspace` is true,
 /// this will instead return the workspace `Cargo.toml`.
 fn load_cargo_manifest(compiler_config: &Config, workspace: bool) -> Option<String> {
-    let Input::File(ref input_path) = compiler_config.input else {
-        // A string was passed directly to the compiler, not a file, so we cannot locate the Cargo
-        // project.
-        return None;
-    };
-
-    let manifest_path = crate::utils::cargo::locate_manifest(input_path, workspace).ok()?;
-
-    std::fs::read_to_string(manifest_path).ok()
+    crate::utils::cargo::locate_manifest(&compiler_config.input, workspace)
+        .and_then(std::fs::read_to_string)
+        .ok()
 }
 
 /// Returns the [`Table`] representing `[package.metadata.bevy_lint]` given the string contents of
