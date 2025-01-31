@@ -32,18 +32,6 @@ pub fn load_config(compiler_config: &mut Config) {
     *linter_config = Some(config);
 }
 
-pub fn load_lint_config<'de, T: Deserialize<'de>>(lint_name: &str) -> Option<T> {
-    let linter_config = LINTER_CONFIG.read().unwrap();
-
-    if let Some(ref linter_config) = *linter_config
-        && let Some(lint_config) = linter_config.get(lint_name)
-    {
-        T::deserialize(lint_config.clone()).ok()
-    } else {
-        None
-    }
-}
-
 /// Returns the contents of `Cargo.toml` associated with the crate being compiled.
 ///
 /// This will return [`None`] if `Cargo.toml` cannot be located or read.
