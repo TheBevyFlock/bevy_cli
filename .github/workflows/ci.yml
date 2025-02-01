@@ -35,6 +35,11 @@ jobs:
         with:
           sweep-cache: true
 
+      # The CLI's UI tests depend on Bevy with default features.
+      # This requires extra packages, such as `alsa` and `udev`, to be installed on Linux.
+      - name: Install Linux dependencies for Bevy
+        uses: bevyengine/bevy/.github/actions/install-linux-deps@v0.15.1
+
       - name: Run tests
         run: |
           cargo test --workspace --all-features --all-targets
@@ -54,7 +59,7 @@ jobs:
         uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ needs.extract-rust-version.outputs.channel }}
-          components: '${{ needs.extract-rust-version.outputs.components }}, clippy'
+          components: "${{ needs.extract-rust-version.outputs.components }}, clippy"
 
       - name: Cache build artifacts
         uses: Leafwing-Studios/cargo-cache@v2
@@ -76,7 +81,7 @@ jobs:
         uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ needs.extract-rust-version.outputs.channel }}
-          components: '${{ needs.extract-rust-version.outputs.components }}, rustfmt'
+          components: "${{ needs.extract-rust-version.outputs.components }}, rustfmt"
 
       - name: Run rustfmt
         run: cargo fmt --all --check

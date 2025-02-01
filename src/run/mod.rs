@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use args::RunSubcommands;
 
 use crate::{
-    build::build_web,
+    build::{args::BuildArgs, build_web},
     external_cli::{
         cargo::{self, metadata::Metadata},
         CommandHelpers,
@@ -17,7 +17,26 @@ mod serve;
 
 pub fn run(args: &RunArgs) -> anyhow::Result<()> {
     if let Some(RunSubcommands::Web(web_args)) = &args.subcommand {
-        let mut build_args = args.clone().into();
+        let mut build_args: BuildArgs = args.clone().into();
+
+        // When no target is selected, search for the default-run field and append the binary name
+        // as `--bin` flag to only compile the default run target
+        if build_args.cargo_args.target_args.bin.is_none()
+            && build_args.cargo_args.target_args.example.is_none()
+        {
+            let metadata = cargo::metadata::metadata_with_args(["--no-deps"])?;
+            let bin_target = select_run_binary(
+                &metadata,
+                args.cargo_args.package_args.package.as_deref(),
+                args.cargo_args.target_args.bin.as_deref(),
+                args.cargo_args.target_args.example.as_deref(),
+                build_args.target().as_deref(),
+                build_args.profile(),
+            )?;
+
+            build_args.cargo_args.target_args.bin = Some(bin_target.bin_name);
+        }
+
         let web_bundle = build_web(&mut build_args)?;
 
         let port = web_args.port;
@@ -28,7 +47,7 @@ pub fn run(args: &RunArgs) -> anyhow::Result<()> {
             match webbrowser::open(&url) {
                 Ok(()) => println!("Your app is running at <{url}>!"),
                 Err(error) => {
-                    println!("Failed to open the browser automatically, open the app at <{url}>. (Error: {error:?}")
+                    println!("Failed to open the browser automatically, open the app at <{url}>. (Error: {error:?}");
                 }
             }
         } else {

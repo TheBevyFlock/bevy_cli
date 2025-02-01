@@ -18,7 +18,7 @@ If you need assistance or want to help, reach out to the [`bevy_cli` working gro
 
 At this point, the CLI is not published as a package yet and needs to be installed via git:
 
-```cli
+```sh
 cargo install --git https://github.com/TheBevyFlock/bevy_cli --locked bevy_cli
 ```
 
@@ -32,7 +32,7 @@ Necessary tools will also be installed automatically.
 >
 > The arguments you know from `cargo` (like `--release`) must be placed before the `web` subcommand, while the web-specific options (like `--open`) must be placed afterwards, e.g.
 >
-> ```cli
+> ```sh
 > bevy run --release web --open
 > ```
 
@@ -77,9 +77,56 @@ These prompts will break your pipeline if they are triggered in CI.
 
 To avoid this problem, use the `--yes` flag to automatically confirm the prompts:
 
-```cli
+```sh
 bevy build --yes web
 ```
+
+## Bevy scaffolding
+
+The `bevy new` command lets you easily scaffold a new Bevy project using a custom template or a [minimal template provided by Bevy](https://github.com/TheBevyFlock/bevy_new_minimal).
+Templates are just GitHub repositories and can be specified with the `-t` flag.
+
+### Usage
+
+If the template is omitted, the [default minimal template](https://github.com/TheBevyFlock/bevy_new_minimal) will be chosen.
+
+```sh
+bevy new my-project
+```
+
+To use a specific template, provide the full GitHub URL
+
+```sh
+bevy new my-project -t https://github.com/TheBevyFlock/bevy_new_2d
+```
+
+Additionally, any repo prefixed with `bevy_new_` from the [TheBevyFlock](https://github.com/TheBevyFlock) will be usable via its shortcut form i.e. `-t 2d` will use the template [bevy_new_2d](https://github.com/TheBevyFlock/bevy_new_2d).
+
+```sh
+bevy new my-project -t 2d
+```
+
+## Linter
+
+The CLI has 1st-party support for `bevy_lint`, the static analysis tool that checks over your code (similar to Clippy!). It must be installed first using the [installation guide], but then you can run the linter with the `lint` subcommand:
+
+```sh
+bevy lint
+```
+
+This command uses the same arguments as `cargo check`:
+
+```sh
+bevy lint --workspace --all-features
+```
+
+You can view a full list of supported options with:
+
+```sh
+bevy lint -- --help
+```
+
+[installation guide]: https://thebevyflock.github.io/bevy_cli/bevy_lint/index.html#installation
 
 ## License
 
