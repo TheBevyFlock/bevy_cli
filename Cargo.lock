@@ -653,6 +653,7 @@ dependencies = [
  "clippy_utils",
  "serde",
  "serde_json",
+ "toml",
  "toml_edit",
  "ui_test",
 ]
