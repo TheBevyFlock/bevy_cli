@@ -8,6 +8,11 @@ use toml::{Table, Value};
 
 static LINTER_CONFIG: RwLock<Option<Table>> = RwLock::new(None);
 
+/// Loads the configuration from the crate and workspace-level `Cargo.toml`s.
+///
+/// This is the main entrypoint that sets up configuration. It is responsible for reading
+/// `Cargo.toml`, merging the configuration together, setting the default lint levels based on that
+/// configuration, and storing the config so it can be accessed later on.
 pub fn load_config(compiler_config: &mut Config) {
     let mut linter_config = LINTER_CONFIG.write().unwrap();
 
@@ -15,16 +20,18 @@ pub fn load_config(compiler_config: &mut Config) {
     // in the case we cannot load the configuration.
     *linter_config = None;
 
+    // Configuration is read from `Cargo.toml`. If we're not being called from Cargo, we should
+    // avoid assuming the configuration in `Cargo.toml` is desired by the user.
     if !was_invoked_from_cargo() {
         return;
     }
 
     // Load the linter configuration for both the workspace and crate `Cargo.toml`s.
     let workspace_config = load_cargo_manifest(compiler_config, true)
-        .and_then(|manifest| deserialize_linter_config(manifest, true));
+        .and_then(|manifest| deserialize_linter_config(&manifest, true));
 
     let crate_config = load_cargo_manifest(compiler_config, false)
-        .and_then(|manifest| deserialize_linter_config(manifest, false));
+        .and_then(|manifest| deserialize_linter_config(&manifest, false));
 
     let config = match (workspace_config, crate_config) {
         // If only one of the configs are specified, just use that.
@@ -58,7 +65,7 @@ fn load_cargo_manifest(compiler_config: &Config, workspace: bool) -> Option<Stri
 /// This will return [`None`] if [`toml`] cannot deserialize the `manifest`, or if
 /// `[package.metadata.bevy_lint]` is not specified. If `workspace` is true, this will instead
 /// return the [`Table`] for `[workspace.metadata.bevy_lint]`.
-fn deserialize_linter_config(manifest: String, workspace: bool) -> Option<Table> {
+fn deserialize_linter_config(manifest: &str, workspace: bool) -> Option<Table> {
     /// Represents `Cargo.toml` in the following format:
     ///
     /// ```toml
@@ -85,7 +92,7 @@ fn deserialize_linter_config(manifest: String, workspace: bool) -> Option<Table>
         bevy_lint: Option<Table>,
     }
 
-    toml::from_str::<Manifest>(&manifest)
+    toml::from_str::<Manifest>(manifest)
         .ok()
         .and_then(|manifest| {
             if workspace {
