@@ -1,5 +1,3 @@
-//! This test tracks the bug reported in [#94]. When this starts failing, the bug has been fixed.
-//!
 //! [#94]: https://github.com/TheBevyFlock/bevy_cli/issues/94
 
 //@check-pass
@@ -18,5 +16,9 @@ fn main() {
 
     // These both should error, but currently do not.
     App::init_resource::<Events<Foo>>(&mut app);
+    //~^ ERROR: called `App::init_resource::<&mut app, Events<Foo>>()` instead of
+    //`App::add_event::<Foo>(&mut app)
     App::insert_resource::<Events<Foo>>(&mut app, Default::default());
+    //~^ ERROR: called `App::insert_resource(&mut app, Events<Foo>)` instead of
+    // `App::add_event::<Foo>(&mut app)`
 }

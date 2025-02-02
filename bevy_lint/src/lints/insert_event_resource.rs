@@ -35,12 +35,15 @@
 //! App::new().add_event::<MyEvent>().run();
 //! ```
 
-use crate::{declare_bevy_lint, declare_bevy_lint_pass};
+use crate::{declare_bevy_lint, declare_bevy_lint_pass, utils::hir_parse::MethodCall};
 use clippy_utils::{
-    diagnostics::span_lint_and_sugg, source::snippet_with_applicability, sym, ty::match_type,
+    diagnostics::{span_lint, span_lint_and_sugg},
+    source::snippet_with_applicability,
+    sym,
+    ty::match_type,
 };
 use rustc_errors::Applicability;
-use rustc_hir::{Expr, ExprKind, GenericArg, GenericArgs, Path, PathSegment, QPath};
+use rustc_hir::{Expr, GenericArg, GenericArgs, Path, PathSegment, QPath};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::{Ty, TyKind};
 use rustc_span::{Span, Symbol};
@@ -61,12 +64,19 @@ declare_bevy_lint_pass! {
 }
 
 impl<'tcx> LateLintPass<'tcx> for InsertEventResource {
-    fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &Expr<'tcx>) {
+    fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &'tcx Expr<'tcx>) {
         // Find a method call.
-        if let ExprKind::MethodCall(path, src, args, method_span) = expr.kind {
+        if let Some(MethodCall {
+            span,
+            method_path,
+            args,
+            receiver,
+            is_fully_qulified,
+        }) = MethodCall::try_from(cx, expr)
+        {
             // Get the type for `src` in `src.method()`. We peel all references because the type
             // could either be `App` or `&mut App`.
-            let src_ty = cx.typeck_results().expr_ty(src).peel_refs();
+            let src_ty = cx.typeck_results().expr_ty(receiver).peel_refs();
 
             // If `src` is not a Bevy `App`, exit.
             if !match_type(cx, src_ty, &crate::paths::APP) {
@@ -75,12 +85,12 @@ impl<'tcx> LateLintPass<'tcx> for InsertEventResource {
 
             // If the method is `App::insert_resource()` or `App::init_resource()`, check it with
             // its corresponding function.
-            match path.ident.name {
+            match method_path.ident.name {
                 symbol if symbol == self.insert_resource => {
-                    check_insert_resource(cx, args, method_span)
+                    check_insert_resource(cx, args, span, is_fully_qulified);
                 }
                 symbol if symbol == self.init_resource => {
-                    check_init_resource(cx, path, method_span)
+                    check_init_resource(cx, method_path, span, is_fully_qulified);
                 }
                 _ => {}
             }
@@ -89,7 +99,12 @@ impl<'tcx> LateLintPass<'tcx> for InsertEventResource {
 }
 
 /// Checks if `App::insert_resource()` inserts an `Events<T>`, and emits a diagnostic if so.
-fn check_insert_resource(cx: &LateContext<'_>, args: &[Expr], method_span: Span) {
+fn check_insert_resource(
+    cx: &LateContext<'_>,
+    args: &[Expr],
+    method_span: Span,
+    is_fully_qulified: bool,
+) {
     // Extract the argument if there is only 1 (which there should be!), else exit.
     let [arg] = args else {
         return;
@@ -100,6 +115,16 @@ fn check_insert_resource(cx: &LateContext<'_>, args: &[Expr], method_span: Span)
 
     // If `arg` is `Events<T>`, emit the lint.
     if match_type(cx, ty, &crate::paths::EVENTS) {
+        if is_fully_qulified {
+            // if the method was a fully qualified call just lint
+            span_lint(
+                cx,
+                INSERT_EVENT_RESOURCE.lint,
+                method_span,
+                "called `App::insert_resource(Events<T>)` instead of `App::add_event::<T>()`",
+            );
+            return;
+        }
         let mut applicability = Applicability::MachineApplicable;
 
         let event_ty_snippet = extract_ty_event_snippet(ty, &mut applicability);
@@ -146,7 +171,12 @@ fn extract_ty_event_snippet<'tcx>(
 }
 
 /// Checks if `App::init_resource()` inserts an `Events<T>`, and emits a diagnostic if so.
-fn check_init_resource<'tcx>(cx: &LateContext<'tcx>, path: &PathSegment<'tcx>, method_span: Span) {
+fn check_init_resource<'tcx>(
+    cx: &LateContext<'tcx>,
+    path: &PathSegment<'tcx>,
+    method_span: Span,
+    is_fully_qualified: bool,
+) {
     if let Some(&GenericArgs {
         // `App::init_resource()` has one generic type argument: T.
         args: &[GenericArg::Type(resource_hir_ty)],
@@ -159,11 +189,21 @@ fn check_init_resource<'tcx>(cx: &LateContext<'tcx>, path: &PathSegment<'tcx>, m
 
         // If the resource type is `Events<T>`, emit the lint.
         if match_type(cx, resource_ty, &crate::paths::EVENTS) {
+            // if the method was a fully qualified call just lint
+            if is_fully_qualified {
+                span_lint(
+                    cx,
+                    INSERT_EVENT_RESOURCE.lint,
+                    method_span,
+                    "called `App::init_resource::<Events<T>>()` instead of `App::add_event::<T>()`",
+                );
+                return;
+            }
+
             let mut applicability = Applicability::MachineApplicable;
 
             let event_ty_snippet =
                 extract_hir_event_snippet(cx, resource_hir_ty, &mut applicability);
-
             span_lint_and_sugg(
                 cx,
                 INSERT_EVENT_RESOURCE.lint,

@@ -159,7 +159,7 @@ pub struct MethodCall<'tcx> {
     ///
     /// when emitting a help message in a lint the snippets are constructed differently if the
     /// [`Expr`] was of type [`ExprKind::MethodCall`] than when its a [`ExprKind::Call`].
-    pub is_fully_qullified: bool,
+    pub is_fully_qulified: bool,
 }
 
 impl<'tcx> MethodCall<'tcx> {
@@ -173,7 +173,7 @@ impl<'tcx> MethodCall<'tcx> {
                 receiver,
                 args,
                 span,
-                is_fully_qullified: false,
+                is_fully_qulified: false,
             }),
             ExprKind::Call(
                 // We only want function calls where the function is a path, so we can use
@@ -248,7 +248,7 @@ impl<'tcx> MethodCall<'tcx> {
                             receiver,
                             args,
                             span: expr.span,
-                            is_fully_qullified: true,
+                            is_fully_qulified: true,
                         });
                     }
                 }

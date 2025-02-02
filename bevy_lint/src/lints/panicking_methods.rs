@@ -111,7 +111,7 @@ impl<'tcx> LateLintPass<'tcx> for PanickingMethods {
             method_path,
             args,
             receiver,
-            is_fully_qullified,
+            is_fully_qulified,
         }) = MethodCall::try_from(cx, expr)
         {
             // get the `Ty` of the receiver, this can either be:
@@ -160,7 +160,7 @@ impl<'tcx> LateLintPass<'tcx> for PanickingMethods {
 
             // By this point, we've verified that `src` is a panicking type and the method is
             // one that panics with a viable alternative. Let's emit the lint.
-            let (src_snippet, generics_snippet, args_snippet) = if is_fully_qullified {
+            let (src_snippet, generics_snippet, args_snippet) = if is_fully_qulified {
                 // When the method was a fully qualified method call, the beginning of the snippet
                 // is just the `PanickingType`.
                 let mut src_snippet = panicking_type.name().to_string();
