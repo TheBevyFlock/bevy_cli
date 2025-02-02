@@ -46,7 +46,7 @@ jobs:
           # cargo-cache doesn't support `working-directory` yet, we have to do it manually
           # See https://github.com/Leafwing-Studios/cargo-cache/issues/44
           cargo-target-dir: ./tests/bevy_cli_test/target
-          manifest-path: ./tests/bevy_cli_tests/Cargo.toml
+          manifest-path: ./tests/bevy_cli_test/Cargo.toml
 
       # The CLI's UI tests depend on Bevy with default features.
       # This requires extra packages, such as `alsa` and `udev`, to be installed on Linux.
