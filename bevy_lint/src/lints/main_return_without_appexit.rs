@@ -30,7 +30,7 @@
 //! }
 //! ```
 
-use crate::{declare_bevy_lint, declare_bevy_lint_pass};
+use crate::{declare_bevy_lint, declare_bevy_lint_pass, utils::hir_parse::MethodCall};
 use clippy_utils::{
     diagnostics::span_lint_hir_and_then, is_entrypoint_fn, sym, ty::match_type,
     visitors::for_each_expr,
@@ -82,12 +82,17 @@ impl<'tcx> LateLintPass<'tcx> for MainReturnWithoutAppExit {
             // `App::run()` calls.
             for_each_expr(cx, body, |expr| {
                 // Find a method call that matches `.run()`.
-                if let ExprKind::MethodCall(path, src, _, method_span) = expr.kind
-                    && path.ident.name == self.run
+                if let Some(MethodCall {
+                    span,
+                    method_path,
+                    receiver,
+                    ..
+                }) = MethodCall::try_from(cx, expr)
+                    && method_path.ident.name == self.run
                 {
                     // Get the type of `src` for `src.run()`. We peel away all references because
                     // both `App` and `&mut App` are allowed.
-                    let ty = cx.typeck_results().expr_ty(src).peel_refs();
+                    let ty = cx.typeck_results().expr_ty(receiver).peel_refs();
 
                     // If `src` is a Bevy `App`, emit the lint.
                     if match_type(cx, ty, &crate::paths::APP) {
@@ -95,7 +100,7 @@ impl<'tcx> LateLintPass<'tcx> for MainReturnWithoutAppExit {
                             cx,
                             MAIN_RETURN_WITHOUT_APPEXIT.lint,
                             expr.hir_id,
-                            method_span,
+                            span,
                             MAIN_RETURN_WITHOUT_APPEXIT.lint.desc,
                             |diag| {
                                 diag.note("`App::run()` returns `AppExit`, which can be used to determine whether the app exited successfully or not");
