@@ -1,7 +1,5 @@
 //! [#94]: https://github.com/TheBevyFlock/bevy_cli/issues/94
 
-//@check-pass
-
 #![feature(register_tool)]
 #![register_tool(bevy)]
 #![deny(bevy::insert_event_resource)]

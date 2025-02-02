@@ -9,16 +9,17 @@ struct Foo;
 
 fn main() {
     App::new().add_event::<Foo>();
-    //~^ ERROR: called `App::init_resource::<Events<T>>()` instead of `App::add_event::<T>()`
+    //~^ ERROR: App::init_resource::<Events<T>>()` instead of `App::add_event::<T>()`
 
     App::new().add_event::<Foo>();
-    //~^ ERROR: called `App::insert_resource(Events<T>)` instead of `App::add_event::<T>()`
-
+    //~^ ERROR: called `App::insert_resource::<Events<Foo>>(Default::default())` instead of
+    // `App::add_event::<Default::default()>()`
     // Make sure the correct type is detected, even when not explicitly passed to
     // `insert_resource()`.
     let implied_event: Events<Foo> = Default::default();
     App::new().add_event::<Foo>();
-    //~^ ERROR: called `App::insert_resource(Events<T>)` instead of `App::add_event::<T>()`
+    //~^ ERROR: called `App::insert_resource(implied_event)` instead of
+    // `App::add_event::<implied_event>()`
 
     // Ensure the lint can be muted by annotating the expression.
     #[allow(bevy::insert_event_resource)]

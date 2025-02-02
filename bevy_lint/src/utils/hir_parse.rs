@@ -47,6 +47,37 @@ pub fn generic_at<'hir>(hir_ty: &'hir Ty<'hir>, index: usize) -> Option<&'hir Ge
     path.segments.last()?.args().args.get(index)
 }
 
+/// Returns the [`Span`] of an array of method arguments.
+///
+/// [`ExprKind::MethodCall`] does not provide a good method for extracting the [`Span`] of _just_
+/// the method's arguments. Instead, it contains a [`slice`] of [`Expr`]. This function tries it's
+/// best to find a span that contains all arguments from the passed [`slice`].
+///
+/// This function assumes that `args` is sorted by order of appearance. An [`Expr`] that appears
+/// earlier in the source code should appear earlier in the [`slice`].
+///
+/// If there are no [`Expr`]s in the [`slice`], this will return [`Span::default()`].
+pub fn span_args(args: &[Expr]) -> Span {
+    // Start with an empty span. If `args` is empty, this will be returned. This may look like
+    // `0..0`.
+    let mut span = Span::default();
+
+    // If at least 1 item exists in `args`, get the first expression and overwrite `span` with it's
+    // value. `span` may look like `7..12` now, with a bit of extra metadata.
+    if let Some(first_arg) = args.first() {
+        span = first_arg.span;
+    }
+
+    // Get the last `Expr`, if it exists, and overwrite our span's highest index with the last
+    // expression's highest index. If there is only one item in `args`, this will appear to do
+    // nothing. `span` may now look like `7..20`.
+    if let Some(last_arg) = args.last() {
+        span = span.with_hi(last_arg.span.hi());
+    }
+
+    span
+}
+
 /// An abstraction over method calls that supports both `receiver.method(args)` and
 /// `Struct::method(&receiver, args)`.
 ///
