@@ -1,0 +1,29 @@
+error: called `App::init_resource::<Events<Foo>>(&mut app)` instead of `App::add_event::<Foo>(&mut app)`
+  --> tests/ui/insert_event_resource/bug_94.rs:16:5
+   |
+16 |     App::init_resource::<Events<Foo>>(&mut app);
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: the lint level is defined here
+  --> tests/ui/insert_event_resource/bug_94.rs:5:9
+   |
+5  | #![deny(bevy::insert_event_resource)]
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+help: inserting an `Events` resource does not fully setup that event
+   |
+16 |     App::add_event::<Foo>(&mut app);
+   |     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+error: called `App::insert_resource::<Events<Foo>>(Default::default())` instead of `App::add_event::<Foo>(&mut app)`
+  --> tests/ui/insert_event_resource/bug_94.rs:19:5
+   |
+19 |     App::insert_resource::<Events<Foo>>(&mut app, Default::default());
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: inserting an `Events` resource does not fully setup that event
+   |
+19 |     App::add_event::<Foo>(&mut app);
+   |     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+error: aborting due to 2 previous errors
+

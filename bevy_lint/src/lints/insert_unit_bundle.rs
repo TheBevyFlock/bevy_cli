@@ -64,7 +64,7 @@ use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::{Ty, TyKind};
 use rustc_span::Symbol;
 
-use crate::{declare_bevy_lint, declare_bevy_lint_pass};
+use crate::{declare_bevy_lint, declare_bevy_lint_pass, utils::hir_parse::MethodCall};
 
 declare_bevy_lint! {
     pub INSERT_UNIT_BUNDLE,
@@ -82,14 +82,23 @@ declare_bevy_lint_pass! {
 impl<'tcx> LateLintPass<'tcx> for InsertUnitBundle {
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &'tcx Expr<'tcx>) {
         // Find a method call.
-        let ExprKind::MethodCall(path, src, args, method_span) = expr.kind else {
+        let Some(MethodCall {
+            span,
+            method_path,
+            args,
+            receiver,
+            ..
+        }) = MethodCall::try_from(cx, expr)
+        else {
             return;
         };
 
-        let src_ty = cx.typeck_results().expr_ty(src).peel_refs();
+        let src_ty = cx.typeck_results().expr_ty(receiver).peel_refs();
 
         // If the method call was not to `Commands::spawn()` we skip it.
-        if !(match_type(cx, src_ty, &crate::paths::COMMANDS) && path.ident.name == self.spawn) {
+        if !(match_type(cx, src_ty, &crate::paths::COMMANDS)
+            && method_path.ident.name == self.spawn)
+        {
             return;
         }
 
@@ -112,7 +121,7 @@ impl<'tcx> LateLintPass<'tcx> for InsertUnitBundle {
                 |diag| {
                     diag.note("unit `()` types are skipped instead of spawned")
                         .span_suggestion(
-                            method_span,
+                            span,
                             "try",
                             "spawn_empty()",
                             Applicability::MachineApplicable,
