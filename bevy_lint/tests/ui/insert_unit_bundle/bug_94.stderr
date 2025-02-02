@@ -1,0 +1,31 @@
+error: inserted a `Bundle` containing a unit `()` type
+  --> tests/ui/insert_unit_bundle/bug_94.rs:20:13
+   |
+20 |             Transform::from_translation(Vec3::new(0.75, 0.0, 0.0)).rotate_z(PI / 4.0),
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: unit `()` types are skipped instead of spawned
+note: the lint level is defined here
+  --> tests/ui/insert_unit_bundle/bug_94.rs:5:9
+   |
+5  | #![deny(bevy::insert_unit_bundle)]
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: inserted a `Bundle` containing a unit `()` type
+  --> tests/ui/insert_unit_bundle/bug_94.rs:23:17
+   |
+23 |                 no_op(),
+   |                 ^^^^^^^
+   |
+   = note: unit `()` types are skipped instead of spawned
+
+error: inserted a `Bundle` containing a unit `()` type
+  --> tests/ui/insert_unit_bundle/bug_94.rs:27:21
+   |
+27 |                     (),
+   |                     ^^
+   |
+   = note: unit `()` types are skipped instead of spawned
+
+error: aborting due to 3 previous errors
+
