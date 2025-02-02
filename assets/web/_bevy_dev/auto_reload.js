@@ -3,28 +3,36 @@
 (function () {
   const url = 'ws://' + window.location.host + '/_bevy_dev/websocket';
   const pollIntervalMs = 5_000;
+  /** @type WebSocket | undefined */
   let webSocket;
 
-  const reload_upon_connect = () => {
-    console.warn("Lost connection to the dev websocket");
+  let isFirstLoad = true;
+  let isConnected = false;
 
-    window.setTimeout(
-      () => {
-        // Reload when reconnecting to the websocket, e.g. because the server has been restarted
-        webSocket = new WebSocket(url);
-        webSocket.onopen = () => {
-          console.info("Reconnected to dev websocket");
+  function onOpen() {
+    if (isFirstLoad) {
+      console.info("Connected to dev websocket");
+    } else {
+      console.info("Reconnected to dev websocket");
+      window.location.reload()
+    }
 
-          window.location.reload()
-        };
-        webSocket.onclose = reload_upon_connect;
+    isFirstLoad = false;
+    isConnected = true;
+  }
 
-      },
-      pollIntervalMs);
-  };
+  function onClose() {
+    if (isConnected) {
+      console.warn("Lost connection to the dev server");
+    }
 
-  webSocket = new WebSocket(url);
-  webSocket.onmessage = (ev) => {
+    isConnected = false;
+
+    // Periodically try to reconnect to the server
+    window.setTimeout(recreateWebsocket, pollIntervalMs);
+  }
+
+  function onMessage(ev) {
     try {
       const msg = JSON.parse(ev.data);
 
@@ -37,9 +45,21 @@
     } catch (error) {
       console.warn("Failed to parse websocket message", error);
     }
-  };
+  }
 
-  webSocket.onopen = () => console.info("Connected to dev websocket");
-  webSocket.onclose = reload_upon_connect;
-  webSocket.readyState
+  function recreateWebsocket() {
+    if (webSocket) {
+      webSocket.removeEventListener("open", onOpen);
+      webSocket.removeEventListener("close", onClose);
+      webSocket.removeEventListener("message", onMessage);
+    }
+
+    webSocket = new WebSocket(url);
+    webSocket.addEventListener("open", onOpen);
+    webSocket.addEventListener("close", onClose);
+    webSocket.addEventListener("message", onMessage);
+  }
+
+  // Initial connection
+  recreateWebsocket();
 })()
