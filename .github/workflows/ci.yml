@@ -35,6 +35,19 @@ jobs:
         with:
           sweep-cache: true
 
+      # We have a separate workspace where we execute the CLI in the E2E tests
+      # It has it's own `target` folder, hence we need to cache it separately
+      - name: Cache test workspace
+        uses: Leafwing-Studios/cargo-cache@v2
+        with:
+          sweep-cache: true
+          # The cache-group needs to be different to not collide with the cache for the test executing itself
+          cache-group: "test_workspace-${{ hashFiles(env.workflow_path) }}-${{ github.job }}-${{ strategy.job-index }}"
+          # cargo-cache doesn't support `working-directory` yet, we have to do it manually
+          # See https://github.com/Leafwing-Studios/cargo-cache/issues/44
+          cargo-target-dir: ./tests/bevy_cli_test/target
+          manifest-path: ./tests/bevy_cli_tests/Cargo.toml
+
       # The CLI's UI tests depend on Bevy with default features.
       # This requires extra packages, such as `alsa` and `udev`, to be installed on Linux.
       - name: Install Linux dependencies for Bevy
