@@ -13,10 +13,10 @@ fn main() {
     let mut app = App::new();
 
     // These both should error, but currently do not.
-    App::init_resource::<Events<Foo>>(&mut app);
+    App::add_event::<Foo>(&mut app);
     //~^ ERROR: called `App::init_resource::<Events<Foo>>(&mut app)` instead of
     // `App::add_event::<Foo>(&mut app)`
-    App::insert_resource::<Events<Foo>>(&mut app, Default::default());
+    App::add_event::<Foo>(&mut app);
     //~^ ERROR: called `App::insert_resource::<Events<Foo>>(Default::default())` instead of
     // `App::add_event::<Foo>(&mut app)`
 }

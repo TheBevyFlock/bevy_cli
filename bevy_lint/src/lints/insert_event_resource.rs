@@ -104,7 +104,7 @@ fn check_insert_resource(cx: &LateContext<'_>, method_call: &MethodCall) {
         return;
     };
 
-    // Find the type of `arg` in `App::insert_resource(arg)`.
+    // Find the type of `arg` in `App::insert_resource(&mut self, arg)`.
     let ty = cx.typeck_results().expr_ty(arg);
 
     // If `arg` is `Events<T>`, emit the lint.
@@ -124,24 +124,24 @@ fn check_insert_resource(cx: &LateContext<'_>, method_call: &MethodCall) {
         if method_call.is_fully_qulified {
             let receiver_snippet = snippet(cx, method_call.receiver.span, "");
             span_lint_and_sugg(
-            cx,
-            INSERT_EVENT_RESOURCE.lint,
-            method_call.span,
-            format!("called `App::insert_resource{generics_snippet}({args_snippet})` instead of `App::add_event::<{args_snippet}>({receiver_snippet})`"),
-            "inserting an `Events` resource does not fully setup that event",
-            format!("App::add_event::<{event_ty_snippet}>({receiver_snippet})"),
-            applicability,
-        );
+                cx,
+                INSERT_EVENT_RESOURCE.lint,
+                method_call.span,
+                format!("called `App::insert_resource{generics_snippet}({args_snippet})` instead of `App::add_event::<{event_ty_snippet}>({receiver_snippet})`"),
+                "inserting an `Events` resource does not fully setup that event",
+                format!("App::add_event::<{event_ty_snippet}>({receiver_snippet})"),
+                applicability,
+            );
         } else {
             span_lint_and_sugg(
-            cx,
-            INSERT_EVENT_RESOURCE.lint,
-            method_call.span,
-            format!("called `App::insert_resource{generics_snippet}({args_snippet})` instead of `App::add_event::<{args_snippet}>()`"),
-            "inserting an `Events` resource does not fully setup that event",
-            format!("add_event::<{event_ty_snippet}>()"),
-            applicability,
-        );
+                cx,
+                INSERT_EVENT_RESOURCE.lint,
+                method_call.span,
+                format!("called `App::insert_resource{generics_snippet}({args_snippet})` instead of `App::add_event::<{event_ty_snippet}>()`"),
+                "inserting an `Events` resource does not fully setup that event",
+                format!("add_event::<{event_ty_snippet}>()"),
+                applicability,
+            );
         }
     }
 }
@@ -193,15 +193,38 @@ fn check_init_resource<'tcx>(cx: &LateContext<'tcx>, method_call: &MethodCall<'t
 
             let event_ty_snippet =
                 extract_hir_event_snippet(cx, resource_hir_ty, &mut applicability);
-            span_lint_and_sugg(
-                cx,
-                INSERT_EVENT_RESOURCE.lint,
-                method_call.span,
-                "called `App::init_resource::<Events<T>>()` instead of `App::add_event::<T>()`",
-                "inserting an `Events` resource does not fully setup that event",
-                format!("add_event::<{event_ty_snippet}>()"),
-                applicability,
-            );
+
+            let args_snippet = snippet(cx, span_args(method_call.args), "");
+            let generics_snippet = method_call
+                .method_path
+                .args
+                .and_then(GenericArgs::span_ext) // Find the span of the generics.
+                .and_then(|span| snippet_opt(cx, span)) // Extract the string, which may look like `<A, B>`.
+                .map(|snippet| format!("::{snippet}")) // Insert `::` before the string.
+                .unwrap_or_default(); // If any of the previous failed, return an empty string.
+
+            if method_call.is_fully_qulified {
+                let receiver_snippet = snippet(cx, method_call.receiver.span, "");
+                span_lint_and_sugg(
+                    cx,
+                    INSERT_EVENT_RESOURCE.lint,
+                    method_call.span,
+                    format!("called `App::init_resource{generics_snippet}({receiver_snippet})` instead of `App::add_event::<{event_ty_snippet}>({receiver_snippet})`"),
+                    "inserting an `Events` resource does not fully setup that event",
+                    format!("App::add_event::<{event_ty_snippet}>({receiver_snippet})"),
+                    applicability,
+                );
+            } else {
+                span_lint_and_sugg(
+                    cx,
+                    INSERT_EVENT_RESOURCE.lint,
+                    method_call.span,
+                    format!("called `App::init_resource{generics_snippet}({args_snippet})` instead of `App::add_event::<{event_ty_snippet}>()`"),
+                    "inserting an `Events` resource does not fully setup that event",
+                    format!("add_event::<{event_ty_snippet}>()"),
+                    applicability,
+                );
+            }
         }
     }
 }

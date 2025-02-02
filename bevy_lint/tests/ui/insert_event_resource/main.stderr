@@ -1,4 +1,4 @@
-error: called `App::init_resource::<Events<T>>()` instead of `App::add_event::<T>()`
+error: called `App::init_resource::<Events<Foo>>()` instead of `App::add_event::<Foo>()`
   --> tests/ui/insert_event_resource/main.rs:11:16
    |
 11 |     App::new().init_resource::<Events<Foo>>();
@@ -14,7 +14,7 @@ help: inserting an `Events` resource does not fully setup that event
 11 |     App::new().add_event::<Foo>();
    |                ~~~~~~~~~~~~~~~~~~
 
-error: called `App::insert_resource::<Events<Foo>>(Default::default())` instead of `App::add_event::<Default::default()>()`
+error: called `App::insert_resource::<Events<Foo>>(Default::default())` instead of `App::add_event::<Foo>()`
   --> tests/ui/insert_event_resource/main.rs:14:16
    |
 14 |     App::new().insert_resource::<Events<Foo>>(Default::default());
@@ -25,15 +25,15 @@ help: inserting an `Events` resource does not fully setup that event
 14 |     App::new().add_event::<Foo>();
    |                ~~~~~~~~~~~~~~~~~~
 
-error: called `App::insert_resource(implied_event)` instead of `App::add_event::<implied_event>()`
-  --> tests/ui/insert_event_resource/main.rs:20:16
+error: called `App::insert_resource(implied_event)` instead of `App::add_event::<Foo>()`
+  --> tests/ui/insert_event_resource/main.rs:21:16
    |
-20 |     App::new().insert_resource(implied_event);
+21 |     App::new().insert_resource(implied_event);
    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
 help: inserting an `Events` resource does not fully setup that event
    |
-20 |     App::new().add_event::<Foo>();
+21 |     App::new().add_event::<Foo>();
    |                ~~~~~~~~~~~~~~~~~~
 
 error: aborting due to 3 previous errors
