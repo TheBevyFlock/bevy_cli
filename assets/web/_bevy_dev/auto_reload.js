@@ -1,8 +1,12 @@
 // Automatically reload when the server restarts
 // Adopted from <https://github.com/trunk-rs/trunk/pull/231>
 (function () {
-  const url = 'ws://' + window.location.host + '/_bevy_dev/websocket';
-  const pollIntervalMs = 5_000;
+  const baseUrl = window.location.host + '/_bevy_dev/websocket';
+  const websocketUrl = 'ws://' + baseUrl;
+  const httpUrl = 'http://' + baseUrl;
+
+  const pollIntervalMs = 3_000;
+
   /** @type WebSocket | undefined */
   let webSocket;
 
@@ -47,17 +51,34 @@
     }
   }
 
-  function recreateWebsocket() {
+  async function recreateWebsocket() {
     if (webSocket) {
+      // Clean up old websocket
       webSocket.removeEventListener("open", onOpen);
       webSocket.removeEventListener("close", onClose);
       webSocket.removeEventListener("message", onMessage);
+      webSocket = undefined;
     }
 
-    webSocket = new WebSocket(url);
-    webSocket.addEventListener("open", onOpen);
-    webSocket.addEventListener("close", onClose);
-    webSocket.addEventListener("message", onMessage);
+    // Trying to connect to a websocket when the server is offline
+    // generates error message by the browser which we can't easily suppress.
+    // Instead, we first try to ping the URL with HTTP so we can ignore the errors
+    try {
+      await fetch(httpUrl, {
+        method: "PING",
+      });
+
+      webSocket = new WebSocket(websocketUrl);
+      webSocket.addEventListener("open", onOpen);
+      webSocket.addEventListener("close", onClose);
+      webSocket.addEventListener("message", onMessage);
+    } catch (error) {
+      // The server is offline, retry after a small delay
+      setTimeout(async () => {
+        recreateWebsocket();
+      }, pollIntervalMs);
+
+    }
   }
 
   // Initial connection
