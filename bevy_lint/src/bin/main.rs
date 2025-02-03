@@ -10,7 +10,9 @@ const RUST_TOOLCHAIN_CHANNEL: &str = env!("RUST_TOOLCHAIN_CHANNEL");
 
 fn main() -> anyhow::Result<ExitCode> {
     // If any of the arguments contains `--version`, print the version and exit.
-    if std::env::args().skip(1).any(|arg| arg == "--version") {
+    if std::env::args()
+        .skip(1)
+        .any(|arg| arg == "--version" || arg == "-V"){
         show_version();
         return Ok(ExitCode::SUCCESS);
     }
