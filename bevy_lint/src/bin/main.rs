@@ -1,36 +1,29 @@
 use anyhow::{anyhow, ensure, Context};
 use std::{
     env,
+    path::PathBuf,
     process::{Command, ExitCode},
 };
 
-// This is set by `build.rs`. It is the version specified in `rust-toolchain.toml`.
+/// The Rustup toolchain channel specified by `rust-toolchain.toml`. This is set by `build.rs`.
 const RUST_TOOLCHAIN_CHANNEL: &str = env!("RUST_TOOLCHAIN_CHANNEL");
 
 fn main() -> anyhow::Result<ExitCode> {
-    // The `bevy_lint` lives in the same folder as `bevy_lint_driver`, so we can easily find it
-    // using the path of the current executable.
-    let mut driver_path = env::current_exe()
-        .context("Failed to retrieve the path to the current executable.")?
-        .parent()
-        .ok_or(anyhow!("Path to file must have a parent."))?
-        .join("bevy_lint_driver");
+    // If any of the arguments contains `--version`, print the version and exit.
+    if std::env::args()
+        .skip(1)
+        .any(|arg| arg == "--version" || arg == "-V")
+    {
+        show_version();
+        return Ok(ExitCode::SUCCESS);
+    }
 
-    #[cfg(target_os = "windows")]
-    driver_path.set_extension("exe");
-
-    ensure!(
-        driver_path.exists(),
-        "Could not find `bevy_lint_driver` at {driver_path:?}, please ensure it is installed!",
-    );
-
-    // Convert the local path to the absolute path. We don't want `rustc` getting
-    // confused! `canonicalize()` requires for the path to exist, so we do it after the nice error
-    // message.
-    driver_path = driver_path.canonicalize()?;
+    // Find the path to `bevy_lint_driver`.
+    let driver_path = driver_path()?;
 
     // Run `cargo check`.
     let status = Command::new("cargo")
+        // Assuming that Rustup is installed, we can specify which toolchain to use with this.
         .arg(format!("+{RUST_TOOLCHAIN_CHANNEL}"))
         .arg("check")
         // Forward all arguments to `cargo check` except for the first, which is the path to the
@@ -43,10 +36,13 @@ fn main() -> anyhow::Result<ExitCode> {
         // `RUSTFLAGS` is already set, we append `--cfg bevy_lint` to the end.
         .env(
             "RUSTFLAGS",
-            env::var("RUSTFLAGS").map_or("--cfg bevy_lint".to_string(), |mut flags| {
-                flags.push_str(" --cfg bevy_lint");
-                flags
-            }),
+            env::var("RUSTFLAGS").map_or_else(
+                |_| "--cfg bevy_lint".to_string(),
+                |mut flags| {
+                    flags.push_str(" --cfg bevy_lint");
+                    flags
+                },
+            ),
         )
         .status()
         .context("Failed to spawn `cargo check`.")?;
@@ -66,4 +62,44 @@ fn main() -> anyhow::Result<ExitCode> {
 
     // Return `cargo`'s exit code.
     Ok(ExitCode::from(code))
+}
+
+/// Prints `bevy_lint`'s name and version (as specified in `Cargo.toml`) to stdout.
+fn show_version() {
+    const NAME: &str = env!("CARGO_PKG_NAME");
+    const VERSION: &str = env!("CARGO_PKG_VERSION");
+
+    println!("{NAME} {VERSION}");
+}
+
+/// Returns the path to `bevy_lint_driver`.
+///
+/// This function assumes that `bevy_lint` and `bevy_lint_driver` are installed into the same
+/// folder, and will error if this is not the case. This function does not search the `PATH`.
+///
+/// # Errors
+///
+/// This may error if the current executable cannot be found or `bevy_lint_driver` does not exist.
+fn driver_path() -> anyhow::Result<PathBuf> {
+    // The `bevy_lint` lives in the same folder as `bevy_lint_driver`, so we can easily find it
+    // using the path of the current executable.
+    let driver_path = env::current_exe()
+        .context("Failed to retrieve the path to the current executable.")?
+        .parent()
+        .ok_or(anyhow!("Path to file must have a parent."))?
+        .join("bevy_lint_driver");
+
+    #[cfg(target_os = "windows")]
+    driver_path.set_extension("exe");
+
+    ensure!(
+        driver_path.exists(),
+        "Could not find `bevy_lint_driver` at {}, please ensure it is installed!",
+        driver_path.display(),
+    );
+
+    // Convert the local path to the absolute path. We don't want `rustc` getting
+    // confused! `canonicalize()` requires for the path to exist, so we do it after the nice error
+    // message.
+    driver_path.canonicalize().map_err(anyhow::Error::from)
 }
