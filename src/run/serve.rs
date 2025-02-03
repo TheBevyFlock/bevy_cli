@@ -27,8 +27,8 @@ async fn serve_static_js(content: &'static str) -> impl Responder {
         .body(content)
 }
 
-/// Reply with the same message
-async fn echo(req: HttpRequest, stream: web::Payload) -> Result<HttpResponse, Error> {
+/// Handle the websocket connection to the client in dev mode.
+async fn dev_websocket(req: HttpRequest, stream: web::Payload) -> Result<HttpResponse, Error> {
     let (res, mut session, stream) = actix_ws::handle(&req, stream)?;
 
     let mut stream = stream
@@ -36,27 +36,12 @@ async fn echo(req: HttpRequest, stream: web::Payload) -> Result<HttpResponse, Er
         // aggregate continuation frames up to 1MiB
         .max_continuation_size(2_usize.pow(20));
 
-    // start task but don't wait for it
     rt::spawn(async move {
         // receive messages from websocket
         while let Some(msg) = stream.next().await {
-            match msg {
-                Ok(AggregatedMessage::Text(text)) => {
-                    // echo text message
-                    session.text(text).await.unwrap();
-                }
-
-                Ok(AggregatedMessage::Binary(bin)) => {
-                    // echo binary message
-                    session.binary(bin).await.unwrap();
-                }
-
-                Ok(AggregatedMessage::Ping(msg)) => {
-                    // respond to PING frame with PONG frame
-                    session.pong(&msg).await.unwrap();
-                }
-
-                _ => {}
+            if let Ok(AggregatedMessage::Text(text)) = msg {
+                // echo text message
+                session.text(text).await.unwrap();
             }
         }
     });
@@ -107,7 +92,7 @@ pub(crate) fn serve(web_bundle: WebBundle, port: u16) -> anyhow::Result<()> {
                         )
                         // Open a websocket for automatic reloading
                         // For now, just echo the messages back
-                        .route("/_bevy_dev/websocket", web::get().to(echo));
+                        .route("/_bevy_dev/websocket", web::get().to(dev_websocket));
 
                     // If the app has an assets folder, serve it under `/assets`
                     if let Some(assets_path) = assets_path {
