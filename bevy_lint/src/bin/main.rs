@@ -8,6 +8,12 @@ use std::{
 const RUST_TOOLCHAIN_CHANNEL: &str = env!("RUST_TOOLCHAIN_CHANNEL");
 
 fn main() -> anyhow::Result<ExitCode> {
+    // If any of the arguments contains `--version`, print the version and exit.
+    if std::env::args().skip(1).any(|arg| arg == "--version") {
+        show_version();
+        return Ok(ExitCode::SUCCESS);
+    }
+
     // The `bevy_lint` lives in the same folder as `bevy_lint_driver`, so we can easily find it
     // using the path of the current executable.
     let mut driver_path = env::current_exe()
@@ -66,4 +72,12 @@ fn main() -> anyhow::Result<ExitCode> {
 
     // Return `cargo`'s exit code.
     Ok(ExitCode::from(code))
+}
+
+/// Prints `bevy_lint`'s name and version (as specified in `Cargo.toml`) to stdout.
+fn show_version() {
+    const NAME: &str = env!("CARGO_PKG_NAME");
+    const VERSION: &str = env!("CARGO_PKG_VERSION");
+
+    println!("{NAME} {VERSION}");
 }
