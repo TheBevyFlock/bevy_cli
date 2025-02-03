@@ -5,7 +5,7 @@
   const websocketUrl = 'ws://' + baseUrl;
   const httpUrl = 'http://' + baseUrl;
 
-  const pollIntervalMs = 3_000;
+  const pollIntervalMs = 5_000;
 
   /** @type WebSocket | undefined */
   let webSocket;
@@ -60,25 +60,11 @@
       webSocket = undefined;
     }
 
-    // Trying to connect to a websocket when the server is offline
-    // generates error message by the browser which we can't easily suppress.
-    // Instead, we first try to ping the URL with HTTP so we can ignore the errors
-    try {
-      await fetch(httpUrl, {
-        method: "PING",
-      });
-
-      webSocket = new WebSocket(websocketUrl);
-      webSocket.addEventListener("open", onOpen);
-      webSocket.addEventListener("close", onClose);
-      webSocket.addEventListener("message", onMessage);
-    } catch (error) {
-      // The server is offline, retry after a small delay
-      setTimeout(async () => {
-        recreateWebsocket();
-      }, pollIntervalMs);
-
-    }
+    // Retry the connection
+    webSocket = new WebSocket(websocketUrl);
+    webSocket.addEventListener("open", onOpen);
+    webSocket.addEventListener("close", onClose);
+    webSocket.addEventListener("message", onMessage);
   }
 
   // Initial connection
