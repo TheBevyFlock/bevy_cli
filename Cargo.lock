@@ -209,6 +209,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "actix-ws"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a3a1fb4f9f2794b0aadaf2ba5f14a6f034c7e86957b458c506a8cb75953f2d99"
+dependencies = [
+ "actix-codec",
+ "actix-http",
+ "actix-web",
+ "bytestring",
+ "futures-core",
+ "tokio",
+]
+
+[[package]]
 name = "addr2line"
 version = "0.21.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -498,6 +512,7 @@ version = "0.1.0-dev"
 dependencies = [
  "actix-files",
  "actix-web",
+ "actix-ws",
  "anyhow",
  "assert_cmd",
  "cargo-generate",
@@ -505,6 +520,7 @@ dependencies = [
  "clap",
  "dialoguer",
  "fs_extra",
+ "futures-util",
  "regex",
  "reqwest",
  "semver",
@@ -1788,6 +1804,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "futures-macro"
+version = "0.3.31"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "162ee34ebcb7c64a8abebc059ce0fee27c2262618d7b60ed8faf72fef13c3650"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.95",
+]
+
+[[package]]
 name = "futures-sink"
 version = "0.3.31"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1808,6 +1835,7 @@ dependencies = [
  "futures-channel",
  "futures-core",
  "futures-io",
+ "futures-macro",
  "futures-sink",
  "futures-task",
  "memchr",
