@@ -28,6 +28,27 @@ fn my_system(mut commands: Commands) {
             },
         ),
     ));
+    Commands::spawn(
+        &mut commands,
+        (
+            Name::new("Decal"),
+            Transform::from_translation(Vec3::new(0.75, 0.0, 0.0)).rotate_z(PI / 4.0),
+            //~^ ERROR: inserted a `Bundle` containing a unit `()` type
+            (
+                no_op(),
+                //~^ ERROR: inserted a `Bundle` containing a unit `()` type
+                GlobalTransform::IDENTITY,
+                (
+                    (),
+                    //~^ ERROR: inserted a `Bundle` containing a unit `()` type
+                ),
+                {
+                    no_op();
+                    Transform::default()
+                },
+            ),
+        ),
+    );
 }
 
 fn no_op() {}
