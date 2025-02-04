@@ -21,8 +21,8 @@ fn main() {
     // `App::add_event::<Foo>()`
 
     App::insert_resource::<Events<Foo>>(&mut app, Default::default());
-    //~^ ERROR: called `App::insert_resource::<Events<Foo>>(Default::default())` instead of
-    // `App::add_event::<Foo>(&mut app)`
+    //~^ ERROR: called `App::insert_resource::<Events<Foo>>(&mut app, Default::default())` instead
+    // of `App::add_event::<Foo>(&mut app)`
 
     // Make sure the correct type is detected, even when not explicitly passed to
     // `insert_resource()`.

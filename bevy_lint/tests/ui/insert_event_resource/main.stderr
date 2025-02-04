@@ -36,7 +36,7 @@ help: inserting an `Events` resource does not fully setup that event
 19 |     App::new().add_event::<Foo>();
    |                ~~~~~~~~~~~~~~~~~~
 
-error: called `App::insert_resource::<Events<Foo>>(Default::default())` instead of `App::add_event::<Foo>(&mut app)`
+error: called `App::insert_resource::<Events<Foo>>(&mut app, Default::default())` instead of `App::add_event::<Foo>(&mut app)`
   --> tests/ui/insert_event_resource/main.rs:23:5
    |
 23 |     App::insert_resource::<Events<Foo>>(&mut app, Default::default());

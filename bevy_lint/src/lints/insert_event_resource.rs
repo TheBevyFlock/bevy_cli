@@ -121,7 +121,7 @@ fn check_insert_resource(cx: &LateContext<'_>, method_call: &MethodCall) {
                 cx,
                 INSERT_EVENT_RESOURCE.lint,
                 method_call.span,
-                format!("called `App::insert_resource{generics_snippet}({args_snippet})` instead of `App::add_event::<{event_ty_snippet}>({receiver_snippet})`"),
+                format!("called `App::insert_resource{generics_snippet}({receiver_snippet}, {args_snippet})` instead of `App::add_event::<{event_ty_snippet}>({receiver_snippet})`"),
                 "inserting an `Events` resource does not fully setup that event",
                 format!("App::add_event::<{event_ty_snippet}>({receiver_snippet})"),
                 applicability,
