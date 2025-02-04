@@ -50,7 +50,7 @@ pub fn generic_at<'hir>(hir_ty: &'hir Ty<'hir>, index: usize) -> Option<&'hir Ge
 /// Returns the [`Span`] of an array of method arguments.
 ///
 /// [`ExprKind::MethodCall`] does not provide a good method for extracting the [`Span`] of _just_
-/// the method's arguments. Instead, it contains a [`slice`] of [`Expr`]. This function tries it's
+/// the method's arguments. Instead, it contains a [`slice`] of [`Expr`]. This function tries its
 /// best to find a span that contains all arguments from the passed [`slice`].
 ///
 /// This function assumes that `args` is sorted by order of appearance. An [`Expr`] that appears
