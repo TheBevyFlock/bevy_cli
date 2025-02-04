@@ -1,8 +1,9 @@
 //! Utility functions for parsing HIR types.
 
+use clippy_utils::source::snippet_opt;
 use rustc_hir::{
     def::{DefKind, Res},
-    Expr, ExprKind, GenericArg, Node, Path, PathSegment, QPath, Ty, TyKind,
+    Expr, ExprKind, GenericArg, GenericArgs, Node, Path, PathSegment, QPath, Ty, TyKind,
 };
 use rustc_lint::LateContext;
 use rustc_span::{Span, Symbol};
@@ -64,6 +65,18 @@ pub fn span_args(args: &[Expr]) -> Span {
         // Concatenate the spans together.
         [first, .., last] => first.span.to(last.span),
     }
+}
+
+/// Returns a code snipped of the generics in a [`PathSegment`], formatted as `::<A, B>`.
+///
+/// If no generics are present, an empty string is returned.
+pub fn generic_args_snippet(cx: &LateContext, method_path: &PathSegment) -> String {
+    method_path
+        .args
+        .and_then(GenericArgs::span_ext) // Find the span of the generics.
+        .and_then(|span| snippet_opt(cx, span)) // Extract the string, which may look like `<A, B>`.
+        .map(|snippet| format!("::{snippet}")) // Insert `::` before the string.
+        .unwrap_or_default() // If any of the previous failed, return an empty string.
 }
 
 /// An abstraction over method calls that supports both `receiver.method(args)` and

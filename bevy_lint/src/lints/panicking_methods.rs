@@ -78,14 +78,14 @@
 
 use crate::{
     declare_bevy_lint, declare_bevy_lint_pass,
-    utils::hir_parse::{span_args, MethodCall},
+    utils::hir_parse::{generic_args_snippet, span_args, MethodCall},
 };
 use clippy_utils::{
     diagnostics::span_lint_and_help,
     source::{snippet, snippet_opt},
     ty::match_type,
 };
-use rustc_hir::{Expr, GenericArgs};
+use rustc_hir::Expr;
 use rustc_lint::{LateContext, LateLintPass, Lint};
 use rustc_middle::ty::Ty;
 use rustc_span::Symbol;
@@ -171,12 +171,7 @@ impl<'tcx> LateLintPass<'tcx> for PanickingMethods {
 
                 // Try to find the generic arguments of the method, if any exist. This can
                 // either evaluate to `""` or `"::<A, B, C>"`.
-                let generics_snippet = method_path
-                    .args
-                    .and_then(GenericArgs::span_ext) // Find the span of the generics.
-                    .and_then(|span| snippet_opt(cx, span)) // Extract the string, which may look like `<A, B>`.
-                    .map(|snippet| format!("::{snippet}")) // Insert `::` before the string.
-                    .unwrap_or_default(); // If any of the previous failed, return an empty string.
+                let generics_snippet = generic_args_snippet(cx, method_path);
 
                 // The first argument to a fully qualified method call is the receiver (`Self`) and
                 // is not part of the `args`
@@ -214,12 +209,7 @@ impl<'tcx> LateLintPass<'tcx> for PanickingMethods {
                 );
                 // Try to find the generic arguments of the method, if any exist. This can
                 // either evaluate to `""` or `"::<A, B, C>"`.
-                let generics_snippet = method_path
-                    .args // Find the generic arguments of this path.
-                    .and_then(GenericArgs::span_ext) // Find the span of the generics.
-                    .and_then(|span| snippet_opt(cx, span)) // Extract the string, which may look like `<A, B>`.
-                    .map(|snippet| format!("::{snippet}")) // Insert `::` before the string.
-                    .unwrap_or_default(); // If any of the previous failed, return an empty string.
+                let generics_snippet = generic_args_snippet(cx, method_path);
 
                 // Try to find the string representation of the arguments to our panicking
                 // method. See `span_args()` for more details on how this is

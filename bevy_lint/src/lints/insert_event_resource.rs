@@ -37,11 +37,11 @@
 
 use crate::{
     declare_bevy_lint, declare_bevy_lint_pass,
-    utils::hir_parse::{span_args, MethodCall},
+    utils::hir_parse::{generic_args_snippet, span_args, MethodCall},
 };
 use clippy_utils::{
     diagnostics::span_lint_and_sugg,
-    source::{snippet, snippet_opt, snippet_with_applicability},
+    source::{snippet, snippet_with_applicability},
     sym,
     ty::match_type,
 };
@@ -113,13 +113,7 @@ fn check_insert_resource(cx: &LateContext<'_>, method_call: &MethodCall) {
 
         let event_ty_snippet = extract_ty_event_snippet(ty, &mut applicability);
         let args_snippet = snippet(cx, span_args(method_call.args), "");
-        let generics_snippet = method_call
-            .method_path
-            .args
-            .and_then(GenericArgs::span_ext) // Find the span of the generics.
-            .and_then(|span| snippet_opt(cx, span)) // Extract the string, which may look like `<A, B>`.
-            .map(|snippet| format!("::{snippet}")) // Insert `::` before the string.
-            .unwrap_or_default(); // If any of the previous failed, return an empty string.
+        let generics_snippet = generic_args_snippet(cx, method_call.method_path);
 
         if method_call.is_fully_qulified {
             let receiver_snippet = snippet(cx, method_call.receiver.span, "");
@@ -195,13 +189,7 @@ fn check_init_resource<'tcx>(cx: &LateContext<'tcx>, method_call: &MethodCall<'t
                 extract_hir_event_snippet(cx, resource_hir_ty, &mut applicability);
 
             let args_snippet = snippet(cx, span_args(method_call.args), "");
-            let generics_snippet = method_call
-                .method_path
-                .args
-                .and_then(GenericArgs::span_ext) // Find the span of the generics.
-                .and_then(|span| snippet_opt(cx, span)) // Extract the string, which may look like `<A, B>`.
-                .map(|snippet| format!("::{snippet}")) // Insert `::` before the string.
-                .unwrap_or_default(); // If any of the previous failed, return an empty string.
+            let generics_snippet = generic_args_snippet(cx, method_call.method_path);
 
             if method_call.is_fully_qulified {
                 let receiver_snippet = snippet(cx, method_call.receiver.span, "");
