@@ -174,10 +174,10 @@ pub struct MethodCall<'tcx> {
     /// ```
     pub span: Span,
 
-    /// Marks if this method call was a fully qualified method call or not.
+    /// Marks if this method call is fully qualified or not.
     ///
-    /// when emitting a help message in a lint the snippets are constructed differently if the
-    /// [`Expr`] was of type [`ExprKind::MethodCall`] than when its a [`ExprKind::Call`].
+    /// This lets lints customize their suggestions to use either the receiver-based or
+    /// fully-qualified forms of a method.
     pub is_fully_qulified: bool,
 }
 
