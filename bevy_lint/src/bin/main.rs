@@ -83,7 +83,8 @@ fn show_version() {
 fn driver_path() -> anyhow::Result<PathBuf> {
     // The `bevy_lint` lives in the same folder as `bevy_lint_driver`, so we can easily find it
     // using the path of the current executable.
-    let driver_path = env::current_exe()
+    #[cfg_attr(not(target_os = "windows"), expect(unused_mut))]
+    let mut driver_path = env::current_exe()
         .context("Failed to retrieve the path to the current executable.")?
         .parent()
         .ok_or(anyhow!("Path to file must have a parent."))?
