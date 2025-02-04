@@ -1,6 +1,7 @@
 #![expect(dead_code, reason = "Will be used for bevy bump and perhaps bevy run")]
 use std::{ffi::OsStr, path::PathBuf, process::Command};
 
+use anyhow::Context;
 use semver::{Version, VersionReq};
 use serde::Deserialize;
 
@@ -29,7 +30,13 @@ where
     S: AsRef<OsStr>,
 {
     let output = command().args(additional_args).output()?;
-    let metadata = serde_json::from_slice(&output.stdout)?;
+    let metadata = serde_json::from_slice(&output.stdout).with_context(|| {
+        if let Ok(stderr) = std::str::from_utf8(&output.stderr) {
+            format!("Failed to parse `cargo metadata` output: {stderr}")
+        } else {
+            format!("Failed to parse `cargo metadata` output: {:?}", output)
+        }
+    })?;
     Ok(metadata)
 }
 
