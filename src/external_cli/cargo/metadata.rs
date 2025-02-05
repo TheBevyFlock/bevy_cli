@@ -30,7 +30,8 @@ where
     S: AsRef<OsStr>,
 {
     let output = command().args(additional_args).output()?;
-    let output = command().args(additional_args)
+    let output = command()
+        .args(additional_args)
         // Display errors to the user directly.
         .stderr(Stdio::inherit())
         .output()?;
