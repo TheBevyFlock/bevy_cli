@@ -1,5 +1,5 @@
 #![expect(dead_code, reason = "Will be used for bevy bump and perhaps bevy run")]
-use std::{ffi::OsStr, path::PathBuf, process::Command};
+use std::{ffi::OsStr, path::PathBuf, process::{Command, Stdio}};
 
 use anyhow::Context;
 use semver::{Version, VersionReq};
@@ -29,7 +29,6 @@ where
     I: IntoIterator<Item = S>,
     S: AsRef<OsStr>,
 {
-    let output = command().args(additional_args).output()?;
     let output = command()
         .args(additional_args)
         // Display errors to the user directly.
