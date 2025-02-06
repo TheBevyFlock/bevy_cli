@@ -4,14 +4,11 @@ use crate::{
 };
 use clippy_utils::{
     diagnostics::span_lint_and_help,
-    source::{snippet, snippet_opt},
     ty::match_type,
 };
-use rustc_hir::{intravisit::FnKind, Expr, ExprKind, FnDecl, GenericArgs};
 use rustc_hir_analysis::collect::ItemCtxt;
-use rustc_lint::{LateContext, LateLintPass, Lint};
+use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::Ty;
-use rustc_span::{Span, Symbol};
 
 declare_bevy_lint! {
     pub EVENTS_RESOURCE_SYSTEM_PARAM,
