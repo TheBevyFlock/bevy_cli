@@ -14,6 +14,7 @@ pub mod main_return_without_appexit;
 pub mod missing_reflect;
 pub mod panicking_methods;
 pub mod plugin_not_ending_in_plugin;
+pub mod sus_resource;
 pub mod zst_query;
 
 pub(crate) static LINTS: &[&BevyLint] = &[
@@ -26,6 +27,7 @@ pub(crate) static LINTS: &[&BevyLint] = &[
     panicking_methods::PANICKING_WORLD_METHODS,
     plugin_not_ending_in_plugin::PLUGIN_NOT_ENDING_IN_PLUGIN,
     zst_query::ZST_QUERY,
+    sus_resource::EVENTS_RESOURCE_SYSTEM_PARAM,
 ];
 
 pub(crate) fn register_lints(store: &mut LintStore) {
@@ -46,4 +48,6 @@ pub(crate) fn register_passes(store: &mut LintStore) {
     });
     store.register_late_pass(|_| Box::new(zst_query::ZstQuery::default()));
     store.register_late_pass(|_| Box::new(insert_unit_bundle::InsertUnitBundle::default()));
+
+    store.register_late_pass(|_| Box::new(sus_resource::EventsResourceSystemParam::default()));
 }
