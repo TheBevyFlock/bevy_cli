@@ -35,15 +35,21 @@
 //! App::new().add_event::<MyEvent>().run();
 //! ```
 
-use crate::{declare_bevy_lint, declare_bevy_lint_pass};
+use crate::{
+    declare_bevy_lint, declare_bevy_lint_pass,
+    utils::hir_parse::{generic_args_snippet, span_args, MethodCall},
+};
 use clippy_utils::{
-    diagnostics::span_lint_and_sugg, source::snippet_with_applicability, sym, ty::match_type,
+    diagnostics::span_lint_and_sugg,
+    source::{snippet, snippet_with_applicability},
+    sym,
+    ty::match_type,
 };
 use rustc_errors::Applicability;
-use rustc_hir::{Expr, ExprKind, GenericArg, GenericArgs, Path, PathSegment, QPath};
+use rustc_hir::{Expr, GenericArg, GenericArgs, Path, PathSegment, QPath};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::{Ty, TyKind};
-use rustc_span::{Span, Symbol};
+use rustc_span::Symbol;
 use std::borrow::Cow;
 
 declare_bevy_lint! {
@@ -61,12 +67,15 @@ declare_bevy_lint_pass! {
 }
 
 impl<'tcx> LateLintPass<'tcx> for InsertEventResource {
-    fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &Expr<'tcx>) {
+    fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &'tcx Expr<'tcx>) {
         // Find a method call.
-        if let ExprKind::MethodCall(path, src, args, method_span) = expr.kind {
+        if let Some(method_call) = MethodCall::try_from(cx, expr) {
             // Get the type for `src` in `src.method()`. We peel all references because the type
             // could either be `App` or `&mut App`.
-            let src_ty = cx.typeck_results().expr_ty(src).peel_refs();
+            let src_ty = cx
+                .typeck_results()
+                .expr_ty(method_call.receiver)
+                .peel_refs();
 
             // If `src` is not a Bevy `App`, exit.
             if !match_type(cx, src_ty, &crate::paths::APP) {
@@ -75,12 +84,12 @@ impl<'tcx> LateLintPass<'tcx> for InsertEventResource {
 
             // If the method is `App::insert_resource()` or `App::init_resource()`, check it with
             // its corresponding function.
-            match path.ident.name {
+            match method_call.method_path.ident.name {
                 symbol if symbol == self.insert_resource => {
-                    check_insert_resource(cx, args, method_span)
+                    check_insert_resource(cx, &method_call);
                 }
                 symbol if symbol == self.init_resource => {
-                    check_init_resource(cx, path, method_span)
+                    check_init_resource(cx, &method_call);
                 }
                 _ => {}
             }
@@ -89,13 +98,13 @@ impl<'tcx> LateLintPass<'tcx> for InsertEventResource {
 }
 
 /// Checks if `App::insert_resource()` inserts an `Events<T>`, and emits a diagnostic if so.
-fn check_insert_resource(cx: &LateContext<'_>, args: &[Expr], method_span: Span) {
+fn check_insert_resource(cx: &LateContext<'_>, method_call: &MethodCall) {
     // Extract the argument if there is only 1 (which there should be!), else exit.
-    let [arg] = args else {
+    let [arg] = method_call.args else {
         return;
     };
 
-    // Find the type of `arg` in `App::insert_resource(arg)`.
+    // Find the type of `arg` in `App::insert_resource(&mut self, arg)`.
     let ty = cx.typeck_results().expr_ty(arg);
 
     // If `arg` is `Events<T>`, emit the lint.
@@ -103,16 +112,31 @@ fn check_insert_resource(cx: &LateContext<'_>, args: &[Expr], method_span: Span)
         let mut applicability = Applicability::MachineApplicable;
 
         let event_ty_snippet = extract_ty_event_snippet(ty, &mut applicability);
+        let args_snippet = snippet(cx, span_args(method_call.args), "");
+        let generics_snippet = generic_args_snippet(cx, method_call.method_path);
 
-        span_lint_and_sugg(
-            cx,
-            INSERT_EVENT_RESOURCE.lint,
-            method_span,
-            "called `App::insert_resource(Events<T>)` instead of `App::add_event::<T>()`",
-            "inserting an `Events` resource does not fully setup that event",
-            format!("add_event::<{event_ty_snippet}>()"),
-            applicability,
-        );
+        if method_call.is_fully_qulified {
+            let receiver_snippet = snippet(cx, method_call.receiver.span, "");
+            span_lint_and_sugg(
+                cx,
+                INSERT_EVENT_RESOURCE.lint,
+                method_call.span,
+                format!("called `App::insert_resource{generics_snippet}({receiver_snippet}, {args_snippet})` instead of `App::add_event::<{event_ty_snippet}>({receiver_snippet})`"),
+                "inserting an `Events` resource does not fully setup that event",
+                format!("App::add_event::<{event_ty_snippet}>({receiver_snippet})"),
+                applicability,
+            );
+        } else {
+            span_lint_and_sugg(
+                cx,
+                INSERT_EVENT_RESOURCE.lint,
+                method_call.span,
+                format!("called `App::insert_resource{generics_snippet}({args_snippet})` instead of `App::add_event::<{event_ty_snippet}>()`"),
+                "inserting an `Events` resource does not fully setup that event",
+                format!("add_event::<{event_ty_snippet}>()"),
+                applicability,
+            );
+        }
     }
 }
 
@@ -146,12 +170,12 @@ fn extract_ty_event_snippet<'tcx>(
 }
 
 /// Checks if `App::init_resource()` inserts an `Events<T>`, and emits a diagnostic if so.
-fn check_init_resource<'tcx>(cx: &LateContext<'tcx>, path: &PathSegment<'tcx>, method_span: Span) {
+fn check_init_resource<'tcx>(cx: &LateContext<'tcx>, method_call: &MethodCall<'tcx>) {
     if let Some(&GenericArgs {
         // `App::init_resource()` has one generic type argument: T.
         args: &[GenericArg::Type(resource_hir_ty)],
         ..
-    }) = path.args
+    }) = method_call.method_path.args
     {
         // Lower `rustc_hir::Ty` to `ty::Ty`, so we can inspect type information. For more
         // information, see <https://rustc-dev-guide.rust-lang.org/ty.html#rustc_hirty-vs-tyty>.
@@ -164,15 +188,31 @@ fn check_init_resource<'tcx>(cx: &LateContext<'tcx>, path: &PathSegment<'tcx>, m
             let event_ty_snippet =
                 extract_hir_event_snippet(cx, resource_hir_ty, &mut applicability);
 
-            span_lint_and_sugg(
-                cx,
-                INSERT_EVENT_RESOURCE.lint,
-                method_span,
-                "called `App::init_resource::<Events<T>>()` instead of `App::add_event::<T>()`",
-                "inserting an `Events` resource does not fully setup that event",
-                format!("add_event::<{event_ty_snippet}>()"),
-                applicability,
-            );
+            let args_snippet = snippet(cx, span_args(method_call.args), "");
+            let generics_snippet = generic_args_snippet(cx, method_call.method_path);
+
+            if method_call.is_fully_qulified {
+                let receiver_snippet = snippet(cx, method_call.receiver.span, "");
+                span_lint_and_sugg(
+                    cx,
+                    INSERT_EVENT_RESOURCE.lint,
+                    method_call.span,
+                    format!("called `App::init_resource{generics_snippet}({receiver_snippet})` instead of `App::add_event::<{event_ty_snippet}>({receiver_snippet})`"),
+                    "inserting an `Events` resource does not fully setup that event",
+                    format!("App::add_event::<{event_ty_snippet}>({receiver_snippet})"),
+                    applicability,
+                );
+            } else {
+                span_lint_and_sugg(
+                    cx,
+                    INSERT_EVENT_RESOURCE.lint,
+                    method_call.span,
+                    format!("called `App::init_resource{generics_snippet}({args_snippet})` instead of `App::add_event::<{event_ty_snippet}>()`"),
+                    "inserting an `Events` resource does not fully setup that event",
+                    format!("add_event::<{event_ty_snippet}>()"),
+                    applicability,
+                );
+            }
         }
     }
 }

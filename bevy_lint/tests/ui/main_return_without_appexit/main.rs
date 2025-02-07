@@ -7,7 +7,10 @@
 use bevy::prelude::*;
 
 fn main() {
-    //~^ HELP: try
+    let mut app = App::new();
     App::new().run();
+    //~^ ERROR: an entrypoint that calls `App::run()` does not return `AppExit`
+
+    App::run(&mut app);
     //~^ ERROR: an entrypoint that calls `App::run()` does not return `AppExit`
 }

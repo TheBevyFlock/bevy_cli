@@ -27,5 +27,29 @@ error: inserted a `Bundle` containing a unit `()` type
    |
    = note: unit `()` types are skipped instead of spawned
 
-error: aborting due to 3 previous errors
+error: inserted a `Bundle` containing a unit `()` type
+  --> tests/ui/insert_unit_bundle/main.rs:35:13
+   |
+35 |             Transform::from_translation(Vec3::new(0.75, 0.0, 0.0)).rotate_z(PI / 4.0),
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: unit `()` types are skipped instead of spawned
+
+error: inserted a `Bundle` containing a unit `()` type
+  --> tests/ui/insert_unit_bundle/main.rs:38:17
+   |
+38 |                 no_op(),
+   |                 ^^^^^^^
+   |
+   = note: unit `()` types are skipped instead of spawned
+
+error: inserted a `Bundle` containing a unit `()` type
+  --> tests/ui/insert_unit_bundle/main.rs:42:21
+   |
+42 |                     (),
+   |                     ^^
+   |
+   = note: unit `()` types are skipped instead of spawned
+
+error: aborting due to 6 previous errors
 
