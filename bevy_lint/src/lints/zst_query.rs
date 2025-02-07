@@ -49,7 +49,9 @@ use rustc_middle::ty::{
 
 declare_bevy_lint! {
     pub ZST_QUERY,
-    RESTRICTION,
+    // This will eventually be a `RESTRICTION` lint, but due to <https://github.com/TheBevyFlock/bevy_cli/issues/252>
+    // it is not yet ready for production.
+    NURSERY,
     "query for a zero-sized type",
 }
 
