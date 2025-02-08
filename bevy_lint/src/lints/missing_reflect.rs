@@ -32,14 +32,16 @@
 //! ```
 
 use crate::{declare_bevy_lint, declare_bevy_lint_pass};
-use clippy_utils::{def_path_res, diagnostics::span_lint_hir_and_then, sugg::DiagExt};
+use clippy_utils::{
+    def_path_res, diagnostics::span_lint_hir_and_then, source::HasSession, sugg::DiagExt,
+};
 use rustc_errors::Applicability;
 use rustc_hir::{
     def::{DefKind, Res},
     HirId, Item, ItemKind, Node, OwnerId, QPath, TyKind,
 };
 use rustc_lint::{LateContext, LateLintPass};
-use rustc_middle::ty::TyCtxt;
+use rustc_middle::{lint::in_external_macro, ty::TyCtxt};
 use rustc_span::Span;
 
 declare_bevy_lint! {
@@ -88,16 +90,18 @@ impl<'tcx> LateLintPass<'tcx> for MissingReflect {
             (resources, "Resource", "a resource"),
         ] {
             for without_reflect in checked_trait {
+                // Skip if a types originates from a foreign crate's macro
+                if in_external_macro(cx.sess(), without_reflect.item_span) {
+                    continue;
+                }
+
                 span_lint_hir_and_then(
                     cx,
                     MISSING_REFLECT.lint,
                     // This tells `rustc` where to search for `#[allow(...)]` attributes.
                     without_reflect.hir_id,
                     without_reflect.item_span,
-                    format!(
-                        "defined {} without a `Reflect` implementation",
-                        message_phrase,
-                    ),
+                    format!("defined {message_phrase} without a `Reflect` implementation"),
                     |diag| {
                         diag.span_note(
                             without_reflect.impl_span,
@@ -109,9 +113,11 @@ impl<'tcx> LateLintPass<'tcx> for MissingReflect {
                             "`Reflect` can be automatically derived",
                             "#[derive(Reflect)]",
                             // This can usually be automatically applied by `rustfix` without
-                            // issues, unless one of the fields of the struct does not implement
-                            // `Reflect` (see #141). This suggestion may result in two consecutive
-                            // `#[derive(...)]` attributes, but `rustfmt` merges them afterwards.
+                            // issues, unless one of the fields of the struct does not
+                            // implement `Reflect` (see #141).
+                            // This suggestion may result in two consecutive
+                            // `#[derive(...)]` attributes, but `rustfmt` merges them
+                            // afterwards.
                             Applicability::MaybeIncorrect,
                         );
                     },
