@@ -1,3 +1,4 @@
+//@aux-build:../auxiliary/proc_macros.rs
 //! This tests the `panicking_query_methods` lint, specifically when triggered on the `Query` type.
 
 #![feature(register_tool)]
@@ -5,6 +6,16 @@
 #![deny(bevy::panicking_query_methods)]
 
 use bevy::prelude::*;
+extern crate proc_macros;
+use proc_macros::external;
+
+macro_rules! bad_macro {
+    ($q:expr) => {
+        $q.single()
+        //~^ ERROR:  called a `Query` method that can panic when a non-panicking alternative exists
+        //~| HELP: use `query.get_single()`
+    };
+}
 
 #[derive(Component)]
 struct Foo;
@@ -47,4 +58,12 @@ fn my_system(mut query: Query<&mut Foo>) {
     Query::many_mut(&mut query, []);
     //~^ ERROR:  called a `Query` method that can panic when a non-panicking alternative exists
     //~| HELP: use `Query::get_many_mut(&mut query, [])`
+
+    // Test if external macros get skipped
+    external!({
+        fn my_system(mut query: Query<&mut Foo>) {
+            query.single();
+        }
+    });
+    bad_macro!(query);
 }
