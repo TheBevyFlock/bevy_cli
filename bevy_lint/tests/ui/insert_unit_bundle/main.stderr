@@ -1,55 +1,91 @@
 error: inserted a `Bundle` containing a unit `()` type
-  --> tests/ui/insert_unit_bundle/main.rs:15:9
+  --> tests/ui/insert_unit_bundle/main.rs:41:9
    |
-15 |         Transform::from_translation(Vec3::new(0.75, 0.0, 0.0)).rotate_z(PI / 4.0),
+41 |         Transform::from_translation(Vec3::new(0.75, 0.0, 0.0)).rotate_z(PI / 4.0),
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = note: unit `()` types are skipped instead of spawned
 note: the lint level is defined here
-  --> tests/ui/insert_unit_bundle/main.rs:3:9
+  --> tests/ui/insert_unit_bundle/main.rs:4:9
    |
-3  | #![deny(bevy::insert_unit_bundle)]
+4  | #![deny(bevy::insert_unit_bundle)]
    |         ^^^^^^^^^^^^^^^^^^^^^^^^
 
 error: inserted a `Bundle` containing a unit `()` type
-  --> tests/ui/insert_unit_bundle/main.rs:18:13
+  --> tests/ui/insert_unit_bundle/main.rs:44:13
    |
-18 |             no_op(),
+44 |             no_op(),
    |             ^^^^^^^
    |
    = note: unit `()` types are skipped instead of spawned
 
 error: inserted a `Bundle` containing a unit `()` type
-  --> tests/ui/insert_unit_bundle/main.rs:22:17
+  --> tests/ui/insert_unit_bundle/main.rs:48:17
    |
-22 |                 (),
+48 |                 (),
    |                 ^^
    |
    = note: unit `()` types are skipped instead of spawned
 
 error: inserted a `Bundle` containing a unit `()` type
-  --> tests/ui/insert_unit_bundle/main.rs:35:13
+  --> tests/ui/insert_unit_bundle/main.rs:61:13
    |
-35 |             Transform::from_translation(Vec3::new(0.75, 0.0, 0.0)).rotate_z(PI / 4.0),
+61 |             Transform::from_translation(Vec3::new(0.75, 0.0, 0.0)).rotate_z(PI / 4.0),
    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = note: unit `()` types are skipped instead of spawned
 
 error: inserted a `Bundle` containing a unit `()` type
-  --> tests/ui/insert_unit_bundle/main.rs:38:17
+  --> tests/ui/insert_unit_bundle/main.rs:64:17
    |
-38 |                 no_op(),
+64 |                 no_op(),
    |                 ^^^^^^^
    |
    = note: unit `()` types are skipped instead of spawned
 
 error: inserted a `Bundle` containing a unit `()` type
-  --> tests/ui/insert_unit_bundle/main.rs:42:21
+  --> tests/ui/insert_unit_bundle/main.rs:68:21
    |
-42 |                     (),
+68 |                     (),
    |                     ^^
    |
    = note: unit `()` types are skipped instead of spawned
 
-error: aborting due to 6 previous errors
+error: inserted a `Bundle` containing a unit `()` type
+  --> tests/ui/insert_unit_bundle/main.rs:15:13
+   |
+15 |             Transform::from_translation(Vec3::new(0.75, 0.0, 0.0)).rotate_z(PI / 4.0),
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+78 |     local_macro!(commands);
+   |     ---------------------- in this macro invocation
+   |
+   = note: unit `()` types are skipped instead of spawned
+   = note: this error originates in the macro `local_macro` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: inserted a `Bundle` containing a unit `()` type
+  --> tests/ui/insert_unit_bundle/main.rs:18:17
+   |
+18 |                 no_op(),
+   |                 ^^^^^^^
+...
+78 |     local_macro!(commands);
+   |     ---------------------- in this macro invocation
+   |
+   = note: unit `()` types are skipped instead of spawned
+   = note: this error originates in the macro `local_macro` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: inserted a `Bundle` containing a unit `()` type
+  --> tests/ui/insert_unit_bundle/main.rs:22:21
+   |
+22 |                     (),
+   |                     ^^
+...
+78 |     local_macro!(commands);
+   |     ---------------------- in this macro invocation
+   |
+   = note: unit `()` types are skipped instead of spawned
+   = note: this error originates in the macro `local_macro` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: aborting due to 9 previous errors
 
