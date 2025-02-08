@@ -33,18 +33,6 @@ fn main() -> anyhow::Result<ExitCode> {
         // This instructs `rustc` to call `bevy_lint_driver` instead of its default routine.
         // This lets us register custom lints.
         .env("RUSTC_WORKSPACE_WRAPPER", driver_path)
-        // Pass `--cfg bevy_lint` so that programs can conditionally configure lints. If
-        // `RUSTFLAGS` is already set, we append `--cfg bevy_lint` to the end.
-        .env(
-            "RUSTFLAGS",
-            env::var("RUSTFLAGS").map_or_else(
-                |_| "--cfg bevy_lint".to_string(),
-                |mut flags| {
-                    flags.push_str(" --cfg bevy_lint");
-                    flags
-                },
-            ),
-        )
         .status()
         .context("Failed to spawn `cargo check`.")?;
 
