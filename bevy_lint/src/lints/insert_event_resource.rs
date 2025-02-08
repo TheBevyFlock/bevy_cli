@@ -41,14 +41,17 @@ use crate::{
 };
 use clippy_utils::{
     diagnostics::span_lint_and_sugg,
-    source::{snippet, snippet_with_applicability},
+    source::{snippet, snippet_with_applicability, HasSession},
     sym,
     ty::match_type,
 };
 use rustc_errors::Applicability;
 use rustc_hir::{Expr, GenericArg, GenericArgs, Path, PathSegment, QPath};
 use rustc_lint::{LateContext, LateLintPass};
-use rustc_middle::ty::{Ty, TyKind};
+use rustc_middle::{
+    lint::in_external_macro,
+    ty::{Ty, TyKind},
+};
 use rustc_span::Symbol;
 use std::borrow::Cow;
 
@@ -79,6 +82,11 @@ impl<'tcx> LateLintPass<'tcx> for InsertEventResource {
 
             // If `src` is not a Bevy `App`, exit.
             if !match_type(cx, src_ty, &crate::paths::APP) {
+                return;
+            }
+
+            // If the type matches but originates from an external macro, skip this lint.
+            if in_external_macro(cx.sess(), expr.span) {
                 return;
             }
 

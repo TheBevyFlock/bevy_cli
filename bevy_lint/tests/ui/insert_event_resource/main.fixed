@@ -1,8 +1,11 @@
+//@aux-build:../auxiliary/proc_macros.rs
 #![feature(register_tool)]
 #![register_tool(bevy)]
 #![deny(bevy::insert_event_resource)]
 
 use bevy::prelude::*;
+extern crate proc_macros;
+use proc_macros::external;
 
 #[derive(Event)]
 struct Foo;
@@ -33,4 +36,9 @@ fn main() {
     // Ensure the lint can be muted by annotating the expression.
     #[allow(bevy::insert_event_resource)]
     App::new().init_resource::<Events<Foo>>();
+
+    external!({
+        let mut app = App::new();
+        App::new().init_resource::<Events<Foo>>();
+    });
 }
