@@ -1,6 +1,11 @@
 #![expect(dead_code, reason = "Will be used for bevy bump and perhaps bevy run")]
-use std::{ffi::OsStr, path::PathBuf, process::Command};
+use std::{
+    ffi::OsStr,
+    path::PathBuf,
+    process::{Command, Stdio},
+};
 
+use anyhow::Context;
 use semver::{Version, VersionReq};
 use serde::Deserialize;
 
@@ -28,8 +33,13 @@ where
     I: IntoIterator<Item = S>,
     S: AsRef<OsStr>,
 {
-    let output = command().args(additional_args).output()?;
-    let metadata = serde_json::from_slice(&output.stdout)?;
+    let output = command()
+        .args(additional_args)
+        // Display errors to the user directly.
+        .stderr(Stdio::inherit())
+        .output()?;
+    let metadata = serde_json::from_slice(&output.stdout)
+        .context("Failed to parse `cargo metadata` output")?;
     Ok(metadata)
 }
 
