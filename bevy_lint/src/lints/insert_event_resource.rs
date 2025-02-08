@@ -71,6 +71,11 @@ declare_bevy_lint_pass! {
 
 impl<'tcx> LateLintPass<'tcx> for InsertEventResource {
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &'tcx Expr<'tcx>) {
+        // skip expressions that originate from external macros
+        if in_external_macro(cx.sess(), expr.span) {
+            return;
+        }
+
         // Find a method call.
         if let Some(method_call) = MethodCall::try_from(cx, expr) {
             // Get the type for `src` in `src.method()`. We peel all references because the type
@@ -82,11 +87,6 @@ impl<'tcx> LateLintPass<'tcx> for InsertEventResource {
 
             // If `src` is not a Bevy `App`, exit.
             if !match_type(cx, src_ty, &crate::paths::APP) {
-                return;
-            }
-
-            // If the type matches but originates from an external macro, skip this lint.
-            if in_external_macro(cx.sess(), expr.span) {
                 return;
             }
 
