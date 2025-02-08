@@ -32,12 +32,13 @@
 
 use crate::{declare_bevy_lint, declare_bevy_lint_pass, utils::hir_parse::MethodCall};
 use clippy_utils::{
-    diagnostics::span_lint_hir_and_then, is_entrypoint_fn, sym, ty::match_type,
+    diagnostics::span_lint_hir_and_then, is_entrypoint_fn, source::HasSession, sym, ty::match_type,
     visitors::for_each_expr,
 };
 use rustc_errors::Applicability;
 use rustc_hir::{def_id::LocalDefId, intravisit::FnKind, Body, FnDecl, FnRetTy, Ty, TyKind};
 use rustc_lint::{LateContext, LateLintPass};
+use rustc_middle::lint::in_external_macro;
 use rustc_span::{Span, Symbol};
 use std::ops::ControlFlow;
 
@@ -87,6 +88,7 @@ impl<'tcx> LateLintPass<'tcx> for MainReturnWithoutAppExit {
                     ..
                 }) = MethodCall::try_from(cx, expr)
                     && method_path.ident.name == self.run
+                    && !in_external_macro(cx.sess(), expr.span)
                 {
                     // Get the type of `src` for `src.run()`. We peel away all references because
                     // both `App` and `&mut App` are allowed.
