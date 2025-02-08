@@ -9,7 +9,7 @@ use bevy::prelude::*;
 extern crate proc_macros;
 use proc_macros::external;
 
-macro_rules! bad_macro {
+macro_rules! local_macro {
     ($q:expr) => {
         $q.single()
         //~^ ERROR:  called a `Query` method that can panic when a non-panicking alternative exists
@@ -65,5 +65,5 @@ fn my_system(mut query: Query<&mut Foo>) {
             query.single();
         }
     });
-    bad_macro!(query);
+    local_macro!(query);
 }

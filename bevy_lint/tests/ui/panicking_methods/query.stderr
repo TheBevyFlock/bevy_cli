@@ -73,11 +73,11 @@ error: called a `Query` method that can panic when a non-panicking alternative e
 14 |         $q.single()
    |            ^^^^^^^^
 ...
-68 |     bad_macro!(query);
-   |     ----------------- in this macro invocation
+68 |     local_macro!(query);
+   |     ------------------- in this macro invocation
    |
    = help: use `query.get_single()` and handle the `Option` or `Result`
-   = note: this error originates in the macro `bad_macro` (in Nightly builds, run with -Z macro-backtrace for more info)
+   = note: this error originates in the macro `local_macro` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: aborting due to 9 previous errors
 
