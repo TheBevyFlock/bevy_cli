@@ -10,6 +10,14 @@ use proc_macros::external;
 #[derive(Event)]
 struct Foo;
 
+macro_rules! local_macro {
+    () => {
+        App::new().init_resource::<Events<Foo>>();
+        //~^ ERROR: called `App::init_resource::<Events<Foo>>()` instead of
+        // `App::add_event::<Foo>()`
+    };
+}
+
 fn main() {
     let mut app = App::new();
     App::new().init_resource::<Events<Foo>>();
@@ -41,4 +49,5 @@ fn main() {
         let mut app = App::new();
         App::new().init_resource::<Events<Foo>>();
     });
+    local_macro!();
 }
