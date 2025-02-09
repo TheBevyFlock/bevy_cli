@@ -1,6 +1,6 @@
 use anyhow::Result;
 use bevy_cli::{build::args::BuildArgs, run::RunArgs};
-use clap::{Args, Parser, Subcommand};
+use clap::{Args, CommandFactory, Parser, Subcommand};
 
 fn main() -> Result<()> {
     let cli = Cli::parse();
@@ -12,6 +12,9 @@ fn main() -> Result<()> {
         Subcommands::Lint { args } => bevy_cli::lint::lint(args)?,
         Subcommands::Build(mut args) => bevy_cli::build::build(&mut args)?,
         Subcommands::Run(args) => bevy_cli::run::run(&args)?,
+        Subcommands::Completion { shell } => {
+            clap_complete::generate(shell, &mut Cli::command(), "bevy", &mut std::io::stdout());
+        }
     }
 
     Ok(())
@@ -49,6 +52,8 @@ pub enum Subcommands {
         #[arg(trailing_var_arg = true, allow_hyphen_values = true)]
         args: Vec<String>,
     },
+    /// Generate autocompletion for `bevy_cli`
+    Completion { shell: clap_complete::Shell },
 }
 
 /// Arguments for creating a new Bevy project.
