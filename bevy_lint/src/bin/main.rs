@@ -21,10 +21,11 @@ fn main() -> anyhow::Result<ExitCode> {
     // Find the path to `bevy_lint_driver`.
     let driver_path = driver_path()?;
 
-    // Run `cargo check`.
-    let status = Command::new("cargo")
-        // Assuming that Rustup is installed, we can specify which toolchain to use with this.
-        .arg(format!("+{RUST_TOOLCHAIN_CHANNEL}"))
+    // Run `rustup run nightly-YYYY-MM-DD cargo check`.
+    let status = Command::new("rustup")
+        .arg("run")
+        .arg(RUST_TOOLCHAIN_CHANNEL)
+        .arg("cargo")
         .arg("check")
         // Forward all arguments to `cargo check` except for the first, which is the path to the
         // current executable.
@@ -32,18 +33,6 @@ fn main() -> anyhow::Result<ExitCode> {
         // This instructs `rustc` to call `bevy_lint_driver` instead of its default routine.
         // This lets us register custom lints.
         .env("RUSTC_WORKSPACE_WRAPPER", driver_path)
-        // Pass `--cfg bevy_lint` so that programs can conditionally configure lints. If
-        // `RUSTFLAGS` is already set, we append `--cfg bevy_lint` to the end.
-        .env(
-            "RUSTFLAGS",
-            env::var("RUSTFLAGS").map_or_else(
-                |_| "--cfg bevy_lint".to_string(),
-                |mut flags| {
-                    flags.push_str(" --cfg bevy_lint");
-                    flags
-                },
-            ),
-        )
         .status()
         .context("Failed to spawn `cargo check`.")?;
 
