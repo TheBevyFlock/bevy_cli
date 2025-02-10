@@ -1,3 +1,4 @@
+//@aux-build:../auxiliary/proc_macros.rs
 //! This tests the `panicking_query_methods` lint, specifically when triggered on the `World` type.
 
 #![feature(register_tool)]
@@ -5,6 +6,8 @@
 #![deny(bevy::panicking_world_methods)]
 
 use bevy::prelude::*;
+extern crate proc_macros;
+use proc_macros::external;
 
 #[derive(Component)]
 struct Bob;
@@ -14,6 +17,22 @@ struct Jeffrey;
 
 // A non-send resource.
 struct Patrick;
+
+macro_rules! local_macro {
+    () => {
+        let mut world = World::new();
+
+        let bob = world.spawn(Bob).id();
+
+        world.entity(bob);
+        //~^ ERROR: called a `World` method that can panic when a non-panicking alternative exists
+        //~| HELP: use `world.get_entity(bob)`
+
+        World::entity(&world, bob);
+        //~^ ERROR: called a `World` method that can panic when a non-panicking alternative exists
+        //~| HELP: use `World::get_entity(&world, bob)`
+    };
+}
 
 fn main() {
     let mut world = World::new();
@@ -123,4 +142,10 @@ fn main() {
     World::schedule_scope(&mut world, Update, |_world, _schedule| {});
     //~^ ERROR: called a `World` method that can panic when a non-panicking alternative exists
     //~| HELP: use `World::try_schedule_scope(&mut world, Update, |_world, _schedule| {})`
+    external!({
+        let mut world = World::new();
+        let bob = world.spawn(Bob).id();
+        world.entity(bob);
+    });
+    local_macro!();
 }

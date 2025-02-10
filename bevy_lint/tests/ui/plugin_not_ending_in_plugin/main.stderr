@@ -1,21 +1,39 @@
 error: implemented `Plugin` for a structure whose name does not end in "Plugin"
-  --> tests/ui/plugin_not_ending_in_plugin/main.rs:9:8
+  --> tests/ui/plugin_not_ending_in_plugin/main.rs:12:8
    |
-9  | struct Foo;
+12 | struct Foo;
    |        ^^^ help: rename the plugin: `FooPlugin`
    |
 note: `Plugin` implemented here
-  --> tests/ui/plugin_not_ending_in_plugin/main.rs:14:1
+  --> tests/ui/plugin_not_ending_in_plugin/main.rs:17:1
    |
-14 | / impl Plugin for Foo {
-15 | |     fn build(&self, _app: &mut App) {}
-16 | | }
+17 | / impl Plugin for Foo {
+18 | |     fn build(&self, _app: &mut App) {}
+19 | | }
    | |_^
 note: the lint level is defined here
-  --> tests/ui/plugin_not_ending_in_plugin/main.rs:3:9
+  --> tests/ui/plugin_not_ending_in_plugin/main.rs:4:9
    |
-3  | #![deny(bevy::plugin_not_ending_in_plugin)]
+4  | #![deny(bevy::plugin_not_ending_in_plugin)]
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-error: aborting due to 1 previous error
+error: implemented `Plugin` for a structure whose name does not end in "Plugin"
+  --> tests/ui/plugin_not_ending_in_plugin/main.rs:47:16
+   |
+47 |         struct InternalBaz;
+   |                ^^^^^^^^^^^ help: rename the plugin: `InternalBazPlugin`
+...
+53 | local_macro!();
+   | -------------- in this macro invocation
+   |
+note: `Plugin` implemented here
+  --> tests/ui/plugin_not_ending_in_plugin/main.rs:56:1
+   |
+56 | / impl Plugin for InternalBaz {
+57 | |     fn build(&self, _app: &mut App) {}
+58 | | }
+   | |_^
+   = note: this error originates in the macro `local_macro` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: aborting due to 2 previous errors
 
