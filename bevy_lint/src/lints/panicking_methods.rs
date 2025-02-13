@@ -4,10 +4,6 @@
 //! For instance, this will lint against `Query::single()`, recommending that `Query::get_single()`
 //! should be used instead.
 //!
-//! This lint is actually two: [`PANICKING_QUERY_METHODS`] and [`PANICKING_WORLD_METHODS`]. Each
-//! can be toggled separately. The query variant lints for `Query` and `QueryState`, while the
-//! world variant lints for `World`.
-//!
 //! # Motivation
 //!
 //! Panicking is the nuclear option of error handling in Rust: it is meant for cases where recovery
@@ -86,24 +82,18 @@ use clippy_utils::{
     ty::match_type,
 };
 use rustc_hir::Expr;
-use rustc_lint::{LateContext, LateLintPass, Lint};
+use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::Ty;
 use rustc_span::Symbol;
 
 declare_bevy_lint! {
-    pub PANICKING_QUERY_METHODS,
+    pub PANICKING_METHODS,
     RESTRICTION,
-    "called a `Query` or `QueryState` method that can panic when a non-panicking alternative exists",
-}
-
-declare_bevy_lint! {
-    pub PANICKING_WORLD_METHODS,
-    RESTRICTION,
-    "called a `World` method that can panic when a non-panicking alternative exists",
+    "called a method that can panic when a non-panicking alternative exists",
 }
 
 declare_bevy_lint_pass! {
-    pub PanickingMethods => [PANICKING_QUERY_METHODS.lint, PANICKING_WORLD_METHODS.lint],
+    pub PanickingMethods => [PANICKING_METHODS.lint],
 }
 
 impl<'tcx> LateLintPass<'tcx> for PanickingMethods {
@@ -220,7 +210,7 @@ impl<'tcx> LateLintPass<'tcx> for PanickingMethods {
 
             span_lint_and_help(
                 cx,
-                panicking_type.lint(),
+                PANICKING_METHODS.lint,
                 span,
                 format!(
                     "called a `{}` method that can panic when a non-panicking alternative exists",
@@ -293,16 +283,6 @@ impl PanickingType {
             Self::Query => "Query",
             Self::QueryState => "QueryState",
             Self::World => "World",
-        }
-    }
-
-    /// Returns the [`Lint`] associated with this panicking type.
-    ///
-    /// This can either return [`PANICKING_QUERY_METHODS`] or [`PANICKING_WORLD_METHODS`].
-    fn lint(&self) -> &'static Lint {
-        match self {
-            Self::Query | Self::QueryState => PANICKING_QUERY_METHODS.lint,
-            Self::World => PANICKING_WORLD_METHODS.lint,
         }
     }
 }

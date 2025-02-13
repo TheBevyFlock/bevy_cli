@@ -1,8 +1,8 @@
-//! This tests the `panicking_query_methods` lint, specifically when triggered on the `World` type.
+//! This tests the `panicking_methods` lint, specifically when triggered on the `World` type.
 
 #![feature(register_tool)]
 #![register_tool(bevy)]
-#![deny(bevy::panicking_world_methods)]
+#![deny(bevy::panicking_methods)]
 
 use bevy::prelude::*;
 

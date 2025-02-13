@@ -22,8 +22,7 @@ pub(crate) static LINTS: &[&BevyLint] = &[
     insert_unit_bundle::INSERT_UNIT_BUNDLE,
     main_return_without_appexit::MAIN_RETURN_WITHOUT_APPEXIT,
     missing_reflect::MISSING_REFLECT,
-    panicking_methods::PANICKING_QUERY_METHODS,
-    panicking_methods::PANICKING_WORLD_METHODS,
+    panicking_methods::PANICKING_METHODS,
     plugin_not_ending_in_plugin::PLUGIN_NOT_ENDING_IN_PLUGIN,
     zst_query::ZST_QUERY,
 ];

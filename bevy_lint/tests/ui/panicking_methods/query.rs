@@ -1,8 +1,8 @@
-//! This tests the `panicking_query_methods` lint, specifically when triggered on the `Query` type.
+//! This tests the `panicking_methods` lint, specifically when triggered on the `Query` type.
 
 #![feature(register_tool)]
 #![register_tool(bevy)]
-#![deny(bevy::panicking_query_methods)]
+#![deny(bevy::panicking_methods)]
 
 use bevy::prelude::*;
 
