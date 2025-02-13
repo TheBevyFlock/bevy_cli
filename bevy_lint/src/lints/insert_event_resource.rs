@@ -41,14 +41,17 @@ use crate::{
 };
 use clippy_utils::{
     diagnostics::span_lint_and_sugg,
-    source::{snippet, snippet_with_applicability},
+    source::{snippet, snippet_with_applicability, HasSession},
     sym,
     ty::match_type,
 };
 use rustc_errors::Applicability;
 use rustc_hir::{Expr, GenericArg, GenericArgs, Path, PathSegment, QPath};
 use rustc_lint::{LateContext, LateLintPass};
-use rustc_middle::ty::{Ty, TyKind};
+use rustc_middle::{
+    lint::in_external_macro,
+    ty::{Ty, TyKind},
+};
 use rustc_span::Symbol;
 use std::borrow::Cow;
 
@@ -68,6 +71,11 @@ declare_bevy_lint_pass! {
 
 impl<'tcx> LateLintPass<'tcx> for InsertEventResource {
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &'tcx Expr<'tcx>) {
+        // skip expressions that originate from external macros
+        if in_external_macro(cx.sess(), expr.span) {
+            return;
+        }
+
         // Find a method call.
         if let Some(method_call) = MethodCall::try_from(cx, expr) {
             // Get the type for `src` in `src.method()`. We peel all references because the type

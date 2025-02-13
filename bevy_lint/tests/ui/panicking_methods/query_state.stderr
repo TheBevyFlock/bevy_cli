@@ -1,39 +1,51 @@
 error: called a `QueryState` method that can panic when a non-panicking alternative exists
-  --> tests/ui/panicking_methods/query_state.rs:18:25
+  --> tests/ui/panicking_methods/query_state.rs:34:25
    |
-18 |     let _ = query_state.single(&world);
+34 |     let _ = query_state.single(&world);
    |                         ^^^^^^^^^^^^^^
    |
    = help: use `query_state.get_single(&world)` and handle the `Option` or `Result`
 note: the lint level is defined here
-  --> tests/ui/panicking_methods/query_state.rs:6:9
+  --> tests/ui/panicking_methods/query_state.rs:7:9
    |
-6  | #![deny(bevy::panicking_query_methods)]
+7  | #![deny(bevy::panicking_query_methods)]
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 error: called a `QueryState` method that can panic when a non-panicking alternative exists
-  --> tests/ui/panicking_methods/query_state.rs:22:13
+  --> tests/ui/panicking_methods/query_state.rs:38:13
    |
-22 |     let _ = QueryState::single(&mut query_state, &world);
+38 |     let _ = QueryState::single(&mut query_state, &world);
    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = help: use `QueryState::get_single(&mut query_state, &world)` and handle the `Option` or `Result`
 
 error: called a `QueryState` method that can panic when a non-panicking alternative exists
-  --> tests/ui/panicking_methods/query_state.rs:26:17
+  --> tests/ui/panicking_methods/query_state.rs:42:17
    |
-26 |     query_state.single_mut(&mut world);
+42 |     query_state.single_mut(&mut world);
    |                 ^^^^^^^^^^^^^^^^^^^^^^
    |
    = help: use `query_state.get_single_mut(&mut world)` and handle the `Option` or `Result`
 
 error: called a `QueryState` method that can panic when a non-panicking alternative exists
-  --> tests/ui/panicking_methods/query_state.rs:30:5
+  --> tests/ui/panicking_methods/query_state.rs:46:5
    |
-30 |     QueryState::single_mut(&mut query_state, &mut world);
+46 |     QueryState::single_mut(&mut query_state, &mut world);
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = help: use `QueryState::get_single_mut(&mut query_state, &mut world)` and handle the `Option` or `Result`
 
-error: aborting due to 4 previous errors
+error: called a `QueryState` method that can panic when a non-panicking alternative exists
+  --> tests/ui/panicking_methods/query_state.rs:19:29
+   |
+19 |         let _ = query_state.single(&world);
+   |                             ^^^^^^^^^^^^^^
+...
+55 |     local_macro!();
+   |     -------------- in this macro invocation
+   |
+   = help: use `query_state.get_single(&world)` and handle the `Option` or `Result`
+   = note: this error originates in the macro `local_macro` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: aborting due to 5 previous errors
 
