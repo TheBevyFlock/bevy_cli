@@ -31,6 +31,8 @@ pub fn locate_manifest(relative_to: &Input, workspace: bool) -> io::Result<PathB
         ));
     };
 
+    debug_assert!(relative_to.is_file());
+
     let mut command = Command::new(CARGO);
 
     command
@@ -38,21 +40,10 @@ pub fn locate_manifest(relative_to: &Input, workspace: bool) -> io::Result<PathB
         // Output the plain text path to `Cargo.toml`, not JSON.
         .arg("--message-format=plain")
         // If there is an error, display it directly to the user instead of capturing it.
-        .stderr(Stdio::inherit());
-
-    // If `relative_to` is a folder, set that as the working directory for the command. Else, if it
-    // is a file, find the folder that it is contained in and use that instead.
-    if relative_to.is_dir() {
-        command.current_dir(relative_to);
-    } else if relative_to.is_file() {
-        // This `unwrap()` cannot panic, because all files must have a parent.
-        command.current_dir(relative_to.parent().unwrap());
-    } else {
-        unreachable!(
-            "Path {} is neither a folder nor a file.",
-            relative_to.display()
-        );
-    }
+        .stderr(Stdio::inherit())
+        // This `unwrap()` cannot panic if `relative_to` is a file, because all files must have a
+        // parent.
+        .current_dir(relative_to.parent().unwrap());
 
     if workspace {
         command.arg("--workspace");
