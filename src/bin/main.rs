@@ -52,7 +52,13 @@ pub enum Subcommands {
         #[arg(trailing_var_arg = true, allow_hyphen_values = true)]
         args: Vec<String>,
     },
-    /// Generate autocompletion for `bevy_cli`
+    /// Generate autocompletion for `bevy` CLI tool.
+    ///
+    /// You can add this or a variant of this to your shells `.profile` by just added
+    ///
+    /// ```
+    /// source <(bevy completion zsh)
+    /// ```
     Completions { shell: clap_complete::Shell },
 }
 
