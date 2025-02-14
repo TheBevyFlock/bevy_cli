@@ -12,7 +12,7 @@ fn main() -> Result<()> {
         Subcommands::Lint { args } => bevy_cli::lint::lint(args)?,
         Subcommands::Build(mut args) => bevy_cli::build::build(&mut args)?,
         Subcommands::Run(args) => bevy_cli::run::run(&args)?,
-        Subcommands::Completion { shell } => {
+        Subcommands::Completions { shell } => {
             clap_complete::generate(shell, &mut Cli::command(), "bevy", &mut std::io::stdout());
         }
     }
@@ -53,7 +53,7 @@ pub enum Subcommands {
         args: Vec<String>,
     },
     /// Generate autocompletion for `bevy_cli`
-    Completion { shell: clap_complete::Shell },
+    Completions { shell: clap_complete::Shell },
 }
 
 /// Arguments for creating a new Bevy project.
