@@ -1,7 +1,10 @@
+#![feature(proc_macro_hygiene)]
+
 //! Utility to test the behavior of lints when the code originates from an external macro.
 //!
 //! From: https://github.com/rust-lang/rust-clippy/blob/master/tests/ui/auxiliary/proc_macros.rs
 extern crate proc_macro;
+
 use proc_macro::{
     token_stream::IntoIter,
     Delimiter::{self, Parenthesis},

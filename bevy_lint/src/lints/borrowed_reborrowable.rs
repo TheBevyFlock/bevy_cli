@@ -79,11 +79,14 @@
 use std::ops::ControlFlow;
 
 use crate::{declare_bevy_lint, declare_bevy_lint_pass};
-use clippy_utils::{diagnostics::span_lint_and_sugg, ty::match_type};
+use clippy_utils::{diagnostics::span_lint_and_sugg, source::HasSession, ty::match_type};
 use rustc_errors::Applicability;
 use rustc_hir::{intravisit::FnKind, Body, FnDecl, Mutability};
 use rustc_lint::{LateContext, LateLintPass};
-use rustc_middle::ty::{Interner, Ty, TyKind, TypeVisitable, TypeVisitor};
+use rustc_middle::{
+    lint::in_external_macro,
+    ty::{Interner, Ty, TyKind, TypeVisitable, TypeVisitor},
+};
 use rustc_span::{
     def_id::LocalDefId,
     symbol::{kw, Ident},
@@ -107,9 +110,14 @@ impl<'tcx> LateLintPass<'tcx> for BorrowedReborrowable {
         kind: FnKind<'tcx>,
         decl: &'tcx FnDecl<'tcx>,
         _: &'tcx Body<'tcx>,
-        _: Span,
+        fn_span: Span,
         def_id: LocalDefId,
     ) {
+        // If the function originates from an external macro, skip this lint
+        if in_external_macro(cx.sess(), fn_span) {
+            return;
+        }
+
         let fn_sig = match kind {
             FnKind::Closure => cx.tcx.closure_user_provided_sig(def_id).value,
             // We use `instantiate_identity` to discharge the binder since we don't
