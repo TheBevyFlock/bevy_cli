@@ -1,3 +1,4 @@
+//@no-rustfix
 #![feature(register_tool)]
 #![register_tool(bevy)]
 #![deny(bevy::main_return_without_appexit)]

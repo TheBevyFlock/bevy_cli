@@ -1,5 +1,6 @@
 //! This tests the `borrowed_reborrowable` lint, specifically when triggered on the `ResMut` type.
 
+//@no-rustfix
 #![feature(register_tool)]
 #![register_tool(bevy)]
 #![deny(bevy::borrowed_reborrowable)]

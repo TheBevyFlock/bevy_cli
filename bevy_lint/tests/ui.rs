@@ -11,6 +11,7 @@ use std::{
 };
 use ui_test::{
     color_eyre::{self, eyre::ensure},
+    custom_flags::rustfix::RustfixMode,
     run_tests, CommandBuilder, Config,
 };
 
@@ -36,7 +37,7 @@ fn config() -> color_eyre::Result<Config> {
         driver_path.display(),
     );
 
-    let config = Config {
+    let mut config = Config {
         // When `host` is `None`, `ui_test` will attempt to auto-discover the host by calling
         // `program -vV`. Unfortunately, `bevy_lint_driver` does not yet support the version flag,
         // so we manually specify the host as an empty string. This means that, for now, host-
@@ -69,6 +70,12 @@ fn config() -> color_eyre::Result<Config> {
         out_dir: PathBuf::from("../target/ui"),
         ..Config::rustc("tests/ui")
     };
+    // Apply all possible suggestions with `rustfix`, not just `MachineApplicable`,
+    // otherwise, macros will not receive any suggestions.
+    config
+        .comment_defaults
+        .base()
+        .set_custom("rustfix", RustfixMode::Everything);
 
     Ok(config)
 }

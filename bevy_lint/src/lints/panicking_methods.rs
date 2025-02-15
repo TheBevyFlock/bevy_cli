@@ -82,12 +82,12 @@ use crate::{
 };
 use clippy_utils::{
     diagnostics::span_lint_and_help,
-    source::{snippet, snippet_opt},
+    source::{snippet, snippet_opt, HasSession},
     ty::match_type,
 };
 use rustc_hir::Expr;
 use rustc_lint::{LateContext, LateLintPass, Lint};
-use rustc_middle::ty::Ty;
+use rustc_middle::{lint::in_external_macro, ty::Ty};
 use rustc_span::Symbol;
 
 declare_bevy_lint! {
@@ -108,6 +108,11 @@ declare_bevy_lint_pass! {
 
 impl<'tcx> LateLintPass<'tcx> for PanickingMethods {
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &'tcx Expr<'tcx>) {
+        // skip expressions that originate from external macros
+        if in_external_macro(cx.sess(), expr.span) {
+            return;
+        }
+
         // Check if `expr` is a method call
         if let Some(MethodCall {
             span,

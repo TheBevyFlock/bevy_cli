@@ -37,14 +37,18 @@ use crate::{
 };
 use clippy_utils::{
     diagnostics::span_lint_and_help,
+    source::HasSession,
     ty::{is_normalizable, match_type},
 };
 use rustc_abi::Size;
 use rustc_hir_analysis::collect::ItemCtxt;
 use rustc_lint::{LateContext, LateLintPass};
-use rustc_middle::ty::{
-    layout::{LayoutOf, TyAndLayout},
-    Ty,
+use rustc_middle::{
+    lint::in_external_macro,
+    ty::{
+        layout::{LayoutOf, TyAndLayout},
+        Ty,
+    },
 };
 
 declare_bevy_lint! {
@@ -61,6 +65,9 @@ declare_bevy_lint_pass! {
 
 impl<'tcx> LateLintPass<'tcx> for ZstQuery {
     fn check_ty(&mut self, cx: &LateContext<'tcx>, hir_ty: &'tcx rustc_hir::Ty<'tcx>) {
+        if in_external_macro(cx.sess(), hir_ty.span) {
+            return;
+        }
         let item_cx = ItemCtxt::new(cx.tcx, hir_ty.hir_id.owner.def_id);
         let ty = item_cx.lower_ty(hir_ty);
 

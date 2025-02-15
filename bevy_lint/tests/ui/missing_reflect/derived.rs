@@ -1,5 +1,6 @@
 //! Tests the `missing_reflect` lint when `Component`, `Resource`, and `Event` are derived.
 
+//@no-rustfix
 #![feature(register_tool)]
 #![register_tool(bevy)]
 #![allow(dead_code)]

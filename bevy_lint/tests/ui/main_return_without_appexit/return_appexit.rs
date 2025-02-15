@@ -2,6 +2,7 @@
 //! should be emitted in this case.
 
 //@check-pass
+//@no-rustfix
 
 #![feature(register_tool)]
 #![register_tool(bevy)]
