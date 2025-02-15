@@ -8,19 +8,18 @@ use bevy::prelude::*;
 extern crate proc_macros;
 use proc_macros::external;
 
-external! {
-    #[derive(Component)]
-    struct MyComponentExternal;
-}
-
 macro_rules! local_macro {
     () => {
-        //~ NOTE: `Component` implemented here
         #[derive(Component)]
         //~| HELP: `Reflect` can be automatically derived
         //~v ERROR: defined a component without a `Reflect` implementation
         struct MyComponent;
     };
+}
+
+external! {
+    #[derive(Component)]
+    struct MyComponentExternal;
 }
 
 local_macro!();
