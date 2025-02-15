@@ -1,4 +1,6 @@
 //@aux-build:../auxiliary/proc_macros.rs
+
+//@no-rustfix
 #![feature(register_tool)]
 #![register_tool(bevy)]
 #![deny(bevy::borrowed_reborrowable)]

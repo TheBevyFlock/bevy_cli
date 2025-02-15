@@ -1,12 +1,15 @@
-//! This tests the `borrowed_reborrowable` lint, specifically when triggered on the `MutUntyped` type.
+//! This tests the `borrowed_reborrowable` lint, specifically when triggered on the `MutUntyped`
+//! type.
 
+//@no-rustfix
 #![feature(register_tool)]
 #![register_tool(bevy)]
 #![deny(bevy::borrowed_reborrowable)]
 
-use bevy::ecs::change_detection::MutUntyped;
-use bevy::ecs::ptr::PtrMut;
-use bevy::prelude::*;
+use bevy::{
+    ecs::{change_detection::MutUntyped, ptr::PtrMut},
+    prelude::*,
+};
 
 // OK: Lint does not apply to immutable references
 fn immutable_reference(_param: &MutUntyped) {

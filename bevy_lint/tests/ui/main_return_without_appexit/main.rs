@@ -1,6 +1,7 @@
 //@aux-build:../auxiliary/proc_macros.rs
 //! Tests the most basic version: where `main()` returns nothing and `AppExit` is not handled.
 
+//@no-rustfix
 #![feature(register_tool)]
 #![register_tool(bevy)]
 #![deny(bevy::main_return_without_appexit)]

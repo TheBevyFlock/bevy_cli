@@ -1,64 +1,64 @@
 error: defined an event without a `Reflect` implementation
-  --> tests/ui/missing_reflect/impl.rs:33:1
+  --> tests/ui/missing_reflect/impl.rs:34:1
    |
-33 | struct MyEvent(String);
+34 | struct MyEvent(String);
    | ^^^^^^^^^^^^^^^^^^^^^^^
    |
 note: `Event` implemented here
-  --> tests/ui/missing_reflect/impl.rs:40:1
+  --> tests/ui/missing_reflect/impl.rs:41:1
    |
-40 | / impl Event for MyEvent {
-41 | |     type Traversal = ();
-42 | | }
+41 | / impl Event for MyEvent {
+42 | |     type Traversal = ();
+43 | | }
    | |_^
 note: the lint level is defined here
-  --> tests/ui/missing_reflect/impl.rs:8:9
+  --> tests/ui/missing_reflect/impl.rs:9:9
    |
-8  | #![deny(bevy::missing_reflect)]
+9  | #![deny(bevy::missing_reflect)]
    |         ^^^^^^^^^^^^^^^^^^^^^
 help: `Reflect` can be automatically derived
    |
-33 + #[derive(Reflect)]
-34 | struct MyEvent(String);
+34 + #[derive(Reflect)]
+35 | struct MyEvent(String);
    |
 
 error: defined a component without a `Reflect` implementation
-  --> tests/ui/missing_reflect/impl.rs:14:1
+  --> tests/ui/missing_reflect/impl.rs:15:1
    |
-14 | struct MyComponent;
+15 | struct MyComponent;
    | ^^^^^^^^^^^^^^^^^^^
    |
 note: `Component` implemented here
-  --> tests/ui/missing_reflect/impl.rs:17:1
+  --> tests/ui/missing_reflect/impl.rs:18:1
    |
-17 | / impl Component for MyComponent {
-18 | |     const STORAGE_TYPE: StorageType = StorageType::Table;
-19 | | }
+18 | / impl Component for MyComponent {
+19 | |     const STORAGE_TYPE: StorageType = StorageType::Table;
+20 | | }
    | |_^
 help: `Reflect` can be automatically derived
    |
-14 + #[derive(Reflect)]
-15 | struct MyComponent;
+15 + #[derive(Reflect)]
+16 | struct MyComponent;
    |
 
 error: defined a resource without a `Reflect` implementation
-  --> tests/ui/missing_reflect/impl.rs:23:1
+  --> tests/ui/missing_reflect/impl.rs:24:1
    |
-23 | / struct MyResource {
-24 | |     field_1: usize,
-25 | |     field_2: bool,
-26 | | }
+24 | / struct MyResource {
+25 | |     field_1: usize,
+26 | |     field_2: bool,
+27 | | }
    | |_^
    |
 note: `Resource` implemented here
-  --> tests/ui/missing_reflect/impl.rs:29:1
+  --> tests/ui/missing_reflect/impl.rs:30:1
    |
-29 | impl Resource for MyResource {}
+30 | impl Resource for MyResource {}
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 help: `Reflect` can be automatically derived
    |
-23 + #[derive(Reflect)]
-24 | struct MyResource {
+24 + #[derive(Reflect)]
+25 | struct MyResource {
    |
 
 error: aborting due to 3 previous errors

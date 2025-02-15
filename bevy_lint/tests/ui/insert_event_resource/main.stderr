@@ -64,7 +64,7 @@ error: called `App::init_resource::<Events<Foo>>()` instead of `App::add_event::
 15 |         App::new().init_resource::<Events<Foo>>();
    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ...
-52 |     local_macro!();
+53 |     local_macro!();
    |     -------------- in this macro invocation
    |
    = note: this error originates in the macro `local_macro` (in Nightly builds, run with -Z macro-backtrace for more info)

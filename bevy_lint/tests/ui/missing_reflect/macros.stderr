@@ -1,30 +1,30 @@
 error: defined a component without a `Reflect` implementation
-  --> tests/ui/missing_reflect/macros.rs:16:9
+  --> tests/ui/missing_reflect/macros.rs:17:9
    |
-16 |         struct MyComponent;
+17 |         struct MyComponent;
    |         ^^^^^^^^^^^^^^^^^^^
 ...
-25 | local_macro!();
+26 | local_macro!();
    | -------------- in this macro invocation
    |
 note: `Component` implemented here
-  --> tests/ui/missing_reflect/macros.rs:13:18
+  --> tests/ui/missing_reflect/macros.rs:14:18
    |
-13 |         #[derive(Component)]
+14 |         #[derive(Component)]
    |                  ^^^^^^^^^
 ...
-25 | local_macro!();
+26 | local_macro!();
    | -------------- in this macro invocation
 note: the lint level is defined here
-  --> tests/ui/missing_reflect/macros.rs:4:9
+  --> tests/ui/missing_reflect/macros.rs:5:9
    |
-4  | #![deny(bevy::missing_reflect)]
+5  | #![deny(bevy::missing_reflect)]
    |         ^^^^^^^^^^^^^^^^^^^^^
    = note: this error originates in the macro `local_macro` (in Nightly builds, run with -Z macro-backtrace for more info)
 help: `Reflect` can be automatically derived
    |
-16 ~         #[derive(Reflect)]
-17 ~         struct MyComponent;
+17 ~         #[derive(Reflect)]
+18 ~         struct MyComponent;
    |
 
 error: aborting due to 1 previous error

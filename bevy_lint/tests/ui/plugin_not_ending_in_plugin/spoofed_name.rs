@@ -1,6 +1,7 @@
 //! A test that ensures a plugin whose name is "spoofed" with `use T as F` does not sneak past the
 //! lint.
 
+//@no-rustfix
 #![feature(register_tool)]
 #![register_tool(bevy)]
 #![deny(bevy::plugin_not_ending_in_plugin)]

@@ -1,4 +1,5 @@
 //@aux-build:../auxiliary/proc_macros.rs
+//@no-rustfix
 #![feature(register_tool)]
 #![register_tool(bevy)]
 #![deny(bevy::plugin_not_ending_in_plugin)]

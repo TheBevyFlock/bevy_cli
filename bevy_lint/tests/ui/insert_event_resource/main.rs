@@ -49,5 +49,6 @@ fn main() {
         let mut app = App::new();
         App::new().init_resource::<Events<Foo>>();
     });
+
     local_macro!();
 }
