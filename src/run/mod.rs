@@ -37,7 +37,7 @@ pub fn run(args: &RunArgs) -> anyhow::Result<()> {
             build_args.cargo_args.target_args.bin = Some(bin_target.bin_name);
         }
 
-        let web_bundle = build_web(&mut build_args)?;
+        let (web_bundle, bin_target) = build_web(&mut build_args)?;
 
         let port = web_args.port;
         let url = format!("http://localhost:{port}");
@@ -54,7 +54,7 @@ pub fn run(args: &RunArgs) -> anyhow::Result<()> {
             println!("Open your app at <{url}>!");
         }
 
-        serve::serve(web_bundle, port)?;
+        serve::serve(web_bundle, bin_target, port)?;
     } else {
         let cargo_args = args.cargo_args_builder();
         // For native builds, wrap `cargo run`
@@ -65,11 +65,11 @@ pub fn run(args: &RunArgs) -> anyhow::Result<()> {
 }
 
 #[derive(Debug, Clone)]
-pub(crate) struct BinTarget {
+pub struct BinTarget {
     /// The path to the directory in `target` which contains the binary.
-    pub(crate) artifact_directory: PathBuf,
+    pub artifact_directory: PathBuf,
     /// The name of the binary (without any extensions).
-    pub(crate) bin_name: String,
+    pub bin_name: String,
 }
 
 /// Determine which binary target should be run.
