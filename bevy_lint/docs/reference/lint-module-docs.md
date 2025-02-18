@@ -5,17 +5,25 @@ All lints, [which can be found here], place their documentation in their module.
 ````markdown
 A single sentence description of what this lint checks for.
 
-In the rare case this needs to be elaborated, an optional paragraph beneath the first sentence is allowed. Use this to go into more detail on what is checked for, as well as what not is checked for.
+In the rare case this needs to be elaborated, an optional paragraph beneath the first sentence is
+allowed. Use this to go into more detail on what is checked for, as well as what not is checked
+for.
 
 # Motivation
 
-One to several paragraphs describing why this lint exists. For example: does this lint help catch slow code, or does it suggest an more-idiomatic version? Try to motivate why a user may want to enable this lint.
+One to several paragraphs describing why this lint exists. For example: does this lint help catch
+slow code, or does it suggest an more-idiomatic version? Try to motivate why a user may want to
+enable this lint.
 
-Be careful to only answer _why_ this lint exists, not _what_ it does or _how_ it works. That is the responsibility of the extended description.
+Be careful to only answer _why_ this lint exists, not _what_ it does or _how_ it works. That is the
+responsibility of the extended description.
 
 # Known Issues
 
-This is an optional section that describes what false-negatives and false-positives this lint may have. (Usually to justify why a lint is in the `nursery` group, though not always.) If possible, make sure to link to the issue in the [issue tracker](https://github.com/TheBevyFlock/bevy_cli/issues) so users can comment on it.
+This is an optional section that describes what false-negatives and false-positives this lint may
+have. (Usually to justify why a lint is in the `nursery` group, though not always.) If possible,
+make sure to link to the issue in the
+[issue tracker](https://github.com/TheBevyFlock/bevy_cli/issues) so users can comment on it.
 
 # Example
 
@@ -49,8 +57,8 @@ fn foo() {
 }
 ```
 
-If you wish to elaborate further on how to fix the lint or supply further examples, you may do so here. 
-If this is a Cargo lint, switch out the Rust code block with a TOML one for `Cargo.toml`.
+If you wish to elaborate further on how to fix the lint or supply further examples, you may do so
+here. If this is a Cargo lint, switch out the Rust code block with a TOML one for `Cargo.toml`.
 ````
 
 [which can be found here]: https://thebevyflock.github.io/bevy_cli/bevy_lint/lints/index.html
