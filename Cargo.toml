@@ -22,6 +22,8 @@ wasm-opt = ["dep:wasm-opt"]
 [dependencies]
 # CLI argument parsing
 clap = { version = "4.5.16", features = ["derive"] }
+# autocompletion auto-generation
+clap_complete = "4.5.44"
 
 # Easy error propagation and contexts
 anyhow = "1.0.86"
