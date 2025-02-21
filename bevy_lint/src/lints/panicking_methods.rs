@@ -4,10 +4,6 @@
 //! For instance, this will lint against `Query::single()`, recommending that `Query::get_single()`
 //! should be used instead.
 //!
-//! This lint is actually two: [`PANICKING_QUERY_METHODS`] and [`PANICKING_WORLD_METHODS`]. Each
-//! can be toggled separately. The query variant lints for `Query` and `QueryState`, while the
-//! world variant lints for `World`.
-//!
 //! # Motivation
 //!
 //! Panicking is the nuclear option of error handling in Rust: it is meant for cases where recovery
@@ -76,43 +72,57 @@
 //! # bevy::ecs::system::assert_is_system(graceful_world);
 //! ```
 
-use crate::{declare_bevy_lint, declare_bevy_lint_pass};
+use crate::{
+    declare_bevy_lint, declare_bevy_lint_pass,
+    utils::hir_parse::{generic_args_snippet, span_args, MethodCall},
+};
 use clippy_utils::{
     diagnostics::span_lint_and_help,
     source::{snippet, snippet_opt},
     ty::match_type,
 };
-use rustc_hir::{Expr, ExprKind, GenericArgs};
-use rustc_lint::{LateContext, LateLintPass, Lint};
+use rustc_hir::Expr;
+use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::Ty;
-use rustc_span::{Span, Symbol};
+use rustc_span::Symbol;
 
 declare_bevy_lint! {
-    pub PANICKING_QUERY_METHODS,
+    pub PANICKING_METHODS,
     RESTRICTION,
-    "called a `Query` or `QueryState` method that can panic when a non-panicking alternative exists",
-}
-
-declare_bevy_lint! {
-    pub PANICKING_WORLD_METHODS,
-    RESTRICTION,
-    "called a `World` method that can panic when a non-panicking alternative exists",
+    "called a method that can panic when a non-panicking alternative exists",
 }
 
 declare_bevy_lint_pass! {
-    pub PanickingMethods => [PANICKING_QUERY_METHODS.lint, PANICKING_WORLD_METHODS.lint],
+    pub PanickingMethods => [PANICKING_METHODS.lint],
 }
 
 impl<'tcx> LateLintPass<'tcx> for PanickingMethods {
-    fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &Expr<'tcx>) {
-        // Find a method call.
-        if let ExprKind::MethodCall(path, src, args, method_span) = expr.kind {
-            // Get the type of `src` for `src.method()`. We peel all references to that `Foo`,
-            // `&Foo`, `&&Foo`, etc. all look identical, since method calls automatically
-            // dereference the source.
-            let src_ty = cx.typeck_results().expr_ty(src).peel_refs();
+    fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &'tcx Expr<'tcx>) {
+        // Check if `expr` is a method call
+        if let Some(MethodCall {
+            span,
+            method_path,
+            args,
+            receiver,
+            is_fully_qulified,
+        }) = MethodCall::try_from(cx, expr)
+        {
+            // get the `Ty` of the receiver, this can either be:
+            //
+            // for fully qualified method calls the first argument is `Self` and represents the
+            // `Ty` we are looking for:
+            //
+            // Query::single(&foo, args);
+            //              ^^^^^
+            // for *not* fully qualified method calls:
+            //
+            // foo.single();
+            // ^^^^^
+            //
+            // We peel all references to that `Foo`, `&Foo`, `&&Foo`, etc.
+            let src_ty = cx.typeck_results().expr_ty(receiver).peel_refs();
 
-            // Check if `src` is a type that has panicking methods (e.g. `Query`), else exit.
+            // Check if `src_ty` is a type that has panicking methods (e.g. `Query`), else exit.
             let Some(panicking_type) = PanickingType::try_from_ty(cx, src_ty) else {
                 return;
             };
@@ -129,49 +139,79 @@ impl<'tcx> LateLintPass<'tcx> for PanickingMethods {
                     // If performance is an issue in the future, this could be cached.
                     let key = Symbol::intern(panicking_method);
 
-                    if path.ident.name == key {
-                        // It is one of the panicking methods. Write down the alternative and stop
-                        // searching.
+                    if method_path.ident.name == key {
+                        // It is one of the panicking methods. Write down the alternative and
+                        // stop searching.
                         break 'block *alternative_method;
                     }
                 }
 
-                // If we reach this point, the method is not one we're searching for. In this case,
-                // we exit.
+                // If we reach this point, the method is not one we're searching for. In this
+                // case, we exit.
                 return;
             };
 
-            // By this point, we've verified that `src` is a panicking type and the method is one
-            // that panics with a viable alternative. Let's emit the lint.
+            // By this point, we've verified that `src` is a panicking type and the method is
+            // one that panics with a viable alternative. Let's emit the lint.
+            let (src_snippet, generics_snippet, args_snippet) = if is_fully_qulified {
+                // When the method was a fully qualified method call, the beginning of the snippet
+                // is just the `PanickingType`.
+                let mut src_snippet = panicking_type.name().to_string();
+                src_snippet.push_str("::");
 
-            // Try to find the string representation of `src`. This usually returns `my_query`
-            // without the trailing `.`, so we manually append it. When the snippet cannot be
-            // found, we default to the qualified `Type::` form.
-            let src_snippet = snippet_opt(cx, src.span).map_or_else(
-                || format!("{}::", panicking_type.name()),
-                |mut s| {
-                    s.push('.');
-                    s
-                },
-            );
+                // Try to find the generic arguments of the method, if any exist. This can
+                // either evaluate to `""` or `"::<A, B, C>"`.
+                let generics_snippet = generic_args_snippet(cx, method_path);
 
-            // Try to find the generic arguments of the method, if any exist. This can either
-            // evaluate to `""` or `"::<A, B, C>"`.
-            let generics_snippet = path
-                .args // Find the generic arguments of this path.
-                .and_then(GenericArgs::span_ext) // Find the span of the generics.
-                .and_then(|span| snippet_opt(cx, span)) // Extract the string, which may look like `<A, B>`.
-                .map(|snippet| format!("::{snippet}")) // Insert `::` before the string.
-                .unwrap_or_default(); // If any of the previous failed, return an empty string.
+                // The first argument to a fully qualified method call is the receiver (`Self`) and
+                // is not part of the `args`
+                let receiver_snippet = snippet(cx, receiver.span, "");
 
-            // Try to find the string representation of the arguments to our panicking method. See
-            // `span_args()` for more details on how this is done.
-            let args_snippet = snippet(cx, span_args(args), "");
+                // Try to find the string representation of the arguments to our panicking
+                // method. See `span_args()` for more details on how this is
+                // done.
+                let args_snippet = snippet(cx, span_args(args), "");
+                // If there are no args, just return the `receiver` as the only argument
+                if args_snippet.is_empty() {
+                    (src_snippet, generics_snippet, receiver_snippet)
+                } else {
+                    // If there are arguments in the method call, add them after the `receiver` and
+                    // add the `,` as delimiter
+                    (
+                        src_snippet,
+                        generics_snippet,
+                        format!("{receiver_snippet}, {args_snippet}").into(),
+                    )
+                }
+            }
+            // The method was not a fully qualified call
+            else {
+                // Try to find the string representation of `src`. This usually returns
+                // `my_query` without the trailing `.`, so we manually
+                // append it. When the snippet cannot be found, we default
+                // to the qualified `Type::` form.
+                let src_snippet = snippet_opt(cx, receiver.span).map_or_else(
+                    || format!("{}::", panicking_type.name()),
+                    |mut s| {
+                        s.push('.');
+                        s
+                    },
+                );
+                // Try to find the generic arguments of the method, if any exist. This can
+                // either evaluate to `""` or `"::<A, B, C>"`.
+                let generics_snippet = generic_args_snippet(cx, method_path);
+
+                // Try to find the string representation of the arguments to our panicking
+                // method. See `span_args()` for more details on how this is
+                // done.
+                let args_snippet = snippet(cx, span_args(args), "");
+                (src_snippet, generics_snippet, args_snippet)
+            };
 
             span_lint_and_help(
                 cx,
-                panicking_type.lint(),
-                method_span,
+                PANICKING_METHODS.lint,
+                span,
                 format!(
                     "called a `{}` method that can panic when a non-panicking alternative exists",
                     panicking_type.name()
@@ -245,45 +285,4 @@ impl PanickingType {
             Self::World => "World",
         }
     }
-
-    /// Returns the [`Lint`] associated with this panicking type.
-    ///
-    /// This can either return [`PANICKING_QUERY_METHODS`] or [`PANICKING_WORLD_METHODS`].
-    fn lint(&self) -> &'static Lint {
-        match self {
-            Self::Query | Self::QueryState => PANICKING_QUERY_METHODS.lint,
-            Self::World => PANICKING_WORLD_METHODS.lint,
-        }
-    }
-}
-
-/// Returns the [`Span`] of an array of method arguments.
-///
-/// [`ExprKind::MethodCall`] does not provide a good method for extracting the [`Span`] of _just_
-/// the method's arguments. Instead, it contains a [`slice`] of [`Expr`]. This function tries it's
-/// best to find a span that contains all arguments from the passed [`slice`].
-///
-/// This function assumes that `args` is sorted by order of appearance. An [`Expr`] that appears
-/// earlier in the source code should appear earlier in the [`slice`].
-///
-/// If there are no [`Expr`]s in the [`slice`], this will return [`Span::default()`].
-fn span_args(args: &[Expr]) -> Span {
-    // Start with an empty span. If `args` is empty, this will be returned. This may look like
-    // `0..0`.
-    let mut span = Span::default();
-
-    // If at least 1 item exists in `args`, get the first expression and overwrite `span` with it's
-    // value. `span` may look like `7..12` now, with a bit of extra metadata.
-    if let Some(first_arg) = args.first() {
-        span = first_arg.span;
-    }
-
-    // Get the last `Expr`, if it exists, and overwrite our span's highest index with the last
-    // expression's highest index. If there is only one item in `args`, this will appear to do
-    // nothing. `span` may now look like `7..20`.
-    if let Some(last_arg) = args.last() {
-        span = span.with_hi(last_arg.span.hi());
-    }
-
-    span
 }

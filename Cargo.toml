@@ -22,6 +22,8 @@ wasm-opt = ["dep:wasm-opt"]
 [dependencies]
 # CLI argument parsing
 clap = { version = "4.5.16", features = ["derive"] }
+# autocompletion auto-generation
+clap_complete = "4.5.44"
 
 # Easy error propagation and contexts
 anyhow = "1.0.86"
@@ -56,6 +58,10 @@ fs_extra = "1.3.0"
 
 # Optimizing Wasm binaries
 wasm-opt = { version = "0.116.1", optional = true }
+# Handling websocket messages
+actix-ws = "0.3.0"
+# Utilities for futures which we use for the dev server
+futures-util = "0.3.31"
 
 [build-dependencies]
 # We don't use `cc` directly, but our dependency `wasm-opt-sys` fails to compile on Windows when using a newer version.
