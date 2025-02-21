@@ -19,6 +19,7 @@ pub mod zst_query;
 
 pub(crate) static LINTS: &[&BevyLint] = &[
     borrowed_reborrowable::BORROWED_REBORROWABLE,
+    cargo::DUPLICATE_BEVY_DEPENDENCIES,
     insert_event_resource::INSERT_EVENT_RESOURCE,
     insert_unit_bundle::INSERT_UNIT_BUNDLE,
     main_return_without_appexit::MAIN_RETURN_WITHOUT_APPEXIT,
@@ -27,7 +28,6 @@ pub(crate) static LINTS: &[&BevyLint] = &[
     panicking_methods::PANICKING_WORLD_METHODS,
     plugin_not_ending_in_plugin::PLUGIN_NOT_ENDING_IN_PLUGIN,
     zst_query::ZST_QUERY,
-    cargo::DUPLICATE_BEVY_DEPENDENCIES,
 ];
 
 pub(crate) fn register_lints(store: &mut LintStore) {
@@ -37,6 +37,7 @@ pub(crate) fn register_lints(store: &mut LintStore) {
 
 pub(crate) fn register_passes(store: &mut LintStore) {
     store.register_late_pass(|_| Box::new(borrowed_reborrowable::BorrowedReborrowable::default()));
+    store.register_late_pass(|_| Box::new(cargo::Cargo::default()));
     store.register_late_pass(|_| Box::new(insert_event_resource::InsertEventResource::default()));
     store.register_late_pass(|_| {
         Box::new(main_return_without_appexit::MainReturnWithoutAppExit::default())
@@ -48,5 +49,4 @@ pub(crate) fn register_passes(store: &mut LintStore) {
     });
     store.register_late_pass(|_| Box::new(zst_query::ZstQuery::default()));
     store.register_late_pass(|_| Box::new(insert_unit_bundle::InsertUnitBundle::default()));
-    store.register_late_pass(|_| Box::new(cargo::Cargo::default()));
 }
