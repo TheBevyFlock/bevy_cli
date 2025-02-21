@@ -59,7 +59,7 @@ use toml::Spanned;
 
 declare_bevy_lint! {
     pub DUPLICATE_BEVY_DEPENDENCIES,
-    CORRECTNESS,
+    NURSERY,
     "duplicate bevy dependencies",
 }
 
