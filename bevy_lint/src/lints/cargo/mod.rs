@@ -30,7 +30,18 @@ impl LateLintPass<'_> for Cargo {
             return;
         }
 
-        match MetadataCommand::new().exec() {
+        // Find the path to the file we're compiling. We will spawn the `cargo metadata` command in
+        // the same folder as this file so that it can find the correct Cargo project.
+        let Input::File(ref path) = cx.tcx.sess.io.input else {
+            // A string was passed directly to the compiler, not a file, so we cannot locate the
+            // Cargo project.
+            return;
+        };
+
+        match MetadataCommand::new()
+            .current_dir(path.parent().expect("file path must have a parent"))
+            .exec()
+        {
             Ok(metadata) => {
                 duplicate_bevy_dependencies::check(cx, &metadata, self.bevy);
             }
