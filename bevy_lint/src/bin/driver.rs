@@ -8,7 +8,7 @@ extern crate rustc_span;
 use std::process::ExitCode;
 
 use bevy_lint::BevyLintCallback;
-use rustc_driver::{catch_with_exit_code, init_rustc_env_logger, install_ice_hook, RunCompiler};
+use rustc_driver::{catch_with_exit_code, init_rustc_env_logger, install_ice_hook, run_compiler};
 use rustc_session::{config::ErrorOutputType, EarlyDiagCtxt};
 
 const BUG_REPORT_URL: &str = "https://github.com/TheBevyFlock/bevy_cli/issues";
@@ -32,16 +32,14 @@ fn main() -> ExitCode {
     let exit_code = catch_with_exit_code(move || {
         // Get the arguments passed through the CLI. This is equivalent to `std::env::args()`, but
         // it returns a `Result` instead of panicking.
-        let mut args = rustc_driver::args::raw_args(&early_dcx)?;
+        let mut args = rustc_driver::args::raw_args(&early_dcx);
 
         // The arguments are formatted as `[DRIVER_PATH, RUSTC_PATH, ARGS...]`. We skip the driver
-        // path so that `RunCompiler` just sees `rustc`'s path.
+        // path so that `run_compiler()` just sees `rustc`'s path.
         args.remove(0);
 
         // Call the compiler with our custom callback.
-        RunCompiler::new(&args, &mut BevyLintCallback).run();
-
-        Ok(())
+        run_compiler(&args, &mut BevyLintCallback);
     });
 
     // We truncate the `i32` to a `u8`. `catch_with_exit_code()` currently only returns 1 or 0, so

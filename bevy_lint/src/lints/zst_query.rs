@@ -37,10 +37,10 @@ use crate::{
 };
 use clippy_utils::{
     diagnostics::span_lint_and_help,
-    ty::{is_normalizable, match_type},
+    ty::{is_normalizable, match_type, ty_from_hir_ty},
 };
 use rustc_abi::Size;
-use rustc_hir_analysis::collect::ItemCtxt;
+use rustc_hir::AmbigArg;
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::{
     layout::{LayoutOf, TyAndLayout},
@@ -60,20 +60,19 @@ declare_bevy_lint_pass! {
 }
 
 impl<'tcx> LateLintPass<'tcx> for ZstQuery {
-    fn check_ty(&mut self, cx: &LateContext<'tcx>, hir_ty: &'tcx rustc_hir::Ty<'tcx>) {
-        let item_cx = ItemCtxt::new(cx.tcx, hir_ty.hir_id.owner.def_id);
-        let ty = item_cx.lower_ty(hir_ty);
+    fn check_ty(&mut self, cx: &LateContext<'tcx>, hir_ty: &'tcx rustc_hir::Ty<'tcx, AmbigArg>) {
+        let ty = ty_from_hir_ty(cx, hir_ty.as_unambig_ty());
 
         let Some(query_kind) = QueryKind::try_from_ty(cx, ty) else {
             return;
         };
 
-        let Some(query_data_ty) = generic_type_at(cx, hir_ty, 2) else {
+        let Some(query_data_ty) = generic_type_at(cx, hir_ty.as_unambig_ty(), 2) else {
             return;
         };
 
         for hir_ty in detuple(*query_data_ty) {
-            let ty = item_cx.lower_ty(&hir_ty);
+            let ty = ty_from_hir_ty(cx, &hir_ty);
 
             // We want to make sure we're evaluating `Foo` and not `&Foo`/`&mut Foo`
             let peeled = ty.peel_refs();
