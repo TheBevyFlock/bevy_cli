@@ -38,12 +38,15 @@
 //! error: could not compile `multiple-bevy-versions` (bin "multiple-bevy-versions") due to 1
 //! previous error Check failed: exit status: 101.
 
-use std::{collections::HashMap, path::Path, str::FromStr, sync::Arc};
-
-use crate::{
-    declare_bevy_lint,
-    lints::cargo::{toml_span, CargoToml},
+use std::{
+    collections::{BTreeMap, HashMap},
+    ops::Range,
+    path::Path,
+    str::FromStr,
+    sync::Arc,
 };
+
+use crate::declare_bevy_lint;
 use cargo_metadata::{
     semver::{Version, VersionReq},
     Metadata, Resolve,
@@ -54,13 +57,28 @@ use clippy_utils::{
 };
 use rustc_hir::def_id::LOCAL_CRATE;
 use rustc_lint::LateContext;
-use rustc_span::{SourceFile, Symbol};
+use rustc_span::{BytePos, Pos, SourceFile, Span, Symbol, SyntaxContext};
+use serde::Deserialize;
 use toml::Spanned;
 
 declare_bevy_lint! {
     pub DUPLICATE_BEVY_DEPENDENCIES,
     NURSERY,
     "duplicate bevy dependencies",
+}
+
+#[derive(Deserialize, Debug)]
+struct CargoToml {
+    dependencies: BTreeMap<Spanned<String>, Spanned<toml::Value>>,
+}
+
+fn toml_span(range: Range<usize>, file: &SourceFile) -> Span {
+    Span::new(
+        file.start_pos + BytePos::from_usize(range.start),
+        file.start_pos + BytePos::from_usize(range.end),
+        SyntaxContext::root(),
+        None,
+    )
 }
 
 pub(super) fn check(cx: &LateContext<'_>, metadata: &Metadata, bevy_symbol: Symbol) {

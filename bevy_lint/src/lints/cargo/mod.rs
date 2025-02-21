@@ -4,10 +4,7 @@ use clippy_utils::sym;
 use duplicate_bevy_dependencies::DUPLICATE_BEVY_DEPENDENCIES;
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_session::{config::Input, utils::was_invoked_from_cargo};
-use rustc_span::{BytePos, Pos, SourceFile, Span, Symbol, SyntaxContext};
-use serde::Deserialize;
-use std::{collections::BTreeMap, ops::Range};
-use toml::Spanned;
+use rustc_span::Symbol;
 
 pub mod duplicate_bevy_dependencies;
 
@@ -47,18 +44,4 @@ impl LateLintPass<'_> for Cargo {
             }
         }
     }
-}
-
-#[derive(Deserialize, Debug)]
-struct CargoToml {
-    dependencies: BTreeMap<Spanned<String>, Spanned<toml::Value>>,
-}
-
-fn toml_span(range: Range<usize>, file: &SourceFile) -> Span {
-    Span::new(
-        file.start_pos + BytePos::from_usize(range.start),
-        file.start_pos + BytePos::from_usize(range.end),
-        SyntaxContext::root(),
-        None,
-    )
 }
