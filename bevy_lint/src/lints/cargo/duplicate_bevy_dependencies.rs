@@ -40,7 +40,10 @@
 
 use std::{collections::HashMap, path::Path, str::FromStr, sync::Arc};
 
-use crate::lints::cargo::{toml_span, CargoToml, DUPLICATE_BEVY_DEPENDENCIES};
+use crate::{
+    declare_bevy_lint,
+    lints::cargo::{toml_span, CargoToml},
+};
 use cargo_metadata::{
     semver::{Version, VersionReq},
     Metadata, Resolve,
@@ -53,6 +56,12 @@ use rustc_hir::def_id::LOCAL_CRATE;
 use rustc_lint::LateContext;
 use rustc_span::{SourceFile, Symbol};
 use toml::Spanned;
+
+declare_bevy_lint! {
+    pub DUPLICATE_BEVY_DEPENDENCIES,
+    CORRECTNESS,
+    "duplicate bevy dependencies",
+}
 
 pub(super) fn check(cx: &LateContext<'_>, metadata: &Metadata, bevy_symbol: Symbol) {
     // no reason to continue the check if there is only one instance of `bevy` required

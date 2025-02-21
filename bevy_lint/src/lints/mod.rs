@@ -19,7 +19,7 @@ pub mod zst_query;
 
 pub(crate) static LINTS: &[&BevyLint] = &[
     borrowed_reborrowable::BORROWED_REBORROWABLE,
-    cargo::DUPLICATE_BEVY_DEPENDENCIES,
+    cargo::duplicate_bevy_dependencies::DUPLICATE_BEVY_DEPENDENCIES,
     insert_event_resource::INSERT_EVENT_RESOURCE,
     insert_unit_bundle::INSERT_UNIT_BUNDLE,
     main_return_without_appexit::MAIN_RETURN_WITHOUT_APPEXIT,

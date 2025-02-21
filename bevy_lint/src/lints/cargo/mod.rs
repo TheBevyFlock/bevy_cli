@@ -1,6 +1,7 @@
-use crate::{declare_bevy_lint, declare_bevy_lint_pass};
+use crate::declare_bevy_lint_pass;
 use cargo_metadata::MetadataCommand;
 use clippy_utils::sym;
+use duplicate_bevy_dependencies::DUPLICATE_BEVY_DEPENDENCIES;
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_session::{config::Input, utils::was_invoked_from_cargo};
 use rustc_span::{BytePos, Pos, SourceFile, Span, Symbol, SyntaxContext};
@@ -9,12 +10,6 @@ use std::{collections::BTreeMap, ops::Range};
 use toml::Spanned;
 
 pub mod duplicate_bevy_dependencies;
-
-declare_bevy_lint! {
-    pub DUPLICATE_BEVY_DEPENDENCIES,
-    CORRECTNESS,
-    "duplicate bevy dependencies",
-}
 
 declare_bevy_lint_pass! {
     pub Cargo => [DUPLICATE_BEVY_DEPENDENCIES.lint],
