@@ -1,13 +1,13 @@
 error: Mismatching versions of `bevy` found, leafwing-input-manager used bevy version ^0.13
-  --> Cargo.toml:11:26
+  --> Cargo.toml:10:26
    |
-11 | leafwing-input-manager = "0.13"
+10 | leafwing-input-manager = "0.13"
    |                          ^^^^^^
    |
 help: Expected all crates to use `bevy` 0.14.2
-  --> Cargo.toml:10:8
+  --> Cargo.toml:9:8
    |
-10 | bevy = { version = "0.14.2" }
+9  | bevy = { version = "0.14.2" }
    |        ^^^^^^^^^^^^^^^^^^^^^^
    = note: `#[deny(bevy::duplicate_bevy_dependencies)]` on by default
 
