@@ -46,12 +46,9 @@ impl LateLintPass<'_> for Cargo {
                 duplicate_bevy_dependencies::check(cx, &metadata, self.bevy);
             }
             Err(e) => {
-                span_lint(
-                    cx,
-                    DUPLICATE_BEVY_DEPENDENCIES.lint,
-                    rustc_span::DUMMY_SP,
-                    format!("could not read cargo metadata: {e}"),
-                );
+                cx.tcx
+                    .dcx()
+                    .err(format!("could not read cargo metadata: {e}"));
             }
         }
     }
