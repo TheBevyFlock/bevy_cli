@@ -1,6 +1,6 @@
 use crate::{declare_bevy_lint, declare_bevy_lint_pass};
 use cargo_metadata::MetadataCommand;
-use clippy_utils::{diagnostics::span_lint, sym};
+use clippy_utils::sym;
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_session::{config::Input, utils::was_invoked_from_cargo};
 use rustc_span::{BytePos, Pos, SourceFile, Span, Symbol, SyntaxContext};
