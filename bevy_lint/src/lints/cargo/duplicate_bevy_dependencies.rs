@@ -5,6 +5,11 @@
 //! When different third party crates use incompatible versions of Bevy, it can lead to confusing
 //! errors and type incompatibilities.
 //!
+//! # Known Issues
+//!
+//! This lint does only work if a specific version of `bevy` is specified. If a
+//! Version range is specific this lint will be skipped.
+//!
 //! # Example
 //!
 //! ```toml
