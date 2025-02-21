@@ -24,6 +24,10 @@ path = "src/bin/driver.rs"
 name = "ui"
 harness = false
 
+[[test]]
+name = "ui_cargo"
+harness = false
+
 [dependencies]
 # Contains a series of useful utilities when writing lints. The version is chosen to work with the
 # currently pinned nightly Rust version. When the Rust version changes, this too needs to be
