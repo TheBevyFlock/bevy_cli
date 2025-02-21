@@ -2419,14 +2419,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "multiple-bevy-versions"
-version = "0.0.0"
-dependencies = [
- "bevy",
- "leafwing-input-manager",
-]
-
-[[package]]
 name = "naga"
 version = "0.20.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3292,6 +3284,14 @@ name = "simd-adler32"
 version = "0.3.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d66dc143e6b11c1eddc06d5c423cfc97062865baf299914ab64caa38182078fe"
+
+[[package]]
+name = "single-bevy-version"
+version = "0.0.0"
+dependencies = [
+ "bevy",
+ "leafwing-input-manager",
+]
 
 [[package]]
 name = "slab"
