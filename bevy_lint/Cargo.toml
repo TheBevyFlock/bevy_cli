@@ -2,7 +2,7 @@
 name = "bevy_lint"
 version = "0.2.0-dev"
 authors = ["BD103"]
-edition = "2021"
+edition = "2024"
 description = "A collection of lints for the Bevy game engine"
 repository = "https://github.com/TheBevyFlock/bevy_cli"
 license = "MIT OR Apache-2.0"

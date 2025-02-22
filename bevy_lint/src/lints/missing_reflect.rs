@@ -136,7 +136,7 @@ impl TraitType {
     fn from_local_crate<'tcx>(
         tcx: TyCtxt<'tcx>,
         trait_path: &[&str],
-    ) -> impl Iterator<Item = Self> + 'tcx {
+    ) -> impl Iterator<Item = Self> + use<'tcx> {
         // Find the `DefId` of the trait. There may be multiple if there are multiple versions of
         // the same crate.
         let trait_def_ids = def_path_res(tcx, trait_path)
