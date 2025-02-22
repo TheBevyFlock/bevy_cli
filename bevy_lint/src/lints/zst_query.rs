@@ -43,8 +43,8 @@ use rustc_abi::Size;
 use rustc_hir::AmbigArg;
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::{
-    layout::{LayoutOf, TyAndLayout},
     Ty,
+    layout::{LayoutOf, TyAndLayout},
 };
 
 declare_bevy_lint! {

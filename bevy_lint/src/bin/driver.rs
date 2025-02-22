@@ -9,7 +9,7 @@ use std::process::ExitCode;
 
 use bevy_lint::BevyLintCallback;
 use rustc_driver::{catch_with_exit_code, init_rustc_env_logger, install_ice_hook, run_compiler};
-use rustc_session::{config::ErrorOutputType, EarlyDiagCtxt};
+use rustc_session::{EarlyDiagCtxt, config::ErrorOutputType};
 
 const BUG_REPORT_URL: &str = "https://github.com/TheBevyFlock/bevy_cli/issues";
 

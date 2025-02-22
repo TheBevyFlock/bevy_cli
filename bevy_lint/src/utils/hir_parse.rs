@@ -2,8 +2,8 @@
 
 use clippy_utils::source::snippet_opt;
 use rustc_hir::{
-    def::{DefKind, Res},
     Expr, ExprKind, GenericArg, GenericArgs, Node, Path, PathSegment, QPath, Ty, TyKind,
+    def::{DefKind, Res},
 };
 use rustc_lint::LateContext;
 use rustc_span::{Span, Symbol};
@@ -272,7 +272,10 @@ impl<'tcx> MethodCall<'tcx> {
                             // This can only happen if `args == &[]`, which shouldn't be possible,
                             // since we previously ensured that the the first element to `args`
                             // existed and was `self`.
-                            unreachable!("arguments to function call was empty, even though `self` was expected, at {:?}", expr.span);
+                            unreachable!(
+                                "arguments to function call was empty, even though `self` was expected, at {:?}",
+                                expr.span
+                            );
                         };
 
                         return Some(Self {

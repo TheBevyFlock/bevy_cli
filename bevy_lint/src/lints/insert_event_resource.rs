@@ -37,7 +37,7 @@
 
 use crate::{
     declare_bevy_lint, declare_bevy_lint_pass,
-    utils::hir_parse::{generic_args_snippet, span_args, MethodCall},
+    utils::hir_parse::{MethodCall, generic_args_snippet, span_args},
 };
 use clippy_utils::{
     diagnostics::span_lint_and_sugg,
@@ -121,7 +121,9 @@ fn check_insert_resource(cx: &LateContext<'_>, method_call: &MethodCall) {
                 cx,
                 INSERT_EVENT_RESOURCE.lint,
                 method_call.span,
-                format!("called `App::insert_resource{generics_snippet}({receiver_snippet}, {args_snippet})` instead of `App::add_event::<{event_ty_snippet}>({receiver_snippet})`"),
+                format!(
+                    "called `App::insert_resource{generics_snippet}({receiver_snippet}, {args_snippet})` instead of `App::add_event::<{event_ty_snippet}>({receiver_snippet})`"
+                ),
                 "inserting an `Events` resource does not fully setup that event",
                 format!("App::add_event::<{event_ty_snippet}>({receiver_snippet})"),
                 applicability,
@@ -131,7 +133,9 @@ fn check_insert_resource(cx: &LateContext<'_>, method_call: &MethodCall) {
                 cx,
                 INSERT_EVENT_RESOURCE.lint,
                 method_call.span,
-                format!("called `App::insert_resource{generics_snippet}({args_snippet})` instead of `App::add_event::<{event_ty_snippet}>()`"),
+                format!(
+                    "called `App::insert_resource{generics_snippet}({args_snippet})` instead of `App::add_event::<{event_ty_snippet}>()`"
+                ),
                 "inserting an `Events` resource does not fully setup that event",
                 format!("add_event::<{event_ty_snippet}>()"),
                 applicability,
@@ -197,7 +201,9 @@ fn check_init_resource<'tcx>(cx: &LateContext<'tcx>, method_call: &MethodCall<'t
                     cx,
                     INSERT_EVENT_RESOURCE.lint,
                     method_call.span,
-                    format!("called `App::init_resource{generics_snippet}({receiver_snippet})` instead of `App::add_event::<{event_ty_snippet}>({receiver_snippet})`"),
+                    format!(
+                        "called `App::init_resource{generics_snippet}({receiver_snippet})` instead of `App::add_event::<{event_ty_snippet}>({receiver_snippet})`"
+                    ),
                     "inserting an `Events` resource does not fully setup that event",
                     format!("App::add_event::<{event_ty_snippet}>({receiver_snippet})"),
                     applicability,
@@ -207,7 +213,9 @@ fn check_init_resource<'tcx>(cx: &LateContext<'tcx>, method_call: &MethodCall<'t
                     cx,
                     INSERT_EVENT_RESOURCE.lint,
                     method_call.span,
-                    format!("called `App::init_resource{generics_snippet}({args_snippet})` instead of `App::add_event::<{event_ty_snippet}>()`"),
+                    format!(
+                        "called `App::init_resource{generics_snippet}({args_snippet})` instead of `App::add_event::<{event_ty_snippet}>()`"
+                    ),
                     "inserting an `Events` resource does not fully setup that event",
                     format!("add_event::<{event_ty_snippet}>()"),
                     applicability,
@@ -241,15 +249,18 @@ fn extract_hir_event_snippet<'tcx>(
                 // There can be multiple segments in a path, such as if it were
                 // `bevy::prelude::Events`, but in this case we just care about the last: `Events`.
                 segments:
-                    &[.., PathSegment {
-                        // Find the arguments to `Events<T>`, extracting `T`.
-                        args:
-                            Some(&GenericArgs {
-                                args: &[GenericArg::Type(ty)],
-                                ..
-                            }),
-                        ..
-                    }],
+                    &[
+                        ..,
+                        PathSegment {
+                            // Find the arguments to `Events<T>`, extracting `T`.
+                            args:
+                                Some(&GenericArgs {
+                                    args: &[GenericArg::Type(ty)],
+                                    ..
+                                }),
+                            ..
+                        },
+                    ],
                 ..
             },
         )) => {

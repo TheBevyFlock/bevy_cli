@@ -10,8 +10,9 @@ use std::{
     process::{Command, Stdio},
 };
 use ui_test::{
+    CommandBuilder, Config,
     color_eyre::{self, eyre::ensure},
-    run_tests, CommandBuilder, Config,
+    run_tests,
 };
 
 // This is set by `build.rs`. It is the version specified in `rust-toolchain.toml`.

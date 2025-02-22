@@ -35,8 +35,8 @@ use crate::{declare_bevy_lint, declare_bevy_lint_pass};
 use clippy_utils::{def_path_res, diagnostics::span_lint_hir_and_then, sugg::DiagExt};
 use rustc_errors::Applicability;
 use rustc_hir::{
-    def::{DefKind, Res},
     HirId, Item, ItemKind, Node, OwnerId, QPath, TyKind,
+    def::{DefKind, Res},
 };
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::TyCtxt;
