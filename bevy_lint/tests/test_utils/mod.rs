@@ -6,8 +6,8 @@ use std::{
     process::{Command, Stdio},
 };
 use ui_test::{
-    color_eyre::{self, eyre::ensure},
     CommandBuilder, Config,
+    color_eyre::{self, eyre::ensure},
 };
 // This is set by `build.rs`. It is the version specified in `rust-toolchain.toml`.
 const RUST_TOOLCHAIN_CHANNEL: &str = env!("RUST_TOOLCHAIN_CHANNEL");

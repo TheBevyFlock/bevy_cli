@@ -6,7 +6,7 @@
 use std::env;
 
 use test_utils::base_config;
-use ui_test::{status_emitter, CommandBuilder};
+use ui_test::{CommandBuilder, status_emitter};
 
 mod test_utils;
 /// This [`Config`] will run the `bevy_lint` command for all paths that end in `Cargo.toml`

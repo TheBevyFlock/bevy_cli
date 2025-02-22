@@ -53,8 +53,8 @@ use std::{
 
 use crate::declare_bevy_lint;
 use cargo_metadata::{
-    semver::{Version, VersionReq},
     Metadata, Resolve,
+    semver::{Version, VersionReq},
 };
 use clippy_utils::{
     diagnostics::{span_lint, span_lint_and_then},
