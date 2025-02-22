@@ -37,10 +37,12 @@ These docs follow [Divio's Documentation System](https://docs.divio.com/document
 - [`rustc` API Docs](https://doc.rust-lang.org/nightly/nightly-rustc/)
     - ⭐️ [`clippy_utils`](https://doc.rust-lang.org/nightly/nightly-rustc/clippy_utils/index.html)
         - ⭐️ [`match_type()`](https://doc.rust-lang.org/nightly/nightly-rustc/clippy_utils/ty/fn.match_type.html)
+        <!-- As of 2025-02-21, Clippy hasn't synchronized with `rustc` yet, so `ty_from_hir_ty()` isn't in the docs. To work around this, we link to the docs.rs version. -->
+        - ⭐️ [`ty_from_hir_ty()`](https://docs.rs/clippy_utils/latest/clippy_utils/ty/fn.ty_from_hir_ty.html)
         - ⭐️ [`span_lint()`](https://doc.rust-lang.org/nightly/nightly-rustc/clippy_utils/diagnostics/fn.span_lint.html)
         - ⭐️ [`snippet()`](https://doc.rust-lang.org/nightly/nightly-rustc/clippy_utils/source/fn.snippet.html)
     - [`rustc_driver`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_driver/index.html)
-        - [`RunCompiler`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_driver/struct.RunCompiler.html)
+        - [`run_compiler()`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_driver/fn.run_compiler.html)
         - [`Callbacks`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_driver/trait.Callbacks.html)
     - [`rustc_hir`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir/index.html)
         - ⭐️ [`DefId`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir/def_id/struct.DefId.html)

@@ -101,13 +101,13 @@ use std::ops::ControlFlow;
 use crate::{declare_bevy_lint, declare_bevy_lint_pass};
 use clippy_utils::{diagnostics::span_lint_and_sugg, ty::match_type};
 use rustc_errors::Applicability;
-use rustc_hir::{intravisit::FnKind, Body, FnDecl, Mutability};
+use rustc_hir::{Body, FnDecl, Mutability, intravisit::FnKind};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::{Interner, Ty, TyKind, TypeVisitable, TypeVisitor};
 use rustc_span::{
-    def_id::LocalDefId,
-    symbol::{kw, Ident},
     Span,
+    def_id::LocalDefId,
+    symbol::{Ident, kw},
 };
 
 declare_bevy_lint! {

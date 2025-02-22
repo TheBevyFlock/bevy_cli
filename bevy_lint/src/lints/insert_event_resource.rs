@@ -41,13 +41,13 @@
 
 use crate::{
     declare_bevy_lint, declare_bevy_lint_pass,
-    utils::hir_parse::{generic_args_snippet, span_args, MethodCall},
+    utils::hir_parse::{MethodCall, generic_args_snippet, span_args},
 };
 use clippy_utils::{
     diagnostics::span_lint_and_sugg,
     source::{snippet, snippet_with_applicability},
     sym,
-    ty::match_type,
+    ty::{match_type, ty_from_hir_ty},
 };
 use rustc_errors::Applicability;
 use rustc_hir::{Expr, GenericArg, GenericArgs, Path, PathSegment, QPath};
@@ -125,7 +125,9 @@ fn check_insert_resource(cx: &LateContext<'_>, method_call: &MethodCall) {
                 cx,
                 INSERT_EVENT_RESOURCE.lint,
                 method_call.span,
-                format!("called `App::insert_resource{generics_snippet}({receiver_snippet}, {args_snippet})` instead of `App::add_event::<{event_ty_snippet}>({receiver_snippet})`"),
+                format!(
+                    "called `App::insert_resource{generics_snippet}({receiver_snippet}, {args_snippet})` instead of `App::add_event::<{event_ty_snippet}>({receiver_snippet})`"
+                ),
                 "inserting an `Events` resource does not fully setup that event",
                 format!("App::add_event::<{event_ty_snippet}>({receiver_snippet})"),
                 applicability,
@@ -135,7 +137,9 @@ fn check_insert_resource(cx: &LateContext<'_>, method_call: &MethodCall) {
                 cx,
                 INSERT_EVENT_RESOURCE.lint,
                 method_call.span,
-                format!("called `App::insert_resource{generics_snippet}({args_snippet})` instead of `App::add_event::<{event_ty_snippet}>()`"),
+                format!(
+                    "called `App::insert_resource{generics_snippet}({args_snippet})` instead of `App::add_event::<{event_ty_snippet}>()`"
+                ),
                 "inserting an `Events` resource does not fully setup that event",
                 format!("add_event::<{event_ty_snippet}>()"),
                 applicability,
@@ -183,14 +187,14 @@ fn check_init_resource<'tcx>(cx: &LateContext<'tcx>, method_call: &MethodCall<'t
     {
         // Lower `rustc_hir::Ty` to `ty::Ty`, so we can inspect type information. For more
         // information, see <https://rustc-dev-guide.rust-lang.org/ty.html#rustc_hirty-vs-tyty>.
-        let resource_ty = cx.typeck_results().node_type(resource_hir_ty.hir_id);
+        let resource_ty = ty_from_hir_ty(cx, resource_hir_ty.as_unambig_ty());
 
         // If the resource type is `Events<T>`, emit the lint.
         if match_type(cx, resource_ty, &crate::paths::EVENTS) {
             let mut applicability = Applicability::MachineApplicable;
 
             let event_ty_snippet =
-                extract_hir_event_snippet(cx, resource_hir_ty, &mut applicability);
+                extract_hir_event_snippet(cx, resource_hir_ty.as_unambig_ty(), &mut applicability);
 
             let args_snippet = snippet(cx, span_args(method_call.args), "");
             let generics_snippet = generic_args_snippet(cx, method_call.method_path);
@@ -201,7 +205,9 @@ fn check_init_resource<'tcx>(cx: &LateContext<'tcx>, method_call: &MethodCall<'t
                     cx,
                     INSERT_EVENT_RESOURCE.lint,
                     method_call.span,
-                    format!("called `App::init_resource{generics_snippet}({receiver_snippet})` instead of `App::add_event::<{event_ty_snippet}>({receiver_snippet})`"),
+                    format!(
+                        "called `App::init_resource{generics_snippet}({receiver_snippet})` instead of `App::add_event::<{event_ty_snippet}>({receiver_snippet})`"
+                    ),
                     "inserting an `Events` resource does not fully setup that event",
                     format!("App::add_event::<{event_ty_snippet}>({receiver_snippet})"),
                     applicability,
@@ -211,7 +217,9 @@ fn check_init_resource<'tcx>(cx: &LateContext<'tcx>, method_call: &MethodCall<'t
                     cx,
                     INSERT_EVENT_RESOURCE.lint,
                     method_call.span,
-                    format!("called `App::init_resource{generics_snippet}({args_snippet})` instead of `App::add_event::<{event_ty_snippet}>()`"),
+                    format!(
+                        "called `App::init_resource{generics_snippet}({args_snippet})` instead of `App::add_event::<{event_ty_snippet}>()`"
+                    ),
                     "inserting an `Events` resource does not fully setup that event",
                     format!("add_event::<{event_ty_snippet}>()"),
                     applicability,
@@ -245,15 +253,18 @@ fn extract_hir_event_snippet<'tcx>(
                 // There can be multiple segments in a path, such as if it were
                 // `bevy::prelude::Events`, but in this case we just care about the last: `Events`.
                 segments:
-                    &[.., PathSegment {
-                        // Find the arguments to `Events<T>`, extracting `T`.
-                        args:
-                            Some(&GenericArgs {
-                                args: &[GenericArg::Type(ty)],
-                                ..
-                            }),
-                        ..
-                    }],
+                    &[
+                        ..,
+                        PathSegment {
+                            // Find the arguments to `Events<T>`, extracting `T`.
+                            args:
+                                Some(&GenericArgs {
+                                    args: &[GenericArg::Type(ty)],
+                                    ..
+                                }),
+                            ..
+                        },
+                    ],
                 ..
             },
         )) => {

@@ -39,7 +39,7 @@ use clippy_utils::{
     visitors::for_each_expr,
 };
 use rustc_errors::Applicability;
-use rustc_hir::{def_id::LocalDefId, intravisit::FnKind, Body, FnDecl, FnRetTy, Ty, TyKind};
+use rustc_hir::{Body, FnDecl, FnRetTy, Ty, TyKind, def_id::LocalDefId, intravisit::FnKind};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_span::{Span, Symbol};
 use std::ops::ControlFlow;
