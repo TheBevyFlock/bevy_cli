@@ -40,7 +40,7 @@
 use crate::{declare_bevy_lint, declare_bevy_lint_pass};
 use clippy_utils::{diagnostics::span_lint_hir_and_then, match_def_path, path_res};
 use rustc_errors::Applicability;
-use rustc_hir::{def::Res, HirId, Item, ItemKind, OwnerId};
+use rustc_hir::{HirId, Item, ItemKind, OwnerId, def::Res};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_span::symbol::Ident;
 

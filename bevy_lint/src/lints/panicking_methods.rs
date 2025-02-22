@@ -74,7 +74,7 @@
 
 use crate::{
     declare_bevy_lint, declare_bevy_lint_pass,
-    utils::hir_parse::{generic_args_snippet, span_args, MethodCall},
+    utils::hir_parse::{MethodCall, generic_args_snippet, span_args},
 };
 use clippy_utils::{
     diagnostics::span_lint_and_help,
@@ -218,7 +218,9 @@ impl<'tcx> LateLintPass<'tcx> for PanickingMethods {
                 ),
                 None,
                 // This usually ends up looking like: `query.get_many([e1, e2])`.
-                format!("use `{src_snippet}{alternative}{generics_snippet}({args_snippet})` and handle the `Option` or `Result`"),
+                format!(
+                    "use `{src_snippet}{alternative}{generics_snippet}({args_snippet})` and handle the `Option` or `Result`"
+                ),
             );
         }
     }
