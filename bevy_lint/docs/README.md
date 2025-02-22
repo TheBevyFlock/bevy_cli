@@ -9,6 +9,7 @@ Thanks for your interest in contributing to `bevy_lint`! Please feel free to ski
     - [How to Release `bevy_lint`](how-to/release.md)
     - [Bump to a Newer Version of Rust](how-to/bump-rust.md)
 - [Reference](reference/)
+    - [Lint Module Docs](reference/lint-module-docs.md)
 - [Explanations](explanations/)
 
 These docs follow [Divio's Documentation System](https://docs.divio.com/documentation-system/).

@@ -5,9 +5,12 @@
 //!
 //! # Motivation
 //!
-//! `AppExit` is used to determine whether the `App` exited successful or due to an error. Returning
-//! it from `main()` will set the exit code, which allows external processes to detect whether there
-//! was an error.
+//! `AppExit` is used to determine whether the `App` exited successfully or due to an error.
+//! Returning it from `main()` will set the [exit code], which can be read by external processes.
+//! Not returning any `AppExit` may cause external processes to believe the program gracefully
+//! exited, when in reality it may have crashed.
+//!
+//! [exit code]: https://en.wikipedia.org/wiki/Exit_status
 //!
 //! # Example
 //!
@@ -25,7 +28,7 @@
 //! # use bevy::prelude::*;
 //! #
 //! fn main() -> AppExit {
-//!     // Note the removed semicolon.
+//!     // Note the removed semicolon, since `App::run()` returns `AppExit`.
 //!     App::new().run()
 //! }
 //! ```

@@ -1,13 +1,11 @@
-//! Checks for a call to `Commands::spawn()` that inserts unit `()` as a component.
+//! Checks for calls to `Commands::spawn()` that inserts unit [`()`](unit) as a component.
 //!
 //! # Motivation
 //!
 //! It is possible to use `Commands::spawn()` to spawn an entity with a unit `()` component, since
 //! unit implements `Bundle`. Unit is not a `Component`, however, and will be ignored instead of
-//! added to the entity.
-//!
-//! Trying to spawn an entity with unit is discouraged because, not only does it not do anything,
-//! but it can lead to misleading code.
+//! added to the entity. Often, inserting a unit is unintentional and is a sign that the author
+//! intended to do something else.
 //!
 //! # Example
 //!
@@ -15,21 +13,19 @@
 //! # use bevy::prelude::*;
 //! # use std::f32::consts::PI;
 //! #
-//! fn spawn_new(mut commands: Commands) {
+//! fn spawn(mut commands: Commands) {
 //!     commands.spawn(());
-//! }
 //!
-//! fn spawn_decal(mut commands: Commands) {
 //!     commands.spawn((
 //!         Name::new("Decal"),
-//!         // This is misleading! `Transform::rotate_z()` returns a unit `()`, not a `Transform`!
-//!         // No `Transform` will be inserted into the entity with this!
-//!         Transform::from_translation(Vec3::new(0.75, 0.0, 0.0)).rotate_z(PI / 4.0),
+//!         // This is likely a mistake! `Transform::rotate_z()` returns a unit `()`, not a
+//!         // `Transform`! As such, no `Transform` will be inserted into the entity.
+//!         Transform::from_translation(Vec3::new(0.75, 0.0, 0.0))
+//!             .rotate_z(PI / 4.0),
 //!     ));
 //! }
 //! #
-//! # bevy::ecs::system::assert_is_system(spawn_new);
-//! # bevy::ecs::system::assert_is_system(spawn_decal);
+//! # bevy::ecs::system::assert_is_system(spawn);
 //! ```
 //!
 //! Use instead:
@@ -38,23 +34,20 @@
 //! # use bevy::prelude::*;
 //! # use std::f32::consts::PI;
 //! #
-//! fn spawn_new(mut commands: Commands) {
-//!     // `Commands::spawn_empty()` is preferred if you do not add any components.
+//! fn spawn(mut commands: Commands) {
+//!     // `Commands::spawn_empty()` is preferred if you do not need any components.
 //!     commands.spawn_empty();
-//! }
 //!
-//! fn spawn_decal(mut commands: Commands) {
 //!     commands.spawn((
 //!         Name::new("Decal"),
-//!         // `Transform::with_rotation()` returns a `Transform`, so it will be inserted into the
-//!         // entity.
+//!         // `Transform::with_rotation()` returns a `Transform`, which was likely the intended
+//!         // behavior.
 //!         Transform::from_translation(Vec3::new(0.75, 0.0, 0.0))
 //!             .with_rotation(Quat::from_rotation_z(PI / 4.0)),
 //!     ));
 //! }
 //! #
-//! # bevy::ecs::system::assert_is_system(spawn_new);
-//! # bevy::ecs::system::assert_is_system(spawn_decal);
+//! # bevy::ecs::system::assert_is_system(spawn);
 //! ```
 
 use clippy_utils::{diagnostics::span_lint_hir_and_then, sym, ty::match_type};
