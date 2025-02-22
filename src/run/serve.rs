@@ -5,6 +5,8 @@ use futures_util::StreamExt as _;
 
 use crate::web::bundle::{Index, LinkedBundle, PackedBundle, WebBundle};
 
+use super::BinTarget;
+
 /// Serve a static HTML file with the given content.
 async fn serve_static_html(content: &'static str) -> impl Responder {
     // Build the HTTP response with appropriate headers to serve the content as a file
@@ -51,7 +53,7 @@ async fn dev_websocket(req: HttpRequest, stream: web::Payload) -> Result<HttpRes
 }
 
 /// Launch a web server running the Bevy app.
-pub(crate) fn serve(web_bundle: WebBundle, port: u16) -> anyhow::Result<()> {
+pub(crate) fn serve(web_bundle: WebBundle, bin_target: BinTarget, port: u16) -> anyhow::Result<()> {
     rt::System::new().block_on(
         HttpServer::new(move || {
             let mut app = App::new();
@@ -109,10 +111,19 @@ pub(crate) fn serve(web_bundle: WebBundle, port: u16) -> anyhow::Result<()> {
                             // Try to inject the auto reload script in the document body
                             // TODO: Do this also for the other cases when the `index.html` is in a
                             // folder
-                            let contents = contents.replace(
+                            let mut contents = contents.replace(
                                 "</body>",
                                 r#"<script src="_bevy_dev/auto_reload.js"></script></body>"#,
                             );
+                            if !contents.contains("</title>") {
+                                contents = contents.replace(
+                                    "</head>",
+                                    &format!(
+                                        "<title>{}</title></head>",
+                                        default_title(&bin_target.bin_name)
+                                    ),
+                                );
+                            }
                             // PERF: We have to leak the string to get a static lifetime
                             // But this will only be done once so it should be fine for memory
                             let contents: &'static str = Box::leak(contents.into_boxed_str());
@@ -129,4 +140,43 @@ pub(crate) fn serve(web_bundle: WebBundle, port: u16) -> anyhow::Result<()> {
     )?;
 
     Ok(())
+}
+
+/// Generate a title to display on the web page by default.
+///
+/// The title is based on the binary name, but makes it a bit more human readable.
+///
+/// bevy_new_2d -> Bevy New 2d
+fn default_title(bin_name: &str) -> String {
+    bin_name
+        .split(['_', '-'])
+        .map(capitalize)
+        .collect::<Vec<_>>()
+        .join(" ")
+}
+
+/// Make the first letter of the word uppercase.
+///
+/// See <https://stackoverflow.com/a/38406885>.
+fn capitalize(s: &str) -> String {
+    let mut c = s.chars();
+    match c.next() {
+        None => String::new(),
+        Some(f) => f.to_uppercase().collect::<String>() + c.as_str(),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_default_title() {
+        assert_eq!(default_title("bevy_new_2d"), "Bevy New 2d");
+    }
+
+    #[test]
+    fn test_capitalize() {
+        assert_eq!(capitalize("foo"), "Foo");
+    }
 }

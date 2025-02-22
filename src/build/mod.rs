@@ -3,7 +3,7 @@ use args::{BuildArgs, BuildSubcommands};
 
 use crate::{
     external_cli::{cargo, rustup, wasm_bindgen, CommandHelpers},
-    run::select_run_binary,
+    run::{select_run_binary, BinTarget},
     web::{
         bundle::{create_web_bundle, PackedBundle, WebBundle},
         profiles::configure_default_web_profiles,
@@ -32,7 +32,7 @@ pub fn build(args: &mut BuildArgs) -> anyhow::Result<()> {
 /// - Optimizing the Wasm binary (in release mode)
 /// - Creating JavaScript bindings
 /// - Creating a bundled folder (if requested)
-pub fn build_web(args: &mut BuildArgs) -> anyhow::Result<WebBundle> {
+pub fn build_web(args: &mut BuildArgs) -> anyhow::Result<(WebBundle, BinTarget)> {
     let Some(BuildSubcommands::Web(web_args)) = &args.subcommand else {
         bail!("tried to build for the web without matching arguments");
     };
@@ -80,7 +80,7 @@ pub fn build_web(args: &mut BuildArgs) -> anyhow::Result<WebBundle> {
         println!("Created bundle at file://{}", path.display());
     }
 
-    Ok(web_bundle)
+    Ok((web_bundle, bin_target))
 }
 
 pub(crate) fn ensure_web_setup(skip_prompts: bool) -> anyhow::Result<()> {
