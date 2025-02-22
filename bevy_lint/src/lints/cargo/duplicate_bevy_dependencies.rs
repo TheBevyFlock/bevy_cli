@@ -1,16 +1,16 @@
 //! Checks for multiple versions of the `bevy` crate in your project's dependencies.
 //!
 //! # Motivation
-//! 
+//!
 //! Cargo allows there to be multiple major versions of a crate in your project's dependency
 //! tree[^semver-compatibility]. Though the two crates and their types are _named_ the same, they
 //! are treated as distinct by the compiler. This can lead to confusing error messages that only
 //! appear if you try to mix the types from the two versions of the crate.
-//! 
+//!
 //! With Bevy, these errors become particularly easy to encounter when you add a plugin that pulls
 //! in a different version of the Bevy engine. (This isn't immediately obvious, however, unless you
 //! look at `Cargo.lock` or the plugin's engine compatibility table.)
-//! 
+//!
 //! [^semver-compatibility]: The rules for dependency unification and duplication are specified
 //!     [here](https://doc.rust-lang.org/cargo/reference/resolver.html#semver-compatibility).
 //!
@@ -18,7 +18,7 @@
 //!
 //! This lint only works if a specific version of `bevy` is declared. If a version range is
 //! specified, this lint will be skipped. For example:
-//! 
+//!
 //! ```toml
 //! [dependencies]
 //! # This will not be linted, since it is a version range.
@@ -37,7 +37,7 @@
 //! # This depends on Bevy 0.14, not 0.15! This will cause duplicate versions of the engine.
 //! leafwing-input-manager = "0.15"
 //! ```
-//! 
+//!
 //! Use instead:
 //!
 //! ```toml
