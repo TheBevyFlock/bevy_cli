@@ -37,7 +37,7 @@ pub fn run(args: &RunArgs) -> anyhow::Result<()> {
             build_args.cargo_args.target_args.bin = Some(bin_target.bin_name);
         }
 
-        let (web_bundle, _) = build_web(&mut build_args)?;
+        let web_bundle = build_web(&mut build_args)?;
 
         let port = web_args.port;
         let url = format!("http://localhost:{port}");
