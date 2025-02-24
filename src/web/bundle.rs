@@ -10,10 +10,20 @@ use crate::{external_cli::cargo::metadata::Metadata, run::BinTarget};
 
 #[derive(Debug, Clone)]
 pub enum Index {
-    /// The folder containing a custom `index.html` file.
-    Folder(PathBuf),
+    /// The path to the custom `index.html` file.
+    File(PathBuf),
     /// A static string representing the contents of `index.html`.
-    Static(&'static str),
+    Content(String),
+}
+
+impl Index {
+    /// The content of the `index.html` file.
+    pub fn content(&self) -> anyhow::Result<String> {
+        match self {
+            Self::File(path) => Ok(fs::read_to_string(path)?),
+            Self::Content(content) => Ok(content.clone()),
+        }
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -46,6 +56,16 @@ pub enum WebBundle {
     Packed(PackedBundle),
 }
 
+impl WebBundle {
+    /// The index.html file of the bundle.
+    pub fn index(&self) -> Index {
+        match self {
+            Self::Linked(linked) => linked.index.clone(),
+            Self::Packed(packed) => Index::File(packed.path.join("index.html")),
+        }
+    }
+}
+
 /// Create a bundle of all the files needed for serving the app in the web.
 ///
 /// If `packed` is set to `true`, the files will be packed together in a single folder.
@@ -66,6 +86,16 @@ pub fn create_web_bundle(
     let js_file_name = OsString::from(format!("{}.js", bin_target.bin_name));
 
     let custom_web_folder = Path::new("web");
+    let index_path = custom_web_folder.join("index.html");
+
+    let index = if index_path.exists() {
+        Index::File(index_path)
+    } else {
+        println!("No custom `web` folder found, using defaults.");
+        Index::Content(default_index(bin_target))
+    };
+
+    let index = pre_process_index(index.content()?, bin_target);
 
     let linked = LinkedBundle {
         build_artifact_path: bin_target.artifact_directory.clone(),
@@ -76,12 +106,7 @@ pub fn create_web_bundle(
         } else {
             None
         },
-        index: if custom_web_folder.join("index.html").exists() {
-            Index::Folder(custom_web_folder.to_path_buf())
-        } else {
-            println!("No custom `web` folder found, using defaults.");
-            Index::Static(default_index(bin_target))
-        },
+        index: Index::Content(index.clone()),
     };
 
     if !packed {
@@ -125,46 +150,91 @@ pub fn create_web_bundle(
         .context("failed to copy assets")?;
     }
 
-    // Index
-    let index_path = base_path.join("index.html");
-    match linked.index {
-        Index::Folder(path) => {
-            fs_extra::dir::copy(
-                path,
-                &base_path,
-                &fs_extra::dir::CopyOptions {
-                    overwrite: true,
-                    content_only: true,
-                    ..Default::default()
-                },
-            )
-            .context("failed to copy custom web assets")?;
-        }
-        Index::Static(contents) => {
-            fs::write(index_path, contents).context("failed to create index.html")?;
-        }
+    // Custom web assets
+    if custom_web_folder.exists() {
+        fs_extra::dir::copy(
+            custom_web_folder,
+            &base_path,
+            &fs_extra::dir::CopyOptions {
+                overwrite: true,
+                content_only: true,
+                ..Default::default()
+            },
+        )
+        .context("failed to copy custom web assets")?;
     }
+
+    // Index (pre-processed)
+    fs::write(base_path.join("index.html"), &index)
+        .context("failed to write processed index.html")?;
 
     Ok(WebBundle::Packed(PackedBundle { path: base_path }))
 }
 
+/// Apply pre-processing to the provided `index.html`.
+fn pre_process_index(mut content: String, bin_target: &BinTarget) -> String {
+    if !content.contains("</title>") {
+        content = content.replace(
+            "</head>",
+            &format!(
+                "<title>{}</title></head>",
+                default_title(&bin_target.bin_name)
+            ),
+        );
+    }
+    content
+}
+
 /// Returns the contents of the default `index.html`,
 /// customized to use the name of the generated binary.
-fn default_index(bin_target: &BinTarget) -> &'static str {
+fn default_index(bin_target: &BinTarget) -> String {
     let template = include_str!(concat!(
         env!("CARGO_MANIFEST_DIR"),
         "/assets/web/index.html"
     ));
 
     // Insert correct path to JS bindings
-    let index = template.replace(
+    template.replace(
         "./build/bevy_app.js",
         format!("./build/{}.js", bin_target.bin_name).as_str(),
-    );
+    )
+}
 
-    // Only static strings can be served in the web app,
-    // so we leak the string memory to convert it to a static reference.
-    // PERF: This is assumed to be used only once and is needed for the rest of the app running
-    // time, making the memory leak acceptable.
-    Box::leak(index.into_boxed_str())
+/// Generate a title to display on the web page by default.
+///
+/// The title is based on the binary name, but makes it a bit more human readable.
+///
+/// bevy_new_2d -> Bevy New 2d
+fn default_title(bin_name: &str) -> String {
+    bin_name
+        .split(['_', '-'])
+        .map(capitalize)
+        .collect::<Vec<_>>()
+        .join(" ")
+}
+
+/// Make the first letter of the word uppercase.
+///
+/// See <https://stackoverflow.com/a/38406885>.
+fn capitalize(s: &str) -> String {
+    let mut c = s.chars();
+    match c.next() {
+        None => String::new(),
+        Some(f) => f.to_uppercase().collect::<String>() + c.as_str(),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_default_title() {
+        assert_eq!(default_title("bevy_new_2d"), "Bevy New 2d");
+    }
+
+    #[test]
+    fn test_capitalize() {
+        assert_eq!(capitalize("foo"), "Foo");
+    }
 }

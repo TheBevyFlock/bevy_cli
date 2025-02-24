@@ -100,19 +100,20 @@ pub(crate) fn serve(web_bundle: WebBundle, port: u16) -> anyhow::Result<()> {
                     }
 
                     match index {
-                        Index::Folder(path) => {
+                        Index::File(path) => {
                             app = app.service(
                                 actix_files::Files::new("/", path).index_file("index.html"),
                             );
                         }
-                        Index::Static(contents) => {
+                        Index::Content(content) => {
                             // Try to inject the auto reload script in the document body
                             // TODO: Do this also for the other cases when the `index.html` is in a
                             // folder
-                            let contents = contents.replace(
+                            let contents = content.replace(
                                 "</body>",
                                 r#"<script src="_bevy_dev/auto_reload.js"></script></body>"#,
                             );
+
                             // PERF: We have to leak the string to get a static lifetime
                             // But this will only be done once so it should be fine for memory
                             let contents: &'static str = Box::leak(contents.into_boxed_str());

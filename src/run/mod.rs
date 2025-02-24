@@ -65,11 +65,11 @@ pub fn run(args: &RunArgs) -> anyhow::Result<()> {
 }
 
 #[derive(Debug, Clone)]
-pub(crate) struct BinTarget {
+pub struct BinTarget {
     /// The path to the directory in `target` which contains the binary.
-    pub(crate) artifact_directory: PathBuf,
+    pub artifact_directory: PathBuf,
     /// The name of the binary (without any extensions).
-    pub(crate) bin_name: String,
+    pub bin_name: String,
 }
 
 /// Determine which binary target should be run.
