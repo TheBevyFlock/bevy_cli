@@ -165,7 +165,8 @@ pub fn create_web_bundle(
     }
 
     // Index (pre-processed)
-    fs::write(base_path.join("index.html"), &index).context("failed to write processed index.html")?;
+    fs::write(base_path.join("index.html"), &index)
+        .context("failed to write processed index.html")?;
 
     Ok(WebBundle::Packed(PackedBundle { path: base_path }))
 }
