@@ -8,6 +8,13 @@
 //!
 //! [constant generics]: https://doc.rust-lang.org/reference/items/generics.html#const-generics
 //!
+//! # Known Issues
+//!
+//! This lint raises false positives on queries like `Has<T>` and `AnyOf<T>` because they are ZSTs,
+//! even though they still retrieve data from the ECS. Please see [#279] for more information.
+//!
+//! [#279]: https://github.com/TheBevyFlock/bevy_cli/issues/279
+//!
 //! # Example
 //!
 //! ```
