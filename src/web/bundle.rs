@@ -5,6 +5,7 @@ use std::{
 };
 
 use anyhow::Context;
+use tracing::info;
 
 use crate::{external_cli::cargo::metadata::Metadata, run::BinTarget};
 
@@ -91,7 +92,7 @@ pub fn create_web_bundle(
     let index = if index_path.exists() {
         Index::File(index_path)
     } else {
-        println!("No custom `web` folder found, using defaults.");
+        info!("No custom `web` folder found, using defaults.");
         Index::Content(default_index(bin_target))
     };
 

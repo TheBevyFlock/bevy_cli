@@ -530,6 +530,8 @@ dependencies = [
  "serde_json",
  "serial_test",
  "toml_edit",
+ "tracing",
+ "tracing-subscriber",
  "wasm-opt",
  "webbrowser",
 ]
