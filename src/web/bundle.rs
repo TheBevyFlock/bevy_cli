@@ -10,7 +10,7 @@ use crate::{external_cli::cargo::metadata::Metadata, run::BinTarget};
 
 #[derive(Debug, Clone)]
 pub enum Index {
-    /// The folder containing a custom `index.html` file.
+    /// The path to the custom `index.html` file.
     File(PathBuf),
     /// A static string representing the contents of `index.html`.
     Content(String),
