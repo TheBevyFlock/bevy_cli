@@ -1,3 +1,5 @@
+//! Lints that check over `Cargo.toml` instead of your code.
+
 use crate::declare_bevy_lint_pass;
 use cargo_metadata::MetadataCommand;
 use clippy_utils::sym;

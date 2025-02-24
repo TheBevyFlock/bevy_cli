@@ -1,4 +1,4 @@
-//! Checks for the `Events<T>` resource being manually inserted through `App::init_resource()` or
+//! Checks for the `Events<T>` resource being manually inserted with `App::init_resource()` or
 //! `App::insert_resource()` instead of with `App::add_event()`.
 //!
 //! # Motivation
@@ -21,7 +21,9 @@
 //! #[derive(Event)]
 //! struct MyEvent;
 //!
-//! App::new().init_resource::<Events<MyEvent>>().run();
+//! fn plugin(app: &mut App) {
+//!     app.init_resource::<Events<MyEvent>>();
+//! }
 //! ```
 //!
 //! Use instead:
@@ -32,7 +34,9 @@
 //! #[derive(Event)]
 //! struct MyEvent;
 //!
-//! App::new().add_event::<MyEvent>().run();
+//! fn plugin(app: &mut App) {
+//!     app.add_event::<MyEvent>();
+//! }
 //! ```
 
 use crate::{

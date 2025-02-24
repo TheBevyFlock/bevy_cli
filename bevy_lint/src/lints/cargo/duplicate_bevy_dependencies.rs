@@ -1,47 +1,55 @@
-//! Checks for multiple versions of `bevy` in the dependencies.
+//! Checks for multiple versions of the `bevy` crate in your project's dependencies.
 //!
 //! # Motivation
 //!
-//! When different third party crates use incompatible versions of Bevy, it can lead to confusing
-//! errors and type incompatibilities.
+//! Cargo allows there to be multiple major versions of a crate in your project's dependency
+//! tree[^semver-compatibility]. Though the two crates and their types are _named_ the same, they
+//! are treated as distinct by the compiler. This can lead to confusing error messages that only
+//! appear if you try to mix the types from the two versions of the crate.
+//!
+//! With Bevy, these errors become particularly easy to encounter when you add a plugin that pulls
+//! in a different version of the Bevy engine. (This isn't immediately obvious, however, unless you
+//! look at `Cargo.lock` or the plugin's engine compatibility table.)
+//!
+//! [^semver-compatibility]: The rules for dependency unification and duplication are specified
+//!     [here](https://doc.rust-lang.org/cargo/reference/resolver.html#semver-compatibility).
 //!
 //! # Known Issues
 //!
-//! This lint does only work if a specific version of `bevy` is specified. If a
-//! Version range is specific this lint will be skipped.
+//! This lint only works if a specific version of `bevy` is declared. If a version range is
+//! specified, this lint will be skipped. For example:
+//!
+//! ```toml
+//! [dependencies]
+//! # This will not be linted, since it is a version range.
+//! bevy = ">=0.15"
+//! ```
 //!
 //! # Example
 //!
 //! ```toml
 //! [package]
-//! name = "multiple-bevy-versions"
-//! version = "0.1.0"
-//! publish = false
-//! edition = "2021"
-//!
-//! [workspace]
+//! name = "foo"
+//! edition = "2024"
 //!
 //! [dependencies]
-//! bevy = { version = "0.14.2" }
-//! leafwing-input-manager = "0.13"
+//! bevy = "0.15"
+//! # This depends on Bevy 0.14, not 0.15! This will cause duplicate versions of the engine.
+//! leafwing-input-manager = "0.15"
 //! ```
 //!
-//! Lint output:
-//! error: Mismatching versions of `bevy` found, leafwing-input-manager used bevy version ^0.13
-//!   --> Cargo.toml:11:26
-//!    |
-//! 11 | leafwing-input-manager = "0.13"
-//!    |                          ^^^^^^
-//!    |
-//! help: Expected all crates to use `bevy` 0.14.2
-//!   --> Cargo.toml:10:8
-//!    |
-//! 10 | bevy = { version = "0.14.2" }
-//!    |        ^^^^^^^^^^^^^^^^^^^^^^
-//!    = note: `#[deny(bevy::duplicate_bevy_dependencies)]` on by default
+//! Use instead:
 //!
-//! error: could not compile `multiple-bevy-versions` (bin "multiple-bevy-versions") due to 1
-//! previous error Check failed: exit status: 101.
+//! ```toml
+//! [package]
+//! name = "foo"
+//! edition = "2024"
+//!
+//! [dependencies]
+//! bevy = "0.15"
+//! # Update to a newer version of the plugin, which supports Bevy 0.15.
+//! leafwing-input-manager = "0.16"
+//! ```
 
 use std::{
     collections::{BTreeMap, HashMap},
@@ -69,7 +77,7 @@ use toml::Spanned;
 declare_bevy_lint! {
     pub DUPLICATE_BEVY_DEPENDENCIES,
     NURSERY,
-    "duplicate bevy dependencies",
+    "multiple versions of the `bevy` crate found",
 }
 
 #[derive(Deserialize, Debug)]

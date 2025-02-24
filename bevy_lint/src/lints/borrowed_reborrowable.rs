@@ -1,5 +1,22 @@
-//! Checks for function parameters that take a mutable reference to a
-//! re-borrowable type.
+//! Checks for function parameters that take a mutable reference to a re-borrowable type.
+//!
+//! This lint checks for the following re-borrowable types:
+//!
+//! - `Commands`
+//! - `Deferred`
+//! - `DeferredWorld`
+//! - `EntityCommands`
+//! - `EntityMut`
+//! - `FilteredEntityMut`
+//! - `Mut`
+//! - `MutUntyped`
+//! - `NonSendMut`
+//! - `PtrMut`
+//! - `Query`
+//! - `ResMut`
+//!
+//! Though a type may be re-borrowable, there are circumstances where it cannot be easily
+//! reborrowed. (Please see the [Examples](#example).) In these cases, no warning will be emitted.
 //!
 //! # Motivation
 //!
@@ -12,9 +29,6 @@
 //! can almost always be readily converted back to an owned instance of the type, which is a cheap
 //! operation that avoids nested references.
 //!
-//! The only time a re-borrowable type cannot be re-borrowed is when the function returns
-//! referenced data that is bound to the mutable reference of the re-borrowable type.
-//!
 //! # Known Issues
 //!
 //! This lint does not currently support the [`Fn`] traits or function pointers. This means the
@@ -23,6 +37,10 @@
 //! - `impl FnOnce(&mut Commands)`
 //! - `Box<dyn FnMut(&mut Commands)>`
 //! - `fn(&mut Commands)`
+//!
+//! For more information, please see [#174].
+//!
+//! [#174]: https://github.com/TheBevyFlock/bevy_cli/issues/174
 //!
 //! # Example
 //!
@@ -58,14 +76,16 @@
 //! # bevy::ecs::system::assert_is_system(system);
 //! ```
 //!
-//! The following is an example where a type cannot be re-borrowed, for which this lint will not
-//! emit any warning:
+//! A type cannot be easily reborrowed when a function returns a reference with the same lifetime
+//! as the borrowed type. The lint knows about this case, however, and will not emit any warning if
+//! it knows the type cannot be re-borrowed:
 //!
 //! ```
 //! # use bevy::{prelude::*, ecs::system::EntityCommands};
 //! #
 //! fn system(mut commands: Commands) {
 //!     let entity_commands = helper_function(&mut commands);
+//!     // ...
 //! }
 //!
 //! // Note how this function returns a reference with the same lifetime as `Commands`.
