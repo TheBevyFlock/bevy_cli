@@ -12,7 +12,7 @@ for.
 # Motivation
 
 One to several paragraphs describing why this lint exists. For example: does this lint help catch
-slow code, or does it suggest an more-idiomatic version? Try to motivate why a user may want to
+slow code, or does it suggest a more idiomatic version? Try to motivate why a user may want to
 enable this lint.
 
 Be careful to only answer _why_ this lint exists, not _what_ it does or _how_ it works. That is the
@@ -20,7 +20,7 @@ responsibility of the extended description.
 
 # Known Issues
 
-This is an optional section that describes what false-negatives and false-positives this lint may
+This is an optional section that describes what false negatives and false positives this lint may
 have. (Usually to justify why a lint is in the `nursery` group, though not always.) If possible,
 make sure to link to the issue in the
 [issue tracker](https://github.com/TheBevyFlock/bevy_cli/issues) so users can comment on it.
