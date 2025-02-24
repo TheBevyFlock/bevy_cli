@@ -33,6 +33,12 @@ fn main() -> anyhow::Result<ExitCode> {
         // This instructs `rustc` to call `bevy_lint_driver` instead of its default routine.
         // This lets us register custom lints.
         .env("RUSTC_WORKSPACE_WRAPPER", driver_path)
+        // Rustup on Windows does not modify the `PATH` variable by default so a toolchain-specific
+        // version of `cargo` or `rustc` is not accidentally run instead of Rustup's proxy version.
+        // This isn't desired for us, however, because we need the `PATH` modified to discover and
+        // link to `rustc_driver.dll`. Setting `RUSTUP_WINDOWS_PATH_ADD_BIN=1` forces Rustup to
+        // modify the path. For more info, please see <https://github.com/rust-lang/rustup/pull/3703>.
+        .env("RUSTUP_WINDOWS_PATH_ADD_BIN", "1")
         .status()
         .context("Failed to spawn `cargo check`.")?;
 
