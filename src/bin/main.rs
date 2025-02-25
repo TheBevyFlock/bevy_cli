@@ -5,8 +5,10 @@ use tracing_subscriber::prelude::*;
 
 fn main() -> Result<()> {
     // Set default log level to info for the `bevy_cli` crate if `BEVY_LOG` is not set.
-    let env = tracing_subscriber::EnvFilter::try_from_env("BEVY_LOG")
-        .unwrap_or_else(|_| tracing_subscriber::EnvFilter::new("bevy_cli=info"));
+    let env = tracing_subscriber::EnvFilter::try_from_env("BEVY_LOG").map_or_else(
+        |_| tracing_subscriber::EnvFilter::new("bevy_cli=info"),
+        |filter| tracing_subscriber::EnvFilter::new(format!("bevy_cli={filter}")),
+    );
 
     let fmt_layer = tracing_subscriber::fmt::layer()
         // remove timestamps
