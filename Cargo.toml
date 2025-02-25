@@ -65,7 +65,7 @@ futures-util = "0.3.31"
 
 # Logging crates
 tracing = "0.1.41"
-tracing-subscriber = { version = "0.3.19", features = ["env-filter", "std"] }
+tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
 
 [build-dependencies]
 # We don't use `cc` directly, but our dependency `wasm-opt-sys` fails to compile on Windows when using a newer version.
