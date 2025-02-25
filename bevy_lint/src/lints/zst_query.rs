@@ -68,10 +68,10 @@ use rustc_middle::ty::{
 
 declare_bevy_lint! {
     pub ZST_QUERY,
-    // This will eventually be a `RESTRICTION` lint, but due to <https://github.com/TheBevyFlock/bevy_cli/issues/252>
-    // it is not yet ready for production.
+    // This will eventually be a `RESTRICTION` lint, but due to
+    // <https://github.com/TheBevyFlock/bevy_cli/issues/279> it is not yet ready for production.
     NURSERY,
-    "query for a zero-sized type",
+    "queried a zero-sized type",
 }
 
 declare_bevy_lint_pass! {
@@ -136,7 +136,11 @@ impl QueryKind {
         // In the future, we might want to span the usage site of `is_added()`/`is_changed()`
         // and suggest to use `Added<Foo>`/`Changed<Foo>` instead.
         match self {
-            Self::Query => format!("consider using a filter instead: `With<{ty}>`"),
+            Self::Query => format!(
+                // NOTE: This isn't actually true, please see #279 for more info and how this will
+                // be fixed!
+                "zero-sized types do not retrieve any data, consider using a filter instead: `With<{ty}>`"
+            ),
         }
     }
 }
