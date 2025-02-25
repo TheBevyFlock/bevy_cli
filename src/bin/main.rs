@@ -1,8 +1,19 @@
 use anyhow::Result;
 use bevy_cli::{build::args::BuildArgs, run::RunArgs};
 use clap::{Args, CommandFactory, Parser, Subcommand};
+use tracing_subscriber::{fmt, prelude::*, EnvFilter};
 
 fn main() -> Result<()> {
+    // Initialize tracing and set the default level to `info`.
+    // This can be overridden by the `RUST_LOG` environment variable.
+    tracing_subscriber::registry()
+        .with(fmt::layer())
+        .with(
+            EnvFilter::try_from_default_env()
+                .unwrap_or_else(|_| tracing_subscriber::EnvFilter::new("bevy_cli=info")),
+        )
+        .init();
+
     let cli = Cli::parse();
 
     match cli.subcommand {

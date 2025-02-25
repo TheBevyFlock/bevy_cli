@@ -1,6 +1,7 @@
 use std::path::PathBuf;
 
 use args::RunSubcommands;
+use tracing::{error, info};
 
 use crate::{
     build::{args::BuildArgs, build_web},
@@ -45,13 +46,13 @@ pub fn run(args: &RunArgs) -> anyhow::Result<()> {
         // Serving the app is blocking, so we open the page first
         if web_args.open {
             match webbrowser::open(&url) {
-                Ok(()) => println!("Your app is running at <{url}>!"),
+                Ok(()) => info!("Your app is running at <{url}>!"),
                 Err(error) => {
-                    println!("Failed to open the browser automatically, open the app at <{url}>. (Error: {error:?}");
+                    error!("Failed to open the browser automatically, open the app at <{url}>. (Error: {error:?}");
                 }
             }
         } else {
-            println!("Open your app at <{url}>!");
+            info!("Open your app at <{url}>!");
         }
 
         serve::serve(web_bundle, port)?;

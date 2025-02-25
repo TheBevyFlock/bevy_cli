@@ -1,6 +1,7 @@
 use std::{fs, path::Path, time::Instant};
 
 use anyhow::Context as _;
+use tracing::info;
 
 use crate::run::BinTarget;
 
@@ -16,7 +17,7 @@ pub(crate) fn optimize_bin(bin_target: &BinTarget) -> anyhow::Result<()> {
 
 /// Optimize the Wasm binary at the given path with wasm-opt.
 fn optimize_path(path: &Path) -> anyhow::Result<()> {
-    println!("Optimizing with wasm-opt...");
+    info!("Optimizing with wasm-opt...");
 
     let start = Instant::now();
     let size_before = fs::metadata(path)?.len();
@@ -29,8 +30,8 @@ fn optimize_path(path: &Path) -> anyhow::Result<()> {
     let size_reduction = 1. - (size_after as f32) / (size_before as f32);
     let duration = start.elapsed();
 
-    println!(
-        "    Finished in {duration:.2?}. Size reduced by {:.0}%.",
+    info!(
+        "Finished in {duration:.2?}. Size reduced by {:.0}%.",
         size_reduction * 100.
     );
 

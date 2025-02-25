@@ -1,5 +1,6 @@
 use anyhow::{bail, Context as _};
 use args::{BuildArgs, BuildSubcommands};
+use tracing::info;
 
 use crate::{
     external_cli::{cargo, rustup, wasm_bindgen, CommandHelpers},
@@ -57,10 +58,10 @@ pub fn build_web(args: &mut BuildArgs) -> anyhow::Result<WebBundle> {
 
     let cargo_args = args.cargo_args_builder();
 
-    println!("Compiling to WebAssembly...");
+    info!("Compiling to WebAssembly...");
     cargo::build::command().args(cargo_args).ensure_status()?;
 
-    println!("Bundling JavaScript bindings...");
+    info!("Bundling JavaScript bindings...");
     wasm_bindgen::bundle(&bin_target)?;
 
     #[cfg(feature = "wasm-opt")]
@@ -77,7 +78,7 @@ pub fn build_web(args: &mut BuildArgs) -> anyhow::Result<WebBundle> {
     .context("Failed to create web bundle")?;
 
     if let WebBundle::Packed(PackedBundle { path }) = &web_bundle {
-        println!("Created bundle at file://{}", path.display());
+        info!("Created bundle at file://{}", path.display());
     }
 
     Ok(web_bundle)
