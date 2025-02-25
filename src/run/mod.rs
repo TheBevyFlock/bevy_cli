@@ -48,7 +48,7 @@ pub fn run(args: &RunArgs) -> anyhow::Result<()> {
             match webbrowser::open(&url) {
                 Ok(()) => info!("Your app is running at <{url}>!"),
                 Err(error) => {
-                    info!("Failed to open the browser automatically, open the app at <{url}>. (Error: {error:?}");
+                    error!("Failed to open the browser automatically, open the app at <{url}>. (Error: {error:?}");
                 }
             }
         } else {
