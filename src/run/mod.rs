@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use args::RunSubcommands;
-use tracing::info;
+use tracing::{error, info};
 
 use crate::{
     build::{args::BuildArgs, build_web},
