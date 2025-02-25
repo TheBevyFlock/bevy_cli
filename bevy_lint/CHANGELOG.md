@@ -11,6 +11,29 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 
 **All Changes**: [`lint-v0.1.0...main`](https://github.com/TheBevyFlock/bevy_cli/compare/lint-v0.1.0...main)
 
+### Added
+
+- Lint `borrowed_reborrowable` to `pedantic` ([#164](https://github.com/TheBevyFlock/bevy_cli/pull/164))
+- Lint `insert_unit_bundle` to `suspicious` ([#210](https://github.com/TheBevyFlock/bevy_cli/pull/210))
+- Lint configuration in `Cargo.toml` ([#251](https://github.com/TheBevyFlock/bevy_cli/pull/251))
+- Support for `bevy_lint --version` ([#257](https://github.com/TheBevyFlock/bevy_cli/pull/257))
+- Support for qualified method syntax in several lints ([#253](https://github.com/TheBevyFlock/bevy_cli/pull/253))
+- Lint `duplicate_bevy_dependencies` ([#280](https://github.com/TheBevyFlock/bevy_cli/pull/280))
+
+### Changed
+
+- The linter now supports Bevy 0.15, but no longer supports Bevy 0.14 ([#191](https://github.com/TheBevyFlock/bevy_cli/pull/191))
+    - Eventually the linter will support multiple versions of Bevy at the same time. Please see [#138](https://github.com/TheBevyFlock/bevy_cli/issues/138) for more information.
+- Bumped nightly toolchain to `nightly-2025-02-20` ([#278](https://github.com/TheBevyFlock/bevy_cli/pull/278))
+- Lowered `zst_query` lint from `restriction` to `nursery` ([#261](https://github.com/TheBevyFlock/bevy_cli/pull/261))
+    - `zst_query` does not respect `QueryData::Item`, meaning it is broken for queries like `Has<T>` and `AnyOf<T>`. Please see [#279](https://github.com/TheBevyFlock/bevy_cli/issues/279) for more information.
+- Merged `panicking_query_methods` and `panicking_world_methods` into a single lint: `panicking_methods` ([#271](https://github.com/TheBevyFlock/bevy_cli/pull/271))
+
+### Fixed
+
+- `rustc_driver.dll` not found on Windows ([#281](https://github.com/TheBevyFlock/bevy_cli/pull/281))
+    - `bevy_lint` should now work on Windows, as it was previously broken by this bug.
+
 ## 0.1.0 - 2024-11-17
 
 **All Changes**: [`17834eb...lint-v0.1.0`](https://github.com/TheBevyFlock/bevy_cli/compare/17834eb...lint-v0.1.0)
