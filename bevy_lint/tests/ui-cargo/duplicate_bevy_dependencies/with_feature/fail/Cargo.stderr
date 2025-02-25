@@ -1,10 +1,10 @@
-error: Mismatching versions of `bevy` found, leafwing-input-manager used bevy version ^0.13
+error: multiple versions of the `bevy` crate found
   --> Cargo.toml:12:26
    |
 12 | leafwing-input-manager = "0.13"
    |                          ^^^^^^
    |
-help: Expected all crates to use `bevy` 0.14.2
+help: expected all crates to use `bevy` 0.14.2, but `leafwing-input-manager` uses `bevy` ^0.13
   --> Cargo.toml:11:8
    |
 11 | bevy = { version = "0.14.2", features = ["android_shared_stdcxx"] }

@@ -99,9 +99,9 @@
 use std::ops::ControlFlow;
 
 use crate::{declare_bevy_lint, declare_bevy_lint_pass};
-use clippy_utils::{diagnostics::span_lint_and_sugg, ty::match_type};
+use clippy_utils::{diagnostics::span_lint_and_sugg, source::snippet_opt, ty::match_type};
 use rustc_errors::Applicability;
-use rustc_hir::{Body, FnDecl, Mutability, intravisit::FnKind};
+use rustc_hir::{Body, FnDecl, MutTy, Mutability, intravisit::FnKind};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::{Interner, Ty, TyKind, TypeVisitable, TypeVisitor};
 use rustc_span::{
@@ -113,7 +113,7 @@ use rustc_span::{
 declare_bevy_lint! {
     pub BORROWED_REBORROWABLE,
     PEDANTIC,
-    "parameter takes a mutable reference to a re-borrowable type",
+    "function parameter takes a mutable reference to a re-borrowable type",
 }
 
 declare_bevy_lint_pass! {
@@ -184,13 +184,31 @@ impl<'tcx> LateLintPass<'tcx> for BorrowedReborrowable {
 
             let span = decl.inputs[arg_index].span.to(arg_ident.span);
 
+            // This tries to get the user-written form of `T` given the HIR representation for `&T`
+            // / `&mut T`. If we cannot for whatever reason, we fallback to using
+            // `Ty::to_string()` to get the fully-qualified form of `T`.
+            //
+            // For example, given a function signature like `fn(&mut Commands)`, we try to get the
+            // snippet for just `Commands` but default to `bevy::prelude::Commands<'_, '_>` if we
+            // cannot.
+            let ty_snippet = match decl.inputs[arg_index].kind {
+                // The `Ty` should be a `Ref`, since we proved that above.
+                rustc_hir::TyKind::Ref(_, MutTy { ty: inner_ty, .. }) => {
+                    // Get the snippet for the inner type.
+                    snippet_opt(cx, inner_ty.span)
+                }
+                // If it's not a `Ref` for whatever reason, fallback to our default value.
+                _ => None,
+            }
+            .unwrap_or_else(|| ty.to_string());
+
             span_lint_and_sugg(
                 cx,
                 BORROWED_REBORROWABLE.lint,
                 span,
                 reborrowable.message(),
                 reborrowable.help(),
-                reborrowable.suggest(arg_ident, ty.to_string()),
+                reborrowable.suggest(arg_ident, ty_snippet),
                 // Not machine-applicable since the function body may need to
                 // also be updated to account for the removed ref
                 Applicability::MaybeIncorrect,

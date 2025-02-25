@@ -70,6 +70,8 @@ declare_bevy_lint_pass! {
     },
 }
 
+const HELP_MESSAGE: &str = "inserting an `Events` resource does not fully setup that event";
+
 impl<'tcx> LateLintPass<'tcx> for InsertEventResource {
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &'tcx Expr<'tcx>) {
         // Find a method call.
@@ -128,7 +130,7 @@ fn check_insert_resource(cx: &LateContext<'_>, method_call: &MethodCall) {
                 format!(
                     "called `App::insert_resource{generics_snippet}({receiver_snippet}, {args_snippet})` instead of `App::add_event::<{event_ty_snippet}>({receiver_snippet})`"
                 ),
-                "inserting an `Events` resource does not fully setup that event",
+                HELP_MESSAGE,
                 format!("App::add_event::<{event_ty_snippet}>({receiver_snippet})"),
                 applicability,
             );
@@ -140,7 +142,7 @@ fn check_insert_resource(cx: &LateContext<'_>, method_call: &MethodCall) {
                 format!(
                     "called `App::insert_resource{generics_snippet}({args_snippet})` instead of `App::add_event::<{event_ty_snippet}>()`"
                 ),
-                "inserting an `Events` resource does not fully setup that event",
+                HELP_MESSAGE,
                 format!("add_event::<{event_ty_snippet}>()"),
                 applicability,
             );
@@ -208,7 +210,7 @@ fn check_init_resource<'tcx>(cx: &LateContext<'tcx>, method_call: &MethodCall<'t
                     format!(
                         "called `App::init_resource{generics_snippet}({receiver_snippet})` instead of `App::add_event::<{event_ty_snippet}>({receiver_snippet})`"
                     ),
-                    "inserting an `Events` resource does not fully setup that event",
+                    HELP_MESSAGE,
                     format!("App::add_event::<{event_ty_snippet}>({receiver_snippet})"),
                     applicability,
                 );
@@ -220,7 +222,7 @@ fn check_init_resource<'tcx>(cx: &LateContext<'tcx>, method_call: &MethodCall<'t
                     format!(
                         "called `App::init_resource{generics_snippet}({args_snippet})` instead of `App::add_event::<{event_ty_snippet}>()`"
                     ),
-                    "inserting an `Events` resource does not fully setup that event",
+                    HELP_MESSAGE,
                     format!("add_event::<{event_ty_snippet}>()"),
                     applicability,
                 );
