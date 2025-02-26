@@ -5,6 +5,8 @@ use std::{env, ffi::OsString, process::Command};
 use anyhow::Context;
 use dialoguer::Confirm;
 
+use crate::external_cli::CommandHelpers as _;
+
 /// The rustup command can be customized via the `BEVY_CLI_RUSTUP` env
 fn program() -> OsString {
     env::var_os("BEVY_CLI_RUSTUP").unwrap_or("rustup".into())
@@ -45,12 +47,12 @@ pub(crate) fn install_target_if_needed(target: &str, silent: bool) -> anyhow::Re
 
     println!("Installing missing target: `{target}`");
 
-    let mut cmd = Command::new(program());
-    cmd.arg("target").arg("add").arg(target);
+    Command::new(program())
+        .arg("target")
+        .arg("add")
+        .arg(target)
+        .ensure_output()
+        .context(format!("failed to install target `{target}`"))?;
 
-    anyhow::ensure!(
-        cmd.output()?.status.success(),
-        "Failed to install target `{target}`."
-    );
     Ok(())
 }
