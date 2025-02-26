@@ -155,8 +155,7 @@ Once `bevy` is registered, you can toggle lints throughout your code, as long as
 // Enable pedantic lints, which are off by default.
 #![cfg_attr(bevy_lint, warn(bevy::pedantic))]
 
-// Deny panicking `World` and `Query` methods in this system when a non-panicking alternatives
-// exist.
+// Deny panicking Bevy methods in this system when a non-panicking alternatives exist.
 #[cfg_attr(bevy_lint, deny(bevy::panicking_methods))]
 fn my_critical_system(world: &mut World) {
     // ...
