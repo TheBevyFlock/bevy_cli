@@ -6,6 +6,7 @@
       /* Styles for the loading screen */
       :root {
         --web-bg-color: #2b2c2f;
+        --web-color: white;
       }
 
       * {
@@ -31,6 +32,7 @@
 
       body {
         background-color: var(--web-bg-color);
+        color: var(--web-color);
       }
 
       .spinner {
@@ -58,6 +60,7 @@
   </head>
 
   <body class="center">
+    <noscript>JavaScript support is required to run this app</noscript>
     <div id="loading-screen" class="center">
       <span class="spinner"></span>
     </div>
