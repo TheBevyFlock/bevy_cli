@@ -167,14 +167,11 @@ fn lint_with_target_version(
                 cx,
                 DUPLICATE_BEVY_DEPENDENCIES.lint,
                 toml_span(cargo_toml_reference.span(), file),
-                format!(
-                    "Mismatching versions of `bevy` found, {} used bevy version {}",
-                    mismatching_dependency.0, mismatching_dependency.1
-                ),
+                DUPLICATE_BEVY_DEPENDENCIES.lint.desc,
                 |diag| {
                     diag.span_help(
                         bevy_cargo_toml_span,
-                        format!("Expected all crates to use `bevy` {target_version}"),
+                        format!("expected all crates to use `bevy` {target_version}, but `{}` uses `bevy` {}", mismatching_dependency.0, mismatching_dependency.1),
                     );
                 },
             );
