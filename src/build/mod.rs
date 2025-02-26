@@ -1,8 +1,10 @@
 use anyhow::{bail, Context as _};
 use args::{BuildArgs, BuildSubcommands};
 
+#[cfg(feature = "rustup")]
+use crate::external_cli::rustup;
 use crate::{
-    external_cli::{cargo, rustup, wasm_bindgen, CommandHelpers},
+    external_cli::{cargo, wasm_bindgen, CommandHelpers},
     run::select_run_binary,
     web::{
         bundle::{create_web_bundle, PackedBundle, WebBundle},
@@ -96,6 +98,7 @@ pub(crate) fn ensure_web_setup(skip_prompts: bool) -> anyhow::Result<()> {
         .ok_or_else(|| anyhow::anyhow!("Failed to find wasm-bindgen"))?;
 
     // `wasm32-unknown-unknown` compilation target
+    #[cfg(feature = "rustup")]
     rustup::install_target_if_needed("wasm32-unknown-unknown", skip_prompts)?;
     // `wasm-bindgen-cli` for bundling
     cargo::install::if_needed(

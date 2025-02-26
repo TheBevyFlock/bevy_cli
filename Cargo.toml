@@ -15,9 +15,15 @@ name = "bevy"
 path = "src/bin/main.rs"
 
 [features]
+default = ["rustup"]
+
 # To optimize the Wasm binaries
 # Increases compile times (of the CLI) quite a bit
 wasm-opt = ["dep:wasm-opt"]
+
+# Automatically install required targets with `rustup` (after asking)
+# You can disable this feature if your system doesn't have rustup installed anyway
+rustup = []
 
 [dependencies]
 # CLI argument parsing

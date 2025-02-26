@@ -4,6 +4,7 @@ use std::process::{Command, ExitStatus, Output};
 
 pub mod arg_builder;
 pub(crate) mod cargo;
+#[cfg(feature = "rustup")]
 pub(crate) mod rustup;
 pub(crate) mod wasm_bindgen;
 
