@@ -34,7 +34,7 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 - `rustc_driver.dll` not found on Windows ([#281](https://github.com/TheBevyFlock/bevy_cli/pull/281))
     - `bevy_lint` should now work on Windows, as it was previously broken by this bug.
 
-## 0.1.0 - 2024-11-17
+## v0.1.0 - 2024-11-17
 
 **All Changes**: [`17834eb...lint-v0.1.0`](https://github.com/TheBevyFlock/bevy_cli/compare/17834eb...lint-v0.1.0)
 
