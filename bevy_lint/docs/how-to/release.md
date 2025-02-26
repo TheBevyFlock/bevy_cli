@@ -22,7 +22,12 @@
 ````markdown
 <!-- One-sentence summary of changes. What awesome features can we spotlight? What critical bugs were fixed? -->
 
-You can find the live documentation for this release [here](https://thebevyflock.github.io/bevy_cli/bevy_lint/).
+You can find the live documentation for this release [here](https://thebevyflock.github.io/bevy_cli/bevy_lint/). You may also be interested in [the changelog] and [the migration guide].
+
+<!-- Make sure to update the tags in these links to point to the correct version. -->
+
+[the changelog]: https://github.com/TheBevyFlock/bevy_cli/blob/lint-vX.Y.Z/bevy_lint/CHANGELOG.md
+[the migration guide]: https://github.com/TheBevyFlock/bevy_cli/blob/lint-vX.Y.Z/bevy_lint/MIGRATION.md
 
 > [!WARNING]
 >
