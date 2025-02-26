@@ -5,7 +5,7 @@ use std::{env, ffi::OsString, process::Command};
 use anyhow::Context;
 use dialoguer::Confirm;
 
-use crate::external_cli::CommandHelpers as _;
+use crate::external_cli::{cargo::install::is_installed, CommandHelpers as _};
 
 /// The rustup command can be customized via the `BEVY_CLI_RUSTUP` env
 fn program() -> OsString {
@@ -26,6 +26,12 @@ fn is_target_installed(target: &str) -> bool {
 
 /// Install a compilation target, if it is not already installed.
 pub(crate) fn install_target_if_needed(target: &str, silent: bool) -> anyhow::Result<()> {
+    if is_installed(program()).is_none() {
+        // `rustup` is not installed on the system
+        // Don't perform the check and hope for the best!
+        return Ok(());
+    }
+
     if is_target_installed(target) {
         return Ok(());
     }
