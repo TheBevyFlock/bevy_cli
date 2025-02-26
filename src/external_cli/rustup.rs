@@ -4,6 +4,7 @@ use std::{env, ffi::OsString, process::Command};
 
 use anyhow::Context;
 use dialoguer::Confirm;
+use tracing::info;
 
 /// The rustup command can be customized via the `BEVY_CLI_RUSTUP` env
 fn program() -> OsString {
@@ -43,7 +44,7 @@ pub(crate) fn install_target_if_needed(target: &str, silent: bool) -> anyhow::Re
         }
     }
 
-    println!("Installing missing target: `{target}`");
+    info!("Installing missing target: `{target}`");
 
     let mut cmd = Command::new(program());
     cmd.arg("target").arg("add").arg(target);
