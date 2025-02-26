@@ -18,7 +18,10 @@ pub fn build(args: &mut BuildArgs) -> anyhow::Result<()> {
         build_web(args)?;
     } else {
         let cargo_args = args.cargo_args_builder();
-        cargo::build::command().args(cargo_args).ensure_status()?;
+        cargo::build::command()
+            .args(cargo_args)
+            .log_command()
+            .ensure_status()?;
     }
 
     Ok(())
@@ -59,7 +62,10 @@ pub fn build_web(args: &mut BuildArgs) -> anyhow::Result<WebBundle> {
     let cargo_args = args.cargo_args_builder();
 
     info!("Compiling to WebAssembly...");
-    cargo::build::command().args(cargo_args).ensure_status()?;
+    cargo::build::command()
+        .args(cargo_args)
+        .log_command()
+        .ensure_status()?;
 
     info!("Bundling JavaScript bindings...");
     wasm_bindgen::bundle(&bin_target)?;

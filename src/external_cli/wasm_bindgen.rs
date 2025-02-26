@@ -24,6 +24,7 @@ pub(crate) fn bundle(bin_target: &BinTarget) -> anyhow::Result<()> {
                 .add_with_value("--target", "web")
                 .arg(original_wasm.to_string_lossy()),
         )
+        .log_command()
         .ensure_status()?;
 
     Ok(())

@@ -59,7 +59,10 @@ pub fn run(args: &RunArgs) -> anyhow::Result<()> {
     } else {
         let cargo_args = args.cargo_args_builder();
         // For native builds, wrap `cargo run`
-        cargo::run::command().args(cargo_args).ensure_status()?;
+        cargo::run::command()
+            .args(cargo_args)
+            .log_command()
+            .ensure_status()?;
     }
 
     Ok(())

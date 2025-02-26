@@ -1,6 +1,8 @@
 use anyhow::{anyhow, ensure, Context};
 use std::{env, path::PathBuf, process::Command};
 
+use crate::external_cli::CommandHelpers;
+
 /// Runs `bevy_lint`, if it is installed, with the given arguments.
 ///
 /// Calling `lint(vec!["--workspace"])` is equivalent to calling `bevy_lint --workspace` in the
@@ -8,7 +10,10 @@ use std::{env, path::PathBuf, process::Command};
 pub fn lint(args: Vec<String>) -> anyhow::Result<()> {
     let bevy_lint_path = find_bevy_lint()?;
 
-    let status = Command::new(bevy_lint_path).args(args).status()?;
+    let status = Command::new(bevy_lint_path)
+        .args(args)
+        .log_command()
+        .status()?;
 
     ensure!(
         status.success(),

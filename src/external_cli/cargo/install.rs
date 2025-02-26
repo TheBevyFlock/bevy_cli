@@ -7,7 +7,7 @@ use anyhow::Context;
 use dialoguer::Confirm;
 use semver::Version;
 
-use crate::external_cli::wasm_bindgen;
+use crate::external_cli::{wasm_bindgen, CommandHelpers};
 
 use self::wasm_bindgen::wasm_bindgen_cli_version;
 
@@ -17,6 +17,7 @@ use self::wasm_bindgen::wasm_bindgen_cli_version;
 fn is_installed(program: &str) -> Option<Vec<u8>> {
     Command::new(program)
         .arg("--version")
+        .log_command()
         .output()
         .map(|output| output.stdout)
         .ok()
@@ -79,6 +80,8 @@ pub(crate) fn if_needed(
     if let Some(version) = package_version {
         cmd.arg("--version").arg(version);
     }
+
+    cmd.log_command();
 
     let status = if hidden {
         cmd.output()?.status
