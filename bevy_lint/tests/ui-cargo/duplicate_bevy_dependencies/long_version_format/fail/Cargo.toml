@@ -8,5 +8,5 @@ edition = "2021"
 [workspace]
 
 [dependencies]
-bevy = { version = "0.14.2" }
+bevy = { version = "0.14.2", default-features = false }
 leafwing-input-manager = "0.13"

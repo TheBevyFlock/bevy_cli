@@ -7,8 +7,8 @@ error: multiple versions of the `bevy` crate found
 help: expected all crates to use `bevy` 0.14.2, but `leafwing-input-manager` uses `bevy` ^0.13
   --> Cargo.toml:11:8
    |
-11 | bevy = { version = "0.14.2" }
-   |        ^^^^^^^^^^^^^^^^^^^^^^
+11 | bevy = { version = "0.14.2", default-features = false }
+   |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 note: the lint level is defined here
   --> src/main.rs:3:9
    |
