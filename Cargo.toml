@@ -51,7 +51,7 @@ actix-web = { version = "4.9.0", default-features = false, features = ["http2", 
 webbrowser = "1.0.2"
 
 # Parsing the Cargo manifest
-toml_edit = "0.22.22"
+toml_edit = { version = "0.22.22", default-features = false, features = ["parse"] }
 
 # Copying directories
 fs_extra = "1.3.0"
@@ -61,7 +61,7 @@ wasm-opt = { version = "0.116.1", optional = true }
 # Handling websocket messages
 actix-ws = "0.3.0"
 # Utilities for futures which we use for the dev server
-futures-util = "0.3.31"
+futures-util = { version = "0.3.31", default-features = false, features = ["std"] }
 
 # Logging crates
 tracing = "0.1.41"
