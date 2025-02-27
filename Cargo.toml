@@ -45,7 +45,7 @@ semver = { version = "1.0.23", features = ["serde"] }
 
 # Serving the app for the browser
 actix-files = "0.6.6"
-actix-web = "4.9.0"
+actix-web = { version = "4.9.0", default-features = false, features = ["http2", "compat"] }
 
 # Opening the app in the browser
 webbrowser = "1.0.2"
