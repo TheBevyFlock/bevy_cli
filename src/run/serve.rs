@@ -1,5 +1,4 @@
 //! Serving the app locally for the browser.
-use std::net::SocketAddr;
 use axum::{
     extract::{
         ws::{Message, WebSocket},
@@ -9,6 +8,7 @@ use axum::{
     routing::{any, get},
     Router,
 };
+use std::net::SocketAddr;
 use tower_http::{
     services::{ServeDir, ServeFile},
     trace::TraceLayer,
@@ -23,11 +23,7 @@ async fn dev_websocket(ws: WebSocketUpgrade) -> Response {
 async fn handle_socket(mut socket: WebSocket) {
     while let Some(Ok(msg)) = socket.recv().await {
         if let Message::Text(msg) = msg {
-            if socket
-                .send(Message::Text(format!("You said: {msg}").into()))
-                .await
-                .is_err()
-            {
+            if socket.send(Message::Text(msg)).await.is_err() {
                 break;
             }
         }
@@ -39,13 +35,11 @@ async fn handle_socket(mut socket: WebSocket) {
 pub(crate) async fn serve(web_bundle: WebBundle, port: u16) -> anyhow::Result<()> {
     let addr = SocketAddr::from(([127, 0, 0, 1], port));
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
-    tracing::info!("listening on {}", listener.local_addr().unwrap());
 
     let mut router = Router::new().layer(TraceLayer::new_for_http());
 
     match web_bundle.clone() {
         WebBundle::Packed(PackedBundle { path }) => {
-            tracing::info!(?path, "packed");
             router = router.route_service(
                 &format!("/{}", path.display()),
                 ServeFile::new("index.html"),

@@ -45,7 +45,12 @@ semver = { version = "1.0.23", features = ["serde"] }
 
 # Serving the app for the browser
 http = "1.2"
-axum = { version="0.8.1", features=["ws"] }
+axum = { version = "0.8.1", default-features = false, features = [
+    "ws",
+    "http1",
+    "tokio",
+    "tracing",
+] }
 tower = { version = "0.5.2", features = ["util"] }
 tower-http = { version = "0.6.1", features = ["fs", "trace"] }
 tokio = { version = "1.0", features = ["full"] }
