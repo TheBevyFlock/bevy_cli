@@ -1,7 +1,7 @@
 use semver::Version;
 use std::{process::Command, str::FromStr};
 
-use crate::{external_cli::CommandHelpers, run::BinTarget};
+use crate::{external_cli::CommandHelpers, web::bin_target::BinTarget};
 
 use super::arg_builder::ArgBuilder;
 

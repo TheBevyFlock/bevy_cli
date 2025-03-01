@@ -7,7 +7,9 @@ use std::{
 use anyhow::Context;
 use tracing::info;
 
-use crate::{external_cli::cargo::metadata::Metadata, run::BinTarget};
+use crate::external_cli::cargo::metadata::Metadata;
+
+use super::bin_target::BinTarget;
 
 #[derive(Debug, Clone)]
 pub enum Index {
@@ -55,16 +57,6 @@ pub enum WebBundle {
     Linked(LinkedBundle),
     /// A bundle packed into a single folder, ready to be deployed on a web server.
     Packed(PackedBundle),
-}
-
-impl WebBundle {
-    /// The index.html file of the bundle.
-    pub fn index(&self) -> Index {
-        match self {
-            Self::Linked(linked) => linked.index.clone(),
-            Self::Packed(packed) => Index::File(packed.path.join("index.html")),
-        }
-    }
 }
 
 /// Create a bundle of all the files needed for serving the app in the web.
