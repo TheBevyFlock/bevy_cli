@@ -1,7 +1,9 @@
 use clap::{ArgAction, Args, Subcommand};
 
+#[cfg(feature = "web")]
+use crate::build::args::{BuildSubcommands, BuildWebArgs};
 use crate::{
-    build::args::{BuildArgs, BuildSubcommands, BuildWebArgs},
+    build::args::BuildArgs,
     external_cli::{arg_builder::ArgBuilder, cargo::run::CargoRunArgs},
 };
 

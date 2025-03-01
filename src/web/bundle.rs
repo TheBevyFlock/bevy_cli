@@ -59,16 +59,6 @@ pub enum WebBundle {
     Packed(PackedBundle),
 }
 
-impl WebBundle {
-    /// The index.html file of the bundle.
-    pub fn index(&self) -> Index {
-        match self {
-            Self::Linked(linked) => linked.index.clone(),
-            Self::Packed(packed) => Index::File(packed.path.join("index.html")),
-        }
-    }
-}
-
 /// Create a bundle of all the files needed for serving the app in the web.
 ///
 /// If `packed` is set to `true`, the files will be packed together in a single folder.
