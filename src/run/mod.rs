@@ -1,66 +1,25 @@
 use std::path::PathBuf;
 
-use args::RunSubcommands;
-use tracing::{error, info};
-
-use crate::{
-    build::{args::BuildArgs, build_web},
-    external_cli::{
-        cargo::{self, metadata::Metadata},
-        CommandHelpers,
-    },
+use crate::external_cli::{
+    cargo::{self, metadata::Metadata},
+    CommandHelpers,
 };
+#[cfg(feature = "web")]
+use crate::web::run::run_web;
 
 pub use self::args::RunArgs;
 
-mod args;
-mod serve;
+pub mod args;
 
 pub fn run(args: &RunArgs) -> anyhow::Result<()> {
-    if let Some(RunSubcommands::Web(web_args)) = &args.subcommand {
-        let mut build_args: BuildArgs = args.clone().into();
-
-        // When no target is selected, search for the default-run field and append the binary name
-        // as `--bin` flag to only compile the default run target
-        if build_args.cargo_args.target_args.bin.is_none()
-            && build_args.cargo_args.target_args.example.is_none()
-        {
-            let metadata = cargo::metadata::metadata_with_args(["--no-deps"])?;
-            let bin_target = select_run_binary(
-                &metadata,
-                args.cargo_args.package_args.package.as_deref(),
-                args.cargo_args.target_args.bin.as_deref(),
-                args.cargo_args.target_args.example.as_deref(),
-                build_args.target().as_deref(),
-                build_args.profile(),
-            )?;
-
-            build_args.cargo_args.target_args.bin = Some(bin_target.bin_name);
-        }
-
-        let web_bundle = build_web(&mut build_args)?;
-
-        let port = web_args.port;
-        let url = format!("http://localhost:{port}");
-
-        // Serving the app is blocking, so we open the page first
-        if web_args.open {
-            match webbrowser::open(&url) {
-                Ok(()) => info!("Your app is running at <{url}>!"),
-                Err(error) => {
-                    error!("Failed to open the browser automatically, open the app at <{url}>. (Error: {error:?}");
-                }
-            }
-        } else {
-            info!("Open your app at <{url}>!");
-        }
-
-        serve::serve(web_bundle, port)?;
-    } else {
-        let cargo_args = args.cargo_args_builder();
-        // For native builds, wrap `cargo run`
-        cargo::run::command().args(cargo_args).ensure_status()?;
+    #[cfg(feature = "web")]
+    if args.is_web() {
+        return run_web(args);
     }
+
+    let cargo_args = args.cargo_args_builder();
+    // For native builds, wrap `cargo run`
+    cargo::run::command().args(cargo_args).ensure_status()?;
 
     Ok(())
 }

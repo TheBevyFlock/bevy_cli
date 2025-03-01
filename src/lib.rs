@@ -5,4 +5,5 @@ pub mod external_cli;
 pub mod lint;
 pub mod run;
 pub mod template;
+#[cfg(feature = "web")]
 pub(crate) mod web;

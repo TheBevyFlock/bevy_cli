@@ -15,9 +15,14 @@ name = "bevy"
 path = "src/bin/main.rs"
 
 [features]
+default = ["web"]
+
+# Run your Bevy app in the browser
+web = []
+
 # To optimize the Wasm binaries
 # Increases compile times (of the CLI) quite a bit
-wasm-opt = ["dep:wasm-opt"]
+wasm-opt = ["dep:wasm-opt", "web"]
 
 [dependencies]
 # CLI argument parsing

@@ -24,8 +24,13 @@ pub struct RunArgs {
 
 impl RunArgs {
     /// Whether to run the app in the browser.
+    #[cfg(feature = "web")]
     pub(crate) fn is_web(&self) -> bool {
-        matches!(self.subcommand, Some(RunSubcommands::Web(_)))
+        matches!(self.subcommand, Some(super::args::RunSubcommands::Web(_)))
+    }
+    #[cfg(not(feature = "web"))]
+    pub(crate) fn is_web(&self) -> bool {
+        false
     }
 
     /// Generate arguments for `cargo`.
@@ -37,6 +42,7 @@ impl RunArgs {
 #[derive(Debug, Subcommand, Clone)]
 pub enum RunSubcommands {
     /// Run your app in the browser.
+    #[cfg(feature = "web")]
     Web(RunWebArgs),
 }
 
@@ -83,6 +89,7 @@ impl From<RunArgs> for BuildArgs {
                 },
             },
             subcommand: args.subcommand.map(|subcommand| match subcommand {
+                #[cfg(feature = "web")]
                 RunSubcommands::Web(web_args) => BuildSubcommands::Web(BuildWebArgs {
                     create_packed_bundle: web_args.create_packed_bundle,
                 }),
