@@ -7,7 +7,9 @@ use std::{
 use anyhow::Context;
 use tracing::info;
 
-use crate::{external_cli::cargo::metadata::Metadata, run::BinTarget};
+use crate::external_cli::cargo::metadata::Metadata;
+
+use super::bin_target::BinTarget;
 
 #[derive(Debug, Clone)]
 pub enum Index {

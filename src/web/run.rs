@@ -3,10 +3,10 @@ use tracing::{error, info};
 use crate::{
     build::args::BuildArgs,
     external_cli::cargo,
-    run::{args::RunSubcommands, select_run_binary, RunArgs},
+    run::{args::RunSubcommands, RunArgs},
 };
 
-use super::{build::build_web, serve::serve};
+use super::{bin_target::select_run_binary, build::build_web, serve::serve};
 
 /// Run the app in the browser.
 ///

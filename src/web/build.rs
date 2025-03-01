@@ -4,8 +4,8 @@ use tracing::info;
 use crate::{
     build::args::{BuildArgs, BuildSubcommands},
     external_cli::{cargo, rustup, wasm_bindgen, CommandHelpers as _},
-    run::select_run_binary,
     web::{
+        bin_target::select_run_binary,
         bundle::{create_web_bundle, PackedBundle},
         profiles::configure_default_web_profiles,
     },
