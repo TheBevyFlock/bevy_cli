@@ -64,7 +64,7 @@ fn show_version() {
     const NAME: &str = env!("CARGO_PKG_NAME");
     const VERSION: &str = env!("CARGO_PKG_VERSION");
 
-    println!("{NAME} {VERSION}");
+    println!("{NAME} v{VERSION}");
 }
 
 /// Returns the path to `bevy_lint_driver`.

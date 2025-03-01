@@ -3,13 +3,14 @@
 ## Kick-off Pull Request
 
 1. Review the [changelog](../../CHANGELOG.md) and ensure that all notable changes have been documented.
-2. Replace `[Unreleased]` heading with the version with the format `[X.Y.Z] - YYYY-MM-DD`.
+2. Replace `[Unreleased]` heading with the version with the format `[vX.Y.Z] - YYYY-MM-DD`.
 3. Update the `**All Changes**` link to compare from `main` to the new tag `lint-vX.Y.Z`. (E.g. `lint-v0.1.0...main` to `lint-v0.1.0...lint-v0.2.0`.)
+4. Review the [migration guide](../../MIGRATION.md) and ensure all breaking / significant changes from the previous version are documented.
 4. Remove the `-dev` suffix from the version in [`Cargo.toml`](../../Cargo.toml) and the compatibility table in [`README.md`](../../README.md).
-      - Please ensure that [`Cargo.lock`](../../../Cargo.lock) also updates!
+    - Please ensure that [`Cargo.lock`](../../../Cargo.lock) also updates!
 6. Commit all of these changes and open a pull request.
 7. Merge the PR once a core Bevy maintainer approves it with no outstanding issues from other contributors.
-      - This starts the release process, enacting a freeze on all other changes until the release has finished. While maintainers need to be aware of this so they do not merge PRs during this time, the release process should take less than an hour, so it's unlikely to ever be an issue.
+    - This starts the release process, enacting a freeze on all other changes until the release has finished. While maintainers need to be aware of this so they do not merge PRs during this time, the release process should take less than an hour, so it's unlikely to ever be an issue.
 
 ## Release on Github
 
@@ -21,7 +22,12 @@
 ````markdown
 <!-- One-sentence summary of changes. What awesome features can we spotlight? What critical bugs were fixed? -->
 
-You can find the live documentation for this release [here](https://thebevyflock.github.io/bevy_cli/bevy_lint/).
+You can find the live documentation for this release [here](https://thebevyflock.github.io/bevy_cli/bevy_lint/). You may also be interested in [the changelog] and [the migration guide].
+
+<!-- Make sure to update the tags in these links to point to the correct version. -->
+
+[the changelog]: https://github.com/TheBevyFlock/bevy_cli/blob/lint-vX.Y.Z/bevy_lint/CHANGELOG.md
+[the migration guide]: https://github.com/TheBevyFlock/bevy_cli/blob/lint-vX.Y.Z/bevy_lint/MIGRATION.md
 
 > [!WARNING]
 >
