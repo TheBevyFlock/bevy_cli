@@ -77,5 +77,5 @@ pub(crate) fn if_needed(
     }
 
     // install the program
-    cmd.run().map(|_| true)
+    cmd.status().map(|_| true)
 }

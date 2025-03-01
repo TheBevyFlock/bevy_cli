@@ -52,6 +52,6 @@ pub(crate) fn install_target_if_needed(target: &str, silent: bool) -> anyhow::Re
     info!("Installing missing target: `{target}`");
 
     let mut cmd = CommandExt::new(program());
-    cmd.arg("target").arg("add").arg(target).run()?;
+    cmd.arg("target").arg("add").arg(target).status()?;
     Ok(())
 }

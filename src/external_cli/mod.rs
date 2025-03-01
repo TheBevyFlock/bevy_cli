@@ -55,8 +55,18 @@ impl CommandExt {
         }
     }
 
-    pub fn run(&mut self) -> anyhow::Result<ExitStatus> {
-        let program = self.inner.get_program().to_str().unwrap_or_default();
+    /// Wrapper method around [`Command::status`].
+    ///
+    /// Executes a command as a child process, waiting for it to finish.
+    /// If the command did not terminate successfully, an error containing the [`ExitStatus`] is returned.
+    pub fn status(&mut self) -> anyhow::Result<ExitStatus> {
+        let program = self
+            .inner
+            .get_program()
+            .to_str()
+            .unwrap_or_default()
+            .to_string();
+
         let args = self
             .inner
             .get_args()
@@ -68,16 +78,19 @@ impl CommandExt {
 
         let status = self.inner.status()?;
 
-        // TODO: streamline error handling
         anyhow::ensure!(
             status.success(),
             "Command {} exited with status code {}",
-            self.inner.get_program().to_str().unwrap_or_default(),
+            program,
             status
         );
+
         Ok(status)
     }
 
+    /// Wrapper method around [`Command::output()`].
+    ///
+    /// Executes the command as a child process, waiting for it to finish and collecting all of its output.
     pub fn output(&mut self) -> anyhow::Result<Output> {
         let program = self.inner.get_program().to_str().unwrap_or_default();
         let args = self

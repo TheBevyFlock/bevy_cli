@@ -10,7 +10,7 @@ use crate::external_cli::CommandExt;
 pub fn lint(args: Vec<String>) -> anyhow::Result<()> {
     let bevy_lint_path = find_bevy_lint()?;
 
-    let status = CommandExt::new(bevy_lint_path).args(args).run()?;
+    let status = CommandExt::new(bevy_lint_path).args(args).status()?;
 
     ensure!(
         status.success(),
