@@ -18,7 +18,7 @@ path = "src/bin/main.rs"
 default = ["web"]
 
 # Run your Bevy app in the browser
-web = []
+web = ["dep:webbrowser", "dep:http", "dep:axum", "dep:tower", "dep:tower-http", "dep:tokio", "dep:fs_extra"]
 
 # To optimize the Wasm binaries
 # Increases compile times (of the CLI) quite a bit
@@ -48,33 +48,35 @@ regex = "1.10.6"
 # Understanding package versions
 semver = { version = "1.0.23", features = ["serde"] }
 
-# Serving the app for the browser
-http = "1.2"
+# Parsing the Cargo manifest
+toml_edit = { version = "0.22.22", default-features = false, features = ["parse"] }
+
+# Logging crates
+tracing = "0.1.41"
+tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
+
+# Web dependencies
+
+## Optimizing Wasm binaries
+wasm-opt = { version = "0.116.1", optional = true }
+
+## Opening the app in the browser
+webbrowser = { version = "1.0.2", optional = true }
+
+## Serving the app for the browser
+http = { version = "1.2", optional = true }
 axum = { version = "0.8.1", default-features = false, features = [
     "ws",
     "http1",
     "tokio",
     "tracing",
-] }
-tower = { version = "0.5.2", features = ["util"] }
-tower-http = { version = "0.6.1", features = ["fs", "trace"] }
-tokio = { version = "1.0", features = ["full"] }
+], optional = true }
+tower = { version = "0.5.2", features = ["util"], optional = true }
+tower-http = { version = "0.6.1", features = ["fs", "trace"], optional = true }
+tokio = { version = "1.0", features = ["full"], optional = true }
 
-# Opening the app in the browser
-webbrowser = "1.0.2"
-
-# Parsing the Cargo manifest
-toml_edit = { version = "0.22.22", default-features = false, features = ["parse"] }
-
-# Copying directories
-fs_extra = "1.3.0"
-
-# Optimizing Wasm binaries
-wasm-opt = { version = "0.116.1", optional = true }
-
-# Logging crates
-tracing = "0.1.41"
-tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
+## Copying directories
+fs_extra = { version = "1.3.0", optional = true }
 
 [build-dependencies]
 # We don't use `cc` directly, but our dependency `wasm-opt-sys` fails to compile on Windows when using a newer version.
