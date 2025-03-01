@@ -3,7 +3,7 @@
 use std::{
     borrow::Cow,
     ffi::OsStr,
-    process::{Command as StdCommand, ExitStatus, Output},
+    process::{Command, ExitStatus, Output},
 };
 
 use tracing::{debug, error, info, trace, warn, Level};
@@ -13,25 +13,25 @@ pub(crate) mod cargo;
 pub(crate) mod rustup;
 pub(crate) mod wasm_bindgen;
 
-pub struct Command {
-    inner: StdCommand,
+pub struct CommandExt {
+    inner: Command,
     log_level: Level,
 }
 
-impl Command {
+impl CommandExt {
     pub fn new<S: AsRef<OsStr>>(program: S) -> Self {
         Self {
-            inner: StdCommand::new(program),
+            inner: Command::new(program),
             log_level: Level::INFO,
         }
     }
 
-    pub fn arg<S: AsRef<OsStr>>(&mut self, arg: S) -> &mut Command {
+    pub fn arg<S: AsRef<OsStr>>(&mut self, arg: S) -> &mut CommandExt {
         self.inner.arg(arg.as_ref());
         self
     }
 
-    pub fn args<I, S>(&mut self, args: I) -> &mut Command
+    pub fn args<I, S>(&mut self, args: I) -> &mut CommandExt
     where
         I: IntoIterator<Item = S>,
         S: AsRef<OsStr>,
@@ -40,7 +40,7 @@ impl Command {
         self
     }
 
-    pub fn log_level(&mut self, level: Level) -> &mut Command {
+    pub fn log_level(&mut self, level: Level) -> &mut CommandExt {
         self.log_level = level;
         self
     }
@@ -68,7 +68,7 @@ impl Command {
 
         let status = self.inner.status()?;
 
-        //TODO: streamline error handling
+        // TODO: streamline error handling
         anyhow::ensure!(
             status.success(),
             "Command {} exited with status code {}",

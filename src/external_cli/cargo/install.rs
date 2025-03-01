@@ -4,7 +4,7 @@ use anyhow::Context;
 use dialoguer::Confirm;
 use semver::Version;
 
-use crate::external_cli::{wasm_bindgen, Command};
+use crate::external_cli::{wasm_bindgen, CommandExt};
 
 use self::wasm_bindgen::wasm_bindgen_cli_version;
 
@@ -12,7 +12,7 @@ use self::wasm_bindgen::wasm_bindgen_cli_version;
 ///
 /// This assumes that the program offers a `--version` flag.
 fn is_installed(program: &str) -> Option<Vec<u8>> {
-    Command::new(program)
+    CommandExt::new(program)
         .arg("--version")
         .output()
         .map(|output| output.stdout)
@@ -69,7 +69,7 @@ pub(crate) fn if_needed(
         exit(1);
     }
 
-    let mut cmd = Command::new(super::program());
+    let mut cmd = CommandExt::new(super::program());
     cmd.arg("install").arg(package);
 
     if let Some(version) = package_version {

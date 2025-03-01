@@ -6,13 +6,13 @@ use semver::{Version, VersionReq};
 use serde::Deserialize;
 use tracing::Level;
 
-use crate::external_cli::Command;
+use crate::external_cli::CommandExt;
 
 use super::program;
 
 /// Create a command to run `cargo metadata`.
-pub(crate) fn command() -> Command {
-    let mut command = Command::new(program());
+pub(crate) fn command() -> CommandExt {
+    let mut command = CommandExt::new(program());
     // The format version needs to be fixed for compatibility and to avoid a warning log
     command
         .args(["metadata", "--format-version", "1"])

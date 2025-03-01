@@ -1,7 +1,7 @@
 use anyhow::{anyhow, ensure, Context};
 use std::{env, path::PathBuf};
 
-use crate::external_cli::Command;
+use crate::external_cli::CommandExt;
 
 /// Runs `bevy_lint`, if it is installed, with the given arguments.
 ///
@@ -10,7 +10,7 @@ use crate::external_cli::Command;
 pub fn lint(args: Vec<String>) -> anyhow::Result<()> {
     let bevy_lint_path = find_bevy_lint()?;
 
-    let status = Command::new(bevy_lint_path).args(args).run()?;
+    let status = CommandExt::new(bevy_lint_path).args(args).run()?;
 
     ensure!(
         status.success(),
