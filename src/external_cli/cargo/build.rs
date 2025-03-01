@@ -1,8 +1,6 @@
-use std::process::Command;
-
 use clap::{ArgAction, Args};
 
-use crate::external_cli::arg_builder::ArgBuilder;
+use crate::external_cli::{arg_builder::ArgBuilder, Command};
 
 use super::{program, CargoCommonArgs, CargoCompilationArgs, CargoFeatureArgs, CargoManifestArgs};
 

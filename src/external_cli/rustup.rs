@@ -1,12 +1,12 @@
 //! Utilities for the `rustup` CLI tool.
 
-use std::{env, ffi::OsString, process::Command};
+use std::{env, ffi::OsString};
 
 use anyhow::Context;
 use dialoguer::Confirm;
 use tracing::info;
 
-use crate::external_cli::CommandHelpers;
+use super::Command;
 
 /// The rustup command can be customized via the `BEVY_CLI_RUSTUP` env
 fn program() -> OsString {
@@ -15,11 +15,7 @@ fn program() -> OsString {
 
 /// Given a target triple, determine if it is already installed.
 fn is_target_installed(target: &str) -> bool {
-    let output = Command::new(program())
-        .arg("target")
-        .arg("list")
-        .log_command()
-        .output();
+    let output = Command::new(program()).arg("target").arg("list").output();
 
     // Check if the target list has an entry like this:
     // <target_triple> (installed)
@@ -53,11 +49,6 @@ pub(crate) fn install_target_if_needed(target: &str, silent: bool) -> anyhow::Re
     info!("Installing missing target: `{target}`");
 
     let mut cmd = Command::new(program());
-    cmd.arg("target").arg("add").arg(target).log_command();
-
-    anyhow::ensure!(
-        cmd.output()?.status.success(),
-        "Failed to install target `{target}`."
-    );
+    cmd.arg("target").arg("add").arg(target).run()?;
     Ok(())
 }

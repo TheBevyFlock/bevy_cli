@@ -1,9 +1,9 @@
 use semver::Version;
-use std::{process::Command, str::FromStr};
+use std::str::FromStr;
 
-use crate::{external_cli::CommandHelpers, run::BinTarget};
+use crate::run::BinTarget;
 
-use super::arg_builder::ArgBuilder;
+use super::{arg_builder::ArgBuilder, Command};
 
 pub(crate) const PACKAGE: &str = "wasm-bindgen-cli";
 pub(crate) const PROGRAM: &str = "wasm-bindgen";
@@ -24,8 +24,7 @@ pub(crate) fn bundle(bin_target: &BinTarget) -> anyhow::Result<()> {
                 .add_with_value("--target", "web")
                 .arg(original_wasm.to_string_lossy()),
         )
-        .log_command()
-        .ensure_status()?;
+        .run()?;
 
     Ok(())
 }

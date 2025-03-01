@@ -3,7 +3,7 @@ use args::{BuildArgs, BuildSubcommands};
 use tracing::info;
 
 use crate::{
-    external_cli::{cargo, rustup, wasm_bindgen, CommandHelpers},
+    external_cli::{cargo, rustup, wasm_bindgen},
     run::select_run_binary,
     web::{
         bundle::{create_web_bundle, PackedBundle, WebBundle},
@@ -18,10 +18,7 @@ pub fn build(args: &mut BuildArgs) -> anyhow::Result<()> {
         build_web(args)?;
     } else {
         let cargo_args = args.cargo_args_builder();
-        cargo::build::command()
-            .args(cargo_args)
-            .log_command()
-            .ensure_status()?;
+        cargo::build::command().args(cargo_args).run()?;
     }
 
     Ok(())
@@ -62,10 +59,7 @@ pub fn build_web(args: &mut BuildArgs) -> anyhow::Result<WebBundle> {
     let cargo_args = args.cargo_args_builder();
 
     info!("Compiling to WebAssembly...");
-    cargo::build::command()
-        .args(cargo_args)
-        .log_command()
-        .ensure_status()?;
+    cargo::build::command().args(cargo_args).run()?;
 
     info!("Bundling JavaScript bindings...");
     wasm_bindgen::bundle(&bin_target)?;
@@ -110,7 +104,6 @@ pub(crate) fn ensure_web_setup(skip_prompts: bool) -> anyhow::Result<()> {
         wasm_bindgen::PACKAGE,
         Some(&wasm_bindgen_version),
         skip_prompts,
-        false,
     )?;
 
     Ok(())

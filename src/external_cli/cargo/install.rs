@@ -1,13 +1,10 @@
-use std::{
-    process::{exit, Command},
-    str::FromStr,
-};
+use std::{process::exit, str::FromStr};
 
 use anyhow::Context;
 use dialoguer::Confirm;
 use semver::Version;
 
-use crate::external_cli::{wasm_bindgen, CommandHelpers};
+use crate::external_cli::{wasm_bindgen, Command};
 
 use self::wasm_bindgen::wasm_bindgen_cli_version;
 
@@ -17,7 +14,6 @@ use self::wasm_bindgen::wasm_bindgen_cli_version;
 fn is_installed(program: &str) -> Option<Vec<u8>> {
     Command::new(program)
         .arg("--version")
-        .log_command()
         .output()
         .map(|output| output.stdout)
         .ok()
@@ -31,7 +27,6 @@ pub(crate) fn if_needed(
     package: &str,
     package_version: Option<&str>,
     skip_prompts: bool,
-    hidden: bool,
 ) -> anyhow::Result<bool> {
     let mut prompt: Option<String> = None;
 
@@ -81,17 +76,6 @@ pub(crate) fn if_needed(
         cmd.arg("--version").arg(version);
     }
 
-    cmd.log_command();
-
-    let status = if hidden {
-        cmd.output()?.status
-    } else {
-        cmd.status()?
-    };
-
-    if status.success() {
-        Ok(true)
-    } else {
-        Err(anyhow::anyhow!("Failed to install `{program}`."))
-    }
+    // install the program
+    cmd.run().map(|_| true)
 }

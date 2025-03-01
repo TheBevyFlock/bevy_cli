@@ -1,13 +1,12 @@
 #![expect(dead_code, reason = "Will be used for bevy bump and perhaps bevy run")]
-use std::{
-    ffi::OsStr,
-    path::PathBuf,
-    process::{Command, Stdio},
-};
+use std::{ffi::OsStr, path::PathBuf};
 
 use anyhow::Context;
 use semver::{Version, VersionReq};
 use serde::Deserialize;
+use tracing::Level;
+
+use crate::external_cli::Command;
 
 use super::program;
 
@@ -15,7 +14,9 @@ use super::program;
 pub(crate) fn command() -> Command {
     let mut command = Command::new(program());
     // The format version needs to be fixed for compatibility and to avoid a warning log
-    command.args(["metadata", "--format-version", "1"]);
+    command
+        .args(["metadata", "--format-version", "1"])
+        .log_level(Level::DEBUG);
     command
 }
 
@@ -33,11 +34,7 @@ where
     I: IntoIterator<Item = S>,
     S: AsRef<OsStr>,
 {
-    let output = command()
-        .args(additional_args)
-        // Display errors to the user directly.
-        .stderr(Stdio::inherit())
-        .output()?;
+    let output = command().args(additional_args).output()?;
     let metadata = serde_json::from_slice(&output.stdout)
         .context("Failed to parse `cargo metadata` output")?;
     Ok(metadata)
