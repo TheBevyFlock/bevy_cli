@@ -4,7 +4,9 @@ use std::process::{Command, ExitStatus};
 
 pub mod arg_builder;
 pub(crate) mod cargo;
+#[cfg(feature = "web")]
 pub(crate) mod rustup;
+#[cfg(feature = "web")]
 pub(crate) mod wasm_bindgen;
 
 pub trait CommandHelpers {
