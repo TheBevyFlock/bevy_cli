@@ -10,7 +10,9 @@ use tracing::{debug, error, info, trace, warn, Level};
 
 pub mod arg_builder;
 pub(crate) mod cargo;
+#[cfg(feature = "web")]
 pub(crate) mod rustup;
+#[cfg(feature = "web")]
 pub(crate) mod wasm_bindgen;
 
 pub struct CommandExt {

@@ -5,6 +5,7 @@ use clap::{ArgAction, Args};
 use super::arg_builder::ArgBuilder;
 
 pub(crate) mod build;
+#[cfg(feature = "web")]
 pub(crate) mod install;
 pub(crate) mod metadata;
 pub(crate) mod run;
@@ -86,6 +87,7 @@ impl CargoCompilationArgs {
         }
     }
 
+    #[cfg(feature = "web")]
     pub(crate) fn target(&self, is_web: bool) -> Option<String> {
         if is_web {
             Some("wasm32-unknown-unknown".to_string())

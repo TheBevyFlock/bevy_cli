@@ -4,9 +4,8 @@ use anyhow::Context;
 use dialoguer::Confirm;
 use semver::Version;
 
-use crate::external_cli::{wasm_bindgen, CommandExt};
-
-use self::wasm_bindgen::wasm_bindgen_cli_version;
+#[cfg(feature = "web")]
+use crate::external_cli::wasm_bindgen::{self, wasm_bindgen_cli_version};
 
 /// Check if the given program is installed on the system.
 ///
@@ -40,6 +39,7 @@ pub(crate) fn if_needed(
         // Its important that the `wasm-bindgen-cli` and the `wasm-bindgen` version match exactly,
         // therefore compare the desired `package_version` with the installed
         // `wasm-bindgen-cli` version
+        #[cfg(feature = "web")]
         if package == wasm_bindgen::PACKAGE {
             let version = wasm_bindgen_cli_version(&stdout)?;
             let desired_version = Version::from_str(package_version)?;
