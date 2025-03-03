@@ -60,7 +60,8 @@ impl CommandExt {
     /// Wrapper method around [`Command::status`].
     ///
     /// Executes a command as a child process, waiting for it to finish.
-    /// If the command did not terminate successfully, an error containing the [`ExitStatus`] is returned.
+    /// If the command did not terminate successfully, an error containing the [`ExitStatus`] is
+    /// returned.
     pub fn ensure_status(&mut self) -> anyhow::Result<ExitStatus> {
         let program = self
             .inner
@@ -92,7 +93,8 @@ impl CommandExt {
 
     /// Wrapper method around [`Command::output()`].
     ///
-    /// Executes the command as a child process, waiting for it to finish and collecting all of its output.
+    /// Executes the command as a child process, waiting for it to finish and collecting all of its
+    /// output.
     pub fn output(&mut self) -> anyhow::Result<Output> {
         let program = self.inner.get_program().to_str().unwrap_or_default();
         let args = self
