@@ -3,7 +3,7 @@ use tracing::info;
 
 use crate::{
     build::args::{BuildArgs, BuildSubcommands},
-    external_cli::{cargo, rustup, wasm_bindgen, CommandHelpers as _},
+    external_cli::{cargo, rustup, wasm_bindgen},
     web::{
         bin_target::select_run_binary,
         bundle::{create_web_bundle, PackedBundle},
@@ -93,7 +93,6 @@ pub(crate) fn ensure_web_setup(skip_prompts: bool) -> anyhow::Result<()> {
         wasm_bindgen::PACKAGE,
         Some(&wasm_bindgen_version),
         skip_prompts,
-        false,
     )?;
 
     Ok(())

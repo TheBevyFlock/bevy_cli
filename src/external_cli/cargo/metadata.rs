@@ -16,7 +16,7 @@ pub(crate) fn command() -> CommandExt {
     // The format version needs to be fixed for compatibility and to avoid a warning log
     command
         .args(["metadata", "--format-version", "1"])
-        .log_level(Level::DEBUG);
+        .log_level(Level::TRACE);
     command
 }
 

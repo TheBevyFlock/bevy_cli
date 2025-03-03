@@ -6,6 +6,7 @@ use semver::Version;
 
 #[cfg(feature = "web")]
 use crate::external_cli::wasm_bindgen::{self, wasm_bindgen_cli_version};
+use crate::external_cli::CommandExt;
 
 /// Check if the given program is installed on the system.
 ///
@@ -76,6 +77,7 @@ pub(crate) fn if_needed(
         cmd.arg("--version").arg(version);
     }
 
-    // install the program
-    cmd.status().map(|_| true)
+    cmd.ensure_status()?;
+
+    Ok(true)
 }

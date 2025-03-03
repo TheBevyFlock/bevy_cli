@@ -1,7 +1,7 @@
 use semver::Version;
 use std::str::FromStr;
 
-use crate::{external_cli::CommandHelpers, web::bin_target::BinTarget};
+use crate::web::bin_target::BinTarget;
 
 use super::{arg_builder::ArgBuilder, CommandExt};
 
@@ -24,7 +24,7 @@ pub(crate) fn bundle(bin_target: &BinTarget) -> anyhow::Result<()> {
                 .add_with_value("--target", "web")
                 .arg(original_wasm.to_string_lossy()),
         )
-        .status()?;
+        .ensure_status()?;
 
     Ok(())
 }

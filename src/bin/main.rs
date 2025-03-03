@@ -4,9 +4,17 @@ use clap::{Args, CommandFactory, Parser, Subcommand};
 use tracing_subscriber::prelude::*;
 
 fn main() -> Result<()> {
+    let cli = Cli::parse();
+
     // Set default log level to info for the `bevy_cli` crate if `BEVY_LOG` is not set.
     let env = tracing_subscriber::EnvFilter::try_from_env("BEVY_LOG").map_or_else(
-        |_| tracing_subscriber::EnvFilter::new("bevy_cli=info"),
+        |_| {
+            if cli.verbose {
+                tracing_subscriber::EnvFilter::new("bevy_cli=debug")
+            } else {
+                tracing_subscriber::EnvFilter::new("bevy_cli=info")
+            }
+        },
         |filter| tracing_subscriber::EnvFilter::new(format!("bevy_cli={filter}")),
     );
 
@@ -20,8 +28,6 @@ fn main() -> Result<()> {
         .with_filter(env);
 
     tracing_subscriber::registry().with(fmt_layer).init();
-
-    let cli = Cli::parse();
 
     match cli.subcommand {
         Subcommands::New(new) => {
@@ -48,6 +54,8 @@ pub struct Cli {
     /// Available subcommands for the Bevy CLI.
     #[command(subcommand)]
     pub subcommand: Subcommands,
+    #[arg(long, short = 'v')]
+    pub verbose: bool,
 }
 
 /// Available subcommands for `bevy`.

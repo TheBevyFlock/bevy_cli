@@ -24,7 +24,7 @@ impl CommandExt {
     pub fn new<S: AsRef<OsStr>>(program: S) -> Self {
         Self {
             inner: Command::new(program),
-            log_level: Level::INFO,
+            log_level: Level::DEBUG,
         }
     }
 
@@ -61,7 +61,7 @@ impl CommandExt {
     ///
     /// Executes a command as a child process, waiting for it to finish.
     /// If the command did not terminate successfully, an error containing the [`ExitStatus`] is returned.
-    pub fn status(&mut self) -> anyhow::Result<ExitStatus> {
+    pub fn ensure_status(&mut self) -> anyhow::Result<ExitStatus> {
         let program = self
             .inner
             .get_program()
