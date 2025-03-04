@@ -1,4 +1,4 @@
-use crate::external_cli::{cargo, CommandHelpers};
+use crate::external_cli::cargo;
 #[cfg(feature = "web")]
 use crate::web::run::run_web;
 

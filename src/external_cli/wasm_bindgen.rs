@@ -1,9 +1,9 @@
 use semver::Version;
-use std::{process::Command, str::FromStr};
+use std::str::FromStr;
 
-use crate::{external_cli::CommandHelpers, web::bin_target::BinTarget};
+use crate::web::bin_target::BinTarget;
 
-use super::arg_builder::ArgBuilder;
+use super::{arg_builder::ArgBuilder, CommandExt};
 
 pub(crate) const PACKAGE: &str = "wasm-bindgen-cli";
 pub(crate) const PROGRAM: &str = "wasm-bindgen";
@@ -15,7 +15,7 @@ pub(crate) fn bundle(bin_target: &BinTarget) -> anyhow::Result<()> {
         .clone()
         .join(format!("{}.wasm", bin_target.bin_name));
 
-    Command::new(PROGRAM)
+    CommandExt::new(PROGRAM)
         .args(
             ArgBuilder::new()
                 .arg("--no-typescript")
