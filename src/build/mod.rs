@@ -1,6 +1,6 @@
 use args::BuildArgs;
 
-use crate::external_cli::{cargo, CommandHelpers};
+use crate::external_cli::cargo;
 #[cfg(feature = "web")]
 use crate::web::build::build_web;
 
