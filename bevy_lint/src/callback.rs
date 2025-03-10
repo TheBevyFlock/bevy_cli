@@ -7,6 +7,8 @@ use rustc_middle::ty::TyCtxt;
 use rustc_session::utils::was_invoked_from_cargo;
 use rustc_span::{Ident, Symbol};
 
+use crate::version::V0_15;
+
 /// A pointer to the original [`registered_tools()`](TyCtxt::registered_tools) query function.
 ///
 /// # Safety
@@ -40,9 +42,9 @@ impl Callbacks for BevyLintCallback {
                 (previous)(session, store);
             }
 
-            crate::lints::register_lints(store);
-            crate::lints::register_passes(store);
-            crate::groups::register_groups(store);
+            V0_15::register_lints(store);
+            V0_15::register_passes(store);
+            V0_15::register_groups(store);
         }));
 
         config.override_queries = Some(|_session, providers| {
