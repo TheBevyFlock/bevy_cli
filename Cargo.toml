@@ -17,12 +17,19 @@ path = "src/bin/main.rs"
 [features]
 default = ["web"]
 
-# Run your Bevy app in the browser
-web = ["dep:webbrowser", "dep:http", "dep:axum", "dep:tower", "dep:tower-http", "dep:tokio", "dep:fs_extra"]
-
 # To optimize the Wasm binaries
-# Increases compile times (of the CLI) quite a bit
-wasm-opt = ["dep:wasm-opt", "web"]
+wasm-opt = ["web"]
+
+# Run your Bevy app in the browser
+web = [
+    "dep:webbrowser",
+    "dep:http",
+    "dep:axum",
+    "dep:tower",
+    "dep:tower-http",
+    "dep:tokio",
+    "dep:fs_extra",
+]
 
 [dependencies]
 # CLI argument parsing
@@ -49,16 +56,15 @@ regex = "1.10.6"
 semver = { version = "1.0.23", features = ["serde"] }
 
 # Parsing the Cargo manifest
-toml_edit = { version = "0.22.22", default-features = false, features = ["parse"] }
+toml_edit = { version = "0.22.22", default-features = false, features = [
+    "parse",
+] }
 
 # Logging crates
 tracing = "0.1.41"
 tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
 
 # Web dependencies
-
-## Optimizing Wasm binaries
-wasm-opt = { version = "0.116.1", optional = true }
 
 ## Opening the app in the browser
 webbrowser = { version = "1.0.2", optional = true }
