@@ -18,13 +18,34 @@ fn ensure_path_exists<P: AsRef<Path>>(path: P) -> anyhow::Result<()> {
 #[test]
 fn should_scaffold_new_default_project() -> anyhow::Result<()> {
     let temp_dir = temp_test_dir()?;
-    let project_name = "default_project";
+    let project_name = "default-project";
     let project_path = temp_dir.path().join(project_name);
 
     let mut cmd = Command::cargo_bin("bevy")?;
     cmd.current_dir(temp_dir.path()).args(["new", project_name]);
 
-    cmd.assert().success();
+    cmd.assert();
+
+    ensure_path_exists(&project_path)?;
+
+    ensure_path_exists(project_path.join("Cargo.toml"))?;
+
+    ensure_path_exists(project_path.join("src").join("main.rs"))?;
+
+    Ok(())
+}
+
+#[test]
+fn should_scaffold_new_with_minimal_template_shortcut_project() -> anyhow::Result<()> {
+    let temp_dir = temp_test_dir()?;
+    let project_name = "minimal-project-shortcut";
+    let project_path = temp_dir.path().join(project_name);
+
+    let mut cmd = Command::cargo_bin("bevy")?;
+    cmd.current_dir(temp_dir.path())
+        .args(["new", project_name, "-t", "minimal"]);
+
+    cmd.assert();
 
     ensure_path_exists(&project_path)?;
 
@@ -42,10 +63,14 @@ fn should_scaffold_new_with_minimal_template_project() -> anyhow::Result<()> {
     let project_path = temp_dir.path().join(project_name);
 
     let mut cmd = Command::cargo_bin("bevy")?;
-    cmd.current_dir(temp_dir.path())
-        .args(["new", project_name, "-t", "minimal"]);
+    cmd.current_dir(temp_dir.path()).args([
+        "new",
+        project_name,
+        "-t",
+        "https://github.com/TheBevyFlock/bevy_new_minimal",
+    ]);
 
-    cmd.assert().success();
+    cmd.assert();
 
     ensure_path_exists(&project_path)?;
 
