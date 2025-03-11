@@ -1,6 +1,8 @@
 use anyhow::Context as _;
 use tracing::info;
 
+#[cfg(feature = "wasm-opt")]
+use crate::external_cli::wasm_opt;
 use crate::{
     build::args::{BuildArgs, BuildSubcommands},
     external_cli::{cargo, rustup, wasm_bindgen},
@@ -55,7 +57,7 @@ pub fn build_web(args: &mut BuildArgs) -> anyhow::Result<WebBundle> {
 
     #[cfg(feature = "wasm-opt")]
     if args.is_release() {
-        crate::web::wasm_opt::optimize_bin(&bin_target)?;
+        wasm_opt::optimize_path(&bin_target)?;
     }
 
     let web_bundle = create_web_bundle(
@@ -94,6 +96,10 @@ pub(crate) fn ensure_web_setup(skip_prompts: bool) -> anyhow::Result<()> {
         Some(&wasm_bindgen_version),
         skip_prompts,
     )?;
+
+    // `wasm-opt` for optimizing wasm files
+    #[cfg(feature = "wasm-opt")]
+    cargo::install::if_needed(wasm_opt::PACKAGE, wasm_opt::PROGRAM, None, skip_prompts)?;
 
     Ok(())
 }
