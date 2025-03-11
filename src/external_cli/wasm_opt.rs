@@ -20,7 +20,7 @@ pub(crate) fn optimize_path(bin_target: &BinTarget) -> anyhow::Result<()> {
 
     CommandExt::new(PROGRAM)
         .arg("--strip-debug")
-        .arg("-Oz")
+        .arg("-Os")
         .arg("-o")
         .arg(&path)
         .arg(&path)
