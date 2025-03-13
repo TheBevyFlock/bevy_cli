@@ -18,7 +18,15 @@ path = "src/bin/main.rs"
 default = ["web"]
 
 # Run your Bevy app in the browser
-web = ["dep:webbrowser", "dep:http", "dep:axum", "dep:tower", "dep:tower-http", "dep:tokio", "dep:fs_extra"]
+web = [
+    "dep:webbrowser",
+    "dep:http",
+    "dep:axum",
+    "dep:tower",
+    "dep:tower-http",
+    "dep:tokio",
+    "dep:fs_extra",
+]
 
 # To optimize the Wasm binaries
 # Increases compile times (of the CLI) quite a bit
@@ -42,14 +50,20 @@ dialoguer = { version = "0.11.0", default-features = false }
 # API interaction
 serde = { features = ["derive"], version = "1.0.210" }
 serde_json = "1.0.128"
-reqwest = { features = ["blocking", "json"], version = "0.12.7" }
+reqwest = { version = "0.12.7", default-features = false, features = [
+    "default-tls",
+    "blocking",
+    "json",
+] }
 regex = "1.10.6"
 
 # Understanding package versions
 semver = { version = "1.0.23", features = ["serde"] }
 
 # Parsing the Cargo manifest
-toml_edit = { version = "0.22.22", default-features = false, features = ["parse"] }
+toml_edit = { version = "0.22.22", default-features = false, features = [
+    "parse",
+] }
 
 # Logging crates
 tracing = "0.1.41"
@@ -87,3 +101,4 @@ cc = "=1.2.2"
 # Forcing tests that can't be parallelized to be run sequentially
 serial_test = "3.2.0"
 assert_cmd = "2.0.16"
+tempfile = "3"
