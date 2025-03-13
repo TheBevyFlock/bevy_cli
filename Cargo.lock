@@ -321,7 +321,6 @@ dependencies = [
  "assert_cmd",
  "axum",
  "cargo-generate",
- "cc",
  "clap",
  "clap_complete",
  "dialoguer",
@@ -807,9 +806,9 @@ dependencies = [
 
 [[package]]
 name = "cc"
-version = "1.2.2"
+version = "1.2.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f34d93e62b03caf570cccc334cbc6c2fceca82f39211051345108adcba3eebdc"
+checksum = "be714c154be609ec7f5dad223a33bf1482fff90472de28f7362806e6d4832b8c"
 dependencies = [
  "jobserver",
  "libc",
