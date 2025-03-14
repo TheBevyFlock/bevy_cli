@@ -62,6 +62,9 @@ pub struct Metadata {
     /// The absolute path to the root of the workspace.
     /// This will be the root of the package if no workspace is used.
     pub workspace_root: PathBuf,
+    /// Workspace metadata.
+    /// This is `null` if no metadata is specified.
+    pub metadata: serde_json::Value,
 }
 
 #[derive(Debug, Deserialize)]
@@ -79,6 +82,9 @@ pub struct Package {
     pub manifest_path: PathBuf,
     /// Optional string that is the default binary picked by cargo run.
     pub default_run: Option<String>,
+    /// Package metadata.
+    /// This is `null` if no metadata is specified.
+    pub metadata: serde_json::Value,
 }
 
 impl Package {
