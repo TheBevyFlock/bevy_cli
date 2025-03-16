@@ -25,9 +25,10 @@ fn run_cmd_with_timeout_and_retry(
     timeout: Duration,
     retry_count: usize,
 ) -> anyhow::Result<()> {
-    for _ in 0..retry_count {
+    for i in 0..retry_count {
         let mut child = cmd.spawn()?;
         if child.wait_timeout(timeout).unwrap().is_some() {
+            println!("exited after {i} tries");
             return Ok(());
         }
         //process didn't exit in time, stop it
