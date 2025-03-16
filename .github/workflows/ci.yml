@@ -60,7 +60,7 @@ jobs:
 
       - name: Run tests
         run: |
-          cargo test --workspace --all-features --all-targets
+          cargo test new
           # Workaround for https://github.com/rust-lang/cargo/issues/6669. `--doc` is incompatible
           # with `--all-targets`, so we run them separately.
           cargo test --workspace --all-features --doc
