@@ -1,6 +1,8 @@
+use anyhow::anyhow;
 use assert_cmd::prelude::*;
-use std::{path::Path, process::Command};
+use std::{path::Path, process::Command, time::Duration};
 use tempfile::TempDir;
+use wait_timeout::ChildExt;
 
 fn temp_test_dir() -> anyhow::Result<TempDir> {
     Ok(tempfile::tempdir()?)
@@ -15,6 +17,28 @@ fn ensure_path_exists<P: AsRef<Path>>(path: P) -> anyhow::Result<()> {
     Ok(())
 }
 
+/// Spawns a child process for the given [`Command`]. If the child process does not exit
+/// before the specified `timeout` duration, the child process is aborted, and a new one is spawned
+/// for a maximum of `retry_count` retries.
+fn run_cmd_with_timeout_and_retry(
+    mut cmd: Command,
+    timeout: Duration,
+    retry_count: usize,
+) -> anyhow::Result<()> {
+    for _ in 0..retry_count {
+        let mut child = cmd.spawn()?;
+        if child.wait_timeout(timeout).unwrap().is_some() {
+            return Ok(());
+        }
+        //process didn't exit in time, stop it
+        child.kill()?;
+        println!("failed to exit proces in the duration: {timeout:?}");
+    }
+    Err(anyhow!(
+        "failed to execute command: {cmd:?}, retried {retry_count} times"
+    ))
+}
+
 #[test]
 fn should_scaffold_new_default_project() -> anyhow::Result<()> {
     let temp_dir = temp_test_dir()?;
@@ -24,7 +48,7 @@ fn should_scaffold_new_default_project() -> anyhow::Result<()> {
     let mut cmd = Command::cargo_bin("bevy")?;
     cmd.current_dir(temp_dir.path()).args(["new", project_name]);
 
-    dbg!(cmd.output()?);
+    run_cmd_with_timeout_and_retry(cmd, Duration::from_secs(5), 8)?;
 
     ensure_path_exists(&project_path)?;
 
@@ -45,7 +69,7 @@ fn should_scaffold_new_with_minimal_template_shortcut_project() -> anyhow::Resul
     cmd.current_dir(temp_dir.path())
         .args(["new", project_name, "-t", "minimal"]);
 
-    dbg!(cmd.output()?);
+    run_cmd_with_timeout_and_retry(cmd, Duration::from_secs(5), 8)?;
 
     ensure_path_exists(&project_path)?;
 
@@ -70,7 +94,7 @@ fn should_scaffold_new_with_minimal_template_project() -> anyhow::Result<()> {
         "https://github.com/TheBevyFlock/bevy_new_minimal",
     ]);
 
-    dbg!(cmd.output()?);
+    run_cmd_with_timeout_and_retry(cmd, Duration::from_secs(5), 8)?;
 
     ensure_path_exists(&project_path)?;
 
