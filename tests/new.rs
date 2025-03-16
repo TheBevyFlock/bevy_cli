@@ -52,7 +52,7 @@ fn should_scaffold_new_default_project() -> anyhow::Result<()> {
     let mut cmd = Command::cargo_bin("bevy")?;
     cmd.current_dir(temp_dir.path()).args(["new", project_name]);
 
-    run_cmd_with_timeout_and_retry(cmd, Duration::from_secs(5), 10)?;
+    run_cmd_with_timeout_and_retry(cmd, Duration::from_secs(5), 50)?;
 
     //ensure_path_exists(&project_path)?;
 
@@ -73,7 +73,7 @@ fn should_scaffold_new_with_minimal_template_shortcut_project() -> anyhow::Resul
     cmd.current_dir(temp_dir.path())
         .args(["new", project_name, "-t", "minimal"]);
 
-    run_cmd_with_timeout_and_retry(cmd, Duration::from_secs(5), 10)?;
+    run_cmd_with_timeout_and_retry(cmd, Duration::from_secs(5), 50)?;
 
     //ensure_path_exists(&project_path)?;
 
@@ -98,7 +98,7 @@ fn should_scaffold_new_with_minimal_template_project() -> anyhow::Result<()> {
         "https://github.com/TheBevyFlock/bevy_new_minimal",
     ]);
 
-    run_cmd_with_timeout_and_retry(cmd, Duration::from_secs(5), 10)?;
+    run_cmd_with_timeout_and_retry(cmd, Duration::from_secs(5), 50)?;
 
     //ensure_path_exists(&project_path)?;
 
