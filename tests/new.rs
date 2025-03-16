@@ -37,7 +37,7 @@ fn run_cmd_with_timeout_and_retry(
         //process didn't exit in time, stop it
         child.kill()?;
         println!("failed to exit proces in the duration: {timeout:?}");
-        std::thread::sleep(Duration::from_millis(100));
+        std::thread::sleep(Duration::from_millis(300));
     }
     Err(anyhow!(
         "failed to execute command: {cmd:?}, retried {retry_count} times"
