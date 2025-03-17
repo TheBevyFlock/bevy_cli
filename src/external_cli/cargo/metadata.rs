@@ -113,6 +113,12 @@ impl Package {
     }
 }
 
+impl PartialEq for Package {
+    fn eq(&self, other: &Self) -> bool {
+        self.id == other.id
+    }
+}
+
 #[derive(Debug, Deserialize)]
 pub struct Dependency {
     /// The name of the dependency.
