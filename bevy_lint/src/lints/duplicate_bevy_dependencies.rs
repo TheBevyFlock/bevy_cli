@@ -3,7 +3,7 @@
 //! This lint will prevent you from accidentally using multiple versions of the Bevy game engine at
 //! the same time by scanning your dependency tree for the `bevy` crate. If your project or its
 //! dependencies use different versions of `bevy`, this lint will emit a warning.
-//! 
+//!
 //! You may also be interested in [`cargo-deny`], which can detect duplicate dependencies as well,
 //! and is far more powerful and configurable.
 //!
