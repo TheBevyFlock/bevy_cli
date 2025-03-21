@@ -60,6 +60,7 @@ jobs:
 
       - name: Run tests
         run: |
+          git clone https://github.com/TheBevyFlock/bevy_new_minimal.git
           cargo test new -- --nocapture
           # Workaround for https://github.com/rust-lang/cargo/issues/6669. `--doc` is incompatible
           # with `--all-targets`, so we run them separately.
