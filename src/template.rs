@@ -3,6 +3,7 @@ use regex::Regex;
 use reqwest::blocking::Client;
 use serde::Deserialize;
 use std::path::PathBuf;
+use tracing::debug;
 
 /// An abbreviated version of the full [GitHub API response](https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#list-organization-repositories).
 ///
@@ -40,6 +41,8 @@ fn template_path(template: &str, branch: &str) -> anyhow::Result<TemplatePath> {
         .or(expand_github_shortform(template))
         .or(Some(template.into()));
 
+    println!("{git:?}");
+
     Ok(TemplatePath {
         git,
         branch: Some(branch.into()),
@@ -54,6 +57,7 @@ fn expand_builtin(template: &str) -> anyhow::Result<Option<String>> {
     const TEMPLATE_PREFIX: &str = "bevy_new_";
 
     let templates = fetch_template_repositories(TEMPLATE_ORG, TEMPLATE_PREFIX)?;
+    println!("templates: templates:?");
     let maybe_builtin = templates.iter().find_map(|r| {
         // Does the provided argument match any of our existing templates?
         let suffix = &r.name[TEMPLATE_PREFIX.len()..];
@@ -78,7 +82,7 @@ fn fetch_template_repositories(org: &str, prefix: &str) -> anyhow::Result<Vec<Re
     let client = Client::new();
     let repos: Vec<Repository> = client
         .get(&url)
-        .header("User-Agent", "bevy_cli")
+        .header("User-Agent", "bevy_cli/1.0.0")
         .send()?
         .json()?;
 
