@@ -1,6 +1,6 @@
 //! TODO
 
-use clippy_utils::{diagnostics::span_lint, ty::match_type};
+use clippy_utils::{diagnostics::span_lint_and_help, ty::match_type};
 use rustc_hir::Expr;
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_span::Symbol;
@@ -34,11 +34,13 @@ impl<'tcx> LateLintPass<'tcx> for IterCurrentUpdateEvents {
             }
 
             if method_call.method_path.ident.name == self.iter_current_update_events {
-                span_lint(
+                span_lint_and_help(
                     cx,
                     ITER_CURRENT_UPDATE_EVENTS.lint,
                     method_call.span,
                     ITER_CURRENT_UPDATE_EVENTS.lint.desc,
+                    None,
+                    "`iter_current_update_events()` does not track which events have already been seen, consider using `EventReader<T>` instead",
                 );
             }
         }
