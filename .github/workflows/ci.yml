@@ -18,7 +18,7 @@ jobs:
     needs: extract-rust-version
     strategy:
       matrix:
-        os: [macos-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
@@ -35,10 +35,114 @@ jobs:
       - name: Install Linux dependencies
         uses: bevyengine/bevy/.github/actions/install-linux-deps@v0.15.1
 
+      - name: Cache build artifacts
+        uses: Leafwing-Studios/cargo-cache@v2
+        with:
+          sweep-cache: true
+
+      # We have a separate workspace where we execute the CLI in the E2E tests
+      # It has it's own `target` folder, hence we need to cache it separately
+      - name: Cache test workspace
+        uses: Leafwing-Studios/cargo-cache@v2
+        with:
+          sweep-cache: true
+          # The cache-group needs to be different to not collide with the cache for the test executing itself
+          cache-group: "test_workspace-${{ hashFiles(env.workflow_path) }}-${{ github.job }}-${{ strategy.job-index }}"
+          # cargo-cache doesn't support `working-directory` yet, we have to do it manually
+          # See https://github.com/Leafwing-Studios/cargo-cache/issues/44
+          cargo-target-dir: ./tests/bevy_cli_test/target
+          manifest-path: ./tests/bevy_cli_test/Cargo.toml
+
+      # The CLI's UI tests depend on Bevy with default features.
+      # This requires extra packages, such as `alsa` and `udev`, to be installed on Linux.
+      - name: Install Linux dependencies for Bevy
+        uses: bevyengine/bevy/.github/actions/install-linux-deps@v0.15.1
+
       - name: Run tests
         run: |
-          cargo test new -- --nocapture
+          cargo test --workspace --all-features --all-targets
           # Workaround for https://github.com/rust-lang/cargo/issues/6669. `--doc` is incompatible
           # with `--all-targets`, so we run them separately.
           cargo test --workspace --all-features --doc
 
+  clippy:
+    name: Check with Clippy
+    needs: extract-rust-version
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        features: ["--no-default-features", "", "--all-features"]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ needs.extract-rust-version.outputs.channel }}
+          components: "${{ needs.extract-rust-version.outputs.components }}, clippy"
+
+      - name: Cache build artifacts
+        uses: Leafwing-Studios/cargo-cache@v2
+        with:
+          sweep-cache: true
+
+      - name: Run Clippy
+        run: cargo clippy --workspace --all-targets ${{ matrix.features }} -- --deny warnings
+
+  rustfmt:
+    name: Check with rustfmt
+    needs: extract-rust-version
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ needs.extract-rust-version.outputs.channel }}
+          components: "${{ needs.extract-rust-version.outputs.components }}, rustfmt"
+
+      - name: Run rustfmt
+        run: cargo fmt --all --check
+
+  docs:
+    name: Build docs
+    needs: extract-rust-version
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ needs.extract-rust-version.outputs.channel }}
+          components: ${{ needs.extract-rust-version.outputs.components }}
+
+      - name: Cache build artifacts
+        uses: Leafwing-Studios/cargo-cache@v2
+        with:
+          sweep-cache: true
+
+      - name: Build documentation
+        run: cargo doc --workspace --all-features --document-private-items --no-deps
+
+  typos:
+    name: Check for typos
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check for typos
+        id: typos
+        uses: crate-ci/typos@v1.26.0
+
+      - name: Print help on failure
+        if: ${{ failure() && steps.typos.conclusion == 'failure' }}
+        run: |
+          echo 'To fix typos, please run `typos -w`.'
+          echo 'To check for a diff, run `typos`.'
+          echo 'You can install `typos` at <https://crates.io/crates/typos>.'
