@@ -50,6 +50,7 @@ dialoguer = { version = "0.11.0", default-features = false }
 serde = { features = ["derive"], version = "1.0.210" }
 serde_json = "1.0.128"
 reqwest = { version = "0.12.7", default-features = false, features = [
+    "default-tls",
     "blocking",
     "json",
 ] }
@@ -87,12 +88,8 @@ tokio = { version = "1.0", features = ["full"], optional = true }
 ## Copying directories
 fs_extra = { version = "1.3.0", optional = true }
 
-[build-dependencies]
-# We don't use `cc` directly, but our dependency `wasm-opt-sys` fails to compile on Windows when using a newer version.
-# This can be removed when https://github.com/rust-lang/cc-rs/issues/1324 is fixed. 
-cc = "=1.2.2"
-
 [dev-dependencies]
 # Forcing tests that can't be parallelized to be run sequentially
 serial_test = "3.2.0"
 assert_cmd = "2.0.16"
+tempfile = "3"

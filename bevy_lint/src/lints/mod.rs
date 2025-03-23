@@ -7,8 +7,10 @@
 use crate::lint::BevyLint;
 use rustc_lint::{Lint, LintStore};
 
+mod cargo;
+
 pub mod borrowed_reborrowable;
-pub mod cargo;
+pub mod duplicate_bevy_dependencies;
 pub mod insert_event_resource;
 pub mod insert_unit_bundle;
 pub mod main_return_without_appexit;
@@ -19,7 +21,7 @@ pub mod zst_query;
 
 pub(crate) static LINTS: &[&BevyLint] = &[
     borrowed_reborrowable::BORROWED_REBORROWABLE,
-    cargo::duplicate_bevy_dependencies::DUPLICATE_BEVY_DEPENDENCIES,
+    duplicate_bevy_dependencies::DUPLICATE_BEVY_DEPENDENCIES,
     insert_event_resource::INSERT_EVENT_RESOURCE,
     insert_unit_bundle::INSERT_UNIT_BUNDLE,
     main_return_without_appexit::MAIN_RETURN_WITHOUT_APPEXIT,

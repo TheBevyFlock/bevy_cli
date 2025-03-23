@@ -1,11 +1,20 @@
 //! Checks for multiple versions of the `bevy` crate in your project's dependencies.
 //!
+//! This lint will prevent you from accidentally using multiple versions of the Bevy game engine at
+//! the same time by scanning your dependency tree for the `bevy` crate. If your project or its
+//! dependencies use different versions of `bevy`, this lint will emit a warning.
+//!
+//! You may also be interested in [`cargo-deny`], which can detect duplicate dependencies as well,
+//! and is far more powerful and configurable.
+//!
+//! [`cargo-deny`]: https://github.com/EmbarkStudios/cargo-deny
+//!
 //! # Motivation
 //!
 //! Cargo allows there to be multiple major versions of a crate in your project's dependency
-//! tree[^semver-compatibility]. Though the two crates and their types are _named_ the same, they
-//! are treated as distinct by the compiler. This can lead to confusing error messages that only
-//! appear if you try to mix the types from the two versions of the crate.
+//! tree[^semver-compatibility]. Although the crates and their types are _named_ the same, they are
+//! treated as distinct by the compiler. This can lead to confusing error messages that only appear
+//! if you try to mix the types from the two versions of the crate.
 //!
 //! With Bevy, these errors become particularly easy to encounter when you add a plugin that pulls
 //! in a different version of the Bevy engine. (This isn't immediately obvious, however, unless you
@@ -78,6 +87,7 @@ declare_bevy_lint! {
     pub DUPLICATE_BEVY_DEPENDENCIES,
     NURSERY,
     "multiple versions of the `bevy` crate found",
+    @crate_level_only = true,
 }
 
 #[derive(Deserialize, Debug)]
