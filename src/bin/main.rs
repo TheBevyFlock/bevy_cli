@@ -1,8 +1,7 @@
 use anyhow::Result;
 use bevy_cli::{build::args::BuildArgs, run::RunArgs};
 use clap::{Args, CommandFactory, Parser, Subcommand};
-use tracing::debug;
-use tracing_subscriber::{field::debug, prelude::*};
+use tracing_subscriber::prelude::*;
 
 fn main() -> Result<()> {
     let cli = Cli::parse();

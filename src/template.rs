@@ -79,13 +79,13 @@ fn expand_github_shortform(template: &str) -> Option<String> {
 
 /// Returns a list of GitHub repositories with the prefix `bevy_new_` in the given GitHub org.
 fn fetch_template_repositories(org: &str, prefix: &str) -> anyhow::Result<Vec<Repository>> {
-    debug!("fetching template repositories");
+    debug!("fetching template repositories for {org}, with prefix: {prefix}");
     let url = format!("https://api.github.com/orgs/{org}/repos");
 
-    let client = Client::new();
-    let repos: Vec<Repository> = client
+    let repos: Vec<Repository> = Client::builder()
+        .user_agent("bevy_cli")
+        .build()?
         .get(&url)
-        .header("User-Agent", "bevy_cli/1.0.0")
         .send()?
         .json()?;
 
