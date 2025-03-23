@@ -32,7 +32,6 @@ fn main() -> Result<()> {
     match cli.subcommand {
         Subcommands::New(new) => {
             bevy_cli::template::generate_template(&new.name, &new.template, &new.branch)?;
-            println!("project got created");
         }
         Subcommands::Lint { args } => bevy_cli::lint::lint(args)?,
         Subcommands::Build(mut args) => bevy_cli::build::build(&mut args)?,

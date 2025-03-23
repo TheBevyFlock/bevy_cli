@@ -22,11 +22,9 @@ fn should_scaffold_new_default_project() -> anyhow::Result<()> {
     let project_path = temp_dir.path().join(project_name);
 
     let mut cmd = Command::cargo_bin("bevy")?;
-    cmd.current_dir(temp_dir.path())
-        .args(["new", project_name, "-v"]);
+    cmd.current_dir(temp_dir.path()).args(["new", project_name]);
 
-    let output = cmd.output()?;
-    println!("stdout: {}", String::from_utf8_lossy(&output.stdout));
+    cmd.assert().success();
 
     ensure_path_exists(&project_path)?;
 
@@ -45,10 +43,9 @@ fn should_scaffold_new_with_minimal_template_shortcut_project() -> anyhow::Resul
 
     let mut cmd = Command::cargo_bin("bevy")?;
     cmd.current_dir(temp_dir.path())
-        .args(["new", project_name, "-t", "minimal", "-v"]);
+        .args(["new", project_name, "-t", "minimal"]);
 
-    let output = cmd.output()?;
-    println!("stdout: {}", String::from_utf8_lossy(&output.stdout));
+    cmd.assert().success();
 
     ensure_path_exists(&project_path)?;
 
@@ -71,11 +68,9 @@ fn should_scaffold_new_with_minimal_template_project() -> anyhow::Result<()> {
         project_name,
         "-t",
         "https://github.com/TheBevyFlock/bevy_new_minimal",
-        "-v",
     ]);
 
-    let output = cmd.output()?;
-    println!("stdout: {}", String::from_utf8_lossy(&output.stdout));
+    cmd.assert().success();
 
     ensure_path_exists(&project_path)?;
 
