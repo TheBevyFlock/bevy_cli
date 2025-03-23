@@ -89,6 +89,8 @@ fn fetch_template_repositories(org: &str, prefix: &str) -> anyhow::Result<Vec<Re
         .send()?
         .json()?;
 
+    debug!("fetched repos: {repos:?}");
+
     let templates: Vec<Repository> = repos
         .into_iter()
         .filter(|repo| repo.name.starts_with(prefix))
