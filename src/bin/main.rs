@@ -1,7 +1,8 @@
 use anyhow::Result;
 use bevy_cli::{build::args::BuildArgs, run::RunArgs};
 use clap::{Args, CommandFactory, Parser, Subcommand};
-use tracing_subscriber::prelude::*;
+use tracing::debug;
+use tracing_subscriber::{field::debug, prelude::*};
 
 fn main() -> Result<()> {
     let cli = Cli::parse();
@@ -32,6 +33,7 @@ fn main() -> Result<()> {
     match cli.subcommand {
         Subcommands::New(new) => {
             bevy_cli::template::generate_template(&new.name, &new.template, &new.branch)?;
+            println!("project got created");
         }
         Subcommands::Lint { args } => bevy_cli::lint::lint(args)?,
         Subcommands::Build(mut args) => bevy_cli::build::build(&mut args)?,

@@ -21,6 +21,7 @@ struct Repository {
 ///
 /// [TheBevyFlock/bevy_new_minimal]: https://github.com/TheBevyFlock/bevy_new_miminal
 pub fn generate_template(name: &str, template: &str, branch: &str) -> anyhow::Result<PathBuf> {
+    debug!("generating template project called {name} with template: {template}:{branch}");
     cargo_generate::generate(GenerateArgs {
         template_path: template_path(template, branch)?,
         name: Some(name.to_string()),
@@ -41,7 +42,7 @@ fn template_path(template: &str, branch: &str) -> anyhow::Result<TemplatePath> {
         .or(expand_github_shortform(template))
         .or(Some(template.into()));
 
-    println!("{git:?}");
+    debug!("{git:?}");
 
     Ok(TemplatePath {
         git,
@@ -57,12 +58,13 @@ fn expand_builtin(template: &str) -> anyhow::Result<Option<String>> {
     const TEMPLATE_PREFIX: &str = "bevy_new_";
 
     let templates = fetch_template_repositories(TEMPLATE_ORG, TEMPLATE_PREFIX)?;
-    println!("templates: templates:?");
+    debug!("all builtin templates: {templates:?}");
     let maybe_builtin = templates.iter().find_map(|r| {
         // Does the provided argument match any of our existing templates?
         let suffix = &r.name[TEMPLATE_PREFIX.len()..];
         (suffix == template).then(|| r.html_url.clone())
     });
+    debug!("matches buildint template: {maybe_builtin:?}");
 
     Ok(maybe_builtin)
 }
@@ -77,6 +79,7 @@ fn expand_github_shortform(template: &str) -> Option<String> {
 
 /// Returns a list of GitHub repositories with the prefix `bevy_new_` in the given GitHub org.
 fn fetch_template_repositories(org: &str, prefix: &str) -> anyhow::Result<Vec<Repository>> {
+    debug!("fetching template repositories");
     let url = format!("https://api.github.com/orgs/{org}/repos");
 
     let client = Client::new();
@@ -90,6 +93,8 @@ fn fetch_template_repositories(org: &str, prefix: &str) -> anyhow::Result<Vec<Re
         .into_iter()
         .filter(|repo| repo.name.starts_with(prefix))
         .collect();
+
+    debug!("fetched templates: {templates:?}");
 
     Ok(templates)
 }
