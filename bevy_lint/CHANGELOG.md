@@ -9,7 +9,11 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 
 ## [Unreleased]
 
-**All Changes**: [`lint-v0.1.0...main`](https://github.com/TheBevyFlock/bevy_cli/compare/lint-v0.1.0...main)
+**All Changes**: [`lint-v0.2.0...main`](https://github.com/TheBevyFlock/bevy_cli/compare/lint-v0.2.0...main)
+
+## [v0.2.0] - 2025-03-19
+
+**All Changes**: [`lint-v0.1.0...lint-v0.2.0`](https://github.com/TheBevyFlock/bevy_cli/compare/lint-v0.1.0...lint-v0.2.0)
 
 ### Added
 
