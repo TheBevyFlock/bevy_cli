@@ -13,6 +13,10 @@
 // you also need to pass `-Z unstable-options` to `rustc` for this to be enabled:
 // `RUSTFLAGS="-Zunstable-options" cargo check`
 #![warn(rustc::internal)]
+#![allow(
+    rustc::usage_of_ty_tykind,
+    reason = "Many false positives without a valid replacement."
+)]
 
 // This is a list of every single `rustc` crate used within this library. If you need another, add
 // it here!
