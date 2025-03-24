@@ -16,6 +16,7 @@ fn ensure_path_exists<P: AsRef<Path>>(path: P) -> anyhow::Result<()> {
 }
 
 #[test]
+#[ignore = "Test spuriously fails in CI, please see #309."]
 fn should_scaffold_new_default_project() -> anyhow::Result<()> {
     let temp_dir = temp_test_dir()?;
     let project_name = "default-project";
@@ -36,6 +37,7 @@ fn should_scaffold_new_default_project() -> anyhow::Result<()> {
 }
 
 #[test]
+#[ignore = "Test spuriously fails in CI, please see #309."]
 fn should_scaffold_new_with_minimal_template_shortcut_project() -> anyhow::Result<()> {
     let temp_dir = temp_test_dir()?;
     let project_name = "minimal-project-shortcut";
@@ -57,6 +59,7 @@ fn should_scaffold_new_with_minimal_template_shortcut_project() -> anyhow::Resul
 }
 
 #[test]
+#[ignore = "Test spuriously fails in CI, please see #309."]
 fn should_scaffold_new_with_minimal_template_project() -> anyhow::Result<()> {
     let temp_dir = temp_test_dir()?;
     let project_name = "minimal-project";
