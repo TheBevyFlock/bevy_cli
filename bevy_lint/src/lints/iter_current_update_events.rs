@@ -1,4 +1,42 @@
-//! TODO
+//! Checks for calls to `Events::<T>::iter_current_update_events()`.
+//!
+//! # Motivation
+//!
+//! `Events::<T>::iter_current_update_events()` lets you read all of the current events since
+//! `Events::<T>::update()` was last called, similar to `EventReader<T>`. Unlike `EventReader<T>`,
+//! `iter_current_update_events()` does not track which events have already been read. As such,
+//! `iter_current_update_events()` is highly discouraged because it may skip events or yield them
+//! multiple times.
+//!
+//! # Example
+//!
+//! ```
+//! # use bevy::prelude::*;
+//! #
+//! #[derive(Event)]
+//! struct MyEvent;
+//!
+//! fn my_system(events: Res<Events<MyEvent>>) {
+//!     for event in events.iter_current_update_events() {
+//!         // ...
+//!     }
+//! }
+//! ```
+//!
+//! Use instead:
+//!
+//! ```
+//! # use bevy::prelude::*;
+//! #
+//! #[derive(Event)]
+//! struct MyEvent;
+//!
+//! fn my_system(mut events: EventReader<MyEvent>) {
+//!     for event in events.read() {
+//!         // ...
+//!     }
+//! }
+//! ```
 
 use clippy_utils::{diagnostics::span_lint_and_help, ty::match_type};
 use rustc_hir::Expr;
