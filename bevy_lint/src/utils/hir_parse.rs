@@ -144,9 +144,10 @@ pub struct MethodCall<'tcx> {
 
     /// The receiver, or the object, of the method.
     ///
-    /// This can be used to find what type the method is implemented for.
-    ///
-    /// TODO(BD103): Does this include the `&` reference? Should we suggest stripping it?
+    /// This can be used to find what type the method is implemented for. Note that this will
+    /// include the reference in the type _only_ if the method is fully-qualified. This reference
+    /// will be omitted when the method is in receiver form. As such, you may want to call
+    /// [`Ty::peel_refs()`](rustc_middle::ty::Ty::peel_refs) on the result before processing it.
     ///
     /// # Example
     ///
