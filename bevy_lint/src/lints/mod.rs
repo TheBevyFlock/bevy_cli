@@ -9,8 +9,11 @@ use rustc_lint::{Lint, LintStore};
 
 mod cargo;
 
+pub mod complexity;
+pub mod correctness;
 pub mod nursery;
 pub mod pedantic;
+pub mod performance;
 pub mod restriction;
 pub mod style;
 pub mod suspicious;
