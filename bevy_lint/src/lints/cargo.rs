@@ -1,6 +1,6 @@
 //! Lints that check over `Cargo.toml` instead of your code.
 
-use super::duplicate_bevy_dependencies::DUPLICATE_BEVY_DEPENDENCIES;
+use super::nursery::duplicate_bevy_dependencies::DUPLICATE_BEVY_DEPENDENCIES;
 use crate::declare_bevy_lint_pass;
 use cargo_metadata::MetadataCommand;
 use clippy_utils::sym;
@@ -35,7 +35,7 @@ impl LateLintPass<'_> for Cargo {
             .exec()
         {
             Ok(metadata) => {
-                super::duplicate_bevy_dependencies::check(cx, &metadata, self.bevy);
+                super::nursery::duplicate_bevy_dependencies::check(cx, &metadata, self.bevy);
             }
             Err(e) => {
                 cx.tcx
