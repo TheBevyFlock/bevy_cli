@@ -13,6 +13,7 @@ pub mod borrowed_reborrowable;
 pub mod duplicate_bevy_dependencies;
 pub mod insert_event_resource;
 pub mod insert_unit_bundle;
+pub mod iter_current_update_events;
 pub mod main_return_without_appexit;
 pub mod missing_reflect;
 pub mod panicking_methods;
@@ -24,6 +25,7 @@ pub(crate) static LINTS: &[&BevyLint] = &[
     duplicate_bevy_dependencies::DUPLICATE_BEVY_DEPENDENCIES,
     insert_event_resource::INSERT_EVENT_RESOURCE,
     insert_unit_bundle::INSERT_UNIT_BUNDLE,
+    iter_current_update_events::ITER_CURRENT_UPDATE_EVENTS,
     main_return_without_appexit::MAIN_RETURN_WITHOUT_APPEXIT,
     missing_reflect::MISSING_REFLECT,
     panicking_methods::PANICKING_METHODS,
@@ -40,6 +42,10 @@ pub(crate) fn register_passes(store: &mut LintStore) {
     store.register_late_pass(|_| Box::new(borrowed_reborrowable::BorrowedReborrowable::default()));
     store.register_late_pass(|_| Box::new(cargo::Cargo::default()));
     store.register_late_pass(|_| Box::new(insert_event_resource::InsertEventResource::default()));
+    store.register_late_pass(|_| Box::new(insert_unit_bundle::InsertUnitBundle::default()));
+    store.register_late_pass(|_| {
+        Box::new(iter_current_update_events::IterCurrentUpdateEvents::default())
+    });
     store.register_late_pass(|_| {
         Box::new(main_return_without_appexit::MainReturnWithoutAppExit::default())
     });
@@ -49,5 +55,4 @@ pub(crate) fn register_passes(store: &mut LintStore) {
         Box::new(plugin_not_ending_in_plugin::PluginNotEndingInPlugin::default())
     });
     store.register_late_pass(|_| Box::new(zst_query::ZstQuery::default()));
-    store.register_late_pass(|_| Box::new(insert_unit_bundle::InsertUnitBundle::default()));
 }
