@@ -45,7 +45,7 @@ pub const QUERY_STATE: [&str; 4] = ["bevy_ecs", "query", "state", "QueryState"];
 pub const REFLECT: [&str; 3] = ["bevy_reflect", "reflect", "Reflect"];
 // https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_ecs/src/change_detection.rs#L675
 pub const RES_MUT: [&str; 3] = ["bevy_ecs", "change_detection", "ResMut"];
-// CHANGED: needs investigation
+// CHANGED: to https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_ecs/src/resource.rs#L75
 pub const RESOURCE: [&str; 4] = ["bevy_ecs", "system", "system_param", "Resource"];
 // https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_ecs/src/world/mod.rs#L94
 pub const WORLD: [&str; 3] = ["bevy_ecs", "world", "World"];
