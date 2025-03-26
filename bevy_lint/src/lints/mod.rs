@@ -45,6 +45,9 @@ pub(crate) fn register_passes(store: &mut LintStore) {
         Box::new(suspicious::insert_event_resource::InsertEventResource::default())
     });
     store.register_late_pass(|_| {
+        Box::new(suspicious::insert_unit_bundle::InsertUnitBundle::default())
+    });
+    store.register_late_pass(|_| {
         Box::new(suspicious::iter_current_update_events::IterCurrentUpdateEvents::default())
     });
     store.register_late_pass(|_| {
@@ -58,7 +61,4 @@ pub(crate) fn register_passes(store: &mut LintStore) {
         Box::new(style::plugin_not_ending_in_plugin::PluginNotEndingInPlugin::default())
     });
     store.register_late_pass(|_| Box::new(nursery::zst_query::ZstQuery::default()));
-    store.register_late_pass(|_| {
-        Box::new(suspicious::insert_unit_bundle::InsertUnitBundle::default())
-    });
 }
