@@ -16,8 +16,8 @@ pub const COMPONENT: [&str; 3] = ["bevy_ecs", "component", "Component"];
 pub const DEFERRED: [&str; 4] = ["bevy_ecs", "system", "system_param", "Deferred"];
 // https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_ecs/src/world/deferred_world.rs#L23
 pub const DEFERRED_WORLD: [&str; 4] = ["bevy_ecs", "world", "deferred_world", "DeferredWorld"];
-// https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_ecs/src/system/commands/entity_command.rs#L81
-pub const ENTITY_COMMANDS: [&str; 4] = ["bevy_ecs", "system", "entity_command", "EntityCommand"];
+// https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_ecs/src/system/commands/mod.rs#L1167
+pub const ENTITY_COMMANDS: [&str; 4] = ["bevy_ecs", "system", "commands", "EntityCommands"];
 // https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_ecs/src/world/entity_ref.rs#L448
 pub const ENTITY_MUT: [&str; 4] = ["bevy_ecs", "world", "entity_ref", "EntityMut"];
 // https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_ecs/src/event/base.rs#L48

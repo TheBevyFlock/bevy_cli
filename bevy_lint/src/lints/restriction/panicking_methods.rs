@@ -252,17 +252,7 @@ impl PanickingType {
     /// `(panicking_method, alternative_method)`.
     fn alternatives(&self) -> &'static [(&'static str, &'static str)] {
         match self {
-            Self::Query => &[
-                ("single", "get_single"),
-                ("single_mut", "get_single_mut"),
-                ("many", "get_many"),
-                ("many_mut", "get_many_mut"),
-            ],
-            Self::QueryState => &[
-                ("single", "get_single"),
-                ("single_mut", "get_single_mut"),
-                // `QueryState` does not currently have `many()` or `many_mut()`.
-            ],
+            Self::QueryState | Self::Query => &[],
             Self::World => &[
                 ("entity", "get_entity"),
                 ("entity_mut", "get_entity_mut"),

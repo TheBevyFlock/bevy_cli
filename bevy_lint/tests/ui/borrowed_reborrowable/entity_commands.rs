@@ -1,11 +1,11 @@
-//! This tests the `borrowed_reborrowable` lint, specifically when triggered on the `EntityCommands` type.
+//! This tests the `borrowed_reborrowable` lint, specifically when triggered on the `EntityCommands`
+//! type.
 
 #![feature(register_tool)]
 #![register_tool(bevy)]
 #![deny(bevy::borrowed_reborrowable)]
 
-use bevy::prelude::*;
-use bevy::ecs::system::EntityCommands;
+use bevy::{ecs::system::EntityCommands, prelude::*};
 
 // OK: Lint does not apply to immutable references
 fn immutable_reference(_param: &EntityCommands) {
@@ -20,7 +20,7 @@ fn mutable_reference(_param: &mut EntityCommands) {
 
 //~| HELP: use `EntityCommands` instead
 //~v ERROR: parameter takes `&mut EntityCommands` instead of a re-borrowed `EntityCommands`
-fn mutable_reference_return<'a>(_param: &'a mut EntityCommands) -> usize {
+fn mutable_reference_return(_param: &'_ mut EntityCommands) -> usize {
     123
 }
 
