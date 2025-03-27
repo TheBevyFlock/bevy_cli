@@ -16,9 +16,8 @@ pub const COMPONENT: [&str; 3] = ["bevy_ecs", "component", "Component"];
 pub const DEFERRED: [&str; 4] = ["bevy_ecs", "system", "system_param", "Deferred"];
 // https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_ecs/src/world/deferred_world.rs#L23
 pub const DEFERRED_WORLD: [&str; 4] = ["bevy_ecs", "world", "deferred_world", "DeferredWorld"];
-// CHANGED: to  https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_ecs/src/system/commands/entity_command.rs#L81
-// and needs investigation
-pub const ENTITY_COMMANDS: [&str; 4] = ["bevy_ecs", "system", "commands", "EntityCommands"];
+// https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_ecs/src/system/commands/entity_command.rs#L81
+pub const ENTITY_COMMANDS: [&str; 4] = ["bevy_ecs", "system", "entity_command", "EntityCommand"];
 // https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_ecs/src/world/entity_ref.rs#L448
 pub const ENTITY_MUT: [&str; 4] = ["bevy_ecs", "world", "entity_ref", "EntityMut"];
 // https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_ecs/src/event/base.rs#L48
@@ -45,7 +44,7 @@ pub const QUERY_STATE: [&str; 4] = ["bevy_ecs", "query", "state", "QueryState"];
 pub const REFLECT: [&str; 3] = ["bevy_reflect", "reflect", "Reflect"];
 // https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_ecs/src/change_detection.rs#L675
 pub const RES_MUT: [&str; 3] = ["bevy_ecs", "change_detection", "ResMut"];
-// CHANGED: to https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_ecs/src/resource.rs#L75
-pub const RESOURCE: [&str; 4] = ["bevy_ecs", "system", "system_param", "Resource"];
+// https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_ecs/src/resource.rs#L75
+pub const RESOURCE: [&str; 3] = ["bevy_ecs", "resource", "Resource"];
 // https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_ecs/src/world/mod.rs#L94
 pub const WORLD: [&str; 3] = ["bevy_ecs", "world", "World"];
