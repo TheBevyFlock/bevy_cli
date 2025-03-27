@@ -60,7 +60,7 @@ macro_rules! declare_bevy_lint {
     {
         $(#[$attr:meta])*
         $vis:vis $name:ident,
-        $group:ident,
+        $group:expr,
         $desc:expr,
         $(@report_in_external_macro = $report_in_external_macro:expr,)?
         $(@crate_level_only = $crate_level_only:expr,)?
@@ -80,7 +80,7 @@ macro_rules! declare_bevy_lint {
             lint: &::rustc_lint::Lint {
                 // Fields that are always configured by macro.
                 name: concat!("bevy::", stringify!($name)),
-                default_level: $crate::groups::$group.level,
+                default_level: $group.level,
                 desc: $desc,
 
                 // Fields that cannot be configured.
@@ -97,7 +97,7 @@ macro_rules! declare_bevy_lint {
 
                 ..::rustc_lint::Lint::default_fields_for_macro()
             },
-            group: &$crate::groups::$group,
+            group: $group,
         };
     };
 }

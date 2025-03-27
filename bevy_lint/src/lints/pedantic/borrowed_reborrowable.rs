@@ -112,7 +112,7 @@ use rustc_span::{
 
 declare_bevy_lint! {
     pub BORROWED_REBORROWABLE,
-    PEDANTIC,
+    super::PEDANTIC,
     "function parameter takes a mutable reference to a re-borrowable type",
 }
 
