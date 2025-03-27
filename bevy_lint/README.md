@@ -38,7 +38,7 @@ For example, you would replace `$TOOLCHAIN_VERSION` with `nightly-2024-11-14` if
 Once you have the toolchain installed, you can compile and install `bevy_lint` through `cargo`:
 
 ```bash
-rustup run $TOOLCHAIN_VERSION cargo install \    
+rustup run $TOOLCHAIN_VERSION cargo install \
     --git https://github.com/TheBevyFlock/bevy_cli.git \
     --tag $TAG \
     --locked \
