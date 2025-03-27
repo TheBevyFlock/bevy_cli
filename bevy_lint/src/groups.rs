@@ -19,10 +19,12 @@ use crate::{
     lint::{BevyLint, LintGroup},
     lints::LINTS,
 };
-use rustc_lint::{Level, LintStore};
+use rustc_lint::LintStore;
 
 /// A macro for declaring [`LintGroup`]s that auto-generates a table with the name and default
 /// level in the documentation.
+#[macro_export]
+#[doc(hidden)]
 macro_rules! declare_group {
     {
         $(#[$attr:meta])*
@@ -43,88 +45,10 @@ macro_rules! declare_group {
         #[doc = concat!("        <td><code>", stringify!($level), "</code></td>")]
         ///     </tr>
         /// </table>
-        $vis static $static_name: &LintGroup = &LintGroup {
+        $vis static $static_name: &$crate::lint::LintGroup = &$crate::lint::LintGroup {
             name: $group_name,
             level: $level,
         };
-    };
-}
-
-declare_group! {
-    /// A group of deny-by-default lints that check for outright wrong or useless code.
-    ///
-    /// These lints are carefully picked to be free of false positives. You should avoid
-    /// `#[allow(...)]`-ing these lints without a _very_ good reason.
-    pub static CORRECTNESS = {
-        name: "bevy::correctness",
-        level: Level::Deny,
-    };
-}
-
-declare_group! {
-    /// A group similar to [`CORRECTNESS`] that checks for suspicious or usually wrong code.
-    ///
-    /// The linted code may have been written intentionally, but should probably still be fixed.
-    pub static SUSPICIOUS = {
-        name: "bevy::suspicious",
-        level: Level::Warn,
-    };
-}
-
-declare_group! {
-    /// A group that offers suggestions on how to simplify your code.
-    pub static COMPLEXITY = {
-        name: "bevy::complexity",
-        level: Level::Warn,
-    };
-}
-
-declare_group! {
-    /// A group that suggests how to increase the performance of your code.
-    pub static PERFORMANCE = {
-        name: "bevy::performance",
-        level: Level::Warn,
-    };
-}
-
-declare_group! {
-    /// A group of lints that encourage idiomatic code.
-    ///
-    /// These lints are opinionated and may be freely disabled if you disagree with their suggestions.
-    pub static STYLE = {
-        name: "bevy::style",
-        level: Level::Warn,
-    };
-}
-
-declare_group! {
-    /// A group of lints that make the linter incredibly nit-picky.
-    ///
-    /// If you enable this group, expect to liberally apply `#[allow(...)]` attributes throughout your
-    /// code.
-    pub static PEDANTIC = {
-        name: "bevy::pedantic",
-        level: Level::Allow,
-    };
-}
-
-declare_group! {
-    /// A group of opt-in lints that restrict you from writing certain code.
-    ///
-    /// These are designed for scenarios where you want to increase the consistency of your code-base
-    /// and reject certain patterns. They should not all be enabled at once, but instead specific lints
-    /// should be individually enabled.
-    pub static RESTRICTION = {
-        name: "bevy::restriction",
-        level: Level::Allow,
-    };
-}
-
-declare_group! {
-    /// A group of unstable lints that may be removed at any time for any reason.
-    pub static NURSERY = {
-        name: "bevy::nursery",
-        level: Level::Allow,
     };
 }
 
@@ -132,14 +56,14 @@ declare_group! {
 ///
 /// If a group is not in this list, it will not be registered in [`register_groups()`].
 static GROUPS: &[&LintGroup] = &[
-    CORRECTNESS,
-    SUSPICIOUS,
-    COMPLEXITY,
-    PERFORMANCE,
-    STYLE,
-    PEDANTIC,
-    RESTRICTION,
-    NURSERY,
+    crate::lints::correctness::CORRECTNESS,
+    crate::lints::suspicious::SUSPICIOUS,
+    crate::lints::complexity::COMPLEXITY,
+    crate::lints::performance::PERFORMANCE,
+    crate::lints::style::STYLE,
+    crate::lints::pedantic::PEDANTIC,
+    crate::lints::restriction::RESTRICTION,
+    crate::lints::nursery::NURSERY,
 ];
 
 /// Registers all [`LintGroup`]s in [`GROUPS`] with the [`LintStore`].
