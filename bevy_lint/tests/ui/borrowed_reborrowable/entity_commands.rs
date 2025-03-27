@@ -1,12 +1,11 @@
-//! This tests the `borrowed_reborrowable` lint, specifically when triggered on the `EntityCommands`
-//! type.
+//! This tests the `borrowed_reborrowable` lint, specifically when triggered on the `EntityCommands` type.
 
-//@no-rustfix
 #![feature(register_tool)]
 #![register_tool(bevy)]
 #![deny(bevy::borrowed_reborrowable)]
 
-use bevy::{ecs::system::EntityCommands, prelude::*};
+use bevy::prelude::*;
+use bevy::ecs::system::EntityCommands;
 
 // OK: Lint does not apply to immutable references
 fn immutable_reference(_param: &EntityCommands) {

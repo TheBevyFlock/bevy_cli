@@ -45,17 +45,14 @@ use crate::{
 };
 use clippy_utils::{
     diagnostics::span_lint_and_sugg,
-    source::{snippet, snippet_with_applicability, HasSession},
+    source::{HasSession, snippet, snippet_with_applicability},
     sym,
     ty::{match_type, ty_from_hir_ty},
 };
 use rustc_errors::Applicability;
 use rustc_hir::{Expr, GenericArg, GenericArgs, Path, PathSegment, QPath};
 use rustc_lint::{LateContext, LateLintPass};
-use rustc_middle::{
-    lint::in_external_macro,
-    ty::{Ty, TyKind},
-};
+use rustc_middle::ty::{Ty, TyKind};
 use rustc_span::Symbol;
 use std::borrow::Cow;
 
@@ -78,7 +75,7 @@ const HELP_MESSAGE: &str = "inserting an `Events` resource does not fully setup 
 impl<'tcx> LateLintPass<'tcx> for InsertEventResource {
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &'tcx Expr<'tcx>) {
         // skip expressions that originate from external macros
-        if in_external_macro(cx.sess(), expr.span) {
+        if expr.span.in_external_macro(cx.tcx.sess().source_map()) {
             return;
         }
 

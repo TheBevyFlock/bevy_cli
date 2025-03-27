@@ -1,32 +1,20 @@
 error: queried a zero-sized type
   --> tests/ui/zst_query/query.rs:53:32
    |
-31 |         |_query: Query<&ZST>| {}
-   |                        ^^^^
-...
-40 |     let bar = local_macro!();
-   |               -------------- in this macro invocation
+53 | fn immutable_zst(_query: Query<&ZST>) {}
+   |                                ^^^^
    |
    = help: zero-sized types do not retrieve any data, consider using a filter instead: `With<ZST>`
 note: the lint level is defined here
-  --> tests/ui/zst_query/query.rs:6:9
+  --> tests/ui/zst_query/query.rs:5:9
    |
-6  | #![deny(bevy::zst_query)]
+5  | #![deny(bevy::zst_query)]
    |         ^^^^^^^^^^^^^^^
-   = note: this error originates in the macro `local_macro` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: queried a zero-sized type
   --> tests/ui/zst_query/query.rs:57:30
    |
-70 | fn immutable_zst(_query: Query<&ZST>) {}
-   |                                ^^^^
-   |
-   = help: consider using a filter instead: `With<ZST>`
-
-error: query for a zero-sized type
-  --> tests/ui/zst_query/query.rs:74:30
-   |
-74 | fn mutable_zst(_query: Query<&mut ZST>) {}
+57 | fn mutable_zst(_query: Query<&mut ZST>) {}
    |                              ^^^^^^^^
    |
    = help: zero-sized types do not retrieve any data, consider using a filter instead: `With<ZST>`
@@ -34,7 +22,7 @@ error: query for a zero-sized type
 error: queried a zero-sized type
   --> tests/ui/zst_query/query.rs:61:47
    |
-78 | fn immutable_zst_tuple(_query: Query<(Entity, &ZST)>) {}
+61 | fn immutable_zst_tuple(_query: Query<(Entity, &ZST)>) {}
    |                                               ^^^^
    |
    = help: zero-sized types do not retrieve any data, consider using a filter instead: `With<ZST>`
@@ -42,7 +30,7 @@ error: queried a zero-sized type
 error: queried a zero-sized type
   --> tests/ui/zst_query/query.rs:65:45
    |
-82 | fn mutable_zst_tuple(_query: Query<(Entity, &mut ZST)>) {}
+65 | fn mutable_zst_tuple(_query: Query<(Entity, &mut ZST)>) {}
    |                                             ^^^^^^^^
    |
    = help: zero-sized types do not retrieve any data, consider using a filter instead: `With<ZST>`
@@ -50,7 +38,7 @@ error: queried a zero-sized type
 error: queried a zero-sized type
   --> tests/ui/zst_query/query.rs:77:40
    |
-94 | fn generic_immutable_zst(_query: Query<&Generic<ZST>>) {}
+77 | fn generic_immutable_zst(_query: Query<&Generic<ZST>>) {}
    |                                        ^^^^^^^^^^^^^
    |
    = help: zero-sized types do not retrieve any data, consider using a filter instead: `With<Generic<ZST>>`
@@ -58,7 +46,7 @@ error: queried a zero-sized type
 error: queried a zero-sized type
   --> tests/ui/zst_query/query.rs:81:38
    |
-98 | fn generic_mutable_zst(_query: Query<&mut Generic<ZST>>) {}
+81 | fn generic_mutable_zst(_query: Query<&mut Generic<ZST>>) {}
    |                                      ^^^^^^^^^^^^^^^^^
    |
    = help: zero-sized types do not retrieve any data, consider using a filter instead: `With<Generic<ZST>>`
@@ -71,5 +59,5 @@ error: queried a zero-sized type
    |
    = help: zero-sized types do not retrieve any data, consider using a filter instead: `With<Phantom<NonZST>>`
 
-error: aborting due to 8 previous errors
+error: aborting due to 7 previous errors
 

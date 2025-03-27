@@ -64,7 +64,7 @@ use rustc_hir::{
     def::{DefKind, Res},
 };
 use rustc_lint::{LateContext, LateLintPass};
-use rustc_middle::{lint::in_external_macro, ty::TyCtxt};
+use rustc_middle::ty::TyCtxt;
 use rustc_span::Span;
 
 declare_bevy_lint! {
@@ -114,7 +114,10 @@ impl<'tcx> LateLintPass<'tcx> for MissingReflect {
         ] {
             for without_reflect in checked_trait {
                 // Skip if a types originates from a foreign crate's macro
-                if in_external_macro(cx.sess(), without_reflect.item_span) {
+                if without_reflect
+                    .item_span
+                    .in_external_macro(cx.tcx.sess().source_map())
+                {
                     continue;
                 }
 

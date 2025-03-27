@@ -1,11 +1,11 @@
 //! This tests the `borrowed_reborrowable` lint, specifically when triggered on the `Query` type.
 
-//@no-rustfix
 #![feature(register_tool)]
 #![register_tool(bevy)]
 #![deny(bevy::borrowed_reborrowable)]
 
-use bevy::{ecs::system::QueryLens, prelude::*};
+use bevy::ecs::system::QueryLens;
+use bevy::prelude::*;
 
 // OK: Lint does not apply to immutable references
 fn immutable_reference(_query: &Query<Entity>) {

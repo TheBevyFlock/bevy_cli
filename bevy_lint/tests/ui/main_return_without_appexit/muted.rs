@@ -2,7 +2,6 @@
 //! should pass without any errors.
 
 //@check-pass
-//@no-rustfix
 
 #![feature(register_tool)]
 #![register_tool(bevy)]

@@ -1,14 +1,11 @@
 //! This tests the `borrowed_reborrowable` lint, specifically when triggered on the `PtrMut` type.
 
-//@no-rustfix
 #![feature(register_tool)]
 #![register_tool(bevy)]
 #![deny(bevy::borrowed_reborrowable)]
 
-use bevy::{
-    ecs::ptr::{Ptr, PtrMut},
-    prelude::*,
-};
+use bevy::ecs::ptr::{Ptr, PtrMut};
+use bevy::prelude::*;
 
 // OK: Lint does not apply to immutable references
 fn immutable_reference(_param: &PtrMut) {

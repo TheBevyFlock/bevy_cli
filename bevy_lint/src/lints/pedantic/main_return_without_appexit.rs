@@ -41,7 +41,6 @@ use clippy_utils::{
 use rustc_errors::Applicability;
 use rustc_hir::{Body, FnDecl, FnRetTy, Ty, TyKind, def_id::LocalDefId, intravisit::FnKind};
 use rustc_lint::{LateContext, LateLintPass};
-use rustc_middle::lint::in_external_macro;
 use rustc_span::{Span, Symbol};
 use std::ops::ControlFlow;
 
@@ -91,7 +90,7 @@ impl<'tcx> LateLintPass<'tcx> for MainReturnWithoutAppExit {
                     ..
                 }) = MethodCall::try_from(cx, expr)
                     && method_path.ident.name == self.run
-                    && !in_external_macro(cx.sess(), expr.span)
+                    && !expr.span.in_external_macro(cx.tcx.sess().source_map())
                 {
                     // Get the type of `src` for `src.run()`. We peel away all references because
                     // both `App` and `&mut App` are allowed.

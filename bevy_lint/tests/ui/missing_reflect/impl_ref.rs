@@ -6,7 +6,6 @@
 //!
 //! Note that all 3 traits require `'static` bounds, so generic `'a` lifetimes are not tested.
 
-//@no-rustfix
 #![feature(register_tool)]
 #![register_tool(bevy)]
 #![allow(dead_code)]

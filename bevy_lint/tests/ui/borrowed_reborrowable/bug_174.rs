@@ -3,7 +3,6 @@
 //! [#174]: https://github.com/TheBevyFlock/bevy_cli/issues/174
 
 //@check-pass
-//@no-rustfix
 
 #![feature(register_tool)]
 #![register_tool(bevy)]

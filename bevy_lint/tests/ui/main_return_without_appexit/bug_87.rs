@@ -2,7 +2,6 @@
 //!
 //! [#87]: https://github.com/TheBevyFlock/bevy_cli/issues/87
 
-//@no-rustfix
 #![feature(register_tool)]
 #![register_tool(bevy)]
 #![deny(bevy::main_return_without_appexit)]

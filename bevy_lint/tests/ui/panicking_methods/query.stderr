@@ -1,83 +1,71 @@
 error: called a `Query` method that can panic when a non-panicking alternative exists
-  --> tests/ui/panicking_methods/query.rs:28:11
+  --> tests/ui/panicking_methods/query.rs:17:11
    |
-28 |     query.single();
+17 |     query.single();
    |           ^^^^^^^^
    |
    = help: use `query.get_single()` and handle the `Option` or `Result`
 note: the lint level is defined here
-  --> tests/ui/panicking_methods/query.rs:6:9
+  --> tests/ui/panicking_methods/query.rs:5:9
    |
 5  | #![deny(bevy::panicking_methods)]
    |         ^^^^^^^^^^^^^^^^^^^^^^^
 
 error: called a `Query` method that can panic when a non-panicking alternative exists
-  --> tests/ui/panicking_methods/query.rs:32:5
+  --> tests/ui/panicking_methods/query.rs:21:5
    |
-32 |     Query::single(&query);
+21 |     Query::single(&query);
    |     ^^^^^^^^^^^^^^^^^^^^^
    |
    = help: use `Query::get_single(&query)` and handle the `Option` or `Result`
 
 error: called a `Query` method that can panic when a non-panicking alternative exists
-  --> tests/ui/panicking_methods/query.rs:36:11
+  --> tests/ui/panicking_methods/query.rs:25:11
    |
-36 |     query.single_mut();
+25 |     query.single_mut();
    |           ^^^^^^^^^^^^
    |
    = help: use `query.get_single_mut()` and handle the `Option` or `Result`
 
 error: called a `Query` method that can panic when a non-panicking alternative exists
-  --> tests/ui/panicking_methods/query.rs:40:5
+  --> tests/ui/panicking_methods/query.rs:29:5
    |
-40 |     Query::single_mut(&mut query);
+29 |     Query::single_mut(&mut query);
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = help: use `Query::get_single_mut(&mut query)` and handle the `Option` or `Result`
 
 error: called a `Query` method that can panic when a non-panicking alternative exists
-  --> tests/ui/panicking_methods/query.rs:46:27
+  --> tests/ui/panicking_methods/query.rs:35:27
    |
-46 |     let [_, _, _] = query.many(entities);
+35 |     let [_, _, _] = query.many(entities);
    |                           ^^^^^^^^^^^^^^
    |
    = help: use `query.get_many(entities)` and handle the `Option` or `Result`
 
 error: called a `Query` method that can panic when a non-panicking alternative exists
-  --> tests/ui/panicking_methods/query.rs:50:21
+  --> tests/ui/panicking_methods/query.rs:39:21
    |
-50 |     let [_, _, _] = Query::many(&query, entities);
+39 |     let [_, _, _] = Query::many(&query, entities);
    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = help: use `Query::get_many(&query, entities)` and handle the `Option` or `Result`
 
 error: called a `Query` method that can panic when a non-panicking alternative exists
-  --> tests/ui/panicking_methods/query.rs:54:11
+  --> tests/ui/panicking_methods/query.rs:43:11
    |
-54 |     query.many_mut([]);
+43 |     query.many_mut([]);
    |           ^^^^^^^^^^^^
    |
    = help: use `query.get_many_mut([])` and handle the `Option` or `Result`
 
 error: called a `Query` method that can panic when a non-panicking alternative exists
-  --> tests/ui/panicking_methods/query.rs:58:5
+  --> tests/ui/panicking_methods/query.rs:47:5
    |
-58 |     Query::many_mut(&mut query, []);
+47 |     Query::many_mut(&mut query, []);
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = help: use `Query::get_many_mut(&mut query, [])` and handle the `Option` or `Result`
 
-error: called a `Query` method that can panic when a non-panicking alternative exists
-  --> tests/ui/panicking_methods/query.rs:14:12
-   |
-14 |         $q.single()
-   |            ^^^^^^^^
-...
-68 |     local_macro!(query);
-   |     ------------------- in this macro invocation
-   |
-   = help: use `query.get_single()` and handle the `Option` or `Result`
-   = note: this error originates in the macro `local_macro` (in Nightly builds, run with -Z macro-backtrace for more info)
-
-error: aborting due to 9 previous errors
+error: aborting due to 8 previous errors
 

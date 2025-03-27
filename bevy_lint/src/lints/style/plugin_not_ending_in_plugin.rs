@@ -44,7 +44,6 @@ use clippy_utils::{
 use rustc_errors::Applicability;
 use rustc_hir::{HirId, Item, ItemKind, OwnerId, def::Res};
 use rustc_lint::{LateContext, LateLintPass};
-use rustc_middle::lint::in_external_macro;
 use rustc_span::symbol::Ident;
 
 declare_bevy_lint! {
@@ -99,7 +98,7 @@ impl<'tcx> LateLintPass<'tcx> for PluginNotEndingInPlugin {
             };
 
             // skip lint if the struct was defined in an external macro
-            if in_external_macro(cx.sess(), struct_span) {
+            if struct_span.in_external_macro(cx.tcx.sess().source_map()) {
                 return;
             }
 

@@ -99,7 +99,7 @@ declare_bevy_lint_pass! {
 impl<'tcx> LateLintPass<'tcx> for PanickingMethods {
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &'tcx Expr<'tcx>) {
         // skip expressions that originate from external macros
-        if in_external_macro(cx.sess(), expr.span) {
+        if expr.span.in_external_macro(cx.tcx.sess().source_map()) {
             return;
         }
 

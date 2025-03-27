@@ -5,9 +5,9 @@ error: parameter takes `&mut Deferred` instead of a re-borrowed `Deferred`
    |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use `Deferred` instead: `mut _param: Deferred<CommandQueue>`
    |
 note: the lint level is defined here
-  --> tests/ui/borrowed_reborrowable/deferred.rs:6:9
+  --> tests/ui/borrowed_reborrowable/deferred.rs:5:9
    |
-6  | #![deny(bevy::borrowed_reborrowable)]
+5  | #![deny(bevy::borrowed_reborrowable)]
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 error: parameter takes `&mut Deferred` instead of a re-borrowed `Deferred`

@@ -1,7 +1,5 @@
 //! This tests the `borrowed_reborrowable` lint, specifically when triggered on closure types.
 
-//@no-rustfix
-
 #![feature(register_tool)]
 #![register_tool(bevy)]
 #![deny(bevy::borrowed_reborrowable)]

@@ -1,12 +1,11 @@
-//! This tests the `borrowed_reborrowable` lint, specifically when triggered on the `DeferredWorld`
-//! type.
+//! This tests the `borrowed_reborrowable` lint, specifically when triggered on the `DeferredWorld` type.
 
-//@no-rustfix
 #![feature(register_tool)]
 #![register_tool(bevy)]
 #![deny(bevy::borrowed_reborrowable)]
 
-use bevy::{ecs::world::DeferredWorld, prelude::*};
+use bevy::prelude::*;
+use bevy::ecs::world::DeferredWorld;
 
 // OK: Lint does not apply to immutable references
 fn immutable_reference(_param: &DeferredWorld) {

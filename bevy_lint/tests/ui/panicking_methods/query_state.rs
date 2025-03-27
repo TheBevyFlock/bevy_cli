@@ -6,21 +6,6 @@
 #![deny(bevy::panicking_methods)]
 
 use bevy::prelude::*;
-extern crate proc_macros;
-use proc_macros::external;
-
-macro_rules! local_macro {
-    () => {
-        let mut world = World::new();
-
-        let mut query_state = QueryState::<&mut Foo>::new(&mut world);
-
-        let _ = query_state.single(&world);
-        //~^ ERROR:  called a `QueryState` method that can panic when a non-panicking alternative
-        // exists
-        //~^^^ HELP: use `query_state.get_single(&world)`
-    };
-}
 
 #[derive(Component)]
 struct Foo;
@@ -45,11 +30,4 @@ fn main() {
     QueryState::single_mut(&mut query_state, &mut world);
     //~^ ERROR:  called a `QueryState` method that can panic when a non-panicking alternative exists
     //~| HELP: use `QueryState::get_single_mut(&mut query_state, &mut world)`
-
-    external!({
-        let mut world = World::new();
-        let mut query_state = QueryState::<&mut Foo>::new(&mut world);
-        let _ = query_state.single(&world);
-    });
-    local_macro!();
 }

@@ -103,10 +103,7 @@ use clippy_utils::{diagnostics::span_lint_and_sugg, source::snippet_opt, ty::mat
 use rustc_errors::Applicability;
 use rustc_hir::{Body, FnDecl, MutTy, Mutability, intravisit::FnKind};
 use rustc_lint::{LateContext, LateLintPass};
-use rustc_middle::{
-    lint::in_external_macro,
-    ty::{Interner, Ty, TyKind, TypeVisitable, TypeVisitor},
-};
+use rustc_middle::ty::{Interner, Ty, TyKind, TypeVisitable, TypeVisitor};
 use rustc_span::{
     Span,
     def_id::LocalDefId,
@@ -134,7 +131,7 @@ impl<'tcx> LateLintPass<'tcx> for BorrowedReborrowable {
         def_id: LocalDefId,
     ) {
         // If the function originates from an external macro, skip this lint
-        if in_external_macro(cx.sess(), fn_span) {
+        if fn_span.in_external_macro(cx.tcx.sess.source_map()) {
             return;
         }
 

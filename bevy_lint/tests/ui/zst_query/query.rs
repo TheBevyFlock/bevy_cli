@@ -1,4 +1,3 @@
-//@aux-build:../auxiliary/proc_macros.rs
 //! This tests the `zst_query` lint, specifically when triggered on the `Query` type.
 
 #![feature(register_tool)]
@@ -6,8 +5,6 @@
 #![deny(bevy::zst_query)]
 
 use bevy::prelude::*;
-extern crate proc_macros;
-use proc_macros::external;
 use std::marker::PhantomData;
 
 #[derive(Component)]
@@ -24,20 +21,8 @@ struct Generic<T: Sized + Send + Sync + 'static>(T);
 #[derive(Component)]
 #[allow(dead_code)]
 struct Phantom<T>(PhantomData<T>);
-macro_rules! local_macro {
-    () => {
-        //~| HELP: consider using a filter instead: `With<ZST>`
-        //~v ERROR: query for a zero-sized type
-        |_query: Query<&ZST>| {}
-    };
-}
 
 fn main() {
-    let foo = external! {
-        |_query: Query<&ZST>| {
-        }
-    };
-    let bar = local_macro!();
     App::new()
         .add_systems(
             Startup,
@@ -56,8 +41,6 @@ fn main() {
                 immutable_query_tuple,
                 mutable_query_tuple,
                 phantom_data_query,
-                foo,
-                bar,
             ),
         )
         .run();

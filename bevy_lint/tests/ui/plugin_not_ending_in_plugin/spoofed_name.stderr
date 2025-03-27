@@ -1,20 +1,20 @@
 error: implemented `Plugin` for a structure whose name does not end in "Plugin"
-  --> tests/ui/plugin_not_ending_in_plugin/spoofed_name.rs:14:20
+  --> tests/ui/plugin_not_ending_in_plugin/spoofed_name.rs:13:20
    |
-14 |         pub struct Foo;
+13 |         pub struct Foo;
    |                    ^^^ help: rename the plugin: `FooPlugin`
    |
 note: `Plugin` implemented here
-  --> tests/ui/plugin_not_ending_in_plugin/spoofed_name.rs:24:1
+  --> tests/ui/plugin_not_ending_in_plugin/spoofed_name.rs:23:1
    |
-24 | / impl Plugin for FooPlugin {
-25 | |     fn build(&self, _app: &mut App) {}
-26 | | }
+23 | / impl Plugin for FooPlugin {
+24 | |     fn build(&self, _app: &mut App) {}
+25 | | }
    | |_^
 note: the lint level is defined here
-  --> tests/ui/plugin_not_ending_in_plugin/spoofed_name.rs:7:9
+  --> tests/ui/plugin_not_ending_in_plugin/spoofed_name.rs:6:9
    |
-7  | #![deny(bevy::plugin_not_ending_in_plugin)]
+6  | #![deny(bevy::plugin_not_ending_in_plugin)]
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 error: aborting due to 1 previous error

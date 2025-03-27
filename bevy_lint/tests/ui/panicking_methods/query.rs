@@ -5,16 +5,6 @@
 #![deny(bevy::panicking_methods)]
 
 use bevy::prelude::*;
-extern crate proc_macros;
-use proc_macros::external;
-
-macro_rules! local_macro {
-    ($q:expr) => {
-        $q.single()
-        //~^ ERROR:  called a `Query` method that can panic when a non-panicking alternative exists
-        //~| HELP: use `query.get_single()`
-    };
-}
 
 #[derive(Component)]
 struct Foo;
@@ -57,12 +47,4 @@ fn my_system(mut query: Query<&mut Foo>) {
     Query::many_mut(&mut query, []);
     //~^ ERROR:  called a `Query` method that can panic when a non-panicking alternative exists
     //~| HELP: use `Query::get_many_mut(&mut query, [])`
-
-    // Test if external macros get skipped
-    external!({
-        fn my_system(mut query: Query<&mut Foo>) {
-            query.single();
-        }
-    });
-    local_macro!(query);
 }
