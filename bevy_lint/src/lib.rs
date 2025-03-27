@@ -2,8 +2,8 @@
 //! [Clippy](https://doc.rust-lang.org/stable/clippy).
 //!
 //! This is the primary documentation for its lints and lint groups. `bevy_lint` is not intended to
-//! be consumed as a library. You can find the documentation for individual lints in the [`lints`]
-//! module, and the documentation for lint groups in the [`groups`] module.
+//! be consumed as a library. You can find the documentation for individual lints and their groups
+//! in the [`lints`] module.
 #![doc = include_str!("../README.md")]
 // Enables linking to `rustc` crates.
 #![feature(rustc_private)]
@@ -28,7 +28,7 @@ extern crate rustc_span;
 
 mod callback;
 mod config;
-pub mod groups;
+mod groups;
 mod lint;
 pub mod lints;
 mod paths;

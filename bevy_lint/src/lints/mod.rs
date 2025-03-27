@@ -1,8 +1,24 @@
-//! All lints offered by `bevy_lint`.
+//! All lints offered by `bevy_lint`, organized by lint group.
+//! 
+//! Each module contains the lints for that lint group. [`suspicious`], for example, contains the
+//! documentation for [`suspicious::insert_event_resource`] and
+//! [`suspicious::iter_current_update_events`], since they are both within the `bevy::suspicious`
+//! lint group.
+//! 
+//! Just like lints, lint groups that can be toggled together. The following lint groups are
+//! enabled by default:
 //!
-//! Click on each module to learn more about individual lints. Within each module is a static that
-//! documents a lint's name, group, and short description, such as
-//! [`missing_reflect::MISSING_REFLECT`].
+//! - [`correctness`]
+//! - [`suspicious`]
+//! - [`complexity`]
+//! - [`performance`]
+//! - [`style`]
+//!
+//! The following groups are disabled by default:
+//!
+//! - [`pedantic`]
+//! - [`restriction`]
+//! - [`nursery`]
 
 use crate::lint::BevyLint;
 use rustc_lint::{Lint, LintStore};
