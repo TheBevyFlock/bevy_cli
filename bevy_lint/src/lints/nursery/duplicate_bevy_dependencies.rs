@@ -104,7 +104,7 @@ fn toml_span(range: Range<usize>, file: &SourceFile) -> Span {
     )
 }
 
-pub(super) fn check(cx: &LateContext<'_>, metadata: &Metadata, bevy_symbol: Symbol) {
+pub fn check(cx: &LateContext<'_>, metadata: &Metadata, bevy_symbol: Symbol) {
     // no reason to continue the check if there is only one instance of `bevy` required
     if find_crates(cx.tcx, bevy_symbol).len() == 1 {
         return;
