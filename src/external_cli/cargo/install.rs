@@ -1,21 +1,18 @@
-use std::{
-    process::{exit, Command},
-    str::FromStr,
-};
+use std::{process::exit, str::FromStr};
 
 use anyhow::Context;
 use dialoguer::Confirm;
 use semver::Version;
 
-use crate::external_cli::wasm_bindgen;
-
-use self::wasm_bindgen::wasm_bindgen_cli_version;
+#[cfg(feature = "web")]
+use crate::external_cli::wasm_bindgen::{self, wasm_bindgen_cli_version};
+use crate::external_cli::CommandExt;
 
 /// Check if the given program is installed on the system.
 ///
 /// This assumes that the program offers a `--version` flag.
 fn is_installed(program: &str) -> Option<Vec<u8>> {
-    Command::new(program)
+    CommandExt::new(program)
         .arg("--version")
         .output()
         .map(|output| output.stdout)
@@ -30,7 +27,6 @@ pub(crate) fn if_needed(
     package: &str,
     package_version: Option<&str>,
     skip_prompts: bool,
-    hidden: bool,
 ) -> anyhow::Result<bool> {
     let mut prompt: Option<String> = None;
 
@@ -44,6 +40,7 @@ pub(crate) fn if_needed(
         // Its important that the `wasm-bindgen-cli` and the `wasm-bindgen` version match exactly,
         // therefore compare the desired `package_version` with the installed
         // `wasm-bindgen-cli` version
+        #[cfg(feature = "web")]
         if package == wasm_bindgen::PACKAGE {
             let version = wasm_bindgen_cli_version(&stdout)?;
             let desired_version = Version::from_str(package_version)?;
@@ -73,22 +70,14 @@ pub(crate) fn if_needed(
         exit(1);
     }
 
-    let mut cmd = Command::new(super::program());
+    let mut cmd = CommandExt::new(super::program());
     cmd.arg("install").arg(package);
 
     if let Some(version) = package_version {
         cmd.arg("--version").arg(version);
     }
 
-    let status = if hidden {
-        cmd.output()?.status
-    } else {
-        cmd.status()?
-    };
+    cmd.ensure_status()?;
 
-    if status.success() {
-        Ok(true)
-    } else {
-        Err(anyhow::anyhow!("Failed to install `{program}`."))
-    }
+    Ok(true)
 }

@@ -2,8 +2,8 @@
 
 use clippy_utils::source::snippet_opt;
 use rustc_hir::{
-    def::{DefKind, Res},
     Expr, ExprKind, GenericArg, GenericArgs, Node, Path, PathSegment, QPath, Ty, TyKind,
+    def::{DefKind, Res},
 };
 use rustc_lint::LateContext;
 use rustc_span::{Span, Symbol};
@@ -144,9 +144,10 @@ pub struct MethodCall<'tcx> {
 
     /// The receiver, or the object, of the method.
     ///
-    /// This can be used to find what type the method is implemented for.
-    ///
-    /// TODO(BD103): Does this include the `&` reference? Should we suggest stripping it?
+    /// This can be used to find what type the method is implemented for. Note that this will
+    /// include the reference in the type _only_ if the method is fully-qualified. This reference
+    /// will be omitted when the method is in receiver form. As such, you may want to call
+    /// [`Ty::peel_refs()`](rustc_middle::ty::Ty::peel_refs) on the result before processing it.
     ///
     /// # Example
     ///
@@ -272,7 +273,10 @@ impl<'tcx> MethodCall<'tcx> {
                             // This can only happen if `args == &[]`, which shouldn't be possible,
                             // since we previously ensured that the the first element to `args`
                             // existed and was `self`.
-                            unreachable!("arguments to function call was empty, even though `self` was expected, at {:?}", expr.span);
+                            unreachable!(
+                                "arguments to function call was empty, even though `self` was expected, at {:?}",
+                                expr.span
+                            );
                         };
 
                         return Some(Self {

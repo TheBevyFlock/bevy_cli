@@ -3,14 +3,15 @@
 //! # Motivation
 //!
 //! Reflection lets programs inspect type information at runtime. It is commonly used by tools to
-//! view and edit ECS information while the program is running (usually components and resources).
-//! Reflection is opt-in, though, and easy to forget since you need to `#[derive(Reflect)]` for each
-//! type that uses it.
+//! view and edit ECS information while the program is running. Reflection is opt-in, however, and
+//! easy to forget since you need to `#[derive(Reflect)]` for each type that uses it.
 //!
 //! # Known issues
 //!
 //! This lint will suggest `#[derive(Reflect)]` even if it cannot be applied. (E.g. if one of the
-//! fields does not implement `Reflect`.)
+//! fields does not implement `Reflect`.) For more information, please see [#141].
+//!
+//! [#141]: https://github.com/TheBevyFlock/bevy_cli/issues/141
 //!
 //! # Example
 //!
@@ -30,6 +31,28 @@
 //! #[derive(Component, Reflect)]
 //! struct MyComponent;
 //! ```
+//!
+//! Often you'll only want to enable this lint for a specific module:
+//!
+//! <!-- We currently ignore this doc test because any reference to `bevy_lint` causes it to be
+//! linked, which raises a compile error due to the linter's use of `rustc_private`. -->
+//!
+//! ```ignore
+//! mod types {
+//!     #![cfg_attr(bevy_lint, warn(bevy::missing_reflect))]
+//! #
+//! #   use bevy::prelude::*;
+//!
+//!     #[derive(Resource, Reflect)]
+//!     struct Score(u32);
+//!
+//!     #[derive(Component, Reflect)]
+//!     struct Happiness(i8);
+//! }
+//! ```
+//!
+//! For more information, please see [Toggling Lints in
+//! Code](../../index.html#toggling-lints-in-code).
 
 use crate::{declare_bevy_lint, declare_bevy_lint_pass};
 use clippy_utils::{
@@ -37,8 +60,8 @@ use clippy_utils::{
 };
 use rustc_errors::Applicability;
 use rustc_hir::{
-    def::{DefKind, Res},
     HirId, Item, ItemKind, Node, OwnerId, QPath, TyKind,
+    def::{DefKind, Res},
 };
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::{lint::in_external_macro, ty::TyCtxt};
@@ -142,7 +165,7 @@ impl TraitType {
     fn from_local_crate<'tcx>(
         tcx: TyCtxt<'tcx>,
         trait_path: &[&str],
-    ) -> impl Iterator<Item = Self> + 'tcx {
+    ) -> impl Iterator<Item = Self> + use<'tcx> {
         // Find the `DefId` of the trait. There may be multiple if there are multiple versions of
         // the same crate.
         let trait_def_ids = def_path_res(tcx, trait_path)

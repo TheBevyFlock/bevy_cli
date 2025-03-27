@@ -1,5 +1,22 @@
-//! Checks for function parameters that take a mutable reference to a
-//! re-borrowable type.
+//! Checks for function parameters that take a mutable reference to a re-borrowable type.
+//!
+//! This lint checks for the following re-borrowable types:
+//!
+//! - `Commands`
+//! - `Deferred`
+//! - `DeferredWorld`
+//! - `EntityCommands`
+//! - `EntityMut`
+//! - `FilteredEntityMut`
+//! - `Mut`
+//! - `MutUntyped`
+//! - `NonSendMut`
+//! - `PtrMut`
+//! - `Query`
+//! - `ResMut`
+//!
+//! Though a type may be re-borrowable, there are circumstances where it cannot be easily
+//! reborrowed. (Please see the [Examples](#example).) In these cases, no warning will be emitted.
 //!
 //! # Motivation
 //!
@@ -12,9 +29,6 @@
 //! can almost always be readily converted back to an owned instance of the type, which is a cheap
 //! operation that avoids nested references.
 //!
-//! The only time a re-borrowable type cannot be re-borrowed is when the function returns
-//! referenced data that is bound to the mutable reference of the re-borrowable type.
-//!
 //! # Known Issues
 //!
 //! This lint does not currently support the [`Fn`] traits or function pointers. This means the
@@ -23,6 +37,10 @@
 //! - `impl FnOnce(&mut Commands)`
 //! - `Box<dyn FnMut(&mut Commands)>`
 //! - `fn(&mut Commands)`
+//!
+//! For more information, please see [#174].
+//!
+//! [#174]: https://github.com/TheBevyFlock/bevy_cli/issues/174
 //!
 //! # Example
 //!
@@ -58,14 +76,16 @@
 //! # bevy::ecs::system::assert_is_system(system);
 //! ```
 //!
-//! The following is an example where a type cannot be re-borrowed, for which this lint will not
-//! emit any warning:
+//! A type cannot be easily reborrowed when a function returns a reference with the same lifetime
+//! as the borrowed type. The lint knows about this case, however, and will not emit any warning if
+//! it knows the type cannot be re-borrowed:
 //!
 //! ```
 //! # use bevy::{prelude::*, ecs::system::EntityCommands};
 //! #
 //! fn system(mut commands: Commands) {
 //!     let entity_commands = helper_function(&mut commands);
+//!     // ...
 //! }
 //!
 //! // Note how this function returns a reference with the same lifetime as `Commands`.
@@ -79,24 +99,24 @@
 use std::ops::ControlFlow;
 
 use crate::{declare_bevy_lint, declare_bevy_lint_pass};
-use clippy_utils::{diagnostics::span_lint_and_sugg, source::HasSession, ty::match_type};
+use clippy_utils::{diagnostics::span_lint_and_sugg, source::snippet_opt, ty::match_type};
 use rustc_errors::Applicability;
-use rustc_hir::{intravisit::FnKind, Body, FnDecl, Mutability};
+use rustc_hir::{Body, FnDecl, MutTy, Mutability, intravisit::FnKind};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::{
     lint::in_external_macro,
     ty::{Interner, Ty, TyKind, TypeVisitable, TypeVisitor},
 };
 use rustc_span::{
-    def_id::LocalDefId,
-    symbol::{kw, Ident},
     Span,
+    def_id::LocalDefId,
+    symbol::{Ident, kw},
 };
 
 declare_bevy_lint! {
     pub BORROWED_REBORROWABLE,
     PEDANTIC,
-    "parameter takes a mutable reference to a re-borrowable type",
+    "function parameter takes a mutable reference to a re-borrowable type",
 }
 
 declare_bevy_lint_pass! {
@@ -172,13 +192,31 @@ impl<'tcx> LateLintPass<'tcx> for BorrowedReborrowable {
 
             let span = decl.inputs[arg_index].span.to(arg_ident.span);
 
+            // This tries to get the user-written form of `T` given the HIR representation for `&T`
+            // / `&mut T`. If we cannot for whatever reason, we fallback to using
+            // `Ty::to_string()` to get the fully-qualified form of `T`.
+            //
+            // For example, given a function signature like `fn(&mut Commands)`, we try to get the
+            // snippet for just `Commands` but default to `bevy::prelude::Commands<'_, '_>` if we
+            // cannot.
+            let ty_snippet = match decl.inputs[arg_index].kind {
+                // The `Ty` should be a `Ref`, since we proved that above.
+                rustc_hir::TyKind::Ref(_, MutTy { ty: inner_ty, .. }) => {
+                    // Get the snippet for the inner type.
+                    snippet_opt(cx, inner_ty.span)
+                }
+                // If it's not a `Ref` for whatever reason, fallback to our default value.
+                _ => None,
+            }
+            .unwrap_or_else(|| ty.to_string());
+
             span_lint_and_sugg(
                 cx,
                 BORROWED_REBORROWABLE.lint,
                 span,
                 reborrowable.message(),
                 reborrowable.help(),
-                reborrowable.suggest(arg_ident, ty.to_string()),
+                reborrowable.suggest(arg_ident, ty_snippet),
                 // Not machine-applicable since the function body may need to
                 // also be updated to account for the removed ref
                 Applicability::MaybeIncorrect,

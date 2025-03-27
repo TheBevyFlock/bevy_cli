@@ -1,16 +1,22 @@
 #![expect(dead_code, reason = "Will be used for bevy bump and perhaps bevy run")]
-use std::{ffi::OsStr, path::PathBuf, process::Command};
+use std::{ffi::OsStr, path::PathBuf};
 
+use anyhow::Context;
 use semver::{Version, VersionReq};
 use serde::Deserialize;
+use tracing::Level;
+
+use crate::external_cli::CommandExt;
 
 use super::program;
 
 /// Create a command to run `cargo metadata`.
-pub(crate) fn command() -> Command {
-    let mut command = Command::new(program());
+pub(crate) fn command() -> CommandExt {
+    let mut command = CommandExt::new(program());
     // The format version needs to be fixed for compatibility and to avoid a warning log
-    command.args(["metadata", "--format-version", "1"]);
+    command
+        .args(["metadata", "--format-version", "1"])
+        .log_level(Level::TRACE);
     command
 }
 
@@ -29,7 +35,8 @@ where
     S: AsRef<OsStr>,
 {
     let output = command().args(additional_args).output()?;
-    let metadata = serde_json::from_slice(&output.stdout)?;
+    let metadata = serde_json::from_slice(&output.stdout)
+        .context("Failed to parse `cargo metadata` output")?;
     Ok(metadata)
 }
 

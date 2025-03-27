@@ -2,11 +2,11 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Bevy App</title>
     <style>
       /* Styles for the loading screen */
       :root {
         --web-bg-color: #2b2c2f;
+        --web-color: white;
       }
 
       * {
@@ -32,6 +32,7 @@
 
       body {
         background-color: var(--web-bg-color);
+        color: var(--web-color);
       }
 
       .spinner {
@@ -59,6 +60,7 @@
   </head>
 
   <body class="center">
+    <noscript>JavaScript support is required to run this app</noscript>
     <div id="loading-screen" class="center">
       <span class="spinner"></span>
     </div>
@@ -147,6 +149,12 @@
         for (const record of records) {
           for (const addedNode of record.addedNodes) {
             if (addedNode instanceof HTMLCanvasElement) {
+              if (addedNode.innerText.trim().length === 0) {
+                // Add compatibility note
+                addedNode.innerText =
+                  "Canvas support is required to run this app";
+              }
+
               // A new canvas has been created, which means that the game has been loaded
               // Hide the loading screen!
               loading_screen.style.display = "none";

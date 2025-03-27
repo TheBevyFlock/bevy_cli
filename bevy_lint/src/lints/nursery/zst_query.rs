@@ -1,34 +1,53 @@
-//! Checks for queries that query for a zero-sized type.
+//! Checks for queries that query the data for a zero-sized type.
 //!
 //! # Motivation
 //!
-//! Zero-sized types (ZSTs) are types that have no size as a result of containing no runtime data.
-//! In Bevy, such types are often used as marker components and are best used as filters.
+//! Zero-sized types (ZSTs) are types that have no size because they contain no runtime data. Any
+//! information they may hold is known at compile-time in the form of [constant generics], which do
+//! not need to be queried. As such, ZSTs are better used as query filters instead of query data.
+//!
+//! [constant generics]: https://doc.rust-lang.org/reference/items/generics.html#const-generics
+//!
+//! # Known Issues
+//!
+//! This lint raises false positives on queries like `Has<T>` and `AnyOf<T>` because they are ZSTs,
+//! even though they still retrieve data from the ECS. Please see [#279] for more information.
+//!
+//! [#279]: https://github.com/TheBevyFlock/bevy_cli/issues/279
 //!
 //! # Example
 //!
 //! ```
 //! # use bevy::prelude::*;
-//!
+//! #
+//! // This is a zero-sized type, sometimes known as a "marker component".
 //! #[derive(Component)]
 //! struct Player;
 //!
 //! fn move_player(mut query: Query<(&mut Transform, &Player)>) {
-//!     // ...
+//!     for (transform, _) in query.iter_mut() {
+//!         // ...
+//!     }
 //! }
+//! #
+//! # assert_eq!(std::mem::size_of::<Player>(), 0);
 //! ```
 //!
 //! Use instead:
 //!
 //! ```
 //! # use bevy::prelude::*;
-//!
+//! #
 //! #[derive(Component)]
 //! struct Player;
 //!
-//! fn move_player(query: Query<&mut Transform, With<Player>>) {
-//!     // ...
+//! fn move_player(mut query: Query<&mut Transform, With<Player>>) {
+//!     for transform in query.iter_mut() {
+//!         // ...
+//!     }
 //! }
+//! #
+//! # assert_eq!(std::mem::size_of::<Player>(), 0);
 //! ```
 
 use crate::{
@@ -37,26 +56,25 @@ use crate::{
 };
 use clippy_utils::{
     diagnostics::span_lint_and_help,
-    source::HasSession,
-    ty::{is_normalizable, match_type},
+    ty::{is_normalizable, match_type, ty_from_hir_ty},
 };
 use rustc_abi::Size;
-use rustc_hir_analysis::collect::ItemCtxt;
+use rustc_hir::AmbigArg;
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::{
     lint::in_external_macro,
     ty::{
-        layout::{LayoutOf, TyAndLayout},
         Ty,
+        layout::{LayoutOf, TyAndLayout},
     },
 };
 
 declare_bevy_lint! {
     pub ZST_QUERY,
-    // This will eventually be a `RESTRICTION` lint, but due to <https://github.com/TheBevyFlock/bevy_cli/issues/252>
-    // it is not yet ready for production.
+    // This will eventually be a `RESTRICTION` lint, but due to
+    // <https://github.com/TheBevyFlock/bevy_cli/issues/279> it is not yet ready for production.
     NURSERY,
-    "query for a zero-sized type",
+    "queried a zero-sized type",
 }
 
 declare_bevy_lint_pass! {
@@ -75,12 +93,12 @@ impl<'tcx> LateLintPass<'tcx> for ZstQuery {
             return;
         };
 
-        let Some(query_data_ty) = generic_type_at(cx, hir_ty, 2) else {
+        let Some(query_data_ty) = generic_type_at(cx, hir_ty.as_unambig_ty(), 2) else {
             return;
         };
 
         for hir_ty in detuple(*query_data_ty) {
-            let ty = item_cx.lower_ty(&hir_ty);
+            let ty = ty_from_hir_ty(cx, &hir_ty);
 
             // We want to make sure we're evaluating `Foo` and not `&Foo`/`&mut Foo`
             let peeled = ty.peel_refs();
@@ -125,7 +143,11 @@ impl QueryKind {
         // In the future, we might want to span the usage site of `is_added()`/`is_changed()`
         // and suggest to use `Added<Foo>`/`Changed<Foo>` instead.
         match self {
-            Self::Query => format!("consider using a filter instead: `With<{ty}>`"),
+            Self::Query => format!(
+                // NOTE: This isn't actually true, please see #279 for more info and how this will
+                // be fixed!
+                "zero-sized types do not retrieve any data, consider using a filter instead: `With<{ty}>`"
+            ),
         }
     }
 }

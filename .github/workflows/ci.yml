@@ -30,6 +30,11 @@ jobs:
           toolchain: ${{ needs.extract-rust-version.outputs.channel }}
           components: ${{ needs.extract-rust-version.outputs.components }}
 
+      # The linter's UI tests depend on Bevy with default features. This requires extra packages,
+      # such as `alsa` and `udev`, to be installed on Linux.
+      - name: Install Linux dependencies
+        uses: bevyengine/bevy/.github/actions/install-linux-deps@v0.15.1
+
       - name: Cache build artifacts
         uses: Leafwing-Studios/cargo-cache@v2
         with:
@@ -64,6 +69,9 @@ jobs:
     name: Check with Clippy
     needs: extract-rust-version
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        features: ["--no-default-features", "", "--all-features"]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -80,7 +88,7 @@ jobs:
           sweep-cache: true
 
       - name: Run Clippy
-        run: cargo clippy --workspace --all-targets --all-features -- --deny warnings
+        run: cargo clippy --workspace --all-targets ${{ matrix.features }} -- --deny warnings
 
   rustfmt:
     name: Check with rustfmt

@@ -5,9 +5,12 @@
 //!
 //! # Motivation
 //!
-//! `AppExit` is used to determine whether the `App` exited successful or due to an error. Returning
-//! it from `main()` will set the exit code, which allows external processes to detect whether there
-//! was an error.
+//! `AppExit` is used to determine whether the `App` exited successfully or due to an error.
+//! Returning it from `main()` will set the [exit code], which can be read by external processes.
+//! Not returning any `AppExit` may cause external processes to believe the program gracefully
+//! exited, when in reality it may have crashed.
+//!
+//! [exit code]: https://en.wikipedia.org/wiki/Exit_status
 //!
 //! # Example
 //!
@@ -25,7 +28,7 @@
 //! # use bevy::prelude::*;
 //! #
 //! fn main() -> AppExit {
-//!     // Note the removed semicolon.
+//!     // Note the removed semicolon, since `App::run()` returns `AppExit`.
 //!     App::new().run()
 //! }
 //! ```
@@ -36,7 +39,7 @@ use clippy_utils::{
     visitors::for_each_expr,
 };
 use rustc_errors::Applicability;
-use rustc_hir::{def_id::LocalDefId, intravisit::FnKind, Body, FnDecl, FnRetTy, Ty, TyKind};
+use rustc_hir::{Body, FnDecl, FnRetTy, Ty, TyKind, def_id::LocalDefId, intravisit::FnKind};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::lint::in_external_macro;
 use rustc_span::{Span, Symbol};

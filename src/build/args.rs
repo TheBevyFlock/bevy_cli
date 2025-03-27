@@ -19,8 +19,13 @@ pub struct BuildArgs {
 
 impl BuildArgs {
     /// Determine if the app is being built for the web.
+    #[cfg(feature = "web")]
     pub(crate) fn is_web(&self) -> bool {
         matches!(self.subcommand, Some(BuildSubcommands::Web(_)))
+    }
+    #[cfg(not(feature = "web"))]
+    pub(crate) fn is_web(&self) -> bool {
+        false
     }
 
     /// Whether to build with optimizations.
@@ -30,11 +35,13 @@ impl BuildArgs {
     }
 
     /// The profile used to compile the app.
+    #[cfg(feature = "web")]
     pub(crate) fn profile(&self) -> &str {
         self.cargo_args.compilation_args.profile(self.is_web())
     }
 
     /// The targeted platform.
+    #[cfg(feature = "web")]
     pub(crate) fn target(&self) -> Option<String> {
         self.cargo_args.compilation_args.target(self.is_web())
     }
@@ -48,6 +55,7 @@ impl BuildArgs {
 #[derive(Debug, Subcommand)]
 pub enum BuildSubcommands {
     /// Build your app for the browser.
+    #[cfg(feature = "web")]
     Web(BuildWebArgs),
 }
 

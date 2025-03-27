@@ -8,8 +8,8 @@ error: called a `World` method that can panic when a non-panicking alternative e
 note: the lint level is defined here
   --> tests/ui/panicking_methods/world.rs:6:9
    |
-6  | #![deny(bevy::panicking_world_methods)]
-   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+5  | #![deny(bevy::panicking_methods)]
+   |         ^^^^^^^^^^^^^^^^^^^^^^^
 
 error: called a `World` method that can panic when a non-panicking alternative exists
   --> tests/ui/panicking_methods/world.rs:46:5

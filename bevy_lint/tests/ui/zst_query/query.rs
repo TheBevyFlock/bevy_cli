@@ -66,19 +66,19 @@ fn main() {
 fn unit_query(_query: Query<()>) {}
 
 //~| HELP: consider using a filter instead: `With<ZST>`
-//~v ERROR: query for a zero-sized type
+//~v ERROR: queried a zero-sized type
 fn immutable_zst(_query: Query<&ZST>) {}
 
 //~| HELP: consider using a filter instead: `With<ZST>`
-//~v ERROR: query for a zero-sized type
+//~v ERROR: queried a zero-sized type
 fn mutable_zst(_query: Query<&mut ZST>) {}
 
 //~| HELP: consider using a filter instead: `With<ZST>`
-//~v ERROR: query for a zero-sized type
+//~v ERROR: queried a zero-sized type
 fn immutable_zst_tuple(_query: Query<(Entity, &ZST)>) {}
 
 //~| HELP: consider using a filter instead: `With<ZST>`
-//~v ERROR: query for a zero-sized type
+//~v ERROR: queried a zero-sized type
 fn mutable_zst_tuple(_query: Query<(Entity, &mut ZST)>) {}
 
 fn immutable_query(_query: Query<&NonZST>) {}
@@ -90,11 +90,11 @@ fn generic_immutable_query<T: Sized + Send + Sync + 'static>(_query: Query<&Gene
 fn generic_mutable_query<T: Sized + Send + Sync + 'static>(_query: Query<&mut Generic<T>>) {}
 
 //~| HELP: consider using a filter instead: `With<Generic<ZST>>`
-//~v ERROR: query for a zero-sized type
+//~v ERROR: queried a zero-sized type
 fn generic_immutable_zst(_query: Query<&Generic<ZST>>) {}
 
 //~| HELP: consider using a filter instead: `With<Generic<ZST>>`
-//~v ERROR: query for a zero-sized type
+//~v ERROR: queried a zero-sized type
 fn generic_mutable_zst(_query: Query<&mut Generic<ZST>>) {}
 
 fn immutable_query_tuple(_query: Query<(Entity, &NonZST)>) {}
@@ -102,5 +102,5 @@ fn immutable_query_tuple(_query: Query<(Entity, &NonZST)>) {}
 fn mutable_query_tuple(_query: Query<(Entity, &mut NonZST)>) {}
 
 //~| HELP: consider using a filter instead: `With<Phantom<NonZST>>`
-//~v ERROR: query for a zero-sized type
+//~v ERROR: queried a zero-sized type
 fn phantom_data_query(_query: Query<&Phantom<NonZST>>) {}

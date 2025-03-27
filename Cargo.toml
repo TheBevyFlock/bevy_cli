@@ -15,13 +15,27 @@ name = "bevy"
 path = "src/bin/main.rs"
 
 [features]
+default = ["web"]
+
 # To optimize the Wasm binaries
-# Increases compile times (of the CLI) quite a bit
-wasm-opt = ["dep:wasm-opt"]
+wasm-opt = ["web"]
+
+# Run your Bevy app in the browser
+web = [
+    "dep:webbrowser",
+    "dep:http",
+    "dep:axum",
+    "dep:tower",
+    "dep:tower-http",
+    "dep:tokio",
+    "dep:fs_extra",
+]
 
 [dependencies]
 # CLI argument parsing
 clap = { version = "4.5.16", features = ["derive"] }
+# autocompletion auto-generation
+clap_complete = "4.5.44"
 
 # Easy error propagation and contexts
 anyhow = "1.0.86"
@@ -35,38 +49,47 @@ dialoguer = { version = "0.11.0", default-features = false }
 # API interaction
 serde = { features = ["derive"], version = "1.0.210" }
 serde_json = "1.0.128"
-reqwest = { features = ["blocking", "json"], version = "0.12.7" }
+reqwest = { version = "0.12.7", default-features = false, features = [
+    "default-tls",
+    "blocking",
+    "json",
+] }
 regex = "1.10.6"
 
 # Understanding package versions
 semver = { version = "1.0.23", features = ["serde"] }
 
-# Serving the app for the browser
-actix-files = "0.6.6"
-actix-web = "4.9.0"
-
-# Opening the app in the browser
-webbrowser = "1.0.2"
-
 # Parsing the Cargo manifest
-toml_edit = "0.22.22"
+toml_edit = { version = "0.22.22", default-features = false, features = [
+    "parse",
+] }
 
-# Copying directories
-fs_extra = "1.3.0"
+# Logging crates
+tracing = "0.1.41"
+tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
 
-# Optimizing Wasm binaries
-wasm-opt = { version = "0.116.1", optional = true }
-# Handling websocket messages
-actix-ws = "0.3.0"
-# Utilities for futures which we use for the dev server
-futures-util = "0.3.31"
+# Web dependencies
 
-[build-dependencies]
-# We don't use `cc` directly, but our dependency `wasm-opt-sys` fails to compile on Windows when using a newer version.
-# This can be removed when https://github.com/rust-lang/cc-rs/issues/1324 is fixed. 
-cc = "=1.2.2"
+## Opening the app in the browser
+webbrowser = { version = "1.0.2", optional = true }
+
+## Serving the app for the browser
+http = { version = "1.2", optional = true }
+axum = { version = "0.8.1", default-features = false, features = [
+    "ws",
+    "http1",
+    "tokio",
+    "tracing",
+], optional = true }
+tower = { version = "0.5.2", features = ["util"], optional = true }
+tower-http = { version = "0.6.1", features = ["fs", "trace"], optional = true }
+tokio = { version = "1.0", features = ["full"], optional = true }
+
+## Copying directories
+fs_extra = { version = "1.3.0", optional = true }
 
 [dev-dependencies]
 # Forcing tests that can't be parallelized to be run sequentially
 serial_test = "3.2.0"
 assert_cmd = "2.0.16"
+tempfile = "3"

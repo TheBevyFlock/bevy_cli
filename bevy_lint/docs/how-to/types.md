@@ -32,6 +32,36 @@ See [`Ty::peel_refs()`] for more information.
 
 [`Ty::peel_refs()`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/struct.Ty.html#method.peel_refs
 
+## Getting the Adjusted Type of an Expression
+
+The Rust compiler occasionally makes adjustments to types in order to support automatic dereferencing and type coercion. `TypeckResults::expr_ty()` ignores these adjustments, returning the original type. Sometimes this isn't desired, as you may want the adjusted type, in which case you should use [`TypeckResults::expr_ty_adjusted()`] instead:
+
+```rust
+fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &Expr<'tcx>) {
+    let ty = cx.typeck_results().expr_ty_adjusted(expr);
+}
+```
+
+For example, you may be writing a lint to check when a user calls `str::contains()`. In order to catch the most cases, you want to also check for method calls on types that dereference into `str`, such as `String` and `Box<str>`. `expr_ty_adjusted()` lets you treat `String` and `Box<str>` as `str`:
+
+```rust
+// `expr_ty()` is `&str`, `expr_ty_adjusted()` is `&str`.
+let a = "Hello, world!".contains("Hello");
+
+// `expr_ty()` is `String`, `expr_ty_adjusted()` is `&str`.
+let b = String::from("Hello, world!").contains("Hello");
+
+// `expr_ty()` is `Box<&str>`, `expr_ty_adjusted()` is `&str`.
+let c = Box::new("Hello, world!").contains("Hello");
+```
+
+For more information, see [`Adjustment`], [Type coercions], and [Method lookup].
+
+[`TypeckResults::expr_ty_adjusted()`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/struct.TypeckResults.html#method.expr_ty_adjusted
+[`Adjustment`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/adjustment/struct.Adjustment.html
+[Type coercions]: https://doc.rust-lang.org/reference/type-coercions.html
+[Method lookup]: https://rustc-dev-guide.rust-lang.org/method-lookup.html
+
 ## Checking for a Specific Type
 
 Often you have a `Ty`, and want to check if it matches a specific hardcoded type, such as Bevy's [`App`]. You can do this with `clippy_utils`'s [`match_type()`] function:
@@ -61,47 +91,19 @@ All path constants are defined in [`paths.rs`](../../src/paths.rs). If you add a
 
 ## Getting `ty::Ty` from `rustc_hir::Ty`
 
-Often you'll have an [`rustc_hir::Ty`], but you need [`ty::Ty`]. This is a process known as _lowering_, and it is accomplished through two different structures:
+Often you'll have an [`rustc_hir::Ty`], but you need [`ty::Ty`]. This is a process known as _lowering_, and it is accomplished through the [`ty_from_hir_ty()`] function:
 
-- [`FnCtxt`]: Used to type-check bodies of functions, closures, and `const`s. (Anything with expressions and statements.)
-- [`ItemCtxt`]: Used to type-check item signatures.
+```rust
+use clippy_utils::ty::ty_from_hir_ty;
 
-It is important to use the right context for the right situation, or the compiler may panic!
+fn check_ty(&mut self, cx: &LateContext<'tcx>, hir_ty: &rustc_hir::Ty<'tcx, AmbigArg>) {
+    let ty = ty_from_hir_ty(cx, hir_ty.as_unambig_ty());
+}
+```
 
 Also note that this conversion is one-directional and cannot be easily reversed. While [`rustc_hir::Ty`]s are associated with a specific span of code, [`ty::Ty`]s are not. For more information, please see [`rustc_hir::Ty` vs `ty::Ty`] from the `rustc` Dev Guide.
 
 [`rustc_hir::Ty`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir/hir/struct.Ty.html
 [`ty::Ty`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/struct.Ty.html
-[`FnCtxt`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir_typeck/fn_ctxt/struct.FnCtxt.html
-[`ItemCtxt`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir_analysis/collect/struct.ItemCtxt.html
+[`ty_from_hir_ty()`]: https://doc.rust-lang.org/nightly/nightly-rustc/clippy_utils/ty/fn.ty_from_hir_ty.html
 [`rustc_hir::Ty` vs `ty::Ty`]: https://rustc-dev-guide.rust-lang.org/ty.html#rustc_hirty-vs-tyty
-
-### Within Bodies
-
-Instead of manually constructing a [`FnCtxt`], it is easier to go through [`TypeckResults::node_type()`]:
-
-```rust
-fn check_local(&mut self, cx: &LateContext<'tcx>, let_stmt: &LetStmt<'tcx>) {
-    // Extract the type `T` from `let name: T = ...`, if it is specified.
-    if let Some(hir_ty) = let_stmt.ty {
-        // Find the `ty::Ty` for this `rustc_hir::Ty`. The reason this does not panic
-        // is because the type is from a `let` statement, which must be within a body.
-        let ty = cx.typeck_results().node_type(hir_ty.hir_id);
-    }
-}
-```
-
-[`TypeckResults::node_type()`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/typeck_results/struct.TypeckResults.html#method.node_type
-
-### Outside Bodies
-
-When outside of a body, you must construct an [`ItemCtxt`]:
-
-```rust
-fn check_ty(&mut self, cx: &LateContext<'tcx>, hir_ty: &rustc_hir::Ty<'tcx>) {
-    // `ItemCtxt` needs a ` LocalDefId` of the item that this type is within, which we access
-    // through the the type's `HirId`'s owner.
-    let item_cx = ItemCtxt::new(cx.tcx, hir_ty.hir_id.owner.def_id);
-    let ty = item_cx.lower_ty(hir_ty);
-}
-```
