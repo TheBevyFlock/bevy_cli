@@ -44,7 +44,7 @@ rustup toolchain install nightly-YYYY-MM-DD \
     --component rustc-dev \
     --component llvm-tools-preview
 
-rustup run nightly-YYYY-MM-DD cargo install \    
+rustup run nightly-YYYY-MM-DD cargo install \
     --git https://github.com/TheBevyFlock/bevy_cli.git \
     --tag lint-vX.Y.Z \
     --locked \

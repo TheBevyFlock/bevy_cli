@@ -6,8 +6,10 @@
 #![allow(dead_code)]
 //~v NOTE: the lint level is defined here
 #![deny(bevy::missing_reflect)]
-
-use bevy::{ecs::component::StorageType, prelude::*};
+use bevy::{
+    ecs::component::{Mutable, StorageType},
+    prelude::*,
+};
 
 //~| HELP: `Reflect` can be automatically derived
 //~v ERROR: defined a component without a `Reflect` implementation
@@ -16,6 +18,7 @@ struct MyComponent;
 //~v NOTE: `Component` implemented here
 impl Component for MyComponent {
     const STORAGE_TYPE: StorageType = StorageType::Table;
+    type Mutability = Mutable;
 }
 
 //~| HELP: `Reflect` can be automatically derived
@@ -34,6 +37,7 @@ struct MyEvent(String);
 
 impl Component for MyEvent {
     const STORAGE_TYPE: StorageType = StorageType::Table;
+    type Mutability = Mutable;
 }
 
 //~v NOTE: `Event` implemented here
