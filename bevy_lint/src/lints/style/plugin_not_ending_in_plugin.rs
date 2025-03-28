@@ -38,7 +38,9 @@
 //! ```
 
 use crate::{declare_bevy_lint, declare_bevy_lint_pass};
-use clippy_utils::{diagnostics::span_lint_hir_and_then, match_def_path, path_res};
+use clippy_utils::{
+    diagnostics::span_lint_hir_and_then, match_def_path, path_res, source::HasSession,
+};
 use rustc_errors::Applicability;
 use rustc_hir::{HirId, Item, ItemKind, OwnerId, def::Res};
 use rustc_lint::{LateContext, LateLintPass};
@@ -94,6 +96,11 @@ impl<'tcx> LateLintPass<'tcx> for PluginNotEndingInPlugin {
             else {
                 return;
             };
+
+            // skip lint if the struct was defined in an external macro
+            if struct_span.in_external_macro(cx.tcx.sess().source_map()) {
+                return;
+            }
 
             // If the type's name ends in "Plugin", exit.
             if struct_name.as_str().ends_with("Plugin") {

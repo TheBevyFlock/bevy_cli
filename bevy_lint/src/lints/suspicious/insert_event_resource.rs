@@ -45,7 +45,7 @@ use crate::{
 };
 use clippy_utils::{
     diagnostics::span_lint_and_sugg,
-    source::{snippet, snippet_with_applicability},
+    source::{HasSession, snippet, snippet_with_applicability},
     sym,
     ty::{match_type, ty_from_hir_ty},
 };
@@ -74,6 +74,11 @@ const HELP_MESSAGE: &str = "inserting an `Events` resource does not fully setup 
 
 impl<'tcx> LateLintPass<'tcx> for InsertEventResource {
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &'tcx Expr<'tcx>) {
+        // skip expressions that originate from external macros
+        if expr.span.in_external_macro(cx.tcx.sess().source_map()) {
+            return;
+        }
+
         // Find a method call.
         if let Some(method_call) = MethodCall::try_from(cx, expr) {
             // Get the type for `src` in `src.method()`. We peel all references because the type

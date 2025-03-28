@@ -80,6 +80,9 @@ declare_bevy_lint_pass! {
 
 impl<'tcx> LateLintPass<'tcx> for ZstQuery {
     fn check_ty(&mut self, cx: &LateContext<'tcx>, hir_ty: &'tcx rustc_hir::Ty<'tcx, AmbigArg>) {
+        if hir_ty.span.in_external_macro(cx.tcx.sess.source_map()) {
+            return;
+        }
         let ty = ty_from_hir_ty(cx, hir_ty.as_unambig_ty());
 
         let Some(query_kind) = QueryKind::try_from_ty(cx, ty) else {
