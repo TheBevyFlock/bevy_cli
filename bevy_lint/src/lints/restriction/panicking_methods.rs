@@ -78,7 +78,7 @@ use crate::{
 };
 use clippy_utils::{
     diagnostics::span_lint_and_help,
-    source::{HasSession, snippet, snippet_opt},
+    source::{snippet, snippet_opt},
     ty::match_type,
 };
 use rustc_hir::Expr;
@@ -99,7 +99,7 @@ declare_bevy_lint_pass! {
 impl<'tcx> LateLintPass<'tcx> for PanickingMethods {
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &'tcx Expr<'tcx>) {
         // skip expressions that originate from external macros
-        if expr.span.in_external_macro(cx.tcx.sess().source_map()) {
+        if expr.span.in_external_macro(cx.tcx.sess.source_map()) {
             return;
         }
 
