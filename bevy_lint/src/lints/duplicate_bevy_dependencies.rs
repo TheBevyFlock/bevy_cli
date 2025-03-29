@@ -71,7 +71,6 @@ use clippy_utils::{
     diagnostics::{span_lint, span_lint_and_then},
     find_crates,
 };
-use rustc_data_structures::fx::FxHashMap;
 use rustc_hir::def_id::LOCAL_CRATE;
 use rustc_lint::LateContext;
 use rustc_span::{BytePos, Pos, SourceFile, Span, Symbol, SyntaxContext};
@@ -116,7 +115,7 @@ pub(super) fn check(cx: &LateContext<'_>, metadata: &Metadata, bevy_symbol: Symb
         let local_name = cx.tcx.crate_name(LOCAL_CRATE);
 
         // get the package name and the corresponding version of `bevy` that they depend on
-        let mut bevy_dependents = FxHashMap::default();
+        let mut bevy_dependents = BTreeMap::default();
         for package in &metadata.packages {
             for dependency in &package.dependencies {
                 if dependency.name.as_str() == "bevy"
@@ -150,7 +149,7 @@ fn lint_with_target_version(
     cargo_toml: &CargoToml,
     file: &Arc<SourceFile>,
     bevy_cargo: &Spanned<toml::Value>,
-    bevy_dependents: &FxHashMap<&str, VersionReq>,
+    bevy_dependents: &BTreeMap<&str, VersionReq>,
 ) {
     // Semver only supports checking if a given `VersionReq` matches a `Version` and not if two
     // `VersionReq` can successfully resolve to one `Version`. Therefore we try to parse the
@@ -162,10 +161,6 @@ fn lint_with_target_version(
 
     let bevy_cargo_toml_span = toml_span(bevy_cargo.span(), file);
 
-    #[allow(
-        rustc::potential_query_instability,
-        reason = "Iterating a hash map may lead to query instability, but the fix is not trivial."
-    )]
     let mismatching_dependencies = bevy_dependents
         .iter()
         .filter(|dependency| !dependency.1.matches(&target_version));
@@ -190,7 +185,7 @@ fn lint_with_target_version(
 
 fn minimal_lint(
     cx: &LateContext<'_>,
-    bevy_dependents: &FxHashMap<&str, VersionReq>,
+    bevy_dependents: &BTreeMap<&str, VersionReq>,
     resolved: &Resolve,
 ) {
     // Examples of the underlying string representation of resolved crates
@@ -206,10 +201,6 @@ fn minimal_lint(
             }
             // Extract versions from external crates
             if let Some((id, _)) = node.id.repr.split_once('@') {
-                #[allow(
-                    rustc::potential_query_instability,
-                    reason = "This is deterministic because we do not depend on the order of keys with `any()`."
-                )]
                 if bevy_dependents
                     .keys()
                     .any(|crate_name| id.ends_with(crate_name))
