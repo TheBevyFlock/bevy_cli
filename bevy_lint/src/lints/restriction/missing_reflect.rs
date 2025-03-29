@@ -55,9 +55,7 @@
 //! Code](../../index.html#toggling-lints-in-code).
 
 use crate::{declare_bevy_lint, declare_bevy_lint_pass};
-use clippy_utils::{
-    def_path_res, diagnostics::span_lint_hir_and_then, source::HasSession, sugg::DiagExt,
-};
+use clippy_utils::{def_path_res, diagnostics::span_lint_hir_and_then, sugg::DiagExt};
 use rustc_errors::Applicability;
 use rustc_hir::{
     HirId, Item, ItemKind, Node, OwnerId, QPath, TyKind,
@@ -116,7 +114,7 @@ impl<'tcx> LateLintPass<'tcx> for MissingReflect {
                 // Skip if a types originates from a foreign crate's macro
                 if without_reflect
                     .item_span
-                    .in_external_macro(cx.tcx.sess().source_map())
+                    .in_external_macro(cx.tcx.sess.source_map())
                 {
                     continue;
                 }
