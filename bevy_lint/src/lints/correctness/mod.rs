@@ -7,11 +7,9 @@
 
 use rustc_lint::Level;
 
-use crate::declare_group;
+use crate::lint::LintGroup;
 
-declare_group! {
-    pub(crate) static CORRECTNESS = {
-        name: "bevy::correctness",
-        level: Level::Deny,
-    };
-}
+pub(crate) static CORRECTNESS: &LintGroup = &LintGroup {
+    name: "bevy::correctness",
+    level: Level::Deny,
+};

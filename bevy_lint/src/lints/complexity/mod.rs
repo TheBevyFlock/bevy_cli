@@ -4,11 +4,9 @@
 
 use rustc_lint::Level;
 
-use crate::declare_group;
+use crate::lint::LintGroup;
 
-declare_group! {
-    pub(crate) static COMPLEXITY = {
-        name: "bevy::complexity",
-        level: Level::Warn,
-    };
-}
+pub(crate) static COMPLEXITY: &LintGroup = &LintGroup {
+    name: "bevy::complexity",
+    level: Level::Warn,
+};

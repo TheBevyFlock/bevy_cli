@@ -4,11 +4,9 @@
 
 use rustc_lint::Level;
 
-use crate::declare_group;
+use crate::lint::LintGroup;
 
-declare_group! {
-    pub(crate) static PERFORMANCE = {
-        name: "bevy::performance",
-        level: Level::Warn,
-    };
-}
+pub(crate) static PERFORMANCE: &LintGroup = &LintGroup {
+    name: "bevy::performance",
+    level: Level::Warn,
+};

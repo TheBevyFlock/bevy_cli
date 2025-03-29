@@ -4,14 +4,12 @@
 
 use rustc_lint::Level;
 
-use crate::declare_group;
+use crate::lint::LintGroup;
 
 pub mod duplicate_bevy_dependencies;
 pub mod zst_query;
 
-declare_group! {
-    pub(crate) static NURSERY = {
-        name: "bevy::nursery",
-        level: Level::Allow,
-    };
-}
+pub(crate) static NURSERY: &LintGroup = &LintGroup {
+    name: "bevy::nursery",
+    level: Level::Allow,
+};

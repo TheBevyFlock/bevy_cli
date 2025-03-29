@@ -8,14 +8,12 @@
 
 use rustc_lint::Level;
 
-use crate::declare_group;
+use crate::lint::LintGroup;
 
 pub mod missing_reflect;
 pub mod panicking_methods;
 
-declare_group! {
-    pub(crate) static RESTRICTION = {
-        name: "bevy::restriction",
-        level: Level::Allow,
-    };
-}
+pub(crate) static RESTRICTION: &LintGroup = &LintGroup {
+    name: "bevy::restriction",
+    level: Level::Allow,
+};
