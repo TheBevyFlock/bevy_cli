@@ -1,6 +1,10 @@
-//! Lints that make the linter incredibly nit-picky.
+//! Lints that make the linter a nit-picky perfectionist.
 //!
-//! For more information, please see [`PEDANTIC`](crate::groups::PEDANTIC).
+//! Unlike other lint groups, pedantic lints have limited value and may not always apply. Be sure
+//! to read the motivation behind each lint in this category before enabling them, and expect to
+//! liberally apply `#[allow(...)]` attributes throughout your code if you do use them.
+//!
+//! These lints are **allow** by default.
 
 use rustc_lint::Level;
 
@@ -10,11 +14,7 @@ pub mod borrowed_reborrowable;
 pub mod main_return_without_appexit;
 
 declare_group! {
-    /// A group of lints that make the linter incredibly nit-picky.
-    ///
-    /// If you enable this group, expect to liberally apply `#[allow(...)]` attributes throughout your
-    /// code.
-    pub static PEDANTIC = {
+    pub(crate) static PEDANTIC = {
         name: "bevy::pedantic",
         level: Level::Allow,
     };

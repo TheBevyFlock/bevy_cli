@@ -1,6 +1,6 @@
 //! Unstable lints that may be removed at any time for any reason.
 //!
-//! For more information, please see [`NURSERY`](crate::groups::NURSERY).
+//! These lints are **allow** by default.
 
 use rustc_lint::Level;
 
@@ -10,8 +10,7 @@ pub mod duplicate_bevy_dependencies;
 pub mod zst_query;
 
 declare_group! {
-    /// A group of unstable lints that may be removed at any time for any reason.
-    pub static NURSERY = {
+    pub(crate) static NURSERY = {
         name: "bevy::nursery",
         level: Level::Allow,
     };

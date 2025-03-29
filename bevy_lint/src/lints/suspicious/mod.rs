@@ -1,7 +1,9 @@
-//! Lints similar to [`correctness`](super::correctness) that checks for suspicious or usually
-//! wrong code.
+//! Lints that checks for suspicious, potentially incorrect code.
 //!
-//! For more information, please see [`SUSPICIOUS`](crate::groups::SUSPICIOUS).
+//! Unlike [`correctness`](super::correctness) lints, these may have false positives that you need
+//! to `#[allow(...)]`.
+//!
+//! These lints are **warn** by default.
 
 use rustc_lint::Level;
 
@@ -12,10 +14,7 @@ pub mod insert_unit_bundle;
 pub mod iter_current_update_events;
 
 declare_group! {
-    /// A group similar to [`CORRECTNESS`] that checks for suspicious or usually wrong code.
-    ///
-    /// The linted code may have been written intentionally, but should probably still be fixed.
-    pub static SUSPICIOUS = {
+    pub(crate) static SUSPICIOUS = {
         name: "bevy::suspicious",
         level: Level::Warn,
     };

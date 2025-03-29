@@ -1,17 +1,16 @@
-//! Deny-by-default lints that check for outright wrong or useless code.
+//! Lints that check for outright incorrect code.
 //!
-//! For more information, please see [`CORRECTNESS`](crate::groups::CORRECTNESS).
+//! Unlike [`suspicious`](super::suspicious) lints, these are carefully picked to be free of false
+//! positives. You should avoid `#[allow(...)]`-ing these lints without a _very_ good reason.
+//!
+//! These lints are **deny** by default.
 
 use rustc_lint::Level;
 
 use crate::declare_group;
 
 declare_group! {
-    /// A group of deny-by-default lints that check for outright wrong or useless code.
-    ///
-    /// These lints are carefully picked to be free of false positives. You should avoid
-    /// `#[allow(...)]`-ing these lints without a _very_ good reason.
-    pub static CORRECTNESS = {
+    pub(crate) static CORRECTNESS = {
         name: "bevy::correctness",
         level: Level::Deny,
     };

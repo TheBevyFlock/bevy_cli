@@ -17,17 +17,6 @@ macro_rules! declare_group {
         };
     } => {
         $(#[$attr])*
-        ///
-        /// <table>
-        ///     <tr>
-        ///         <td>Name</td>
-        #[doc = concat!("        <td><code>", stringify!($group_name), "</code></td>")]
-        ///     </tr>
-        ///     <tr>
-        ///         <td>Default Level</td>
-        #[doc = concat!("        <td><code>", stringify!($level), "</code></td>")]
-        ///     </tr>
-        /// </table>
         $vis static $static_name: &$crate::lint::LintGroup = &$crate::lint::LintGroup {
             name: $group_name,
             level: $level,
