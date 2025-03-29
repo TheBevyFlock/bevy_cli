@@ -28,7 +28,6 @@ extern crate rustc_span;
 
 mod callback;
 mod config;
-mod groups;
 mod lint;
 pub mod lints;
 mod paths;
