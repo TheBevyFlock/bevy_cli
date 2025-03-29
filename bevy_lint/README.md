@@ -75,7 +75,9 @@ You can set the default level for lints in a `Cargo.toml` using the `[package.me
 
 ```toml
 [package.metadata.bevy_lint]
+# Make the `missing_reflect` lint a warning.
 missing_reflect = "warn"
+# Make the `panicking_methods` lint an error that cannot be `#[allow(...)]`d.
 panicking_methods = { level = "forbid" }
 ```
 
@@ -83,6 +85,7 @@ You can configure lints for an entire workspace by using `[workspace.metadata.be
 
 ```toml
 [workspace.metadata.bevy_lint]
+# Enable the entire `pedantic` lint group, and make them all warnings.
 pedantic = "warn"
 ```
 
@@ -152,7 +155,7 @@ Once `bevy` is registered, you can toggle lints throughout your code, as long as
 ```rust,ignore
 #![cfg_attr(bevy_lint, feature(register_tool), register_tool(bevy))]
 
-// Enable pedantic lints, which are off by default.
+// Enable the `pedantic` lint group, which is off by default.
 #![cfg_attr(bevy_lint, warn(bevy::pedantic))]
 
 // Deny panicking Bevy methods in this system when a non-panicking alternatives exist.

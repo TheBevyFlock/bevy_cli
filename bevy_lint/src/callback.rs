@@ -1,3 +1,5 @@
+//! The [`BevyLintCallback`] definition and supporting code.
+
 use std::sync::atomic::{AtomicPtr, Ordering};
 
 use rustc_driver::Callbacks;
