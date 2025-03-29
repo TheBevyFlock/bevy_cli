@@ -50,7 +50,7 @@
 //! # bevy::ecs::system::assert_is_system(spawn);
 //! ```
 
-use clippy_utils::{diagnostics::span_lint_hir_and_then, source::HasSession, sym, ty::match_type};
+use clippy_utils::{diagnostics::span_lint_hir_and_then, sym, ty::match_type};
 use rustc_errors::Applicability;
 use rustc_hir::{Expr, ExprKind};
 use rustc_lint::{LateContext, LateLintPass};
@@ -90,7 +90,7 @@ impl<'tcx> LateLintPass<'tcx> for InsertUnitBundle {
 
         // If the method call was not to `Commands::spawn()` or originates from an external macro,
         // we skip it.
-        if !(span.in_external_macro(cx.tcx.sess().source_map())
+        if !(span.in_external_macro(cx.tcx.sess.source_map())
             || match_type(cx, src_ty, &crate::paths::COMMANDS)
                 && method_path.ident.name == self.spawn)
         {

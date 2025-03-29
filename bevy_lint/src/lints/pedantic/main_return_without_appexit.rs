@@ -35,7 +35,7 @@
 
 use crate::{declare_bevy_lint, declare_bevy_lint_pass, utils::hir_parse::MethodCall};
 use clippy_utils::{
-    diagnostics::span_lint_hir_and_then, is_entrypoint_fn, source::HasSession, sym, ty::match_type,
+    diagnostics::span_lint_hir_and_then, is_entrypoint_fn, sym, ty::match_type,
     visitors::for_each_expr,
 };
 use rustc_errors::Applicability;
@@ -90,7 +90,7 @@ impl<'tcx> LateLintPass<'tcx> for MainReturnWithoutAppExit {
                     ..
                 }) = MethodCall::try_from(cx, expr)
                     && method_path.ident.name == self.run
-                    && !expr.span.in_external_macro(cx.tcx.sess().source_map())
+                    && !expr.span.in_external_macro(cx.tcx.sess.source_map())
                 {
                     // Get the type of `src` for `src.run()`. We peel away all references because
                     // both `App` and `&mut App` are allowed.
