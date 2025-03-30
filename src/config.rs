@@ -1,4 +1,4 @@
-use anyhow::bail;
+use anyhow::{bail, Context};
 use serde_json::{Map, Value};
 
 use crate::external_cli::cargo::metadata::{Metadata, Package};
@@ -35,10 +35,41 @@ impl CliConfig {
             return Ok(Self::default());
         };
 
-        let Some(cli_metadata) = package_metadata.get("bevy_cli") else {
+        let profile = if is_release { "release" } else { "web" };
+        let platform = if is_web { "web" } else { "native" };
+
+        let base_metadata = package_metadata.get("bevy_cli");
+        let profile_metadata = base_metadata.and_then(|base_metadata| base_metadata.get(profile));
+        let platform_metadata = base_metadata.and_then(|base_metadata| base_metadata.get(platform));
+        let profile_platform_metadata =
+            platform_metadata.and_then(|platform_metadata| platform_metadata.get(platform));
+
+        // Start with the base config
+        let config = Self::from_metadata(base_metadata)
+            .context("failed to parse package.metadata.bevy_cli")?
+            // Add the profile-specific config
+            .overwrite(&Self::from_metadata(profile_metadata).context(format!(
+                "failed to parse package.metadata.bevy_cli.{profile}"
+            ))?)
+            // Then the platform-specific config
+            .overwrite(&Self::from_metadata(platform_metadata).context(format!(
+                "failed to parse package.metadata.bevy_cli.{platform}"
+            ))?)
+            // Finally, the profile-platform combination
+            .overwrite(
+                &Self::from_metadata(profile_platform_metadata).context(format!(
+                    "failed to parse package.metadata.bevy_cli.{profile}.{platform}"
+                ))?,
+            );
+
+        Ok(config)
+    }
+
+    /// Build a config from a metadata table from the CLI.
+    fn from_metadata(cli_metadata: Option<&Value>) -> anyhow::Result<Self> {
+        let Some(cli_metadata) = cli_metadata else {
             return Ok(Self::default());
         };
-
         let Value::Object(cli_metadata) = cli_metadata else {
             bail!("Bevy CLI config must be a table");
         };
@@ -53,7 +84,7 @@ impl CliConfig {
     ///
     /// The other config takes precedence,
     /// it's values overwrite the current values if one has to be chosen.
-    pub fn overwrite(&mut self, with: &Self) -> &mut Self {
+    pub fn overwrite(mut self, with: &Self) -> Self {
         self.default_features = with.default_features.or(self.default_features);
         // Features are additive
         self.features.extend(with.features.iter().cloned());
@@ -79,7 +110,7 @@ fn extract_features(cli_metadata: &Map<String, Value>) -> anyhow::Result<Vec<Str
             })
             .collect(),
         Value::Null => Ok(Vec::new()),
-        _ => bail!("package.metadata.bevy_cli.features must be an array"),
+        _ => bail!("features must be an array"),
     }
 }
 
