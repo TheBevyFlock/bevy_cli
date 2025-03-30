@@ -31,8 +31,8 @@ web = [
     "dep:fs_extra",
 ]
 
-# Automatically install required targets with `rustup` (after asking)
-# You can disable this feature if your system doesn't have rustup installed anyway
+# Support installing required targets with `rustup` from a prompt.
+# You can disable this feature if your system doesn't have rustup installed.
 rustup = []
 
 [dependencies]

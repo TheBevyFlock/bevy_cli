@@ -1,8 +1,4 @@
-use std::{
-    ffi::OsStr,
-    process::{exit, Command},
-    str::FromStr,
-};
+use std::{ffi::OsStr, process::exit, str::FromStr};
 
 use anyhow::Context;
 use dialoguer::Confirm;
