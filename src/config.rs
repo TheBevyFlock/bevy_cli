@@ -19,6 +19,7 @@ impl CliConfig {
         self.default_features.unwrap_or(true)
     }
 
+    /// Determine the Bevy CLI config as defined in the given package.
     pub fn for_package(
         metadata: &Metadata,
         package: &Package,
@@ -76,7 +77,7 @@ impl CliConfig {
 
         Ok(Self {
             features: extract_features(cli_metadata)?,
-            default_features: None,
+            default_features: extract_default_features(cli_metadata)?,
         })
     }
 
@@ -111,6 +112,19 @@ fn extract_features(cli_metadata: &Map<String, Value>) -> anyhow::Result<Vec<Str
             .collect(),
         Value::Null => Ok(Vec::new()),
         _ => bail!("features must be an array"),
+    }
+}
+
+/// Try to extract whether default_features are enabled from a metadata map for the CLI.
+fn extract_default_features(cli_metadata: &Map<String, Value>) -> anyhow::Result<Option<bool>> {
+    let Some(default_features) = cli_metadata.get("default_features") else {
+        return Ok(None);
+    };
+
+    match default_features {
+        Value::Bool(default_features) => Ok(Some(default_features).copied()),
+        Value::Null => Ok(None),
+        _ => bail!("default_features must be an array"),
     }
 }
 
