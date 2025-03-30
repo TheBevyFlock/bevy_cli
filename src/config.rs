@@ -3,22 +3,22 @@ use serde_json::{Map, Value};
 
 use crate::external_cli::cargo::metadata::{Metadata, Package};
 
-#[derive(Debug, Clone)]
+#[derive(Default, Debug, Clone)]
 pub struct CliConfig {
+    /// Additional features that should be enabled.
     features: Vec<String>,
-    default_features: bool,
-}
-
-impl Default for CliConfig {
-    fn default() -> Self {
-        Self {
-            features: Vec::new(),
-            default_features: true,
-        }
-    }
+    /// Whether to use default features.
+    default_features: Option<bool>,
 }
 
 impl CliConfig {
+    /// Whether to enable default features.
+    ///
+    /// Defaults to `true` if not configured otherwise.
+    pub fn default_features(&self) -> bool {
+        self.default_features.unwrap_or(true)
+    }
+
     pub fn for_package(
         metadata: &Metadata,
         package: &Package,
@@ -45,11 +45,24 @@ impl CliConfig {
 
         Ok(Self {
             features: extract_features(cli_metadata)?,
-            default_features: true,
+            default_features: None,
         })
+    }
+
+    /// Merge another config into this one.
+    ///
+    /// The other config takes precedence,
+    /// it's values overwrite the current values if one has to be chosen.
+    pub fn overwrite(&mut self, with: &Self) -> &mut Self {
+        self.default_features = with.default_features.or(self.default_features);
+        // Features are additive
+        self.features.extend(with.features.iter().cloned());
+
+        self
     }
 }
 
+/// Try to extract the list of features from a metadata map for the CLI.
 fn extract_features(cli_metadata: &Map<String, Value>) -> anyhow::Result<Vec<String>> {
     let Some(features) = cli_metadata.get("features") else {
         return Ok(Vec::new());
