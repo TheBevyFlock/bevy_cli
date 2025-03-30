@@ -83,6 +83,9 @@ jobs:
           sweep-cache: true
 
       - name: Run Clippy
+        env:
+          # Although we don't use any unstable options, this enables `rustc::internal` lints.
+          RUSTFLAGS: -Zunstable-options
         run: cargo clippy --workspace --all-targets ${{ matrix.features }} -- --deny warnings
 
   rustfmt:
