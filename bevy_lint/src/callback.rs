@@ -7,6 +7,8 @@ use rustc_middle::ty::TyCtxt;
 use rustc_session::utils::was_invoked_from_cargo;
 use rustc_span::{Ident, Symbol};
 
+use crate::versions::version_v16::BevyV016;
+
 /// A pointer to the original [`registered_tools()`](TyCtxt::registered_tools) query function.
 ///
 /// # Safety
@@ -40,8 +42,10 @@ impl Callbacks for BevyLintCallback {
                 (previous)(session, store);
             }
 
-            crate::lints::register_lints(store);
-            crate::lints::register_passes(store);
+            let bevy_lint_version = BevyV016::default();
+            bevy_lint_version.register_lints(store);
+            bevy_lint_version.register_passes(store);
+
             crate::groups::register_groups(store);
         }));
 
