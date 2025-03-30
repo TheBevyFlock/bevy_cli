@@ -3,7 +3,7 @@ use serde_json::{Map, Value};
 
 use crate::external_cli::cargo::metadata::{Metadata, Package};
 
-#[derive(Default, Debug, Clone)]
+#[derive(Default, Debug, Clone, PartialEq)]
 pub struct CliConfig {
     /// Additional features that should be enabled.
     features: Vec<String>,
@@ -36,48 +36,63 @@ impl CliConfig {
             return Ok(Self::default());
         };
 
-        let profile = if is_release { "release" } else { "web" };
+        let base_metadata = package_metadata.get("bevy_cli");
+        Self::merged_from_metadata(base_metadata, is_web, is_release)
+    }
+
+    /// Build a config from the `package.metadata.bevy_cli` table.
+    ///
+    /// It is merged from the platform- and profile-specific configurations.
+    fn merged_from_metadata(
+        cli_metadata: Option<&Value>,
+        is_web: bool,
+        is_release: bool,
+    ) -> anyhow::Result<Self> {
+        let profile = if is_release { "release" } else { "dev" };
         let platform = if is_web { "web" } else { "native" };
 
-        let base_metadata = package_metadata.get("bevy_cli");
-        let profile_metadata = base_metadata.and_then(|base_metadata| base_metadata.get(profile));
-        let platform_metadata = base_metadata.and_then(|base_metadata| base_metadata.get(platform));
-        let profile_platform_metadata =
-            platform_metadata.and_then(|platform_metadata| platform_metadata.get(platform));
+        let profile_metadata = cli_metadata.and_then(|metadata| metadata.get(profile));
+        let platform_metadata = cli_metadata.and_then(|metadata| metadata.get(platform));
+        let platform_profile_metadata =
+            platform_metadata.and_then(|metadata| metadata.get(profile));
 
         // Start with the base config
-        let config = Self::from_metadata(base_metadata)
+        let config = Self::from_specific_metadata(cli_metadata)
             .context("failed to parse package.metadata.bevy_cli")?
             // Add the profile-specific config
-            .overwrite(&Self::from_metadata(profile_metadata).context(format!(
-                "failed to parse package.metadata.bevy_cli.{profile}"
-            ))?)
-            // Then the platform-specific config
-            .overwrite(&Self::from_metadata(platform_metadata).context(format!(
-                "failed to parse package.metadata.bevy_cli.{platform}"
-            ))?)
-            // Finally, the profile-platform combination
             .overwrite(
-                &Self::from_metadata(profile_platform_metadata).context(format!(
-                    "failed to parse package.metadata.bevy_cli.{profile}.{platform}"
+                &Self::from_specific_metadata(profile_metadata).context(format!(
+                    "failed to parse package.metadata.bevy_cli.{profile}"
+                ))?,
+            )
+            // Then the platform-specific config
+            .overwrite(
+                &Self::from_specific_metadata(platform_metadata).context(format!(
+                    "failed to parse package.metadata.bevy_cli.{platform}"
+                ))?,
+            )
+            // Finally, the platform-profile combination
+            .overwrite(
+                &Self::from_specific_metadata(platform_profile_metadata).context(format!(
+                    "failed to parse package.metadata.bevy_cli.{platform}.{profile}"
                 ))?,
             );
 
         Ok(config)
     }
 
-    /// Build a config from a metadata table from the CLI.
-    fn from_metadata(cli_metadata: Option<&Value>) -> anyhow::Result<Self> {
-        let Some(cli_metadata) = cli_metadata else {
+    /// Build a single config for a specific platform- or profile-specific configuration.
+    fn from_specific_metadata(metadata: Option<&Value>) -> anyhow::Result<Self> {
+        let Some(metadata) = metadata else {
             return Ok(Self::default());
         };
-        let Value::Object(cli_metadata) = cli_metadata else {
+        let Value::Object(metadata) = metadata else {
             bail!("Bevy CLI config must be a table");
         };
 
         Ok(Self {
-            features: extract_features(cli_metadata)?,
-            default_features: extract_default_features(cli_metadata)?,
+            features: extract_features(metadata)?,
+            default_features: extract_default_features(metadata)?,
         })
     }
 
@@ -132,6 +147,112 @@ fn extract_default_features(cli_metadata: &Map<String, Value>) -> anyhow::Result
 mod tests {
     use super::*;
 
+    mod merged_from_metadata {
+        use serde_json::json;
+
+        use super::*;
+
+        #[test]
+        fn should_return_merged_config_for_web_dev() -> anyhow::Result<()> {
+            let metadata = json!({
+                "features": ["base"],
+                "dev": {
+                    "features": ["dev"],
+                },
+                "web": {
+                    "features": ["web"],
+                    "default_features": false,
+                    "dev": {
+                        "features": ["web-dev"],
+                    }
+                }
+            });
+
+            assert_eq!(
+                CliConfig::merged_from_metadata(Some(&metadata), true, false)?,
+                CliConfig {
+                    features: vec![
+                        "base".to_owned(),
+                        "dev".to_owned(),
+                        "web".to_owned(),
+                        "web-dev".to_owned()
+                    ],
+                    default_features: Some(false),
+                }
+            );
+            Ok(())
+        }
+
+        #[test]
+        fn should_return_merged_config_for_native_release() -> anyhow::Result<()> {
+            let metadata = json!({
+                "features": ["base"],
+                "release": {
+                    "features": ["release"],
+                },
+                "native": {
+                    "features": ["native"],
+                    "default_features": false,
+                    "release": {
+                        "features": ["native-release"],
+                    }
+                }
+            });
+
+            assert_eq!(
+                CliConfig::merged_from_metadata(Some(&metadata), false, true)?,
+                CliConfig {
+                    features: vec![
+                        "base".to_owned(),
+                        "release".to_owned(),
+                        "native".to_owned(),
+                        "native-release".to_owned()
+                    ],
+                    default_features: Some(false),
+                }
+            );
+            Ok(())
+        }
+
+        #[test]
+        fn should_not_require_any_config() -> anyhow::Result<()> {
+            let metadata = json!({});
+
+            assert_eq!(
+                CliConfig::merged_from_metadata(Some(&metadata), true, false)?,
+                CliConfig::default()
+            );
+            Ok(())
+        }
+
+        #[test]
+        fn should_ignore_unrelated_configs() -> anyhow::Result<()> {
+            let metadata = json!({
+                "features": ["base"],
+                "dev": {
+                    "features": ["dev"],
+                    "default_features": true,
+                },
+                "web": {
+                    "features": ["web"],
+                    "default_features": false,
+                    "dev": {
+                        "features": ["web-dev"],
+                    }
+                }
+            });
+
+            assert_eq!(
+                CliConfig::merged_from_metadata(Some(&metadata), false, true)?,
+                CliConfig {
+                    features: vec!["base".to_owned(),],
+                    default_features: None,
+                }
+            );
+            Ok(())
+        }
+    }
+
     mod extract_features {
         use serde_json::Map;
 
@@ -147,12 +268,27 @@ mod tests {
         #[test]
         fn should_return_features_if_listed() -> anyhow::Result<()> {
             let mut cli_metadata = Map::new();
-            cli_metadata.insert("features".to_string(), vec!["dev", "web"].into());
+            cli_metadata.insert("features".to_owned(), vec!["dev", "web"].into());
             assert_eq!(
                 extract_features(&cli_metadata)?,
-                vec!["dev".to_string(), "web".to_string()]
+                vec!["dev".to_owned(), "web".to_owned()]
             );
             Ok(())
+        }
+
+        #[test]
+        fn should_return_error_if_one_feature_is_not_a_string() {
+            let mut cli_metadata = Map::new();
+            cli_metadata.insert(
+                "features".to_string(),
+                vec![
+                    Value::String("dev".to_owned()),
+                    Value::Bool(false),
+                    Value::Null,
+                ]
+                .into(),
+            );
+            assert!(extract_features(&cli_metadata).is_err());
         }
     }
 }
