@@ -19,6 +19,11 @@ impl CliConfig {
         self.default_features.unwrap_or(true)
     }
 
+    /// The features enabled in the config.
+    pub fn features(&self) -> &[String] {
+        &self.features
+    }
+
     /// Determine the Bevy CLI config as defined in the given package.
     pub fn for_package(
         metadata: &Metadata,
