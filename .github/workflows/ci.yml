@@ -30,8 +30,8 @@ jobs:
           toolchain: ${{ needs.extract-rust-version.outputs.channel }}
           components: ${{ needs.extract-rust-version.outputs.components }}
 
-      # The linter's UI tests depend on Bevy with default features. This requires extra packages,
-      # such as `alsa` and `udev`, to be installed on Linux.
+      # The CLI and linter's UI tests depend on Bevy with default features. This requires extra
+      # packages, such as `alsa` and `udev`, to be installed on Linux.
       - name: Install Linux dependencies
         uses: bevyengine/bevy/.github/actions/install-linux-deps@v0.15.1
 
@@ -52,11 +52,6 @@ jobs:
           # See https://github.com/Leafwing-Studios/cargo-cache/issues/44
           cargo-target-dir: ./tests/bevy_cli_test/target
           manifest-path: ./tests/bevy_cli_test/Cargo.toml
-
-      # The CLI's UI tests depend on Bevy with default features.
-      # This requires extra packages, such as `alsa` and `udev`, to be installed on Linux.
-      - name: Install Linux dependencies for Bevy
-        uses: bevyengine/bevy/.github/actions/install-linux-deps@v0.15.1
 
       - name: Run tests
         run: |

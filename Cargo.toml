@@ -17,6 +17,9 @@ path = "src/bin/main.rs"
 [features]
 default = ["web"]
 
+# To optimize the Wasm binaries
+wasm-opt = ["web"]
+
 # Run your Bevy app in the browser
 web = [
     "dep:webbrowser",
@@ -27,10 +30,6 @@ web = [
     "dep:tokio",
     "dep:fs_extra",
 ]
-
-# To optimize the Wasm binaries
-# Increases compile times (of the CLI) quite a bit
-wasm-opt = ["dep:wasm-opt", "web"]
 
 [dependencies]
 # CLI argument parsing
@@ -70,9 +69,6 @@ tracing = "0.1.41"
 tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
 
 # Web dependencies
-
-## Optimizing Wasm binaries
-wasm-opt = { version = "0.116.1", optional = true }
 
 ## Opening the app in the browser
 webbrowser = { version = "1.0.2", optional = true }

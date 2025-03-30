@@ -14,6 +14,8 @@ pub(crate) mod cargo;
 pub(crate) mod rustup;
 #[cfg(feature = "web")]
 pub(crate) mod wasm_bindgen;
+#[cfg(feature = "wasm-opt")]
+pub(crate) mod wasm_opt;
 
 pub struct CommandExt {
     inner: Command,
