@@ -1,11 +1,20 @@
 //! Checks for multiple versions of the `bevy` crate in your project's dependencies.
 //!
+//! This lint will prevent you from accidentally using multiple versions of the Bevy game engine at
+//! the same time by scanning your dependency tree for the `bevy` crate. If your project or its
+//! dependencies use different versions of `bevy`, this lint will emit a warning.
+//!
+//! You may also be interested in [`cargo-deny`], which can detect duplicate dependencies as well,
+//! and is far more powerful and configurable.
+//!
+//! [`cargo-deny`]: https://github.com/EmbarkStudios/cargo-deny
+//!
 //! # Motivation
 //!
 //! Cargo allows there to be multiple major versions of a crate in your project's dependency
-//! tree[^semver-compatibility]. Though the two crates and their types are _named_ the same, they
-//! are treated as distinct by the compiler. This can lead to confusing error messages that only
-//! appear if you try to mix the types from the two versions of the crate.
+//! tree[^semver-compatibility]. Although the crates and their types are _named_ the same, they are
+//! treated as distinct by the compiler. This can lead to confusing error messages that only appear
+//! if you try to mix the types from the two versions of the crate.
 //!
 //! With Bevy, these errors become particularly easy to encounter when you add a plugin that pulls
 //! in a different version of the Bevy engine. (This isn't immediately obvious, however, unless you
@@ -78,6 +87,7 @@ declare_bevy_lint! {
     pub DUPLICATE_BEVY_DEPENDENCIES,
     NURSERY,
     "multiple versions of the `bevy` crate found",
+    @crate_level_only = true,
 }
 
 #[derive(Deserialize, Debug)]
@@ -94,7 +104,7 @@ fn toml_span(range: Range<usize>, file: &SourceFile) -> Span {
     )
 }
 
-pub(super) fn check(cx: &LateContext<'_>, metadata: &Metadata, bevy_symbol: Symbol) {
+pub fn check(cx: &LateContext<'_>, metadata: &Metadata, bevy_symbol: Symbol) {
     // no reason to continue the check if there is only one instance of `bevy` required
     if find_crates(cx.tcx, bevy_symbol).len() == 1 {
         return;
@@ -167,14 +177,11 @@ fn lint_with_target_version(
                 cx,
                 DUPLICATE_BEVY_DEPENDENCIES.lint,
                 toml_span(cargo_toml_reference.span(), file),
-                format!(
-                    "Mismatching versions of `bevy` found, {} used bevy version {}",
-                    mismatching_dependency.0, mismatching_dependency.1
-                ),
+                DUPLICATE_BEVY_DEPENDENCIES.lint.desc,
                 |diag| {
                     diag.span_help(
                         bevy_cargo_toml_span,
-                        format!("Expected all crates to use `bevy` {target_version}"),
+                        format!("expected all crates to use `bevy` {target_version}, but `{}` uses `bevy` {}", mismatching_dependency.0, mismatching_dependency.1),
                     );
                 },
             );

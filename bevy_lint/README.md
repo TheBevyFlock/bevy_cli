@@ -31,7 +31,7 @@ rustup toolchain install $TOOLCHAIN_VERSION \
     --component llvm-tools-preview
 ```
 
-For example, you would replace `$TOOLCHAIN_VERSION` with `nightly-2024-11-14` if you were installing `bevy_lint` 0.1.0, based on the [compatibility table](#compatibility). Please be aware that you must keep this toolchain installed for `bevy_lint` to function[^keep-toolchain-installed].
+For example, you would replace `$TOOLCHAIN_VERSION` with `nightly-2024-11-14` if you were installing `bevy_lint` v0.1.0, based on the [compatibility table](#compatibility). Please be aware that you must keep this toolchain installed for `bevy_lint` to function[^keep-toolchain-installed].
 
 [^keep-toolchain-installed]: `bevy_lint` imports internal `rustc` libraries in order to hook into the compiler process. These crates are stored in a [dynamic library](https://en.wikipedia.org/wiki/Dynamic_linker) that is installed with the `rustc-dev` component and loaded by `bevy_lint` at runtime. Uninstalling the nightly toolchain would remove this dynamic library, causing `bevy_lint` to fail.
 
@@ -45,7 +45,7 @@ rustup run $TOOLCHAIN_VERSION cargo install \
     bevy_lint
 ```
 
-Make sure to replace `$TOOLCHAIN_VERSION` and `$TAG` in the above command. The tag for a specific release can be found in the [releases tab](https://github.com/TheBevyFlock/bevy_cli/releases). For example, the tag for 0.1.0 is `lint-v0.1.0`.
+Make sure to replace `$TOOLCHAIN_VERSION` and `$TAG` in the above command. The tag for a specific release can be found in the [releases tab](https://github.com/TheBevyFlock/bevy_cli/releases). For example, the tag for v0.1.0 is `lint-v0.1.0`.
 
 ## Usage
 
@@ -155,8 +155,8 @@ Once `bevy` is registered, you can toggle lints throughout your code, as long as
 // Enable pedantic lints, which are off by default.
 #![cfg_attr(bevy_lint, warn(bevy::pedantic))]
 
-// Deny methods of `World` in this system that can panic when a non-panicking alternative exists.
-#[cfg_attr(bevy_lint, deny(bevy::panicking_world_methods))]
+// Deny panicking Bevy methods in this system when a non-panicking alternatives exist.
+#[cfg_attr(bevy_lint, deny(bevy::panicking_methods))]
 fn my_critical_system(world: &mut World) {
     // ...
 }
@@ -176,7 +176,8 @@ There are several other ways to toggle lints, although some have varying levels 
 
 |`bevy_lint` Version|Rust Version|Rustup Toolchain|Bevy Version|
 |-|-|-|-|
-|0.2.0-dev|1.84.0|`nightly-2025-02-20`|0.15|
+|0.3.0-dev|1.84.0|`nightly-2025-02-20`|0.15|
+|0.2.0|1.84.0|`nightly-2025-02-20`|0.15|
 |0.1.0|1.84.0|`nightly-2024-11-14`|0.14|
 
 The Rust version in the above table specifies what [version of the Rust language](https://github.com/rust-lang/rust/releases) can be compiled with `bevy_lint`. Code written for a later version of Rust may not compile. (This is not usually an issue, though, because `bevy_lint`'s Rust version is kept 1 to 2 releases ahead of stable Rust.)

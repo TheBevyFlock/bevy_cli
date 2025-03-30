@@ -68,10 +68,10 @@ use rustc_middle::ty::{
 
 declare_bevy_lint! {
     pub ZST_QUERY,
-    // This will eventually be a `RESTRICTION` lint, but due to <https://github.com/TheBevyFlock/bevy_cli/issues/252>
-    // it is not yet ready for production.
+    // This will eventually be a `RESTRICTION` lint, but due to
+    // <https://github.com/TheBevyFlock/bevy_cli/issues/279> it is not yet ready for production.
     NURSERY,
-    "query for a zero-sized type",
+    "queried a zero-sized type",
 }
 
 declare_bevy_lint_pass! {
@@ -80,6 +80,9 @@ declare_bevy_lint_pass! {
 
 impl<'tcx> LateLintPass<'tcx> for ZstQuery {
     fn check_ty(&mut self, cx: &LateContext<'tcx>, hir_ty: &'tcx rustc_hir::Ty<'tcx, AmbigArg>) {
+        if hir_ty.span.in_external_macro(cx.tcx.sess.source_map()) {
+            return;
+        }
         let ty = ty_from_hir_ty(cx, hir_ty.as_unambig_ty());
 
         let Some(query_kind) = QueryKind::try_from_ty(cx, ty) else {
@@ -136,7 +139,11 @@ impl QueryKind {
         // In the future, we might want to span the usage site of `is_added()`/`is_changed()`
         // and suggest to use `Added<Foo>`/`Changed<Foo>` instead.
         match self {
-            Self::Query => format!("consider using a filter instead: `With<{ty}>`"),
+            Self::Query => format!(
+                // NOTE: This isn't actually true, please see #279 for more info and how this will
+                // be fixed!
+                "zero-sized types do not retrieve any data, consider using a filter instead: `With<{ty}>`"
+            ),
         }
     }
 }

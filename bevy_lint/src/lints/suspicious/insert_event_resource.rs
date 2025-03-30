@@ -70,8 +70,15 @@ declare_bevy_lint_pass! {
     },
 }
 
+const HELP_MESSAGE: &str = "inserting an `Events` resource does not fully setup that event";
+
 impl<'tcx> LateLintPass<'tcx> for InsertEventResource {
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &'tcx Expr<'tcx>) {
+        // skip expressions that originate from external macros
+        if expr.span.in_external_macro(cx.tcx.sess.source_map()) {
+            return;
+        }
+
         // Find a method call.
         if let Some(method_call) = MethodCall::try_from(cx, expr) {
             // Get the type for `src` in `src.method()`. We peel all references because the type
@@ -128,7 +135,7 @@ fn check_insert_resource(cx: &LateContext<'_>, method_call: &MethodCall) {
                 format!(
                     "called `App::insert_resource{generics_snippet}({receiver_snippet}, {args_snippet})` instead of `App::add_event::<{event_ty_snippet}>({receiver_snippet})`"
                 ),
-                "inserting an `Events` resource does not fully setup that event",
+                HELP_MESSAGE,
                 format!("App::add_event::<{event_ty_snippet}>({receiver_snippet})"),
                 applicability,
             );
@@ -140,7 +147,7 @@ fn check_insert_resource(cx: &LateContext<'_>, method_call: &MethodCall) {
                 format!(
                     "called `App::insert_resource{generics_snippet}({args_snippet})` instead of `App::add_event::<{event_ty_snippet}>()`"
                 ),
-                "inserting an `Events` resource does not fully setup that event",
+                HELP_MESSAGE,
                 format!("add_event::<{event_ty_snippet}>()"),
                 applicability,
             );
@@ -208,7 +215,7 @@ fn check_init_resource<'tcx>(cx: &LateContext<'tcx>, method_call: &MethodCall<'t
                     format!(
                         "called `App::init_resource{generics_snippet}({receiver_snippet})` instead of `App::add_event::<{event_ty_snippet}>({receiver_snippet})`"
                     ),
-                    "inserting an `Events` resource does not fully setup that event",
+                    HELP_MESSAGE,
                     format!("App::add_event::<{event_ty_snippet}>({receiver_snippet})"),
                     applicability,
                 );
@@ -220,7 +227,7 @@ fn check_init_resource<'tcx>(cx: &LateContext<'tcx>, method_call: &MethodCall<'t
                     format!(
                         "called `App::init_resource{generics_snippet}({args_snippet})` instead of `App::add_event::<{event_ty_snippet}>()`"
                     ),
-                    "inserting an `Events` resource does not fully setup that event",
+                    HELP_MESSAGE,
                     format!("add_event::<{event_ty_snippet}>()"),
                     applicability,
                 );

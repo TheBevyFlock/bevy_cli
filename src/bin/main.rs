@@ -1,9 +1,33 @@
 use anyhow::Result;
 use bevy_cli::{build::args::BuildArgs, run::RunArgs};
 use clap::{Args, CommandFactory, Parser, Subcommand};
+use tracing_subscriber::prelude::*;
 
 fn main() -> Result<()> {
     let cli = Cli::parse();
+
+    // Set default log level to info for the `bevy_cli` crate if `BEVY_LOG` is not set.
+    let env = tracing_subscriber::EnvFilter::try_from_env("BEVY_LOG").map_or_else(
+        |_| {
+            if cli.verbose {
+                tracing_subscriber::EnvFilter::new("bevy_cli=debug")
+            } else {
+                tracing_subscriber::EnvFilter::new("bevy_cli=info")
+            }
+        },
+        |filter| tracing_subscriber::EnvFilter::new(format!("bevy_cli={filter}")),
+    );
+
+    let fmt_layer = tracing_subscriber::fmt::layer()
+        // remove timestamps
+        .without_time()
+        // enable colorized output if stderr is a terminal
+        .with_ansi(std::io::IsTerminal::is_terminal(&std::io::stderr()))
+        // remove the module path from the log messages
+        .with_target(false)
+        .with_filter(env);
+
+    tracing_subscriber::registry().with(fmt_layer).init();
 
     match cli.subcommand {
         Subcommands::New(new) => {
@@ -30,6 +54,8 @@ pub struct Cli {
     /// Available subcommands for the Bevy CLI.
     #[command(subcommand)]
     pub subcommand: Subcommands,
+    #[arg(long, short = 'v', global = true)]
+    pub verbose: bool,
 }
 
 /// Available subcommands for `bevy`.

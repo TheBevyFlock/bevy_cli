@@ -22,6 +22,14 @@ At this point, the CLI is not published as a package yet and needs to be install
 cargo install --git https://github.com/TheBevyFlock/bevy_cli --locked bevy_cli
 ```
 
+## Logging
+
+The default logging level for the CLI is set to `info`. To change the log level set the `BEVY_LOG` environment variable.
+
+```sh
+export BEVY_LOG=trace
+```
+
 ## Bevy web apps
 
 The CLI makes it easy to build and run web apps made with Bevy, using `bevy build web` and `bevy run web`.

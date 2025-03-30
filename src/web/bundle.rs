@@ -5,8 +5,11 @@ use std::{
 };
 
 use anyhow::Context;
+use tracing::info;
 
-use crate::{external_cli::cargo::metadata::Metadata, run::BinTarget};
+use crate::external_cli::cargo::metadata::Metadata;
+
+use super::bin_target::BinTarget;
 
 #[derive(Debug, Clone)]
 pub enum Index {
@@ -56,16 +59,6 @@ pub enum WebBundle {
     Packed(PackedBundle),
 }
 
-impl WebBundle {
-    /// The index.html file of the bundle.
-    pub fn index(&self) -> Index {
-        match self {
-            Self::Linked(linked) => linked.index.clone(),
-            Self::Packed(packed) => Index::File(packed.path.join("index.html")),
-        }
-    }
-}
-
 /// Create a bundle of all the files needed for serving the app in the web.
 ///
 /// If `packed` is set to `true`, the files will be packed together in a single folder.
@@ -91,7 +84,7 @@ pub fn create_web_bundle(
     let index = if index_path.exists() {
         Index::File(index_path)
     } else {
-        println!("No custom `web` folder found, using defaults.");
+        info!("No custom `web` folder found, using defaults.");
         Index::Content(default_index(bin_target))
     };
 
