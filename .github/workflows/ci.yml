@@ -30,11 +30,6 @@ jobs:
           toolchain: ${{ needs.extract-rust-version.outputs.channel }}
           components: ${{ needs.extract-rust-version.outputs.components }}
 
-      # The CLI and linter's UI tests depend on Bevy with default features. This requires extra
-      # packages, such as `alsa` and `udev`, to be installed on Linux.
-      - name: Install Linux dependencies
-        uses: bevyengine/bevy/.github/actions/install-linux-deps@v0.15.1
-
       - name: Cache build artifacts
         uses: Leafwing-Studios/cargo-cache@v2
         with:
