@@ -6,10 +6,17 @@
 
 </div>
 
-- [**Documentation**](https://thebevyflock.github.io/bevy_cli/bevy_lint/)
-- [**All Lints**](https://thebevyflock.github.io/bevy_cli/bevy_lint/lints/index.html)
+- [**Documentation**]
+- [**All Lints**]
 - [**Repository**](https://github.com/TheBevyFlock/bevy_cli)
 - [**Issue Tracker**](https://github.com/TheBevyFlock/bevy_cli/issues?q=is%3Aopen+is%3Aissue+label%3AA-Linter)
+
+<!--
+These links get overridden when this file is rendered by `rustdoc`.
+For more info on how this works, see <https://linebender.org/blog/doc-include/>.
+-->
+[**Documentation**]: https://thebevyflock.github.io/bevy_cli/bevy_lint/
+[**All Lints**]: https://thebevyflock.github.io/bevy_cli/bevy_lint/lints/index.html
 
 <div class="rustdoc-alert rustdoc-alert-warning">
 

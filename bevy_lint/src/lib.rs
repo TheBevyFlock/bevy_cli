@@ -4,6 +4,13 @@
 //! This is the primary documentation for its lints and lint groups. `bevy_lint` is not intended to
 //! be consumed as a library. You can find the documentation for individual lints and their groups
 //! in the [`lints`] module.
+//! 
+//! <!--
+//! Override these links to point to the local copy of the docs.
+//! For more info on how this works, see <https://linebender.org/blog/doc-include/>.
+//! -->
+//! [**Documentation**]: crate
+//! [**All Lints**]: crate::lints
 #![doc = include_str!("../README.md")]
 // Enables linking to `rustc` crates.
 #![feature(rustc_private)]
