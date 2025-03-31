@@ -67,7 +67,7 @@ pub struct Metadata {
     pub metadata: serde_json::Value,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct Package {
     /// The name of the package.
     pub name: String,
@@ -150,7 +150,7 @@ pub enum DependencyKind {
     Unknown(String),
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct Target {
     pub kind: Vec<TargetKind>,
     /// The name of the target.
@@ -159,7 +159,7 @@ pub struct Target {
     pub name: String,
 }
 
-#[derive(Debug, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Deserialize, PartialEq, Eq, Clone)]
 #[serde(rename_all = "kebab-case")]
 pub enum TargetKind {
     Lib,
