@@ -5,9 +5,9 @@
 //! [`missing_reflect::MISSING_REFLECT`].
 
 use crate::lint::BevyLint;
-use rustc_lint::{Lint, LintStore};
 
-mod cargo;
+// TODO: how to handle this?
+pub mod cargo;
 
 pub mod complexity;
 pub mod correctness;
@@ -30,35 +30,3 @@ pub(crate) static LINTS: &[&BevyLint] = &[
     style::plugin_not_ending_in_plugin::PLUGIN_NOT_ENDING_IN_PLUGIN,
     nursery::zst_query::ZST_QUERY,
 ];
-
-pub(crate) fn register_lints(store: &mut LintStore) {
-    let lints: Vec<&Lint> = LINTS.iter().map(|x| x.lint).collect();
-    store.register_lints(&lints);
-}
-
-pub(crate) fn register_passes(store: &mut LintStore) {
-    store.register_late_pass(|_| {
-        Box::new(pedantic::borrowed_reborrowable::BorrowedReborrowable::default())
-    });
-    store.register_late_pass(|_| Box::new(cargo::Cargo::default()));
-    store.register_late_pass(|_| {
-        Box::new(suspicious::insert_event_resource::InsertEventResource::default())
-    });
-    store.register_late_pass(|_| {
-        Box::new(suspicious::insert_unit_bundle::InsertUnitBundle::default())
-    });
-    store.register_late_pass(|_| {
-        Box::new(suspicious::iter_current_update_events::IterCurrentUpdateEvents::default())
-    });
-    store.register_late_pass(|_| {
-        Box::new(pedantic::main_return_without_appexit::MainReturnWithoutAppExit::default())
-    });
-    store.register_late_pass(|_| Box::new(restriction::missing_reflect::MissingReflect::default()));
-    store.register_late_pass(|_| {
-        Box::new(restriction::panicking_methods::PanickingMethods::default())
-    });
-    store.register_late_pass(|_| {
-        Box::new(style::plugin_not_ending_in_plugin::PluginNotEndingInPlugin::default())
-    });
-    store.register_late_pass(|_| Box::new(nursery::zst_query::ZstQuery::default()));
-}

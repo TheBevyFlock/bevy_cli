@@ -33,7 +33,11 @@
 //! }
 //! ```
 
-use crate::{declare_bevy_lint, declare_bevy_lint_pass, utils::hir_parse::MethodCall};
+use crate::{
+    declare_bevy_lint, declare_bevy_lint_pass,
+    utils::hir_parse::MethodCall,
+    versions::{Paths, version_v16::BevyV016},
+};
 use clippy_utils::{
     diagnostics::span_lint_hir_and_then, is_entrypoint_fn, sym, ty::match_type,
     visitors::for_each_expr,
@@ -96,8 +100,14 @@ impl<'tcx> LateLintPass<'tcx> for MainReturnWithoutAppExit {
                     // both `App` and `&mut App` are allowed.
                     let ty = cx.typeck_results().expr_ty(receiver).peel_refs();
 
+                    let v16 = BevyV016::default();
+
                     // If `src` is a Bevy `App`, emit the lint.
-                    if match_type(cx, ty, &crate::paths::APP) {
+                    let Some(app_path) = v16.get("APP") else {
+                        // this path does not exist for this version
+                        return ControlFlow::<()>::Continue(());
+                    };
+                    if match_type(cx, ty, app_path) {
                         span_lint_hir_and_then(
                             cx,
                             MAIN_RETURN_WITHOUT_APPEXIT.lint,
