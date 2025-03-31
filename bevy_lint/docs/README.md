@@ -7,11 +7,11 @@ Thanks for your interest in contributing to `bevy_lint`! Please feel free to ski
     - [Setting up your Editor](how-to/editor.md)
     - [How to Work with Types](how-to/types.md)
     - [How to Parse Method Calls](how-to/methods.md)
-    - [How to Handle Macro-Generated Code](how-to/macros.md)
     - [How to Release `bevy_lint`](how-to/release.md)
     - [Bump to a Newer Version of Rust](how-to/bump-rust.md)
 - [Reference](reference/)
     - [Lint Module Docs](reference/lint-module-docs.md)
+    - [Macro-Generated Code](reference/macros.md)
     - [Coding Conventions and Best Practices](reference/conventions.md)
 - [Explanations](explanations/)
 

@@ -1,4 +1,4 @@
-# How to Handle Macro-Generated Code
+# Macro-Generated Code
 
 When a developer uses a macro from a 3rd-party crate, it generates code that the developer cannot easily change or fix. Macro-generated code will still be linted, but if that code has any issues the developer cannot do anything to fix it beyond adding an `#[allow(...)]` attribute.
 
