@@ -1,3 +1,8 @@
+//! The main mechanism for loading the linter's configuration from `Cargo.toml`.
+//!
+//! The main entrypoint for configuration loading is [`load_config()`], which then stores its
+//! results in the [`LINTER_CONFIG`] static.
+
 use std::sync::RwLock;
 
 use rustc_interface::Config;
