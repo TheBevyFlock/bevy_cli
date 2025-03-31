@@ -5,7 +5,7 @@
 //! [`suspicious::iter_current_update_events`], since they are both within the `bevy::suspicious`
 //! lint group.
 //!
-//! Just like lints, lint groups that can be toggled together. The following lint groups are
+//! Just like lints, [lint groups that can be toggled together]. The following lint groups are
 //! enabled by default:
 //!
 //! - [`correctness`]
@@ -19,6 +19,8 @@
 //! - [`pedantic`]
 //! - [`restriction`]
 //! - [`nursery`]
+//! 
+//! [lint groups that can be toggled together]: crate#toggling-lints-in-cargotoml
 
 use crate::lint::{BevyLint, LintGroup};
 use rustc_lint::{Lint, LintStore};
