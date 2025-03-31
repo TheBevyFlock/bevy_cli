@@ -1,3 +1,5 @@
+//! Supporting types and macros that help simplify developing a linter.
+
 use rustc_lint::{Level, Lint, LintId};
 
 /// A Bevy lint definition and its associated group.
@@ -36,8 +38,8 @@ pub struct LintGroup {
 /// declare_bevy_lint! {
 ///     // This lint will be named `bevy::lint_name`.
 ///     pub LINT_NAME,
-///     // See the `groups` module for the available names.
-///     LINT_GROUP,
+///     // The path to the lint group static.
+///     super::LINT_GROUP,
 ///     // The description printed by `bevy_lint_driver rustc -W help`, and sometimes also used in
 ///     // diagnostic messages.
 ///     "short description of lint",
@@ -45,13 +47,13 @@ pub struct LintGroup {
 ///     // The following are optional fields, and may be excluded. They all default to false.
 ///     //
 ///     // Whether to report this lint, even if it is inside the expansion of an external macro.
-///     @report_in_external_macro = true,
+///     @report_in_external_macro = false,
 ///     // Whether to only run this macro for the crate root. This should be enabled for lint
 ///     // passes that only override `check_crate()`.
 ///     @crate_level_only = false,
 ///     // The compiler can sometimes skip lint passes that are guaranteed not to run. This can
 ///     // disable that behavior.
-///     @eval_always = true,
+///     @eval_always = false,
 /// }
 /// ```
 #[macro_export]
@@ -60,7 +62,7 @@ macro_rules! declare_bevy_lint {
     {
         $(#[$attr:meta])*
         $vis:vis $name:ident,
-        $group:ident,
+        $group:expr,
         $desc:expr,
         $(@report_in_external_macro = $report_in_external_macro:expr,)?
         $(@crate_level_only = $crate_level_only:expr,)?
@@ -80,7 +82,7 @@ macro_rules! declare_bevy_lint {
             lint: &::rustc_lint::Lint {
                 // Fields that are always configured by macro.
                 name: concat!("bevy::", stringify!($name)),
-                default_level: $crate::groups::$group.level,
+                default_level: $group.level,
                 desc: $desc,
 
                 // Fields that cannot be configured.
@@ -97,7 +99,7 @@ macro_rules! declare_bevy_lint {
 
                 ..::rustc_lint::Lint::default_fields_for_macro()
             },
-            group: &$crate::groups::$group,
+            group: $group,
         };
     };
 }

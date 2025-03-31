@@ -1,7 +1,7 @@
-//! Checks for use of panicking methods of `Query`, `QueryState`, or `World` when a non-panicking
+//! Checks for use of panicking methods of `World` when a non-panicking
 //! alternative exists.
 //!
-//! For instance, this will lint against `Query::single()`, recommending that `Query::get_single()`
+//! For instance, this will lint against `World::entity()`, recommending that `World::get_entity()`
 //! should be used instead.
 //!
 //! # Motivation
@@ -16,23 +16,14 @@
 //! ```
 //! # use bevy::prelude::*;
 //! #
-//! #[derive(Component)]
-//! struct MyComponent;
-//!
 //! #[derive(Resource)]
 //! struct MyResource;
-//!
-//! fn panicking_query(query: Query<&MyComponent>) {
-//!     let component = query.single();
-//!     // ...
-//! }
 //!
 //! fn panicking_world(world: &mut World) {
 //!     let resource = world.resource::<MyResource>();
 //!     // ...
 //! }
 //! #
-//! # bevy::ecs::system::assert_is_system(panicking_query);
 //! # bevy::ecs::system::assert_is_system(panicking_world);
 //! ```
 //!
@@ -41,23 +32,9 @@
 //! ```
 //! # use bevy::prelude::*;
 //! #
-//! #[derive(Component)]
-//! struct MyComponent;
 //!
 //! #[derive(Resource)]
 //! struct MyResource;
-//!
-//! fn graceful_query(query: Query<&MyComponent>) {
-//!     match query.get_single() {
-//!         Ok(component) => {
-//!             // ...
-//!         }
-//!         Err(error) => {
-//!             error!("Invariant not upheld: {:?}", error);
-//!             return;
-//!         }
-//!     }
-//! }
 //!
 //! fn graceful_world(world: &mut World) {
 //!     let Some(resource) = world.get_resource::<MyResource>() else {
@@ -68,7 +45,6 @@
 //!     // ...
 //! }
 //! #
-//! # bevy::ecs::system::assert_is_system(graceful_query);
 //! # bevy::ecs::system::assert_is_system(graceful_world);
 //! ```
 
@@ -88,7 +64,7 @@ use rustc_span::Symbol;
 
 declare_bevy_lint! {
     pub PANICKING_METHODS,
-    RESTRICTION,
+    super::RESTRICTION,
     "called a method that can panic when a non-panicking alternative exists",
 }
 
@@ -257,17 +233,8 @@ impl PanickingType {
     /// `(panicking_method, alternative_method)`.
     fn alternatives(&self) -> &'static [(&'static str, &'static str)] {
         match self {
-            Self::Query => &[
-                ("single", "get_single"),
-                ("single_mut", "get_single_mut"),
-                ("many", "get_many"),
-                ("many_mut", "get_many_mut"),
-            ],
-            Self::QueryState => &[
-                ("single", "get_single"),
-                ("single_mut", "get_single_mut"),
-                // `QueryState` does not currently have `many()` or `many_mut()`.
-            ],
+            Self::Query => &[("many", "get_many"), ("many_mut", "get_many_mut")],
+            Self::QueryState => &[],
             Self::World => &[
                 ("entity", "get_entity"),
                 ("entity_mut", "get_entity_mut"),

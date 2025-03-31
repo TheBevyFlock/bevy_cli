@@ -1,15 +1,15 @@
 error: defined an event without a `Reflect` implementation
-  --> tests/ui/missing_reflect/impl_ref.rs:38:1
+  --> tests/ui/missing_reflect/impl_ref.rs:42:1
    |
-38 | struct MyEvent(String);
+42 | struct MyEvent(String);
    | ^^^^^^^^^^^^^^^^^^^^^^^
    |
 note: `Event` implemented here
-  --> tests/ui/missing_reflect/impl_ref.rs:45:1
+  --> tests/ui/missing_reflect/impl_ref.rs:50:1
    |
-45 | / impl Event for &'static &'static &'static MyEvent {
-46 | |     type Traversal = ();
-47 | | }
+50 | / impl Event for &'static &'static &'static MyEvent {
+51 | |     type Traversal = ();
+52 | | }
    | |_^
 note: the lint level is defined here
   --> tests/ui/missing_reflect/impl_ref.rs:13:9
@@ -18,47 +18,48 @@ note: the lint level is defined here
    |         ^^^^^^^^^^^^^^^^^^^^^
 help: `Reflect` can be automatically derived
    |
-38 + #[derive(Reflect)]
-39 | struct MyEvent(String);
+42 + #[derive(Reflect)]
+43 | struct MyEvent(String);
    |
 
 error: defined a component without a `Reflect` implementation
-  --> tests/ui/missing_reflect/impl_ref.rs:19:1
+  --> tests/ui/missing_reflect/impl_ref.rs:22:1
    |
-19 | struct MyComponent;
+22 | struct MyComponent;
    | ^^^^^^^^^^^^^^^^^^^
    |
 note: `Component` implemented here
-  --> tests/ui/missing_reflect/impl_ref.rs:22:1
+  --> tests/ui/missing_reflect/impl_ref.rs:25:1
    |
-22 | / impl Component for &'static MyComponent {
-23 | |     const STORAGE_TYPE: StorageType = StorageType::Table;
-24 | | }
+25 | / impl Component for &'static MyComponent {
+26 | |     const STORAGE_TYPE: StorageType = StorageType::Table;
+27 | |     type Mutability = Mutable;
+28 | | }
    | |_^
 help: `Reflect` can be automatically derived
    |
-19 + #[derive(Reflect)]
-20 | struct MyComponent;
+22 + #[derive(Reflect)]
+23 | struct MyComponent;
    |
 
 error: defined a resource without a `Reflect` implementation
-  --> tests/ui/missing_reflect/impl_ref.rs:28:1
+  --> tests/ui/missing_reflect/impl_ref.rs:32:1
    |
-28 | / struct MyResource {
-29 | |     field_1: usize,
-30 | |     field_2: bool,
-31 | | }
+32 | / struct MyResource {
+33 | |     field_1: usize,
+34 | |     field_2: bool,
+35 | | }
    | |_^
    |
 note: `Resource` implemented here
-  --> tests/ui/missing_reflect/impl_ref.rs:34:1
+  --> tests/ui/missing_reflect/impl_ref.rs:38:1
    |
-34 | impl Resource for &'static &'static MyResource {}
+38 | impl Resource for &'static &'static MyResource {}
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 help: `Reflect` can be automatically derived
    |
-28 + #[derive(Reflect)]
-29 | struct MyResource {
+32 + #[derive(Reflect)]
+33 | struct MyResource {
    |
 
 error: aborting due to 3 previous errors
