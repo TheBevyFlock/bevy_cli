@@ -16,12 +16,19 @@
 #![feature(rustc_private)]
 // Allows chaining `if let` multiple times using `&&`.
 #![feature(let_chains)]
-// Warn on internal `rustc` lints that check for poor usage of internal compiler APIs.
+// Warn on internal `rustc` lints that check for poor usage of internal compiler APIs. Note that
+// you also need to pass `-Z unstable-options` to `rustc` for this to be enabled:
+// `RUSTFLAGS="-Zunstable-options" cargo check`
 #![warn(rustc::internal)]
+#![allow(
+    rustc::usage_of_ty_tykind,
+    reason = "Many false positives without a valid replacement."
+)]
 
 // This is a list of every single `rustc` crate used within this library. If you need another, add
 // it here!
 extern crate rustc_abi;
+extern crate rustc_data_structures;
 extern crate rustc_driver;
 extern crate rustc_errors;
 extern crate rustc_hir;

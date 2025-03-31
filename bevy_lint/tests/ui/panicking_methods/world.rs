@@ -36,38 +36,6 @@ fn main() {
     //~^ ERROR: called a `World` method that can panic when a non-panicking alternative exists
     //~| HELP: use `World::get_entity_mut(&mut world, bob)`
 
-    #[expect(
-        deprecated,
-        reason = "While this method is deprecated, we should still check for it while it exists."
-    )]
-    world.many_entities([bob]);
-    //~^ ERROR: called a `World` method that can panic when a non-panicking alternative exists
-    //~| HELP: use `world.get_many_entities([bob])`
-
-    #[expect(
-        deprecated,
-        reason = "While this method is deprecated, we should still check for it while it exists."
-    )]
-    World::many_entities(&mut world, [bob]);
-    //~^ ERROR: called a `World` method that can panic when a non-panicking alternative exists
-    //~| HELP: use `World::get_many_entities(&mut world, [bob])`
-
-    #[expect(
-        deprecated,
-        reason = "While this method is deprecated, we should still check for it while it exists."
-    )]
-    world.many_entities_mut([bob]);
-    //~^ ERROR: called a `World` method that can panic when a non-panicking alternative exists
-    //~| HELP: use `world.get_many_entities_mut([bob])`
-
-    #[expect(
-        deprecated,
-        reason = "While this method is deprecated, we should still check for it while it exists."
-    )]
-    World::many_entities_mut(&mut world, [bob]);
-    //~^ ERROR: called a `World` method that can panic when a non-panicking alternative exists
-    //~| HELP: use `World::get_many_entities_mut(&mut world, [bob])`
-
     world.resource::<Jeffrey>();
     //~^ ERROR: called a `World` method that can panic when a non-panicking alternative exists
     //~| HELP: use `world.get_resource::<Jeffrey>()`

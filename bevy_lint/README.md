@@ -45,7 +45,7 @@ For example, you would replace `$TOOLCHAIN_VERSION` with `nightly-2024-11-14` if
 Once you have the toolchain installed, you can compile and install `bevy_lint` through `cargo`:
 
 ```bash
-rustup run $TOOLCHAIN_VERSION cargo install \    
+rustup run $TOOLCHAIN_VERSION cargo install \
     --git https://github.com/TheBevyFlock/bevy_cli.git \
     --tag $TAG \
     --locked \
@@ -186,7 +186,7 @@ There are several other ways to toggle lints, although some have varying levels 
 
 |`bevy_lint` Version|Rust Version|Rustup Toolchain|Bevy Version|
 |-|-|-|-|
-|0.3.0-dev|1.84.0|`nightly-2025-02-20`|0.15|
+|0.3.0-dev|1.84.0|`nightly-2025-02-20`|0.16|
 |0.2.0|1.84.0|`nightly-2025-02-20`|0.15|
 |0.1.0|1.84.0|`nightly-2024-11-14`|0.14|
 

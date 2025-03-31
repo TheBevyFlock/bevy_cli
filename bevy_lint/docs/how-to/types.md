@@ -83,8 +83,8 @@ All path constants are defined in [`paths.rs`](../../src/paths.rs). If you add a
 >
 > `bevy_app::app` is a [private module], but we still have to refer to it by name because [`struct App`] is within `bevy_app/src/app.rs`. Do not be tricked by re-exported types, such as `bevy::prelude::App`!
 >
-> [private module]: https://docs.rs/bevy_app/0.15.0/src/bevy_app/lib.rs.html#14
-> [`struct App`]: https://docs.rs/bevy_app/0.15.0/src/bevy_app/app.rs.html#67-77
+> [private module]: https://docs.rs/bevy_app/0.16.0-rc.2/src/bevy_app/lib.rs.html#26
+> [`struct App`]: https://docs.rs/bevy_app/0.16.0-rc.2/src/bevy_app/app.rs.html#78-88
 
 [`App`]: https://docs.rs/bevy/latest/bevy/app/struct.App.html
 [`match_type()`]: https://doc.rust-lang.org/nightly/nightly-rustc/clippy_utils/ty/fn.match_type.html

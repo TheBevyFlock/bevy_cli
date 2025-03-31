@@ -95,6 +95,11 @@ impl<'tcx> LateLintPass<'tcx> for PluginNotEndingInPlugin {
                 return;
             };
 
+            // skip lint if the struct was defined in an external macro
+            if struct_span.in_external_macro(cx.tcx.sess.source_map()) {
+                return;
+            }
+
             // If the type's name ends in "Plugin", exit.
             if struct_name.as_str().ends_with("Plugin") {
                 return;

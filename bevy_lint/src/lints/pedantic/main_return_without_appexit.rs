@@ -90,6 +90,7 @@ impl<'tcx> LateLintPass<'tcx> for MainReturnWithoutAppExit {
                     ..
                 }) = MethodCall::try_from(cx, expr)
                     && method_path.ident.name == self.run
+                    && !expr.span.in_external_macro(cx.tcx.sess.source_map())
                 {
                     // Get the type of `src` for `src.run()`. We peel away all references because
                     // both `App` and `&mut App` are allowed.
