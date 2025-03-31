@@ -19,7 +19,7 @@
 //! - [`pedantic`]
 //! - [`restriction`]
 //! - [`nursery`]
-//! 
+//!
 //! [lint groups that can be toggled together]: crate#toggling-lints-in-cargotoml
 
 use crate::lint::{BevyLint, LintGroup};
