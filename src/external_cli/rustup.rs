@@ -6,6 +6,8 @@ use anyhow::Context;
 use dialoguer::Confirm;
 use tracing::info;
 
+use crate::external_cli::cargo::install::is_installed;
+
 use super::CommandExt;
 
 /// The rustup command can be customized via the `BEVY_CLI_RUSTUP` env
@@ -30,6 +32,12 @@ fn is_target_installed(target: &str) -> bool {
 
 /// Install a compilation target, if it is not already installed.
 pub(crate) fn install_target_if_needed(target: &str, silent: bool) -> anyhow::Result<()> {
+    if is_installed(program()).is_none() {
+        // `rustup` is not installed on the system
+        // Don't perform the check and hope for the best!
+        return Ok(());
+    }
+
     if is_target_installed(target) {
         return Ok(());
     }
@@ -51,7 +59,12 @@ pub(crate) fn install_target_if_needed(target: &str, silent: bool) -> anyhow::Re
 
     info!("Installing missing target: `{target}`");
 
-    let mut cmd = CommandExt::new(program());
-    cmd.arg("target").arg("add").arg(target).ensure_status()?;
+    CommandExt::new(program())
+        .arg("target")
+        .arg("add")
+        .arg(target)
+        .ensure_status()
+        .context(format!("failed to install target `{target}`"))?;
+
     Ok(())
 }
