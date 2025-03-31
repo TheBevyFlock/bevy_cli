@@ -32,7 +32,6 @@ impl BuildArgs {
     }
 
     /// Whether to build with optimizations.
-    #[cfg(feature = "wasm-opt")]
     pub(crate) fn is_release(&self) -> bool {
         self.cargo_args.compilation_args.is_release
     }

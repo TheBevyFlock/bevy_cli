@@ -3,6 +3,7 @@ use tracing::info;
 
 use crate::{
     build::args::{BuildArgs, BuildSubcommands},
+    config::CliConfig,
     external_cli::{cargo, rustup, wasm_bindgen},
     web::{
         bin_target::select_run_binary,
@@ -23,12 +24,6 @@ use super::bundle::WebBundle;
 /// - Creating JavaScript bindings
 /// - Creating a bundled folder (if requested)
 pub fn build_web(args: &mut BuildArgs) -> anyhow::Result<WebBundle> {
-    let Some(BuildSubcommands::Web(web_args)) = &args.subcommand else {
-        anyhow::bail!("tried to build for the web without matching arguments");
-    };
-
-    ensure_web_setup(args.skip_prompts)?;
-
     let metadata = cargo::metadata::metadata_with_args(["--no-deps"])?;
     let bin_target = select_run_binary(
         &metadata,
@@ -38,6 +33,15 @@ pub fn build_web(args: &mut BuildArgs) -> anyhow::Result<WebBundle> {
         args.target().as_deref(),
         args.profile(),
     )?;
+
+    let config = CliConfig::for_package(&metadata, &bin_target.package, true, args.is_release())?;
+    args.apply_config(&config);
+
+    let Some(BuildSubcommands::Web(web_args)) = &args.subcommand else {
+        anyhow::bail!("tried to build for the web without matching arguments");
+    };
+
+    ensure_web_setup(args.skip_prompts)?;
 
     let mut profile_args = configure_default_web_profiles(&metadata)?;
     // `--config` args are resolved from left to right,
