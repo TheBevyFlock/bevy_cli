@@ -4,7 +4,7 @@ members = ["bevy_lint"]
 [package]
 name = "bevy_cli"
 version = "0.1.0-dev"
-edition = "2021"
+edition = "2024"
 license = "MIT OR Apache-2.0"
 # When no binary is specific, run the main CLI by default.
 default-run = "bevy"
