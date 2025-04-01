@@ -4,9 +4,9 @@ use anyhow::Context;
 use dialoguer::Confirm;
 use semver::Version;
 
+use crate::external_cli::CommandExt;
 #[cfg(feature = "web")]
 use crate::external_cli::wasm_bindgen::{self, wasm_bindgen_cli_version};
-use crate::external_cli::CommandExt;
 
 /// Check if the given program is installed on the system.
 ///

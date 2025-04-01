@@ -3,7 +3,7 @@ use tracing::{error, info};
 use crate::{
     build::args::BuildArgs,
     external_cli::cargo,
-    run::{args::RunSubcommands, RunArgs},
+    run::{RunArgs, args::RunSubcommands},
 };
 
 use super::{bin_target::select_run_binary, build::build_web, serve::serve};
@@ -46,7 +46,9 @@ pub(crate) fn run_web(args: &RunArgs) -> anyhow::Result<()> {
         match webbrowser::open(&url) {
             Ok(()) => info!("Your app is running at <{url}>!"),
             Err(error) => {
-                error!("Failed to open the browser automatically, open the app at <{url}>. (Error: {error:?}");
+                error!(
+                    "Failed to open the browser automatically, open the app at <{url}>. (Error: {error:?}"
+                );
             }
         }
     } else {
