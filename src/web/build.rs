@@ -81,7 +81,8 @@ pub fn build_web(args: &mut BuildArgs) -> anyhow::Result<WebBundle> {
 pub(crate) fn ensure_web_setup(skip_prompts: bool) -> anyhow::Result<()> {
     // The resolved dependency graph is needed to ensure the `wasm-bindgen-cli` version matches
     // exactly the `wasm-bindgen` version
-    let metadata = cargo::metadata::metadata()?;
+    let metadata =
+        cargo::metadata::metadata_with_args(["--filter-platform", "wasm32-unknown-unknown"])?;
 
     let wasm_bindgen_version = metadata
         .packages
