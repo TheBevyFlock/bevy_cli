@@ -60,7 +60,7 @@ macro_rules! declare_bevy_lint {
     {
         $(#[$attr:meta])*
         $vis:vis $name:ident,
-        $group:expr,
+        $group:ty,
         $desc:expr,
         $(@report_in_external_macro = $report_in_external_macro:expr,)?
         $(@crate_level_only = $crate_level_only:expr,)?
@@ -76,28 +76,25 @@ macro_rules! declare_bevy_lint {
         /// }
         /// ```
         $(#[$attr])*
-        $vis static $name: &$crate::lint::BevyLint = &$crate::lint::BevyLint {
-            lint: &::rustc_lint::Lint {
-                // Fields that are always configured by macro.
-                name: concat!("bevy::", stringify!($name)),
-                default_level: $group.level,
-                desc: $desc,
+        $vis static $name: &::rustc_lint::Lint = &::rustc_lint::Lint {
+            // Fields that are always configured by macro.
+            name: concat!("bevy::", stringify!($name)),
+            default_level: <$group as $crate::lint::LintGroup>::LEVEL,
+            desc: $desc,
 
-                // Fields that cannot be configured.
-                edition_lint_opts: None,
-                future_incompatible: None,
-                feature_gate: None,
-                is_externally_loaded: true,
+            // Fields that cannot be configured.
+            edition_lint_opts: None,
+            future_incompatible: None,
+            feature_gate: None,
+            is_externally_loaded: true,
 
-                // Fields that may sometimes be configured by macro. These all default to false in
-                // `Lint::default_fields_for_macro()`, but may be overridden to true.
-                $(report_in_external_macro: $report_in_external_macro,)?
-                $(crate_level_only: $crate_level_only,)?
-                $(eval_always: $eval_always,)?
+            // Fields that may sometimes be configured by macro. These all default to false in
+            // `Lint::default_fields_for_macro()`, but may be overridden to true.
+            $(report_in_external_macro: $report_in_external_macro,)?
+            $(crate_level_only: $crate_level_only,)?
+            $(eval_always: $eval_always,)?
 
-                ..::rustc_lint::Lint::default_fields_for_macro()
-            },
-            group: $group,
+            ..::rustc_lint::Lint::default_fields_for_macro()
         };
     };
 }
