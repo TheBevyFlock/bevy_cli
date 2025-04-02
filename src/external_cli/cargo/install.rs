@@ -1,4 +1,4 @@
-use std::{process::exit, str::FromStr};
+use std::{ffi::OsStr, process::exit, str::FromStr};
 
 use anyhow::Context;
 use dialoguer::Confirm;
@@ -11,7 +11,7 @@ use crate::external_cli::wasm_bindgen::{self, wasm_bindgen_cli_version};
 /// Check if the given program is installed on the system.
 ///
 /// This assumes that the program offers a `--version` flag.
-fn is_installed(program: &str) -> Option<Vec<u8>> {
+pub fn is_installed<P: AsRef<OsStr>>(program: P) -> Option<Vec<u8>> {
     CommandExt::new(program)
         .arg("--version")
         .output()

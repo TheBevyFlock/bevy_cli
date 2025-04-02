@@ -79,7 +79,7 @@ use toml::Spanned;
 
 declare_bevy_lint! {
     pub DUPLICATE_BEVY_DEPENDENCIES,
-    NURSERY,
+    super::NURSERY,
     "multiple versions of the `bevy` crate found",
     @crate_level_only = true,
 }

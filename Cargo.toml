@@ -15,7 +15,7 @@ name = "bevy"
 path = "src/bin/main.rs"
 
 [features]
-default = ["web"]
+default = ["rustup", "web"]
 
 # To optimize the Wasm binaries
 wasm-opt = ["web"]
@@ -30,6 +30,10 @@ web = [
     "dep:tokio",
     "dep:fs_extra",
 ]
+
+# Support installing required targets with `rustup` from a prompt.
+# You can disable this feature if your system doesn't have rustup installed.
+rustup = []
 
 [dependencies]
 # CLI argument parsing
