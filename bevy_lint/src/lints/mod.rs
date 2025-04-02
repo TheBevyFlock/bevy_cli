@@ -22,8 +22,9 @@
 //!
 //! [lint groups that can be toggled together]: crate#toggling-lints-in-cargotoml
 
-use crate::lint::{BevyLint, LintGroup};
-use rustc_lint::{Lint, LintStore};
+use rustc_lint::LintStore;
+
+use crate::lint::LintGroup;
 
 mod cargo;
 
@@ -36,85 +37,40 @@ pub mod restriction;
 pub mod style;
 pub mod suspicious;
 
-/// A list of all [`BevyLint`]s.
-///
-/// If a group is not in this list, it will not be registered in [`register_lints()`].
-static LINTS: &[&BevyLint] = &[
-    // This list should be sorted alphabetically based on the lint's name, not group.
-    pedantic::borrowed_reborrowable::BORROWED_REBORROWABLE,
-    nursery::duplicate_bevy_dependencies::DUPLICATE_BEVY_DEPENDENCIES,
-    suspicious::insert_event_resource::INSERT_EVENT_RESOURCE,
-    suspicious::insert_unit_bundle::INSERT_UNIT_BUNDLE,
-    suspicious::iter_current_update_events::ITER_CURRENT_UPDATE_EVENTS,
-    pedantic::main_return_without_appexit::MAIN_RETURN_WITHOUT_APPEXIT,
-    restriction::missing_reflect::MISSING_REFLECT,
-    restriction::panicking_methods::PANICKING_METHODS,
-    style::plugin_not_ending_in_plugin::PLUGIN_NOT_ENDING_IN_PLUGIN,
-    nursery::zst_query::ZST_QUERY,
-];
-
-/// A list of all [`LintGroup`]s.
-///
-/// If a group is not in this list, it will not be registered in [`register_groups()`].
-static GROUPS: &[&LintGroup] = &[
-    // This list should be sorted alphabetically.
-    complexity::COMPLEXITY,
-    correctness::CORRECTNESS,
-    nursery::NURSERY,
-    pedantic::PEDANTIC,
-    performance::PERFORMANCE,
-    restriction::RESTRICTION,
-    style::STYLE,
-    suspicious::SUSPICIOUS,
-];
-
 /// Registers all [`BevyLint`]s in [`LINTS`] with the [`LintStore`].
 pub(crate) fn register_lints(store: &mut LintStore) {
-    let lints: Vec<&Lint> = LINTS.iter().map(|x| x.lint).collect();
-    store.register_lints(&lints);
+    complexity::Complexity::register_lints(store);
+    correctness::Correctness::register_lints(store);
+    nursery::Nursery::register_lints(store);
+    pedantic::Pedantic::register_lints(store);
+    performance::Performance::register_lints(store);
+    restriction::Restriction::register_lints(store);
+    style::Style::register_lints(store);
+    suspicious::Suspicious::register_lints(store);
 }
 
 /// Registers all lint passes with the [`LintStore`].
 pub(crate) fn register_passes(store: &mut LintStore) {
-    store.register_late_pass(|_| {
-        Box::new(pedantic::borrowed_reborrowable::BorrowedReborrowable::default())
-    });
+    complexity::Complexity::register_passes(store);
+    correctness::Correctness::register_passes(store);
+    nursery::Nursery::register_passes(store);
+    pedantic::Pedantic::register_passes(store);
+    performance::Performance::register_passes(store);
+    restriction::Restriction::register_passes(store);
+    style::Style::register_passes(store);
+    suspicious::Suspicious::register_passes(store);
+
     store.register_late_pass(|_| Box::new(cargo::Cargo::default()));
-    store.register_late_pass(|_| {
-        Box::new(suspicious::insert_event_resource::InsertEventResource::default())
-    });
-    store.register_late_pass(|_| {
-        Box::new(suspicious::insert_unit_bundle::InsertUnitBundle::default())
-    });
-    store.register_late_pass(|_| {
-        Box::new(suspicious::iter_current_update_events::IterCurrentUpdateEvents::default())
-    });
-    store.register_late_pass(|_| {
-        Box::new(pedantic::main_return_without_appexit::MainReturnWithoutAppExit::default())
-    });
-    store.register_late_pass(|_| Box::new(restriction::missing_reflect::MissingReflect::default()));
-    store.register_late_pass(|_| {
-        Box::new(restriction::panicking_methods::PanickingMethods::default())
-    });
-    store.register_late_pass(|_| {
-        Box::new(style::plugin_not_ending_in_plugin::PluginNotEndingInPlugin::default())
-    });
-    store.register_late_pass(|_| Box::new(nursery::zst_query::ZstQuery::default()));
 }
 
 /// Registers all [`LintGroup`]s in [`GROUPS`] with the [`LintStore`].
 pub(crate) fn register_groups(store: &mut LintStore) {
-    for &group in GROUPS {
-        let lints = LINTS
-            .iter()
-            .copied()
-            // Only select lints of this specified group.
-            .filter(|l| l.group == group)
-            // Convert the lints into their `LintId`s.
-            .map(BevyLint::id)
-            // Collect into a `Vec`.
-            .collect();
-
-        store.register_group(true, group.name, None, lints);
-    }
+    complexity::Complexity::register_group(store);
+    correctness::Correctness::register_group(store);
+    nursery::Nursery::register_group(store);
+    pedantic::Pedantic::register_group(store);
+    performance::Performance::register_group(store);
+    restriction::Restriction::register_group(store);
+    style::Style::register_group(store);
+    suspicious::Suspicious::register_group(store);
 }
