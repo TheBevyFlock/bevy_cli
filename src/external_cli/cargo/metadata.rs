@@ -173,9 +173,11 @@ mod tests {
         assert!(metadata.is_ok());
         let metadata = metadata.unwrap();
 
-        assert!(metadata
-            .packages
-            .iter()
-            .any(|package| package.name == "bevy_cli"));
+        assert!(
+            metadata
+                .packages
+                .iter()
+                .any(|package| package.name == "bevy_cli")
+        );
     }
 }

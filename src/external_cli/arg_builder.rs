@@ -54,11 +54,7 @@ impl ArgBuilder {
     where
         N: Into<String>,
     {
-        if value {
-            self.arg(name)
-        } else {
-            self
-        }
+        if value { self.arg(name) } else { self }
     }
 
     /// Add an argument with an optional value.

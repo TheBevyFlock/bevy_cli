@@ -1,12 +1,12 @@
 //! Serving the app locally for the browser.
 use axum::{
+    Router,
     extract::{
-        ws::{Message, WebSocket},
         WebSocketUpgrade,
+        ws::{Message, WebSocket},
     },
     response::Response,
     routing::{any, get},
-    Router,
 };
 use std::net::SocketAddr;
 use tower_http::{

@@ -11,7 +11,7 @@ use crate::{
     external_cli::{cargo, wasm_bindgen},
     web::{
         bin_target::select_run_binary,
-        bundle::{create_web_bundle, PackedBundle},
+        bundle::{PackedBundle, create_web_bundle},
         profiles::configure_default_web_profiles,
     },
 };
