@@ -47,7 +47,7 @@ pub(crate) fn run_web(args: &RunArgs) -> anyhow::Result<()> {
             Ok(()) => info!("Your app is running at <{url}>!"),
             Err(error) => {
                 error!(
-                    "Failed to open the browser automatically, open the app at <{url}>. (Error: {error:?}"
+                    "Failed to open the browser automatically, open the app at <{url}>. (Error: {error:?})"
                 );
             }
         }
