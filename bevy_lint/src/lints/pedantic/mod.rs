@@ -6,14 +6,29 @@
 //!
 //! These lints are **allow** by default.
 
-use rustc_lint::Level;
+use rustc_lint::{Level, Lint, LintStore};
 
 use crate::lint::LintGroup;
 
 pub mod borrowed_reborrowable;
 pub mod main_return_without_appexit;
 
-pub(crate) static PEDANTIC: &LintGroup = &LintGroup {
-    name: "bevy::pedantic",
-    level: Level::Allow,
-};
+pub(crate) struct Pedantic;
+
+impl LintGroup for Pedantic {
+    const NAME: &str = "bevy::pedantic";
+    const LEVEL: Level = Level::Allow;
+    const LINTS: &[&Lint] = &[
+        borrowed_reborrowable::BORROWED_REBORROWABLE,
+        main_return_without_appexit::MAIN_RETURN_WITHOUT_APPEXIT,
+    ];
+
+    fn register_passes(store: &mut LintStore) {
+        store.register_late_pass(|_| {
+            Box::new(borrowed_reborrowable::BorrowedReborrowable::default())
+        });
+        store.register_late_pass(|_| {
+            Box::new(main_return_without_appexit::MainReturnWithoutAppExit::default())
+        });
+    }
+}

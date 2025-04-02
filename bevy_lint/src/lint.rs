@@ -1,33 +1,31 @@
 //! Supporting types and macros that help simplify developing a linter.
 
-use rustc_lint::{Level, Lint, LintId};
+use rustc_lint::{Level, Lint, LintId, LintStore};
 
-/// A Bevy lint definition and its associated group.
-///
-/// The level of the lint must be the same as the level of the group.
-#[derive(Debug)]
-pub struct BevyLint {
-    pub lint: &'static Lint,
-    pub group: &'static LintGroup,
-}
+/// A lint group, which contains several lints and lint passes.
+pub trait LintGroup {
+    /// The name of this lint group.
+    const NAME: &str;
 
-impl BevyLint {
-    pub fn id(&self) -> LintId {
-        LintId::of(self.lint)
+    /// The default [`Level`] of this lint group.
+    const LEVEL: Level;
+
+    /// A list of [`Lint`]s in this lint group.
+    const LINTS: &[&Lint];
+
+    /// Registers all of the lints in  [`Self::LINTS`] with a given [`LintStore`].
+    fn register_lints(store: &mut LintStore) {
+        store.register_lints(Self::LINTS);
     }
-}
 
-/// Represents a lint group.
-#[derive(PartialEq, Debug)]
-pub struct LintGroup {
-    /// The name of the lint group.
-    ///
-    /// This will be used when trying to enable / disable the group, such as through
-    /// `#![allow(group)]`. By convention, this should start with `bevy::`.
-    pub name: &'static str,
+    /// Registers all of this group's lint passes with a given [`LintStore`].
+    fn register_passes(store: &mut LintStore);
 
-    // The default level all lints within this group should be.
-    pub level: Level,
+    /// Registers this lint group with a given [`LintStore`].
+    fn register_group(store: &mut LintStore) {
+        let lints = Self::LINTS.iter().map(|&lint| LintId::of(lint)).collect();
+        store.register_group(true, Self::NAME, None, lints);
+    }
 }
 
 /// Creates a new [`BevyLint`].
