@@ -4,7 +4,6 @@ use tracing::info;
 use crate::{
     bin_target::BinTarget,
     build::args::{BuildArgs, BuildSubcommands},
-    config::CliConfig,
     external_cli::{
         cargo::{self, metadata::Metadata},
         rustup, wasm_bindgen,
@@ -31,9 +30,6 @@ pub fn build_web(
     metadata: &Metadata,
     bin_target: &BinTarget,
 ) -> anyhow::Result<WebBundle> {
-    let config = CliConfig::for_package(metadata, &bin_target.package, true, args.is_release())?;
-    args.apply_config(&config);
-
     let Some(BuildSubcommands::Web(web_args)) = &args.subcommand else {
         anyhow::bail!("tried to build for the web without matching arguments");
     };

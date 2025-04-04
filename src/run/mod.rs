@@ -1,6 +1,6 @@
 #[cfg(feature = "web")]
 use crate::web::run::run_web;
-use crate::{bin_target::select_run_binary, external_cli::cargo};
+use crate::{bin_target::select_run_binary, config::CliConfig, external_cli::cargo};
 
 pub use self::args::RunArgs;
 
@@ -14,12 +14,12 @@ pub fn run(args: &mut RunArgs) -> anyhow::Result<()> {
         args.cargo_args.package_args.package.as_deref(),
         args.cargo_args.target_args.bin.as_deref(),
         args.cargo_args.target_args.example.as_deref(),
-        args.cargo_args
-            .compilation_args
-            .target(args.is_web())
-            .as_deref(),
-        args.cargo_args.compilation_args.profile(args.is_web()),
+        args.target().as_deref(),
+        args.profile(),
     )?;
+
+    let config = CliConfig::for_package(&metadata, &bin_target.package, true, args.is_release())?;
+    args.apply_config(&config);
 
     #[cfg(feature = "web")]
     if args.is_web() {

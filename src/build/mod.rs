@@ -2,7 +2,7 @@ use args::BuildArgs;
 
 #[cfg(feature = "web")]
 use crate::web::build::build_web;
-use crate::{bin_target::select_run_binary, external_cli::cargo};
+use crate::{bin_target::select_run_binary, config::CliConfig, external_cli::cargo};
 
 pub mod args;
 
@@ -17,6 +17,9 @@ pub fn build(args: &mut BuildArgs) -> anyhow::Result<()> {
         args.target().as_deref(),
         args.profile(),
     )?;
+
+    let config = CliConfig::for_package(&metadata, &bin_target.package, true, args.is_release())?;
+    args.apply_config(&config);
 
     #[cfg(feature = "web")]
     if args.is_web() {

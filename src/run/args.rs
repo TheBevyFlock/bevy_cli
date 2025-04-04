@@ -4,6 +4,7 @@ use clap::{ArgAction, Args, Subcommand};
 use crate::build::args::{BuildSubcommands, BuildWebArgs};
 use crate::{
     build::args::BuildArgs,
+    config::CliConfig,
     external_cli::{arg_builder::ArgBuilder, cargo::run::CargoRunArgs},
 };
 
@@ -35,9 +36,38 @@ impl RunArgs {
         false
     }
 
+    /// Whether to build with optimizations.
+    pub(crate) fn is_release(&self) -> bool {
+        self.cargo_args.compilation_args.is_release
+    }
+
+    /// The profile used to compile the app.
+    pub(crate) fn profile(&self) -> &str {
+        self.cargo_args.compilation_args.profile(self.is_web())
+    }
+
+    /// The targeted platform.
+    pub(crate) fn target(&self) -> Option<String> {
+        self.cargo_args.compilation_args.target(self.is_web())
+    }
+
     /// Generate arguments for `cargo`.
     pub(crate) fn cargo_args_builder(&self) -> ArgBuilder {
         self.cargo_args.args_builder(self.is_web())
+    }
+
+    /// Apply the config on top of the CLI arguments.
+    ///
+    /// CLI arguments take precedence.
+    pub(crate) fn apply_config(&mut self, config: &CliConfig) {
+        self.cargo_args
+            .feature_args
+            .features
+            .extend(config.features().iter().cloned());
+        // TODO: Only overwrite if not explicitly set by the user
+        // Potentially could be detected via `ArgMatches::value_source``
+        self.cargo_args.feature_args.is_no_default_features =
+            self.cargo_args.feature_args.is_no_default_features || !config.default_features();
     }
 }
 

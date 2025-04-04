@@ -37,13 +37,11 @@ impl BuildArgs {
     }
 
     /// The profile used to compile the app.
-    #[cfg(feature = "web")]
     pub(crate) fn profile(&self) -> &str {
         self.cargo_args.compilation_args.profile(self.is_web())
     }
 
     /// The targeted platform.
-    #[cfg(feature = "web")]
     pub(crate) fn target(&self) -> Option<String> {
         self.cargo_args.compilation_args.target(self.is_web())
     }
