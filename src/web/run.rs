@@ -2,7 +2,7 @@ use tracing::{error, info};
 
 use crate::{
     build::args::BuildArgs,
-    external_cli::cargo,
+    external_cli::cargo::metadata::Metadata,
     run::{args::RunSubcommands, RunArgs},
 };
 
@@ -11,7 +11,7 @@ use super::{bin_target::select_run_binary, build::build_web, serve::serve};
 /// Run the app in the browser.
 ///
 /// Requires [`RunSubcommands::Web`] to be defined.
-pub(crate) fn run_web(args: &RunArgs) -> anyhow::Result<()> {
+pub(crate) fn run_web(args: &RunArgs, metadata: &Metadata) -> anyhow::Result<()> {
     let Some(RunSubcommands::Web(web_args)) = &args.subcommand else {
         anyhow::bail!("tried to run on the web without corresponding args");
     };
@@ -23,9 +23,8 @@ pub(crate) fn run_web(args: &RunArgs) -> anyhow::Result<()> {
     if build_args.cargo_args.target_args.bin.is_none()
         && build_args.cargo_args.target_args.example.is_none()
     {
-        let metadata = cargo::metadata::metadata_with_args(["--no-deps"])?;
         let bin_target = select_run_binary(
-            &metadata,
+            metadata,
             args.cargo_args.package_args.package.as_deref(),
             args.cargo_args.target_args.bin.as_deref(),
             args.cargo_args.target_args.example.as_deref(),
@@ -36,7 +35,7 @@ pub(crate) fn run_web(args: &RunArgs) -> anyhow::Result<()> {
         build_args.cargo_args.target_args.bin = Some(bin_target.bin_name);
     }
 
-    let web_bundle = build_web(&mut build_args)?;
+    let web_bundle = build_web(&mut build_args, metadata)?;
 
     let port = web_args.port;
     let url = format!("http://localhost:{port}");

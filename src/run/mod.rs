@@ -6,10 +6,12 @@ pub use self::args::RunArgs;
 
 pub mod args;
 
-pub fn run(args: &RunArgs) -> anyhow::Result<()> {
+pub fn run(args: &mut RunArgs) -> anyhow::Result<()> {
+    let metadata = cargo::metadata::metadata_with_args(["--no-deps"])?;
+
     #[cfg(feature = "web")]
     if args.is_web() {
-        return run_web(args);
+        return run_web(args, &metadata);
     }
 
     let cargo_args = args.cargo_args_builder();

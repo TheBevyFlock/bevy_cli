@@ -7,9 +7,11 @@ use crate::web::build::build_web;
 pub mod args;
 
 pub fn build(args: &mut BuildArgs) -> anyhow::Result<()> {
+    let metadata = cargo::metadata::metadata_with_args(["--no-deps"])?;
+
     #[cfg(feature = "web")]
     if args.is_web() {
-        build_web(args)?;
+        build_web(args, &metadata)?;
         return Ok(());
     }
 
