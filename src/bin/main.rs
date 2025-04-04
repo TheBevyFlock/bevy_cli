@@ -35,7 +35,7 @@ fn main() -> Result<()> {
         }
         Subcommands::Lint { args } => bevy_cli::lint::lint(args)?,
         Subcommands::Build(mut args) => bevy_cli::build::build(&mut args)?,
-        Subcommands::Run(args) => bevy_cli::run::run(&args)?,
+        Subcommands::Run(mut args) => bevy_cli::run::run(&mut args)?,
         Subcommands::Completions { shell } => {
             clap_complete::generate(shell, &mut Cli::command(), "bevy", &mut std::io::stdout());
         }

@@ -2,7 +2,7 @@ use std::{fs, time::Instant};
 
 use tracing::info;
 
-use crate::{external_cli::CommandExt, web::bin_target::BinTarget};
+use crate::{bin_target::BinTarget, external_cli::CommandExt};
 
 pub(crate) const PACKAGE: &str = "wasm-opt";
 pub(crate) const PROGRAM: &str = "wasm-opt";

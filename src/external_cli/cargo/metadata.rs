@@ -62,9 +62,12 @@ pub struct Metadata {
     /// The absolute path to the root of the workspace.
     /// This will be the root of the package if no workspace is used.
     pub workspace_root: PathBuf,
+    /// Workspace metadata.
+    /// This is `null` if no metadata is specified.
+    pub metadata: serde_json::Value,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct Package {
     /// The name of the package.
     pub name: String,
@@ -79,6 +82,9 @@ pub struct Package {
     pub manifest_path: PathBuf,
     /// Optional string that is the default binary picked by cargo run.
     pub default_run: Option<String>,
+    /// Package metadata.
+    /// This is `null` if no metadata is specified.
+    pub metadata: serde_json::Value,
 }
 
 impl Package {
@@ -104,6 +110,12 @@ impl Package {
         self.targets
             .iter()
             .filter(|target| target.kind.iter().any(|kind| *kind == TargetKind::Example))
+    }
+}
+
+impl PartialEq for Package {
+    fn eq(&self, other: &Self) -> bool {
+        self.id == other.id
     }
 }
 
@@ -138,7 +150,7 @@ pub enum DependencyKind {
     Unknown(String),
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct Target {
     pub kind: Vec<TargetKind>,
     /// The name of the target.
@@ -147,7 +159,7 @@ pub struct Target {
     pub name: String,
 }
 
-#[derive(Debug, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Deserialize, PartialEq, Eq, Clone)]
 #[serde(rename_all = "kebab-case")]
 pub enum TargetKind {
     Lib,
