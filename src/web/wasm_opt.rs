@@ -3,7 +3,7 @@ use std::{fs, path::Path, time::Instant};
 use anyhow::Context as _;
 use tracing::info;
 
-use crate::web::bin_target::BinTarget;
+use crate::bin_target::BinTarget;
 
 /// Optimize the binary with wasm-opt.
 pub(crate) fn optimize_bin(bin_target: &BinTarget) -> anyhow::Result<()> {

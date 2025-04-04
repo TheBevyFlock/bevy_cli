@@ -2,6 +2,7 @@ use anyhow::Context as _;
 use tracing::info;
 
 use crate::{
+    bin_target::BinTarget,
     build::args::{BuildArgs, BuildSubcommands},
     config::CliConfig,
     external_cli::{
@@ -9,7 +10,6 @@ use crate::{
         rustup, wasm_bindgen,
     },
     web::{
-        bin_target::select_run_binary,
         bundle::{create_web_bundle, PackedBundle},
         profiles::configure_default_web_profiles,
     },
@@ -26,16 +26,11 @@ use super::bundle::WebBundle;
 /// - Optimizing the Wasm binary (in release mode)
 /// - Creating JavaScript bindings
 /// - Creating a bundled folder (if requested)
-pub fn build_web(args: &mut BuildArgs, metadata: &Metadata) -> anyhow::Result<WebBundle> {
-    let bin_target = select_run_binary(
-        metadata,
-        args.cargo_args.package_args.package.as_deref(),
-        args.cargo_args.target_args.bin.as_deref(),
-        args.cargo_args.target_args.example.as_deref(),
-        args.target().as_deref(),
-        args.profile(),
-    )?;
-
+pub fn build_web(
+    args: &mut BuildArgs,
+    metadata: &Metadata,
+    bin_target: &BinTarget,
+) -> anyhow::Result<WebBundle> {
     let config = CliConfig::for_package(metadata, &bin_target.package, true, args.is_release())?;
     args.apply_config(&config);
 
@@ -57,17 +52,17 @@ pub fn build_web(args: &mut BuildArgs, metadata: &Metadata) -> anyhow::Result<We
     cargo::build::command().args(cargo_args).ensure_status()?;
 
     info!("Bundling JavaScript bindings...");
-    wasm_bindgen::bundle(&bin_target)?;
+    wasm_bindgen::bundle(bin_target)?;
 
     #[cfg(feature = "wasm-opt")]
     if args.is_release() {
-        crate::web::wasm_opt::optimize_bin(&bin_target)?;
+        crate::web::wasm_opt::optimize_bin(bin_target)?;
     }
 
     let web_bundle = create_web_bundle(
         metadata,
         args.profile(),
-        &bin_target,
+        bin_target,
         web_args.create_packed_bundle,
     )
     .context("Failed to create web bundle")?;

@@ -1,17 +1,26 @@
 use args::BuildArgs;
 
-use crate::external_cli::cargo;
 #[cfg(feature = "web")]
 use crate::web::build::build_web;
+use crate::{bin_target::select_run_binary, external_cli::cargo};
 
 pub mod args;
 
 pub fn build(args: &mut BuildArgs) -> anyhow::Result<()> {
     let metadata = cargo::metadata::metadata_with_args(["--no-deps"])?;
 
+    let bin_target = select_run_binary(
+        &metadata,
+        args.cargo_args.package_args.package.as_deref(),
+        args.cargo_args.target_args.bin.as_deref(),
+        args.cargo_args.target_args.example.as_deref(),
+        args.target().as_deref(),
+        args.profile(),
+    )?;
+
     #[cfg(feature = "web")]
     if args.is_web() {
-        build_web(args, &metadata)?;
+        build_web(args, &metadata, &bin_target)?;
         return Ok(());
     }
 
