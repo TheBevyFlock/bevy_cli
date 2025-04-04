@@ -6,14 +6,16 @@ use std::{
     process::{Command, ExitStatus, Output},
 };
 
-use tracing::{debug, error, info, trace, warn, Level};
+use tracing::{Level, debug, error, info, trace, warn};
 
 pub mod arg_builder;
 pub(crate) mod cargo;
-#[cfg(feature = "web")]
+#[cfg(feature = "rustup")]
 pub(crate) mod rustup;
 #[cfg(feature = "web")]
 pub(crate) mod wasm_bindgen;
+#[cfg(feature = "wasm-opt")]
+pub(crate) mod wasm_opt;
 
 pub struct CommandExt {
     inner: Command,

@@ -3,7 +3,7 @@ use std::str::FromStr;
 
 use crate::bin_target::BinTarget;
 
-use super::{arg_builder::ArgBuilder, CommandExt};
+use super::{CommandExt, arg_builder::ArgBuilder};
 
 pub(crate) const PACKAGE: &str = "wasm-bindgen-cli";
 pub(crate) const PROGRAM: &str = "wasm-bindgen";

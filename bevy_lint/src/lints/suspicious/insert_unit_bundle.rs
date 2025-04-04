@@ -61,7 +61,7 @@ use crate::{declare_bevy_lint, declare_bevy_lint_pass, utils::hir_parse::MethodC
 
 declare_bevy_lint! {
     pub INSERT_UNIT_BUNDLE,
-    SUSPICIOUS,
+    super::SUSPICIOUS,
     "inserted a `Bundle` containing a unit `()` type",
 }
 
@@ -88,9 +88,11 @@ impl<'tcx> LateLintPass<'tcx> for InsertUnitBundle {
 
         let src_ty = cx.typeck_results().expr_ty(receiver).peel_refs();
 
-        // If the method call was not to `Commands::spawn()` we skip it.
-        if !(match_type(cx, src_ty, &crate::paths::COMMANDS)
-            && method_path.ident.name == self.spawn)
+        // If the method call was not to `Commands::spawn()` or originates from an external macro,
+        // we skip it.
+        if !(span.in_external_macro(cx.tcx.sess.source_map())
+            || match_type(cx, src_ty, &crate::paths::COMMANDS)
+                && method_path.ident.name == self.spawn)
         {
             return;
         }

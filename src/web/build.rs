@@ -1,15 +1,20 @@
 use anyhow::Context as _;
 use tracing::info;
 
+#[cfg(feature = "rustup")]
+use crate::external_cli::rustup;
+#[cfg(feature = "wasm-opt")]
+use crate::external_cli::wasm_opt;
+
 use crate::{
     bin_target::BinTarget,
     build::args::{BuildArgs, BuildSubcommands},
     external_cli::{
         cargo::{self, metadata::Metadata},
-        rustup, wasm_bindgen,
+        wasm_bindgen,
     },
     web::{
-        bundle::{create_web_bundle, PackedBundle},
+        bundle::{PackedBundle, create_web_bundle},
         profiles::configure_default_web_profiles,
     },
 };
@@ -52,7 +57,7 @@ pub fn build_web(
 
     #[cfg(feature = "wasm-opt")]
     if args.is_release() {
-        crate::web::wasm_opt::optimize_bin(bin_target)?;
+        wasm_opt::optimize_path(&bin_target)?;
     }
 
     let web_bundle = create_web_bundle(
@@ -83,6 +88,7 @@ pub(crate) fn ensure_web_setup(skip_prompts: bool) -> anyhow::Result<()> {
         .ok_or_else(|| anyhow::anyhow!("Failed to find wasm-bindgen"))?;
 
     // `wasm32-unknown-unknown` compilation target
+    #[cfg(feature = "rustup")]
     rustup::install_target_if_needed("wasm32-unknown-unknown", skip_prompts)?;
     // `wasm-bindgen-cli` for bundling
     cargo::install::if_needed(
@@ -91,6 +97,10 @@ pub(crate) fn ensure_web_setup(skip_prompts: bool) -> anyhow::Result<()> {
         Some(&wasm_bindgen_version),
         skip_prompts,
     )?;
+
+    // `wasm-opt` for optimizing wasm files
+    #[cfg(feature = "wasm-opt")]
+    cargo::install::if_needed(wasm_opt::PACKAGE, wasm_opt::PROGRAM, None, skip_prompts)?;
 
     Ok(())
 }

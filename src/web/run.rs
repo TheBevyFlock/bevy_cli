@@ -4,7 +4,7 @@ use crate::{
     bin_target::BinTarget,
     build::args::BuildArgs,
     external_cli::cargo::metadata::Metadata,
-    run::{args::RunSubcommands, RunArgs},
+    run::{RunArgs, args::RunSubcommands},
 };
 
 use super::{build::build_web, serve::serve};
@@ -41,7 +41,9 @@ pub(crate) fn run_web(
         match webbrowser::open(&url) {
             Ok(()) => info!("Your app is running at <{url}>!"),
             Err(error) => {
-                error!("Failed to open the browser automatically, open the app at <{url}>. (Error: {error:?}");
+                error!(
+                    "Failed to open the browser automatically, open the app at <{url}>. (Error: {error:?})"
+                );
             }
         }
     } else {

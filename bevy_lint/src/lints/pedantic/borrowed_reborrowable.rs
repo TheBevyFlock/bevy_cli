@@ -112,7 +112,7 @@ use rustc_span::{
 
 declare_bevy_lint! {
     pub BORROWED_REBORROWABLE,
-    PEDANTIC,
+    super::PEDANTIC,
     "function parameter takes a mutable reference to a re-borrowable type",
 }
 
@@ -127,9 +127,14 @@ impl<'tcx> LateLintPass<'tcx> for BorrowedReborrowable {
         kind: FnKind<'tcx>,
         decl: &'tcx FnDecl<'tcx>,
         _: &'tcx Body<'tcx>,
-        _: Span,
+        fn_span: Span,
         def_id: LocalDefId,
     ) {
+        // If the function originates from an external macro, skip this lint
+        if fn_span.in_external_macro(cx.tcx.sess.source_map()) {
+            return;
+        }
+
         let fn_sig = match kind {
             FnKind::Closure => cx.tcx.closure_user_provided_sig(def_id).value,
             // We use `instantiate_identity` to discharge the binder since we don't

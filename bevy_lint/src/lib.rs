@@ -2,19 +2,33 @@
 //! [Clippy](https://doc.rust-lang.org/stable/clippy).
 //!
 //! This is the primary documentation for its lints and lint groups. `bevy_lint` is not intended to
-//! be consumed as a library. You can find the documentation for individual lints in the [`lints`]
-//! module, and the documentation for lint groups in the [`groups`] module.
+//! be consumed as a library. You can find the documentation for individual lints and their groups
+//! in the [`lints`] module.
+//!
+//! <!--
+//! Override these links to point to the local copy of the docs.
+//! For more info on how this works, see <https://linebender.org/blog/doc-include/>.
+//! -->
+//! [**Documentation**]: crate
+//! [**All Lints**]: crate::lints
 #![doc = include_str!("../README.md")]
 // Enables linking to `rustc` crates.
 #![feature(rustc_private)]
 // Allows chaining `if let` multiple times using `&&`.
 #![feature(let_chains)]
-// Warn on internal `rustc` lints that check for poor usage of internal compiler APIs.
+// Warn on internal `rustc` lints that check for poor usage of internal compiler APIs. Note that
+// you also need to pass `-Z unstable-options` to `rustc` for this to be enabled:
+// `RUSTFLAGS="-Zunstable-options" cargo check`
 #![warn(rustc::internal)]
+#![allow(
+    rustc::usage_of_ty_tykind,
+    reason = "Many false positives without a valid replacement."
+)]
 
 // This is a list of every single `rustc` crate used within this library. If you need another, add
 // it here!
 extern crate rustc_abi;
+extern crate rustc_data_structures;
 extern crate rustc_driver;
 extern crate rustc_errors;
 extern crate rustc_hir;
@@ -28,7 +42,6 @@ extern crate rustc_span;
 
 mod callback;
 mod config;
-pub mod groups;
 mod lint;
 pub mod lints;
 mod paths;

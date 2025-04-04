@@ -6,10 +6,17 @@
 
 </div>
 
-- [**Documentation**](https://thebevyflock.github.io/bevy_cli/bevy_lint/)
-- [**All Lints**](https://thebevyflock.github.io/bevy_cli/bevy_lint/lints/index.html)
+- [**Documentation**]
+- [**All Lints**]
 - [**Repository**](https://github.com/TheBevyFlock/bevy_cli)
 - [**Issue Tracker**](https://github.com/TheBevyFlock/bevy_cli/issues?q=is%3Aopen+is%3Aissue+label%3AA-Linter)
+
+<!--
+These links get overridden when this file is rendered by `rustdoc`.
+For more info on how this works, see <https://linebender.org/blog/doc-include/>.
+-->
+[**Documentation**]: https://thebevyflock.github.io/bevy_cli/bevy_lint/
+[**All Lints**]: https://thebevyflock.github.io/bevy_cli/bevy_lint/lints/index.html
 
 <div class="rustdoc-alert rustdoc-alert-warning">
 
@@ -38,7 +45,7 @@ For example, you would replace `$TOOLCHAIN_VERSION` with `nightly-2024-11-14` if
 Once you have the toolchain installed, you can compile and install `bevy_lint` through `cargo`:
 
 ```bash
-rustup run $TOOLCHAIN_VERSION cargo install \    
+rustup run $TOOLCHAIN_VERSION cargo install \
     --git https://github.com/TheBevyFlock/bevy_cli.git \
     --tag $TAG \
     --locked \
@@ -75,7 +82,9 @@ You can set the default level for lints in a `Cargo.toml` using the `[package.me
 
 ```toml
 [package.metadata.bevy_lint]
+# Make the `missing_reflect` lint a warning.
 missing_reflect = "warn"
+# Make the `panicking_methods` lint an error that cannot be `#[allow(...)]`d.
 panicking_methods = { level = "forbid" }
 ```
 
@@ -83,6 +92,7 @@ You can configure lints for an entire workspace by using `[workspace.metadata.be
 
 ```toml
 [workspace.metadata.bevy_lint]
+# Enable the entire `pedantic` lint group, and make them all warnings.
 pedantic = "warn"
 ```
 
@@ -152,7 +162,7 @@ Once `bevy` is registered, you can toggle lints throughout your code, as long as
 ```rust,ignore
 #![cfg_attr(bevy_lint, feature(register_tool), register_tool(bevy))]
 
-// Enable pedantic lints, which are off by default.
+// Enable the `pedantic` lint group, which is off by default.
 #![cfg_attr(bevy_lint, warn(bevy::pedantic))]
 
 // Deny panicking Bevy methods in this system when a non-panicking alternatives exist.
@@ -176,7 +186,8 @@ There are several other ways to toggle lints, although some have varying levels 
 
 |`bevy_lint` Version|Rust Version|Rustup Toolchain|Bevy Version|
 |-|-|-|-|
-|0.2.0-dev|1.84.0|`nightly-2025-02-20`|0.15|
+|0.3.0-dev|1.84.0|`nightly-2025-02-20`|0.16|
+|0.2.0|1.84.0|`nightly-2025-02-20`|0.15|
 |0.1.0|1.84.0|`nightly-2024-11-14`|0.14|
 
 The Rust version in the above table specifies what [version of the Rust language](https://github.com/rust-lang/rust/releases) can be compiled with `bevy_lint`. Code written for a later version of Rust may not compile. (This is not usually an issue, though, because `bevy_lint`'s Rust version is kept 1 to 2 releases ahead of stable Rust.)

@@ -70,7 +70,7 @@ declare_bevy_lint! {
     pub ZST_QUERY,
     // This will eventually be a `RESTRICTION` lint, but due to
     // <https://github.com/TheBevyFlock/bevy_cli/issues/279> it is not yet ready for production.
-    NURSERY,
+    super::NURSERY,
     "queried a zero-sized type",
 }
 
@@ -80,6 +80,9 @@ declare_bevy_lint_pass! {
 
 impl<'tcx> LateLintPass<'tcx> for ZstQuery {
     fn check_ty(&mut self, cx: &LateContext<'tcx>, hir_ty: &'tcx rustc_hir::Ty<'tcx, AmbigArg>) {
+        if hir_ty.span.in_external_macro(cx.tcx.sess.source_map()) {
+            return;
+        }
         let ty = ty_from_hir_ty(cx, hir_ty.as_unambig_ty());
 
         let Some(query_kind) = QueryKind::try_from_ty(cx, ty) else {
@@ -108,7 +111,7 @@ impl<'tcx> LateLintPass<'tcx> for ZstQuery {
                 hir_ty.span,
                 ZST_QUERY.lint.desc,
                 None,
-                query_kind.help(&peeled),
+                query_kind.help(peeled),
             );
         }
     }
@@ -127,7 +130,7 @@ impl QueryKind {
         }
     }
 
-    fn help(&self, ty: &Ty<'_>) -> String {
+    fn help(&self, ty: Ty<'_>) -> String {
         // It should be noted that `With<Foo>` is not always the best filter to suggest.
         // While it's most often going to be what users want, there's also `Added<Foo>`
         // and `Changed<Foo>` which might be more appropriate in some cases

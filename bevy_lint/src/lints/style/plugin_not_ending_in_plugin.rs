@@ -46,7 +46,7 @@ use rustc_span::symbol::Ident;
 
 declare_bevy_lint! {
     pub PLUGIN_NOT_ENDING_IN_PLUGIN,
-    STYLE,
+    super::STYLE,
     "implemented `Plugin` for a structure whose name does not end in \"Plugin\"",
 }
 
@@ -94,6 +94,11 @@ impl<'tcx> LateLintPass<'tcx> for PluginNotEndingInPlugin {
             else {
                 return;
             };
+
+            // skip lint if the struct was defined in an external macro
+            if struct_span.in_external_macro(cx.tcx.sess.source_map()) {
+                return;
+            }
 
             // If the type's name ends in "Plugin", exit.
             if struct_name.as_str().ends_with("Plugin") {

@@ -1,11 +1,20 @@
 //! Checks for multiple versions of the `bevy` crate in your project's dependencies.
 //!
+//! This lint will prevent you from accidentally using multiple versions of the Bevy game engine at
+//! the same time by scanning your dependency tree for the `bevy` crate. If your project or its
+//! dependencies use different versions of `bevy`, this lint will emit a warning.
+//!
+//! You may also be interested in [`cargo-deny`], which can detect duplicate dependencies as well,
+//! and is far more powerful and configurable.
+//!
+//! [`cargo-deny`]: https://github.com/EmbarkStudios/cargo-deny
+//!
 //! # Motivation
 //!
 //! Cargo allows there to be multiple major versions of a crate in your project's dependency
-//! tree[^semver-compatibility]. Though the two crates and their types are _named_ the same, they
-//! are treated as distinct by the compiler. This can lead to confusing error messages that only
-//! appear if you try to mix the types from the two versions of the crate.
+//! tree[^semver-compatibility]. Although the crates and their types are _named_ the same, they are
+//! treated as distinct by the compiler. This can lead to confusing error messages that only appear
+//! if you try to mix the types from the two versions of the crate.
 //!
 //! With Bevy, these errors become particularly easy to encounter when you add a plugin that pulls
 //! in a different version of the Bevy engine. (This isn't immediately obvious, however, unless you
@@ -51,13 +60,7 @@
 //! leafwing-input-manager = "0.16"
 //! ```
 
-use std::{
-    collections::{BTreeMap, HashMap},
-    ops::Range,
-    path::Path,
-    str::FromStr,
-    sync::Arc,
-};
+use std::{collections::BTreeMap, ops::Range, path::Path, str::FromStr, sync::Arc};
 
 use crate::declare_bevy_lint;
 use cargo_metadata::{
@@ -76,8 +79,9 @@ use toml::Spanned;
 
 declare_bevy_lint! {
     pub DUPLICATE_BEVY_DEPENDENCIES,
-    NURSERY,
+    super::NURSERY,
     "multiple versions of the `bevy` crate found",
+    @crate_level_only = true,
 }
 
 #[derive(Deserialize, Debug)]
@@ -94,7 +98,7 @@ fn toml_span(range: Range<usize>, file: &SourceFile) -> Span {
     )
 }
 
-pub(super) fn check(cx: &LateContext<'_>, metadata: &Metadata, bevy_symbol: Symbol) {
+pub fn check(cx: &LateContext<'_>, metadata: &Metadata, bevy_symbol: Symbol) {
     // no reason to continue the check if there is only one instance of `bevy` required
     if find_crates(cx.tcx, bevy_symbol).len() == 1 {
         return;
@@ -111,7 +115,7 @@ pub(super) fn check(cx: &LateContext<'_>, metadata: &Metadata, bevy_symbol: Symb
         let local_name = cx.tcx.crate_name(LOCAL_CRATE);
 
         // get the package name and the corresponding version of `bevy` that they depend on
-        let mut bevy_dependents = HashMap::new();
+        let mut bevy_dependents = BTreeMap::default();
         for package in &metadata.packages {
             for dependency in &package.dependencies {
                 if dependency.name.as_str() == "bevy"
@@ -145,7 +149,7 @@ fn lint_with_target_version(
     cargo_toml: &CargoToml,
     file: &Arc<SourceFile>,
     bevy_cargo: &Spanned<toml::Value>,
-    bevy_dependents: &HashMap<&str, VersionReq>,
+    bevy_dependents: &BTreeMap<&str, VersionReq>,
 ) {
     // Semver only supports checking if a given `VersionReq` matches a `Version` and not if two
     // `VersionReq` can successfully resolve to one `Version`. Therefore we try to parse the
@@ -181,7 +185,7 @@ fn lint_with_target_version(
 
 fn minimal_lint(
     cx: &LateContext<'_>,
-    bevy_dependents: &HashMap<&str, VersionReq>,
+    bevy_dependents: &BTreeMap<&str, VersionReq>,
     resolved: &Resolve,
 ) {
     // Examples of the underlying string representation of resolved crates

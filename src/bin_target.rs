@@ -109,7 +109,9 @@ pub(crate) fn select_run_binary(
                 .collect();
 
             if default_runs.is_empty() {
-                anyhow::bail!("There are multiple binaries available, try specifying one with --bin or define `default_run` in the Cargo.toml");
+                anyhow::bail!(
+                    "There are multiple binaries available, try specifying one with --bin or define `default_run` in the Cargo.toml"
+                );
             } else if default_runs.len() > 1 {
                 anyhow::bail!(
                     "Found multiple `default_run` definitions, I don't know which one to pick!"

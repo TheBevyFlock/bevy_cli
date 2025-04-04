@@ -4,7 +4,7 @@ members = ["bevy_lint"]
 [package]
 name = "bevy_cli"
 version = "0.1.0-dev"
-edition = "2021"
+edition = "2024"
 license = "MIT OR Apache-2.0"
 # When no binary is specific, run the main CLI by default.
 default-run = "bevy"
@@ -15,7 +15,10 @@ name = "bevy"
 path = "src/bin/main.rs"
 
 [features]
-default = ["web"]
+default = ["rustup", "web"]
+
+# To optimize the Wasm binaries
+wasm-opt = ["web"]
 
 # Run your Bevy app in the browser
 web = [
@@ -28,9 +31,9 @@ web = [
     "dep:fs_extra",
 ]
 
-# To optimize the Wasm binaries
-# Increases compile times (of the CLI) quite a bit
-wasm-opt = ["dep:wasm-opt", "web"]
+# Support installing required targets with `rustup` from a prompt.
+# You can disable this feature if your system doesn't have rustup installed.
+rustup = []
 
 [dependencies]
 # CLI argument parsing
@@ -70,9 +73,6 @@ tracing = "0.1.41"
 tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
 
 # Web dependencies
-
-## Optimizing Wasm binaries
-wasm-opt = { version = "0.116.1", optional = true }
 
 ## Opening the app in the browser
 webbrowser = { version = "1.0.2", optional = true }
