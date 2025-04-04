@@ -26,7 +26,7 @@ pub struct CargoFeatureArgs {
     pub is_all_features: bool,
 
     /// Do not activate the `default` feature
-    #[clap(long = "no-default-features", action = ArgAction::SetTrue)]
+    #[clap(long = "no-default-features")]
     pub is_no_default_features: Option<bool>,
 }
 

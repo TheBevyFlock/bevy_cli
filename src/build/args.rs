@@ -55,6 +55,7 @@ impl BuildArgs {
     ///
     /// CLI arguments take precedence.
     pub(crate) fn apply_config(&mut self, config: &CliConfig) {
+        tracing::debug!("Using config {config:?}");
         self.cargo_args
             .feature_args
             .features
