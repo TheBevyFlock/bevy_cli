@@ -59,10 +59,12 @@ impl BuildArgs {
             .feature_args
             .features
             .extend(config.features().iter().cloned());
-        // TODO: Only overwrite if not explicitly set by the user
-        // Potentially could be detected via `ArgMatches::value_source``
-        self.cargo_args.feature_args.is_no_default_features =
-            self.cargo_args.feature_args.is_no_default_features || !config.default_features();
+        self.cargo_args.feature_args.is_no_default_features = Some(
+            self.cargo_args
+                .feature_args
+                .is_no_default_features
+                .unwrap_or(!config.default_features()),
+        );
     }
 }
 
