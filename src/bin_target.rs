@@ -7,8 +7,12 @@ pub struct BinTarget {
     /// The package containing the binary.
     pub package: Package,
     /// The path to the directory in `target` which contains the binary.
+    // Only used with `web` feature, but cfg-ing it out adds too much boilerplate
+    #[allow(dead_code)]
     pub artifact_directory: PathBuf,
     /// The name of the binary (without any extensions).
+    // Only used with `web` feature, but cfg-ing it out adds too much boilerplate
+    #[allow(dead_code)]
     pub bin_name: String,
 }
 

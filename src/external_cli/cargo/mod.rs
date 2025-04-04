@@ -87,7 +87,6 @@ impl CargoCompilationArgs {
         }
     }
 
-    #[cfg(feature = "web")]
     pub(crate) fn target(&self, is_web: bool) -> Option<String> {
         if is_web {
             Some("wasm32-unknown-unknown".to_string())

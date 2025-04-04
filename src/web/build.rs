@@ -57,7 +57,7 @@ pub fn build_web(
 
     #[cfg(feature = "wasm-opt")]
     if args.is_release() {
-        wasm_opt::optimize_path(&bin_target)?;
+        wasm_opt::optimize_path(bin_target)?;
     }
 
     let web_bundle = create_web_bundle(
