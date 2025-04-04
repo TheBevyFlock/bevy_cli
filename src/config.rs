@@ -1,4 +1,4 @@
-use anyhow::{bail, Context};
+use anyhow::{Context, bail};
 use serde_json::{Map, Value};
 
 use crate::external_cli::cargo::metadata::{Metadata, Package};
