@@ -5,9 +5,11 @@ use axum::{
         WebSocketUpgrade,
         ws::{Message, WebSocket},
     },
+    middleware::map_response,
     response::Response,
     routing::{any, get},
 };
+use http::HeaderMap;
 use std::net::SocketAddr;
 use tower_http::{
     services::{ServeDir, ServeFile},
@@ -32,11 +34,20 @@ async fn handle_socket(mut socket: WebSocket) {
 
 /// Launch a web server running the Bevy app.
 #[tokio::main]
-pub(crate) async fn serve(web_bundle: WebBundle, port: u16) -> anyhow::Result<()> {
+pub(crate) async fn serve(
+    web_bundle: WebBundle,
+    port: u16,
+    header_map: HeaderMap,
+) -> anyhow::Result<()> {
     let addr = SocketAddr::from(([127, 0, 0, 1], port));
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
 
-    let mut router = Router::new().layer(TraceLayer::new_for_http());
+    // PERF: Leaking necessary to satisfy lifetime bounds
+    let header_map = Box::leak(Box::new(header_map));
+
+    let mut router = Router::new();
+
+    tracing::debug!("Adding response headers {header_map:?}");
 
     match web_bundle.clone() {
         WebBundle::Packed(PackedBundle { path }) => {
@@ -108,6 +119,18 @@ pub(crate) async fn serve(web_bundle: WebBundle, port: u16) -> anyhow::Result<()
             }
         }
     }
+
+    // Add middlewares
+    router = router
+        .layer(TraceLayer::new_for_http())
+        // Add user-defined headers to every request
+        .layer(map_response(async |mut response: Response| {
+            let headers = response.headers_mut();
+            for (key, value) in header_map.iter() {
+                headers.append(key, value.clone());
+            }
+            response
+        }));
 
     axum::serve(listener, router).await.unwrap();
 
