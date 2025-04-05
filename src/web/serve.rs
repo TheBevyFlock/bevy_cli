@@ -2,13 +2,15 @@
 use axum::{
     Router,
     extract::{
-        WebSocketUpgrade,
+        Request, WebSocketUpgrade,
         ws::{Message, WebSocket},
     },
     response::Response,
     routing::{any, get},
 };
+use http::HeaderValue;
 use std::net::SocketAddr;
+use tower::ServiceExt;
 use tower_http::{
     services::{ServeDir, ServeFile},
     trace::TraceLayer,
@@ -108,6 +110,16 @@ pub(crate) async fn serve(web_bundle: WebBundle, port: u16) -> anyhow::Result<()
             }
         }
     }
+
+    ServiceExt::<Request>::map_response(&mut router, |mut response: Response| {
+        let headers = response.headers_mut();
+        // TODO: Add user defined headers
+        headers.append(
+            "Cross-Origin-Embedder-Policy",
+            HeaderValue::from_str("require-corp").unwrap(),
+        );
+        response
+    });
 
     axum::serve(listener, router).await.unwrap();
 
