@@ -2,15 +2,15 @@
 use axum::{
     Router,
     extract::{
-        Request, WebSocketUpgrade,
+        WebSocketUpgrade,
         ws::{Message, WebSocket},
     },
+    middleware::map_response,
     response::Response,
     routing::{any, get},
 };
 use http::HeaderMap;
 use std::net::SocketAddr;
-use tower::ServiceExt;
 use tower_http::{
     services::{ServeDir, ServeFile},
     trace::TraceLayer,
@@ -42,7 +42,12 @@ pub(crate) async fn serve(
     let addr = SocketAddr::from(([127, 0, 0, 1], port));
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
 
-    let mut router = Router::new().layer(TraceLayer::new_for_http());
+    // PERF: Leaking necessary to satisfy lifetime bounds
+    let header_map = Box::leak(Box::new(header_map));
+
+    let mut router = Router::new();
+
+    dbg!(&header_map);
 
     match web_bundle.clone() {
         WebBundle::Packed(PackedBundle { path }) => {
@@ -115,14 +120,17 @@ pub(crate) async fn serve(
         }
     }
 
-    // Add user-defined headers to every response
-    ServiceExt::<Request>::map_response(&mut router, |mut response: Response| {
-        let headers = response.headers_mut();
-        for (key, value) in header_map.iter() {
-            headers.append(key, value.clone());
-        }
-        response
-    });
+    // Add middlewares
+    router = router
+        .layer(TraceLayer::new_for_http())
+        // Add user-defined headers to every request
+        .layer(map_response(async |mut response: Response| {
+            let headers = response.headers_mut();
+            for (key, value) in header_map.iter() {
+                headers.append(key, value.clone());
+            }
+            response
+        }));
 
     axum::serve(listener, router).await.unwrap();
 
