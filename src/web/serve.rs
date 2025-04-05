@@ -8,7 +8,7 @@ use axum::{
     response::Response,
     routing::{any, get},
 };
-use http::HeaderValue;
+use http::HeaderMap;
 use std::net::SocketAddr;
 use tower::ServiceExt;
 use tower_http::{
@@ -34,7 +34,11 @@ async fn handle_socket(mut socket: WebSocket) {
 
 /// Launch a web server running the Bevy app.
 #[tokio::main]
-pub(crate) async fn serve(web_bundle: WebBundle, port: u16) -> anyhow::Result<()> {
+pub(crate) async fn serve(
+    web_bundle: WebBundle,
+    port: u16,
+    header_map: HeaderMap,
+) -> anyhow::Result<()> {
     let addr = SocketAddr::from(([127, 0, 0, 1], port));
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
 
@@ -111,13 +115,12 @@ pub(crate) async fn serve(web_bundle: WebBundle, port: u16) -> anyhow::Result<()
         }
     }
 
+    // Add user-defined headers to every response
     ServiceExt::<Request>::map_response(&mut router, |mut response: Response| {
         let headers = response.headers_mut();
-        // TODO: Add user defined headers
-        headers.append(
-            "Cross-Origin-Embedder-Policy",
-            HeaderValue::from_str("require-corp").unwrap(),
-        );
+        for (key, value) in header_map.iter() {
+            headers.append(key, value.clone());
+        }
         response
     });
 

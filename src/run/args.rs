@@ -58,9 +58,15 @@ pub struct RunWebArgs {
     #[arg(short = 'o', long = "open", action = ArgAction::SetTrue, default_value_t = false)]
     pub open: bool,
 
-    // Bundle all web artifacts into a single folder.
+    /// Bundle all web artifacts into a single folder.
     #[arg(short = 'b', long = "bundle", action = ArgAction::SetTrue, default_value_t = false)]
     pub create_packed_bundle: bool,
+
+    /// Header to add to the web-server responses, in the format `name:value` or `name=value`.
+    ///
+    /// Can be defined multiple times to add multiple headers.
+    #[clap(long = "header", value_name = "HEADER")]
+    pub headers: Vec<String>,
 }
 
 impl From<RunArgs> for BuildArgs {
