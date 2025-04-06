@@ -35,8 +35,8 @@
 
 use crate::{declare_bevy_lint, declare_bevy_lint_pass, utils::hir_parse::MethodCall};
 use clippy_utils::{
-    diagnostics::span_lint_hir_and_then, is_entrypoint_fn, sym, ty::match_type,
-    visitors::for_each_expr,
+    diagnostics::span_lint_hir_and_then, is_entrypoint_fn, is_expr_used_or_unified, sym,
+    ty::match_type, visitors::for_each_expr,
 };
 use rustc_errors::Applicability;
 use rustc_hir::{Body, FnDecl, FnRetTy, Ty, TyKind, def_id::LocalDefId, intravisit::FnKind};
@@ -97,7 +97,9 @@ impl<'tcx> LateLintPass<'tcx> for MainReturnWithoutAppExit {
                     let ty = cx.typeck_results().expr_ty(receiver).peel_refs();
 
                     // If `src` is a Bevy `App`, emit the lint.
-                    if match_type(cx, ty, &crate::paths::APP) {
+                    if match_type(cx, ty, &crate::paths::APP)
+                        && !is_expr_used_or_unified(cx.tcx, expr)
+                    {
                         span_lint_hir_and_then(
                             cx,
                             MAIN_RETURN_WITHOUT_APPEXIT.lint,
