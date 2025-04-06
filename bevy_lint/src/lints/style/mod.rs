@@ -9,6 +9,7 @@ use rustc_lint::Level;
 use crate::lint::LintGroup;
 
 pub mod plugin_not_ending_in_plugin;
+pub mod system_set_not_ending_in_system;
 
 pub(crate) static STYLE: &LintGroup = &LintGroup {
     name: "bevy::style",

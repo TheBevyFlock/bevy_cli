@@ -50,6 +50,7 @@ static LINTS: &[&BevyLint] = &[
     restriction::missing_reflect::MISSING_REFLECT,
     restriction::panicking_methods::PANICKING_METHODS,
     style::plugin_not_ending_in_plugin::PLUGIN_NOT_ENDING_IN_PLUGIN,
+    style::system_set_not_ending_in_system::SYTEM_SET_NOT_ENDING_IN_SET,
     nursery::zst_query::ZST_QUERY,
 ];
 
@@ -98,6 +99,9 @@ pub(crate) fn register_passes(store: &mut LintStore) {
     });
     store.register_late_pass(|_| {
         Box::new(style::plugin_not_ending_in_plugin::PluginNotEndingInPlugin::default())
+    });
+    store.register_late_pass(|_| {
+        Box::new(style::system_set_not_ending_in_system::SystemSetNotEndingInSet::default())
     });
     store.register_late_pass(|_| Box::new(nursery::zst_query::ZstQuery::default()));
 }

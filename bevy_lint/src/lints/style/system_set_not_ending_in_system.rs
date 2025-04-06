@@ -1,63 +1,26 @@
-//! Checks for types who implement `Plugin` but whose names does not end in "Plugin".
-//!
-//! This does _not_ check function-style plugins (`fn plugin(app: &mut App)`), only structures with
-//! `Plugin` explicitly implemented with `impl Plugin for T`.
-//!
-//! # Motivation
-//!
-//! Unlike traits like [`Clone`] or [`Debug`], the primary purpose of a type that implements
-//! `Plugin` is to be a Bevy plugin. As such, it is common practice to suffix plugin names with
-//! "Plugin" to signal how they should be used.
-//!
-//! # Example
-//!
-//! ```
-//! # use bevy::prelude::*;
-//! #
-//! struct Physics;
-//!
-//! impl Plugin for Physics {
-//!     fn build(&self, app: &mut App) {
-//!         // ...
-//!     }
-//! }
-//! ```
-//!
-//! Use instead:
-//!
-//! ```
-//! # use bevy::prelude::*;
-//! #
-//! struct PhysicsPlugin;
-//!
-//! impl Plugin for PhysicsPlugin {
-//!     fn build(&self, app: &mut App) {
-//!         // ...
-//!     }
-//! }
-//! ```
-
-use crate::{declare_bevy_lint, declare_bevy_lint_pass, utils::hir_parse::impls_trait};
 use clippy_utils::{diagnostics::span_lint_hir_and_then, path_res};
 use rustc_errors::Applicability;
 use rustc_hir::{HirId, Item, ItemKind, OwnerId};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_span::symbol::Ident;
 
+use crate::{declare_bevy_lint, declare_bevy_lint_pass, utils::hir_parse::impls_trait};
+
 declare_bevy_lint! {
-    pub PLUGIN_NOT_ENDING_IN_PLUGIN,
+    pub SYTEM_SET_NOT_ENDING_IN_SET,
     super::STYLE,
-    "implemented `Plugin` for a structure whose name does not end in \"Plugin\"",
+    "implemented `SystemSet` for a struct whose name does not end in \"Set\"",
 }
 
 declare_bevy_lint_pass! {
-    pub PluginNotEndingInPlugin => [PLUGIN_NOT_ENDING_IN_PLUGIN.lint],
+    pub SystemSetNotEndingInSet => [SYTEM_SET_NOT_ENDING_IN_SET.lint],
 }
 
-impl<'tcx> LateLintPass<'tcx> for PluginNotEndingInPlugin {
+impl<'tcx> LateLintPass<'tcx> for SystemSetNotEndingInSet {
     fn check_item(&mut self, cx: &LateContext<'tcx>, item: &Item<'tcx>) {
+        // Find `impl` items...
         if let ItemKind::Impl(impl_) = item.kind
-            && impls_trait(cx, impl_, &crate::paths::PLUGIN)
+            && impls_trait(cx, impl_, &crate::paths::SYSTEM_SET)
         {
             // Try to resolve where this type was originally defined. This will result in a `DefId`
             // pointing to the original `struct Foo` definition, or `impl <T>` if it's a generic
@@ -77,8 +40,7 @@ impl<'tcx> LateLintPass<'tcx> for PluginNotEndingInPlugin {
                 return;
             }
 
-            // Find the original name and span of the type. (We don't use the name from the path,
-            // since that can be spoofed through `use Foo as FooPlugin`.)
+            // Find the original name and span of the type.
             let Some(Ident {
                 name: struct_name,
                 span: struct_span,
@@ -92,8 +54,8 @@ impl<'tcx> LateLintPass<'tcx> for PluginNotEndingInPlugin {
                 return;
             }
 
-            // If the type's name ends in "Plugin", exit.
-            if struct_name.as_str().ends_with("Plugin") {
+            // If the type's name ends in "Set", exit.
+            if struct_name.as_str().ends_with("Set") {
                 return;
             }
 
@@ -113,20 +75,20 @@ impl<'tcx> LateLintPass<'tcx> for PluginNotEndingInPlugin {
 
             span_lint_hir_and_then(
                 cx,
-                PLUGIN_NOT_ENDING_IN_PLUGIN.lint,
+                SYTEM_SET_NOT_ENDING_IN_SET.lint,
                 struct_hir_id,
                 struct_span,
-                PLUGIN_NOT_ENDING_IN_PLUGIN.lint.desc,
+                SYTEM_SET_NOT_ENDING_IN_SET.lint.desc,
                 |diag| {
                     diag.span_suggestion(
                         struct_span,
-                        "rename the plugin",
-                        format!("{struct_name}Plugin"),
+                        "rename the SystemSet",
+                        format!("{struct_name}Set"),
                         // There may be other references that also need to be renamed.
                         Applicability::MaybeIncorrect,
                     );
 
-                    diag.span_note(item.span, "`Plugin` implemented here");
+                    diag.span_note(item.span, "`SystemSet` implemented here");
                 },
             );
         }
