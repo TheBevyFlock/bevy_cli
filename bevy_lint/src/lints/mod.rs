@@ -50,7 +50,7 @@ static LINTS: &[&BevyLint] = &[
     restriction::missing_reflect::MISSING_REFLECT,
     restriction::panicking_methods::PANICKING_METHODS,
     style::plugin_not_ending_in_plugin::PLUGIN_NOT_ENDING_IN_PLUGIN,
-    style::system_set_not_ending_in_system::SYTEM_SET_NOT_ENDING_IN_SET,
+    style::system_set_not_ending_in_system::SYSTEM_SET_NOT_ENDING_IN_SET,
     nursery::zst_query::ZST_QUERY,
 ];
 

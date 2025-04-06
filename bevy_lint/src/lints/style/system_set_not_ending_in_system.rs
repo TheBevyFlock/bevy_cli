@@ -7,13 +7,13 @@ use rustc_span::symbol::Ident;
 use crate::{declare_bevy_lint, declare_bevy_lint_pass, utils::hir_parse::impls_trait};
 
 declare_bevy_lint! {
-    pub SYTEM_SET_NOT_ENDING_IN_SET,
+    pub SYSTEM_SET_NOT_ENDING_IN_SET,
     super::STYLE,
     "implemented `SystemSet` for a struct whose name does not end in \"Set\"",
 }
 
 declare_bevy_lint_pass! {
-    pub SystemSetNotEndingInSet => [SYTEM_SET_NOT_ENDING_IN_SET.lint],
+    pub SystemSetNotEndingInSet => [SYSTEM_SET_NOT_ENDING_IN_SET.lint],
 }
 
 impl<'tcx> LateLintPass<'tcx> for SystemSetNotEndingInSet {
@@ -75,10 +75,10 @@ impl<'tcx> LateLintPass<'tcx> for SystemSetNotEndingInSet {
 
             span_lint_hir_and_then(
                 cx,
-                SYTEM_SET_NOT_ENDING_IN_SET.lint,
+                SYSTEM_SET_NOT_ENDING_IN_SET.lint,
                 struct_hir_id,
                 struct_span,
-                SYTEM_SET_NOT_ENDING_IN_SET.lint.desc,
+                SYSTEM_SET_NOT_ENDING_IN_SET.lint.desc,
                 |diag| {
                     diag.span_suggestion(
                         struct_span,
