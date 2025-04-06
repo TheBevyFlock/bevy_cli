@@ -1,3 +1,28 @@
+//! Checks for structures that implement `SystemSet` but whose names does not end in "Set".
+//!
+//! # Motivation
+//!
+//! It is a common practice to suffix a System Sets names with "Set" to signal how the type should
+//! be used.
+//!
+//! # Example
+//!
+//! ```
+//! # use bevy::prelude::*;
+//! #
+//! #[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
+//! struct MyAudio;
+//! ```
+//!
+//! Use instead:
+//!
+//! ```
+//! # use bevy::prelude::*;
+//! #
+//! #[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
+//! struct MyAudioSet;
+//! ```
+
 use clippy_utils::{diagnostics::span_lint_hir_and_then, path_res};
 use rustc_errors::Applicability;
 use rustc_hir::{HirId, Item, ItemKind, OwnerId};
