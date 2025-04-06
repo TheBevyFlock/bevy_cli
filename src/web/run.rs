@@ -1,3 +1,5 @@
+use anyhow::Context as _;
+use http::{HeaderMap, HeaderValue};
 use tracing::{error, info};
 
 use crate::{
@@ -15,6 +17,8 @@ pub(crate) fn run_web(args: &RunArgs) -> anyhow::Result<()> {
     let Some(RunSubcommands::Web(web_args)) = &args.subcommand else {
         anyhow::bail!("tried to run on the web without corresponding args");
     };
+
+    let header_map = parse_headers(&web_args.headers)?;
 
     let mut build_args: BuildArgs = args.clone().into();
 
@@ -55,7 +59,41 @@ pub(crate) fn run_web(args: &RunArgs) -> anyhow::Result<()> {
         info!("Open your app at <{url}>!");
     }
 
-    serve(web_bundle, port)?;
+    serve(web_bundle, port, header_map)?;
 
     Ok(())
+}
+
+fn parse_headers(headers: &[String]) -> anyhow::Result<HeaderMap> {
+    let mut header_map = HeaderMap::with_capacity(headers.len());
+
+    for header in headers {
+        let (key, value) = header
+            .split_once(':')
+            .or(header.split_once('='))
+            .ok_or_else(|| {
+                anyhow::anyhow!("headers must separate name and value with ':' or '='")
+            })?;
+
+        header_map.insert(
+            // PERF: Leaking is necessary here to satisfy lifetime rules.
+            // The memory cost is bounded by the number of headers, which is expected to be low.
+            // In any case, the headers are needed until the termination of the program.
+            leak_to_static(key),
+            HeaderValue::from_str(value).context("invalid header value")?,
+        );
+    }
+
+    Ok(header_map)
+}
+
+/// Create a static reference by leaking the memory.
+///
+/// # Performance
+///
+/// Be careful with using this function in order to not exhaust the system's memory.
+/// It should only be used when the string is expected to live until the end of the program anyway.
+#[cfg(feature = "web")]
+pub(crate) fn leak_to_static(s: &str) -> &'static str {
+    Box::leak(s.to_owned().into_boxed_str())
 }
