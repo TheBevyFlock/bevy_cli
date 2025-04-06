@@ -18,7 +18,7 @@ pub fn run(args: &mut RunArgs) -> anyhow::Result<()> {
         args.profile(),
     )?;
 
-    let config = CliConfig::for_package(&metadata, &bin_target.package, true, args.is_release())?;
+    let config = CliConfig::for_package(&metadata, bin_target.package, true, args.is_release())?;
     args.apply_config(&config);
 
     #[cfg(feature = "web")]

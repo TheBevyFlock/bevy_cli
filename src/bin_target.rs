@@ -3,9 +3,9 @@ use std::path::PathBuf;
 use crate::external_cli::cargo::metadata::{Metadata, Package};
 
 #[derive(Debug, Clone)]
-pub struct BinTarget {
+pub struct BinTarget<'p> {
     /// The package containing the binary.
-    pub package: Package,
+    pub package: &'p Package,
     /// The path to the directory in `target` which contains the binary.
     // Only used with `web` feature, but cfg-ing it out adds too much boilerplate
     #[allow(dead_code)]
@@ -25,14 +25,14 @@ pub struct BinTarget {
 /// the `default_run` option is taken into account.
 ///
 /// The path to the compiled binary is determined via the compilation target and profile.
-pub(crate) fn select_run_binary(
-    metadata: &Metadata,
+pub(crate) fn select_run_binary<'p>(
+    metadata: &'p Metadata,
     package_name: Option<&str>,
     bin_name: Option<&str>,
     example_name: Option<&str>,
     compile_target: Option<&str>,
     compile_profile: &str,
-) -> anyhow::Result<BinTarget> {
+) -> anyhow::Result<BinTarget<'p>> {
     // Determine which packages the binary could be in
     let packages = if let Some(package_name) = package_name {
         let package = metadata
@@ -139,7 +139,7 @@ pub(crate) fn select_run_binary(
     );
 
     Ok(BinTarget {
-        package: (**package).clone(),
+        package,
         bin_name: target.name.clone(),
         artifact_directory,
     })
