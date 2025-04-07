@@ -9,6 +9,8 @@ pub struct CliConfig {
     features: Vec<String>,
     /// Whether to use default features.
     default_features: Option<bool>,
+    /// Additional flags for `rustc`
+    rustflags: Option<Vec<String>>,
 }
 
 impl CliConfig {
@@ -22,6 +24,11 @@ impl CliConfig {
     /// The features enabled in the config.
     pub fn features(&self) -> &[String] {
         &self.features
+    }
+
+    /// The rustflags enabled in the config
+    pub fn rustflags(&self) -> Option<&[String]> {
+        self.rustflags.as_deref()
     }
 
     /// Determine the Bevy CLI config as defined in the given package.
@@ -98,6 +105,7 @@ impl CliConfig {
         Ok(Self {
             features: extract_features(metadata)?,
             default_features: extract_default_features(metadata)?,
+            rustflags: extract_rustflags(metadata),
         })
     }
 
@@ -107,6 +115,8 @@ impl CliConfig {
     /// it's values overwrite the current values if one has to be chosen.
     pub fn overwrite(mut self, with: &Self) -> Self {
         self.default_features = with.default_features.or(self.default_features);
+        self.rustflags = with.rustflags.clone().or(self.rustflags);
+
         // Features are additive
         self.features.extend(with.features.iter().cloned());
 
@@ -148,6 +158,17 @@ fn extract_default_features(cli_metadata: &Map<String, Value>) -> anyhow::Result
     }
 }
 
+fn extract_rustflags(cli_metadata: &Map<String, Value>) -> Option<Vec<String>> {
+    let rustflags = cli_metadata.get("rustflags")?;
+    match rustflags {
+        Value::Array(features) => features
+            .iter()
+            .map(|value| value.as_str().map(std::string::ToString::to_string))
+            .collect(),
+        _ => None,
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -169,7 +190,8 @@ mod tests {
                     "default_features": false,
                     "dev": {
                         "features": ["web-dev"],
-                    }
+                        "rustflags": ["--cfg","getrandom_backend=\"wasm_js\""]
+                    },
                 }
             });
 
@@ -183,6 +205,10 @@ mod tests {
                         "web-dev".to_owned()
                     ],
                     default_features: Some(false),
+                    rustflags: Some(vec![
+                        "--cfg".to_string(),
+                        "getrandom_backend=\"wasm_js\"".to_string()
+                    ])
                 }
             );
             Ok(())
@@ -214,6 +240,7 @@ mod tests {
                         "native-release".to_owned()
                     ],
                     default_features: Some(false),
+                    rustflags: None
                 }
             );
             Ok(())
@@ -252,6 +279,7 @@ mod tests {
                 CliConfig {
                     features: vec!["base".to_owned(),],
                     default_features: None,
+                    rustflags: None
                 }
             );
             Ok(())
