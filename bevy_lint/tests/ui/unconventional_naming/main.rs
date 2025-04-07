@@ -1,6 +1,6 @@
 #![feature(register_tool)]
 #![register_tool(bevy)]
-#![deny(bevy::system_set_not_ending_in_set)]
+#![deny(bevy::unconventional_naming)]
 //~^ NOTE: the lint level is defined here
 #![allow(dead_code)]
 use bevy::prelude::*;
