@@ -78,6 +78,25 @@ opt-level = "z"
 
 Alternatively, you can change the profile entirely, e.g. `bevy run --profile=foo web`.
 
+### Feature configuration
+
+Often, you want to enable certain features only in development mode or only for native and not web builds.
+In your `Cargo.toml` you can enable features or disable default features depending on platform (`native`/`web`) and profile (`dev`/`release`):
+
+```toml
+[package.metadata.bevy_cli.native.dev]
+features = [
+    # Enable asset hot reloading for native dev builds.
+    "bevy/file_watcher",
+    # Enable embedded asset hot reloading for native dev builds.
+    "bevy/embedded_watcher",
+]
+
+[package.metadata.bevy_cli.web]
+# Disable default features for web builds
+default_features = false
+```
+
 ### Usage in CI
 
 The CLI may include interactive prompts if parts of the required tooling is not installed on the system.

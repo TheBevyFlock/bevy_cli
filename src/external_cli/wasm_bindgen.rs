@@ -1,7 +1,7 @@
 use semver::Version;
 use std::str::FromStr;
 
-use crate::web::bin_target::BinTarget;
+use crate::bin_target::BinTarget;
 
 use super::{CommandExt, arg_builder::ArgBuilder};
 

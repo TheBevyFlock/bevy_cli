@@ -4,6 +4,7 @@ use clap::{ArgAction, Args, Subcommand};
 use crate::build::args::{BuildSubcommands, BuildWebArgs};
 use crate::{
     build::args::BuildArgs,
+    config::CliConfig,
     external_cli::{arg_builder::ArgBuilder, cargo::run::CargoRunArgs},
 };
 
@@ -35,9 +36,41 @@ impl RunArgs {
         false
     }
 
+    /// Whether to build with optimizations.
+    pub(crate) fn is_release(&self) -> bool {
+        self.cargo_args.compilation_args.is_release
+    }
+
+    /// The profile used to compile the app.
+    pub(crate) fn profile(&self) -> &str {
+        self.cargo_args.compilation_args.profile(self.is_web())
+    }
+
+    /// The targeted platform.
+    pub(crate) fn target(&self) -> Option<String> {
+        self.cargo_args.compilation_args.target(self.is_web())
+    }
+
     /// Generate arguments for `cargo`.
     pub(crate) fn cargo_args_builder(&self) -> ArgBuilder {
         self.cargo_args.args_builder(self.is_web())
+    }
+
+    /// Apply the config on top of the CLI arguments.
+    ///
+    /// CLI arguments take precedence.
+    pub(crate) fn apply_config(&mut self, config: &CliConfig) {
+        tracing::debug!("Using config {config:?}");
+        self.cargo_args
+            .feature_args
+            .features
+            .extend(config.features().iter().cloned());
+        self.cargo_args.feature_args.is_no_default_features = Some(
+            self.cargo_args
+                .feature_args
+                .is_no_default_features
+                .unwrap_or(!config.default_features()),
+        );
     }
 }
 
@@ -58,9 +91,15 @@ pub struct RunWebArgs {
     #[arg(short = 'o', long = "open", action = ArgAction::SetTrue, default_value_t = false)]
     pub open: bool,
 
-    // Bundle all web artifacts into a single folder.
+    /// Bundle all web artifacts into a single folder.
     #[arg(short = 'b', long = "bundle", action = ArgAction::SetTrue, default_value_t = false)]
     pub create_packed_bundle: bool,
+
+    /// Headers to add to the web-server responses, in the format `name:value` or `name=value`.
+    ///
+    /// Can be defined multiple times to add multiple headers.
+    #[clap(short = 'H', long = "headers", value_name = "HEADERS")]
+    pub headers: Vec<String>,
 }
 
 impl From<RunArgs> for BuildArgs {

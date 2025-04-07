@@ -1,12 +1,18 @@
 use std::path::PathBuf;
 
-use crate::external_cli::cargo::metadata::Metadata;
+use crate::external_cli::cargo::metadata::{Metadata, Package};
 
 #[derive(Debug, Clone)]
-pub struct BinTarget {
+pub struct BinTarget<'p> {
+    /// The package containing the binary.
+    pub package: &'p Package,
     /// The path to the directory in `target` which contains the binary.
+    // Only used with `web` feature, but cfg-ing it out adds too much boilerplate
+    #[allow(dead_code)]
     pub artifact_directory: PathBuf,
     /// The name of the binary (without any extensions).
+    // Only used with `web` feature, but cfg-ing it out adds too much boilerplate
+    #[allow(dead_code)]
     pub bin_name: String,
 }
 
@@ -19,14 +25,14 @@ pub struct BinTarget {
 /// the `default_run` option is taken into account.
 ///
 /// The path to the compiled binary is determined via the compilation target and profile.
-pub(crate) fn select_run_binary(
-    metadata: &Metadata,
+pub(crate) fn select_run_binary<'p>(
+    metadata: &'p Metadata,
     package_name: Option<&str>,
     bin_name: Option<&str>,
     example_name: Option<&str>,
     compile_target: Option<&str>,
     compile_profile: &str,
-) -> anyhow::Result<BinTarget> {
+) -> anyhow::Result<BinTarget<'p>> {
     // Determine which packages the binary could be in
     let packages = if let Some(package_name) = package_name {
         let package = metadata
@@ -41,14 +47,18 @@ pub(crate) fn select_run_binary(
 
     let mut is_example = false;
 
-    let target = if let Some(bin_name) = bin_name {
+    let (target, package) = if let Some(bin_name) = bin_name {
         // The user specified a concrete binary
         let bins: Vec<_> = packages
             .iter()
             .flat_map(|package| {
-                package
-                    .bin_targets()
-                    .filter(|target| target.name == *bin_name)
+                package.bin_targets().filter_map(move |target| {
+                    if target.name == *bin_name {
+                        Some((target, package))
+                    } else {
+                        None
+                    }
+                })
             })
             .collect();
 
@@ -64,9 +74,13 @@ pub(crate) fn select_run_binary(
         let examples: Vec<_> = packages
             .iter()
             .flat_map(|package| {
-                package
-                    .example_targets()
-                    .filter(|target| target.name == *example_name)
+                package.example_targets().filter_map(move |target| {
+                    if target.name == *example_name {
+                        Some((target, package))
+                    } else {
+                        None
+                    }
+                })
             })
             .collect();
 
@@ -84,7 +98,7 @@ pub(crate) fn select_run_binary(
         // If there is only one binary, pick that one
         let bins: Vec<_> = packages
             .iter()
-            .flat_map(|package| package.bin_targets())
+            .flat_map(|package| package.bin_targets().map(move |target| (target, package)))
             .collect();
 
         if bins.is_empty() {
@@ -109,8 +123,9 @@ pub(crate) fn select_run_binary(
             }
 
             let default_run = default_runs[0];
-            bins.iter()
-                .find(|bin| bin.name == *default_run)
+            *bins
+                .iter()
+                .find(|(bin, _)| bin.name == *default_run)
                 .ok_or_else(|| anyhow::anyhow!("Didn't find `default_run` binary {default_run}"))?
         }
     };
@@ -124,6 +139,7 @@ pub(crate) fn select_run_binary(
     );
 
     Ok(BinTarget {
+        package,
         bin_name: target.name.clone(),
         artifact_directory,
     })
