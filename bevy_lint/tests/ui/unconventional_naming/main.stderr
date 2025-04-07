@@ -1,4 +1,4 @@
-error: implemented `SystemSet` for a struct whose name does not end in "Set"
+error: Unconventional struct name for this trait impl
   --> tests/ui/unconventional_naming/main.rs:10:8
    |
 10 | struct MyAudio;

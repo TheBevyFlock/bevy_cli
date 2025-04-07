@@ -8,5 +8,5 @@ use bevy::prelude::*;
 //~v NOTE: `SystemSet` implemented here
 #[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
 struct MyAudio;
-//~^ ERROR: implemented `SystemSet` for a struct whose name does not end in "Set"
+//~^ ERROR: Unconventional struct name for this trait impl
 //~| HELP: rename the SystemSet

@@ -1,9 +1,11 @@
-//! Checks for structures that implement `SystemSet` but whose names does not end in "Set".
+//! Checks for structures that implement a Bevy trait and do not follow the opinionated naming
+//! Convention
 //!
 //! # Motivation
 //!
-//! It is a common practice to suffix a System Sets names with "Set" to signal how the type should
-//! be used.
+//! To keep naming consistent, commonly used traits in Bevy should follow an opinionated naming
+//! Pattern to easily understand how a type should be used.
+//!
 //!
 //! # Example
 //!
@@ -25,7 +27,7 @@
 
 use clippy_utils::{diagnostics::span_lint_hir_and_then, path_res};
 use rustc_errors::Applicability;
-use rustc_hir::{HirId, Item, ItemKind, OwnerId};
+use rustc_hir::{HirId, Impl, Item, ItemKind, OwnerId};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_span::symbol::Ident;
 
@@ -34,7 +36,7 @@ use crate::{declare_bevy_lint, declare_bevy_lint_pass, utils::hir_parse::impls_t
 declare_bevy_lint! {
     pub UNCONVENTIONAL_NAMING,
     super::STYLE,
-    "implemented `SystemSet` for a struct whose name does not end in \"Set\"",
+    "Unconventional struct name for this trait impl",
 }
 
 declare_bevy_lint_pass! {
@@ -45,7 +47,8 @@ impl<'tcx> LateLintPass<'tcx> for UnconventionalNaming {
     fn check_item(&mut self, cx: &LateContext<'tcx>, item: &Item<'tcx>) {
         // Find `impl` items...
         if let ItemKind::Impl(impl_) = item.kind
-            && impls_trait(cx, impl_, &crate::paths::SYSTEM_SET)
+            && let Some(conventional_name_impl) =
+                ConventionalNameTraitImpl::try_from_impl(cx, impl_)
         {
             // Try to resolve where this type was originally defined. This will result in a `DefId`
             // pointing to the original `struct Foo` definition, or `impl <T>` if it's a generic
@@ -79,8 +82,8 @@ impl<'tcx> LateLintPass<'tcx> for UnconventionalNaming {
                 return;
             }
 
-            // If the type's name ends in "Set", exit.
-            if struct_name.as_str().ends_with("Set") {
+            // If the type's name matches the given convention
+            if conventional_name_impl.matches_conventional_name(struct_name.as_str()) {
                 return;
             }
 
@@ -107,15 +110,59 @@ impl<'tcx> LateLintPass<'tcx> for UnconventionalNaming {
                 |diag| {
                     diag.span_suggestion(
                         struct_span,
-                        "rename the SystemSet",
-                        format!("{struct_name}Set"),
+                        format!("rename the {conventional_name_impl}"),
+                        conventional_name_impl.name_suggestion(struct_name.as_str()),
                         // There may be other references that also need to be renamed.
                         Applicability::MaybeIncorrect,
                     );
 
-                    diag.span_note(item.span, "`SystemSet` implemented here");
+                    diag.span_note(
+                        item.span,
+                        format!("`{conventional_name_impl}` implemented here"),
+                    );
                 },
             );
+        }
+    }
+}
+
+enum ConventionalNameTraitImpl {
+    SystemSet,
+}
+
+impl std::fmt::Display for ConventionalNameTraitImpl {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ConventionalNameTraitImpl::SystemSet => {
+                write!(f, "SystemSet")
+            }
+        }
+    }
+}
+
+impl ConventionalNameTraitImpl {
+    /// check if this `impl` block implements a Bevy trait that should follow a naming pattern
+    fn try_from_impl(cx: &LateContext, impl_: &Impl) -> Option<Self> {
+        if impls_trait(cx, impl_, &crate::paths::SYSTEM_SET) {
+            Some(ConventionalNameTraitImpl::SystemSet)
+        } else {
+            None
+        }
+    }
+
+    /// Test if the Structure name matches the naming convention
+    fn matches_conventional_name(&self, struct_name: &str) -> bool {
+        match self {
+            ConventionalNameTraitImpl::SystemSet => struct_name.ends_with("Set"),
+        }
+    }
+
+    /// Suggest a name for the Structure that matches the naming pattern
+    fn name_suggestion(&self, struct_name: &str) -> String {
+        match self {
+            ConventionalNameTraitImpl::SystemSet => {
+                format!("{struct_name}Set")
+            }
         }
     }
 }
