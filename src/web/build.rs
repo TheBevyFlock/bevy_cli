@@ -7,10 +7,13 @@ use crate::external_cli::rustup;
 use crate::external_cli::wasm_opt;
 
 use crate::{
+    bin_target::BinTarget,
     build::args::{BuildArgs, BuildSubcommands},
-    external_cli::{cargo, wasm_bindgen},
+    external_cli::{
+        cargo::{self, metadata::Metadata},
+        wasm_bindgen,
+    },
     web::{
-        bin_target::select_run_binary,
         bundle::{PackedBundle, create_web_bundle},
         profiles::configure_default_web_profiles,
     },
@@ -27,24 +30,18 @@ use super::bundle::WebBundle;
 /// - Optimizing the Wasm binary (in release mode)
 /// - Creating JavaScript bindings
 /// - Creating a bundled folder (if requested)
-pub fn build_web(args: &mut BuildArgs) -> anyhow::Result<WebBundle> {
+pub fn build_web(
+    args: &mut BuildArgs,
+    metadata: &Metadata,
+    bin_target: &BinTarget,
+) -> anyhow::Result<WebBundle> {
     let Some(BuildSubcommands::Web(web_args)) = &args.subcommand else {
         anyhow::bail!("tried to build for the web without matching arguments");
     };
 
     ensure_web_setup(args.skip_prompts)?;
 
-    let metadata = cargo::metadata::metadata_with_args(["--no-deps"])?;
-    let bin_target = select_run_binary(
-        &metadata,
-        args.cargo_args.package_args.package.as_deref(),
-        args.cargo_args.target_args.bin.as_deref(),
-        args.cargo_args.target_args.example.as_deref(),
-        args.target().as_deref(),
-        args.profile(),
-    )?;
-
-    let mut profile_args = configure_default_web_profiles(&metadata)?;
+    let mut profile_args = configure_default_web_profiles(metadata)?;
     // `--config` args are resolved from left to right,
     // so the default configuration needs to come before the user args
     profile_args.append(&mut args.cargo_args.common_args.config);
@@ -56,17 +53,17 @@ pub fn build_web(args: &mut BuildArgs) -> anyhow::Result<WebBundle> {
     cargo::build::command().args(cargo_args).ensure_status()?;
 
     info!("Bundling JavaScript bindings...");
-    wasm_bindgen::bundle(&bin_target)?;
+    wasm_bindgen::bundle(bin_target)?;
 
     #[cfg(feature = "wasm-opt")]
     if args.is_release() {
-        wasm_opt::optimize_path(&bin_target)?;
+        wasm_opt::optimize_path(bin_target)?;
     }
 
     let web_bundle = create_web_bundle(
-        &metadata,
+        metadata,
         args.profile(),
-        &bin_target,
+        bin_target,
         web_args.create_packed_bundle,
     )
     .context("Failed to create web bundle")?;
