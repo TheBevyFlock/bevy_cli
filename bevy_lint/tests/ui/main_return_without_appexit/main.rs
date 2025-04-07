@@ -7,6 +7,10 @@
 use bevy::prelude::*;
 
 fn main() {
+    // This should not raise an error, since `AppExit` is not ignored.
+    #[allow(unused_variables)]
+    let app_exit = App::new().run();
+
     let mut app = App::new();
     App::new().run();
     //~^ ERROR: an entrypoint that calls `App::run()` does not return `AppExit`
