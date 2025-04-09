@@ -161,10 +161,16 @@ pub struct CargoCommonArgs {
     /// This flag may be specified multiple times.
     #[clap(long = "config", value_name = "KEY=VALUE|PATH")]
     pub config: Vec<String>,
+
+    /// Unstable (nightly-only) flags to Cargo, see `cargo -Z help` for details.
+    #[clap(short = 'Z', value_name = "FLAG")]
+    pub unstable_flags: Vec<String>,
 }
 
 impl CargoCommonArgs {
     pub(crate) fn args_builder(&self) -> ArgBuilder {
-        ArgBuilder::new().add_values_separately("--config", self.config.iter())
+        ArgBuilder::new()
+            .add_values_separately("--config", self.config.iter())
+            .add_values_separately("-Z", self.unstable_flags.iter())
     }
 }
