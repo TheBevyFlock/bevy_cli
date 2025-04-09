@@ -27,8 +27,8 @@ impl CliConfig {
     }
 
     /// The rustflags enabled in the config
-    pub fn rustflags(&self) -> Option<&[String]> {
-        self.rustflags.as_deref()
+    pub fn rustflags(&self) -> Option<String> {
+        self.rustflags.as_ref().map(|flags| flags.join(" "))
     }
 
     /// Determine the Bevy CLI config as defined in the given package.

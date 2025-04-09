@@ -23,7 +23,7 @@ pub fn build(args: &mut BuildArgs) -> anyhow::Result<()> {
 
     #[cfg(feature = "web")]
     if args.is_web() {
-        build_web(args, &metadata, &bin_target)?;
+        build_web(args, config.rustflags().as_deref(), &metadata, &bin_target)?;
         return Ok(());
     }
 
