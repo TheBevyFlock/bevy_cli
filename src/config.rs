@@ -5,6 +5,8 @@ use crate::external_cli::cargo::metadata::{Metadata, Package};
 
 #[derive(Default, Debug, Clone, PartialEq)]
 pub struct CliConfig {
+    /// The platform to target with the build.
+    target: Option<String>,
     /// Additional features that should be enabled.
     features: Vec<String>,
     /// Whether to use default features.
@@ -12,6 +14,11 @@ pub struct CliConfig {
 }
 
 impl CliConfig {
+    /// The platform to target with the build.
+    pub fn target(&self) -> Option<&str> {
+        self.target.as_deref()
+    }
+
     /// Whether to enable default features.
     ///
     /// Defaults to `true` if not configured otherwise.
@@ -96,6 +103,7 @@ impl CliConfig {
         };
 
         Ok(Self {
+            target: extract_target(metadata)?,
             features: extract_features(metadata)?,
             default_features: extract_default_features(metadata)?,
         })
@@ -106,11 +114,25 @@ impl CliConfig {
     /// The other config takes precedence,
     /// it's values overwrite the current values if one has to be chosen.
     pub fn overwrite(mut self, with: &Self) -> Self {
+        self.target = with.target.clone().or(self.target);
         self.default_features = with.default_features.or(self.default_features);
         // Features are additive
         self.features.extend(with.features.iter().cloned());
 
         self
+    }
+}
+
+/// Try to extract the target platform from a metadata map for the CLI.
+fn extract_target(cli_metadata: &Map<String, Value>) -> anyhow::Result<Option<String>> {
+    let Some(target) = cli_metadata.get("target") else {
+        return Ok(None);
+    };
+
+    match target {
+        Value::String(target) => Ok(Some(target).cloned()),
+        Value::Null => Ok(None),
+        _ => bail!("target must be a string"),
     }
 }
 
@@ -176,6 +198,7 @@ mod tests {
             assert_eq!(
                 CliConfig::merged_from_metadata(Some(&metadata), true, false)?,
                 CliConfig {
+                    target: None,
                     features: vec![
                         "base".to_owned(),
                         "dev".to_owned(),
@@ -207,6 +230,7 @@ mod tests {
             assert_eq!(
                 CliConfig::merged_from_metadata(Some(&metadata), false, true)?,
                 CliConfig {
+                    target: None,
                     features: vec![
                         "base".to_owned(),
                         "release".to_owned(),
@@ -250,11 +274,43 @@ mod tests {
             assert_eq!(
                 CliConfig::merged_from_metadata(Some(&metadata), false, true)?,
                 CliConfig {
+                    target: None,
                     features: vec!["base".to_owned(),],
                     default_features: None,
                 }
             );
             Ok(())
+        }
+    }
+
+    mod extract_target {
+        use serde_json::Map;
+
+        use super::*;
+
+        #[test]
+        fn should_return_none_if_no_target_specified() -> anyhow::Result<()> {
+            let cli_metadata = Map::new();
+            assert_eq!(extract_target(&cli_metadata)?, None);
+            Ok(())
+        }
+
+        #[test]
+        fn should_return_target_if_specified() -> anyhow::Result<()> {
+            let mut cli_metadata = Map::new();
+            cli_metadata.insert("target".to_owned(), "wasm32v1-none".into());
+            assert_eq!(
+                extract_target(&cli_metadata)?,
+                Some("wasm32v1-none".to_string())
+            );
+            Ok(())
+        }
+
+        #[test]
+        fn should_return_error_if_target_is_not_a_string() {
+            let mut cli_metadata = Map::new();
+            cli_metadata.insert("target".to_string(), 32.into());
+            assert!(extract_target(&cli_metadata).is_err());
         }
     }
 

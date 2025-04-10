@@ -61,6 +61,9 @@ impl RunArgs {
     /// CLI arguments take precedence.
     pub(crate) fn apply_config(&mut self, config: &CliConfig) {
         tracing::debug!("Using config {config:?}");
+        if self.cargo_args.compilation_args.target.is_none() {
+            self.cargo_args.compilation_args.target = config.target().map(ToOwned::to_owned);
+        }
         self.cargo_args
             .feature_args
             .features
