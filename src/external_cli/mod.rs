@@ -59,12 +59,7 @@ impl CommandExt {
         }
     }
 
-    /// Wrapper method around [`Command::status`].
-    ///
-    /// Executes a command as a child process, waiting for it to finish.
-    /// If the command did not terminate successfully, an error containing the [`ExitStatus`] is
-    /// returned.
-    pub fn ensure_status(&mut self) -> anyhow::Result<ExitStatus> {
+    fn log_execution(&self) -> String {
         let program = self
             .inner
             .get_program()
@@ -81,6 +76,16 @@ impl CommandExt {
 
         self.log(format!("Running: `{program} {args}`").as_str());
 
+        program
+    }
+
+    /// Wrapper method around [`Command::status`].
+    ///
+    /// Executes a command as a child process, waiting for it to finish.
+    /// If the command did not terminate successfully, an error containing the [`ExitStatus`] is
+    /// returned.
+    pub fn ensure_status(&mut self) -> anyhow::Result<ExitStatus> {
+        let program = self.log_execution();
         let status = self.inner.status()?;
 
         anyhow::ensure!(
@@ -98,16 +103,18 @@ impl CommandExt {
     /// Executes the command as a child process, waiting for it to finish and collecting all of its
     /// output.
     pub fn output(&mut self) -> anyhow::Result<Output> {
-        let program = self.inner.get_program().to_str().unwrap_or_default();
-        let args = self
-            .inner
-            .get_args()
-            .map(|arg| arg.to_string_lossy())
-            .collect::<Vec<Cow<_>>>()
-            .join(" ");
+        let program = self.log_execution();
 
-        self.log(format!("Running: `{program} {args}`").as_str());
+        let output = self.inner.output()?;
+        let status = output.status;
 
-        Ok(self.inner.output()?)
+        anyhow::ensure!(
+            status.success(),
+            "Command {} exited with status code {}",
+            program,
+            status
+        );
+
+        Ok(output)
     }
 }
