@@ -238,8 +238,6 @@ impl PanickingType {
             Self::World => &[
                 ("entity", "get_entity"),
                 ("entity_mut", "get_entity_mut"),
-                ("many_entities", "get_many_entities"),
-                ("many_entities_mut", "get_many_entities_mut"),
                 ("resource", "get_resource"),
                 ("resource_mut", "get_resource_mut"),
                 ("resource_ref", "get_resource_ref"),
