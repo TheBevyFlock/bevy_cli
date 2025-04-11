@@ -209,7 +209,6 @@ impl<'tcx> LateLintPass<'tcx> for PanickingMethods {
 
 enum PanickingType {
     Query,
-    QueryState,
     World,
 }
 
@@ -218,8 +217,6 @@ impl PanickingType {
     fn try_from_ty<'tcx>(cx: &LateContext<'tcx>, ty: Ty<'tcx>) -> Option<Self> {
         if match_type(cx, ty, &crate::paths::QUERY) {
             Some(Self::Query)
-        } else if match_type(cx, ty, &crate::paths::QUERY_STATE) {
-            Some(Self::QueryState)
         } else if match_type(cx, ty, &crate::paths::WORLD) {
             Some(Self::World)
         } else {
@@ -234,7 +231,6 @@ impl PanickingType {
     fn alternatives(&self) -> &'static [(&'static str, &'static str)] {
         match self {
             Self::Query => &[("many", "get_many"), ("many_mut", "get_many_mut")],
-            Self::QueryState => &[],
             Self::World => &[
                 ("entity", "get_entity"),
                 ("entity_mut", "get_entity_mut"),
@@ -253,7 +249,6 @@ impl PanickingType {
     fn name(&self) -> &'static str {
         match self {
             Self::Query => "Query",
-            Self::QueryState => "QueryState",
             Self::World => "World",
         }
     }
