@@ -29,6 +29,8 @@ struct Package {
 pub struct CommandExt {
     /// The package that the program can be installed with.
     package: Option<Package>,
+    /// The compilation target that's needed to run the command.
+    target: Option<OsString>,
     /// The command that is configured.
     inner: Command,
     /// The level to use for logging the command.
@@ -40,12 +42,16 @@ impl CommandExt {
     pub fn new<S: AsRef<OsStr>>(program: S) -> Self {
         Self {
             package: None,
+            target: None,
             inner: Command::new(program),
             log_level: Level::DEBUG,
         }
     }
 
     /// Define the package that allows installation of the program.
+    ///
+    /// If the command fails and the package is missing,
+    /// it can be installed automatically via `cargo install`.
     pub fn require_package<S: AsRef<OsStr>>(&mut self, name: S, version: VersionReq) -> &mut Self {
         self.package = Some(Package {
             name: name.as_ref().to_owned(),
@@ -54,12 +60,21 @@ impl CommandExt {
         self
     }
 
+    /// Define the compilation target that's required to run the command.
+    ///
+    /// If the command fails and the target is missing,
+    /// it can be installed automatically via `rustup`.
+    pub fn require_target<S: AsRef<OsStr>>(&mut self, target: S) -> &mut Self {
+        self.target = Some(target.as_ref().to_owned());
+        self
+    }
+
     /// Check if the correct version of the program is installed and install if needed.
     ///
     /// The user will be prompted before the installation begins.
     ///
     /// Returns `true` if a new version was installed.
-    fn install_if_needed(&self) -> anyhow::Result<bool> {
+    fn install_package_if_needed(&self) -> anyhow::Result<bool> {
         if let Some(package) = &self.package {
             cargo::install::if_needed(
                 self.inner.get_program(),
@@ -71,6 +86,37 @@ impl CommandExt {
         } else {
             Ok(false)
         }
+    }
+
+    /// Check if the needed compile targets are installed and install if needed.
+    ///
+    /// This requires the `rustup` feature to be enabled, otherwise it's a noop.
+    fn install_target_if_needed(&self) -> anyhow::Result<bool> {
+        if let Some(target) = &self.target {
+            rustup::install_target_if_needed(
+                target,
+                // FIXME: Configure
+                AutoInstall::Never,
+            )
+        } else {
+            Ok(false)
+        }
+    }
+
+    /// Try to fix erroneous configuration before retrying the command.
+    ///
+    /// Returns `true` if a fix was applied and retrying might work.
+    fn try_fix_before_retry(&self) -> anyhow::Result<bool> {
+        let mut retry = false;
+
+        if self.install_package_if_needed()? {
+            retry = true;
+        }
+        if self.install_target_if_needed()? {
+            retry = true;
+        }
+
+        Ok(retry)
     }
 
     /// Add an argument to the program.
@@ -138,7 +184,7 @@ impl CommandExt {
         let program = self.log_execution();
         let mut status = self.inner.status()?;
 
-        if !status.success() && (self.install_if_needed()?) {
+        if !status.success() && (self.try_fix_before_retry()?) {
             // Retry command
             status = self.inner.status()?;
         }
@@ -162,7 +208,7 @@ impl CommandExt {
 
         let mut output = self.inner.output()?;
 
-        if !output.status.success() && (self.install_if_needed()?) {
+        if !output.status.success() && (self.try_fix_before_retry()?) {
             // Retry command
             output = self.inner.output()?;
         }
