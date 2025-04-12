@@ -64,7 +64,7 @@ use rustc_span::Symbol;
 
 declare_bevy_lint! {
     pub PANICKING_METHODS,
-    super::RESTRICTION.level,
+    super::Restriction,
     "called a method that can panic when a non-panicking alternative exists",
 }
 

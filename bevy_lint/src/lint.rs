@@ -84,8 +84,8 @@ pub struct LintGroup {
 /// declare_bevy_lint! {
 ///     // This lint will be named `bevy::lint_name`.
 ///     pub LINT_NAME,
-///     // The path to the lint group static.
-///     super::LINT_GROUP,
+///     // The path to the lint group type.
+///     super::LintGroup,
 ///     // The description printed by `bevy_lint_driver rustc -W help`, and sometimes also used in
 ///     // diagnostic messages.
 ///     "short description of lint",
@@ -108,7 +108,7 @@ macro_rules! declare_bevy_lint {
     {
         $(#[$attr:meta])*
         $vis:vis $name:ident,
-        $level:expr,
+        $group:ty,
         $desc:expr,
         $(@report_in_external_macro = $report_in_external_macro:expr,)?
         $(@crate_level_only = $crate_level_only:expr,)?
@@ -119,7 +119,7 @@ macro_rules! declare_bevy_lint {
         /// ```ignore
         /// Lint {
         #[doc = concat!("    name: \"bevy::", stringify!($name), "\",")]
-        #[doc = concat!("    group: ", stringify!($level), ",")]
+        #[doc = concat!("    group: ", stringify!($group), ",")]
         #[doc = concat!("    description: ", stringify!($desc), ",")]
         /// }
         /// ```
@@ -129,7 +129,12 @@ macro_rules! declare_bevy_lint {
             lint: &::rustc_lint::Lint {
                 // Fields that are always configured by macro.
                 name: concat!("bevy::", stringify!($name)),
-                default_level: $level,
+                // The `*&` is a stupid hack that appears to fix a compiler bug. Without it, lints
+                // will simply refuse emit any diagnostics. I think this is caused by MIR promotion
+                // and constant evaluation because the `*&` prevents this entire struct from being
+                // promoted into an `&'static`. (You can check this yourself with
+                // `-Z unpretty-mir`.)
+                default_level: *&<$group as $crate::lint::LintGroup2>::LEVEL,
                 desc: $desc,
 
                 // Fields that cannot be configured.

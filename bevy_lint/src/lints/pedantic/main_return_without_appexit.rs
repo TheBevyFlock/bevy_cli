@@ -46,7 +46,7 @@ use std::ops::ControlFlow;
 
 declare_bevy_lint! {
     pub MAIN_RETURN_WITHOUT_APPEXIT,
-    super::PEDANTIC.level,
+    super::Pedantic,
     "an entrypoint that calls `App::run()` does not return `AppExit`",
 }
 
