@@ -74,7 +74,7 @@ declare_bevy_lint! {
 }
 
 declare_bevy_lint_pass! {
-    pub MissingReflect => [MISSING_REFLECT.lint],
+    pub MissingReflect => [MISSING_REFLECT],
 }
 
 impl<'tcx> LateLintPass<'tcx> for MissingReflect {
@@ -121,7 +121,7 @@ impl<'tcx> LateLintPass<'tcx> for MissingReflect {
 
                 span_lint_hir_and_then(
                     cx,
-                    MISSING_REFLECT.lint,
+                    MISSING_REFLECT,
                     // This tells `rustc` where to search for `#[allow(...)]` attributes.
                     without_reflect.hir_id,
                     without_reflect.item_span,

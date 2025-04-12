@@ -19,9 +19,9 @@ impl LintGroup for Suspicious {
     const NAME: &str = "bevy::suspicious";
     const LEVEL: Level = Level::Warn;
     const LINTS: &[&Lint] = &[
-        insert_event_resource::INSERT_EVENT_RESOURCE.lint,
-        insert_unit_bundle::INSERT_UNIT_BUNDLE.lint,
-        iter_current_update_events::ITER_CURRENT_UPDATE_EVENTS.lint,
+        insert_event_resource::INSERT_EVENT_RESOURCE,
+        insert_unit_bundle::INSERT_UNIT_BUNDLE,
+        iter_current_update_events::ITER_CURRENT_UPDATE_EVENTS,
     ];
 
     fn register_passes(store: &mut LintStore) {

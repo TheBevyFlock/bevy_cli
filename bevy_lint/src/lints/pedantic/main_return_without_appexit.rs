@@ -51,7 +51,7 @@ declare_bevy_lint! {
 }
 
 declare_bevy_lint_pass! {
-    pub MainReturnWithoutAppExit => [MAIN_RETURN_WITHOUT_APPEXIT.lint],
+    pub MainReturnWithoutAppExit => [MAIN_RETURN_WITHOUT_APPEXIT],
     @default = {
         run: Symbol = sym!(run),
     },
@@ -102,10 +102,10 @@ impl<'tcx> LateLintPass<'tcx> for MainReturnWithoutAppExit {
                     {
                         span_lint_hir_and_then(
                             cx,
-                            MAIN_RETURN_WITHOUT_APPEXIT.lint,
+                            MAIN_RETURN_WITHOUT_APPEXIT,
                             expr.hir_id,
                             span,
-                            MAIN_RETURN_WITHOUT_APPEXIT.lint.desc,
+                            MAIN_RETURN_WITHOUT_APPEXIT.desc,
                             |diag| {
                                 diag.note("`App::run()` returns `AppExit`, which can be used to determine whether the app exited successfully or not");
 

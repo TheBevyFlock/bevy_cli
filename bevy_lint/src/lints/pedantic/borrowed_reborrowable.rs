@@ -117,7 +117,7 @@ declare_bevy_lint! {
 }
 
 declare_bevy_lint_pass! {
-    pub BorrowedReborrowable => [BORROWED_REBORROWABLE.lint],
+    pub BorrowedReborrowable => [BORROWED_REBORROWABLE],
 }
 
 impl<'tcx> LateLintPass<'tcx> for BorrowedReborrowable {
@@ -209,7 +209,7 @@ impl<'tcx> LateLintPass<'tcx> for BorrowedReborrowable {
 
             span_lint_and_sugg(
                 cx,
-                BORROWED_REBORROWABLE.lint,
+                BORROWED_REBORROWABLE,
                 span,
                 reborrowable.message(),
                 reborrowable.help(),

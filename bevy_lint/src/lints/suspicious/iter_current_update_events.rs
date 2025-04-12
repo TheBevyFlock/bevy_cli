@@ -52,7 +52,7 @@ declare_bevy_lint! {
 }
 
 declare_bevy_lint_pass! {
-    pub IterCurrentUpdateEvents => [ITER_CURRENT_UPDATE_EVENTS.lint],
+    pub IterCurrentUpdateEvents => [ITER_CURRENT_UPDATE_EVENTS],
 
     @default = {
         iter_current_update_events: Symbol = Symbol::intern("iter_current_update_events"),
@@ -94,9 +94,9 @@ impl<'tcx> LateLintPass<'tcx> for IterCurrentUpdateEvents {
             if method_call.method_path.ident.name == self.iter_current_update_events {
                 span_lint_and_help(
                     cx,
-                    ITER_CURRENT_UPDATE_EVENTS.lint,
+                    ITER_CURRENT_UPDATE_EVENTS,
                     method_call.span,
-                    ITER_CURRENT_UPDATE_EVENTS.lint.desc,
+                    ITER_CURRENT_UPDATE_EVENTS.desc,
                     None,
                     "`iter_current_update_events()` does not track which events have already been seen, consider using `EventReader<T>` instead",
                 );

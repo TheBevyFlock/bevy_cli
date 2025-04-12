@@ -15,8 +15,8 @@ impl LintGroup for Nursery {
     const NAME: &str = "bevy::nursery";
     const LEVEL: Level = Level::Allow;
     const LINTS: &[&Lint] = &[
-        duplicate_bevy_dependencies::DUPLICATE_BEVY_DEPENDENCIES.lint,
-        zst_query::ZST_QUERY.lint,
+        duplicate_bevy_dependencies::DUPLICATE_BEVY_DEPENDENCIES,
+        zst_query::ZST_QUERY,
     ];
 
     fn register_passes(store: &mut LintStore) {

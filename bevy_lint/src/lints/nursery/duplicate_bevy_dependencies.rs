@@ -169,9 +169,9 @@ fn lint_with_target_version(
         if let Some(cargo_toml_reference) = cargo_toml.dependencies.get(*mismatching_dependency.0) {
             span_lint_and_then(
                 cx,
-                DUPLICATE_BEVY_DEPENDENCIES.lint,
+                DUPLICATE_BEVY_DEPENDENCIES,
                 toml_span(cargo_toml_reference.span(), file),
-                DUPLICATE_BEVY_DEPENDENCIES.lint.desc,
+                DUPLICATE_BEVY_DEPENDENCIES.desc,
                 |diag| {
                     diag.span_help(
                         bevy_cargo_toml_span,
@@ -228,7 +228,7 @@ fn minimal_lint(
     if resolved_bevy_versions.len() > 1 {
         span_lint(
             cx,
-            DUPLICATE_BEVY_DEPENDENCIES.lint,
+            DUPLICATE_BEVY_DEPENDENCIES,
             rustc_span::DUMMY_SP,
             "found multiple versions of bevy",
         );

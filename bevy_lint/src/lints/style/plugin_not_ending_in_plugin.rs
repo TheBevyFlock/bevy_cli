@@ -51,7 +51,7 @@ declare_bevy_lint! {
 }
 
 declare_bevy_lint_pass! {
-    pub PluginNotEndingInPlugin => [PLUGIN_NOT_ENDING_IN_PLUGIN.lint],
+    pub PluginNotEndingInPlugin => [PLUGIN_NOT_ENDING_IN_PLUGIN],
 }
 
 impl<'tcx> LateLintPass<'tcx> for PluginNotEndingInPlugin {
@@ -121,10 +121,10 @@ impl<'tcx> LateLintPass<'tcx> for PluginNotEndingInPlugin {
 
             span_lint_hir_and_then(
                 cx,
-                PLUGIN_NOT_ENDING_IN_PLUGIN.lint,
+                PLUGIN_NOT_ENDING_IN_PLUGIN,
                 struct_hir_id,
                 struct_span,
-                PLUGIN_NOT_ENDING_IN_PLUGIN.lint.desc,
+                PLUGIN_NOT_ENDING_IN_PLUGIN.desc,
                 |diag| {
                     diag.span_suggestion(
                         struct_span,

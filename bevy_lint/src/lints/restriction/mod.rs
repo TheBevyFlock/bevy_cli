@@ -19,8 +19,8 @@ impl LintGroup for Restriction {
     const NAME: &str = "bevy::restriction";
     const LEVEL: Level = Level::Allow;
     const LINTS: &[&Lint] = &[
-        missing_reflect::MISSING_REFLECT.lint,
-        panicking_methods::PANICKING_METHODS.lint,
+        missing_reflect::MISSING_REFLECT,
+        panicking_methods::PANICKING_METHODS,
     ];
 
     fn register_passes(store: &mut LintStore) {

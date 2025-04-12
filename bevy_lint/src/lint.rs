@@ -53,16 +53,7 @@ pub trait LintGroup {
     }
 }
 
-/// A Bevy lint definition and its associated group.
-///
-/// The level of the lint must be the same as the level of the group.
-#[derive(Debug)]
-#[deprecated]
-pub struct BevyLint {
-    pub lint: &'static Lint,
-}
-
-/// Creates a new [`BevyLint`].
+/// Creates a new [`Lint`].
 ///
 /// # Example
 ///
@@ -110,33 +101,30 @@ macro_rules! declare_bevy_lint {
         /// }
         /// ```
         $(#[$attr])*
-        #[expect(deprecated)]
-        $vis static $name: &$crate::lint::BevyLint = &$crate::lint::BevyLint {
-            lint: &::rustc_lint::Lint {
-                // Fields that are always configured by macro.
-                name: concat!("bevy::", stringify!($name)),
-                // The `*&` is a stupid hack that appears to fix a compiler bug. Without it, lints
-                // will simply refuse emit any diagnostics. I think this is caused by MIR promotion
-                // and constant evaluation because the `*&` prevents this entire struct from being
-                // promoted into an `&'static`. (You can check this yourself with
-                // `-Z unpretty-mir`.)
-                default_level: *&<$group as $crate::lint::LintGroup>::LEVEL,
-                desc: $desc,
+        $vis static $name: &::rustc_lint::Lint = &::rustc_lint::Lint {
+            // Fields that are always configured by macro.
+            name: concat!("bevy::", stringify!($name)),
+            // The `*&` is a stupid hack that appears to fix a compiler bug. Without it, lints
+            // will simply refuse emit any diagnostics. I think this is caused by MIR promotion
+            // and constant evaluation because the `*&` prevents this entire struct from being
+            // promoted into an `&'static`. (You can check this yourself with
+            // `-Z unpretty-mir`.)
+            default_level: *&<$group as $crate::lint::LintGroup>::LEVEL,
+            desc: $desc,
 
-                // Fields that cannot be configured.
-                edition_lint_opts: None,
-                future_incompatible: None,
-                feature_gate: None,
-                is_externally_loaded: true,
+            // Fields that cannot be configured.
+            edition_lint_opts: None,
+            future_incompatible: None,
+            feature_gate: None,
+            is_externally_loaded: true,
 
-                // Fields that may sometimes be configured by macro. These all default to false in
-                // `Lint::default_fields_for_macro()`, but may be overridden to true.
-                $(report_in_external_macro: $report_in_external_macro,)?
-                $(crate_level_only: $crate_level_only,)?
-                $(eval_always: $eval_always,)?
+            // Fields that may sometimes be configured by macro. These all default to false in
+            // `Lint::default_fields_for_macro()`, but may be overridden to true.
+            $(report_in_external_macro: $report_in_external_macro,)?
+            $(crate_level_only: $crate_level_only,)?
+            $(eval_always: $eval_always,)?
 
-                ..::rustc_lint::Lint::default_fields_for_macro()
-            },
+            ..::rustc_lint::Lint::default_fields_for_macro()
         };
     };
 }
@@ -151,7 +139,7 @@ macro_rules! declare_bevy_lint {
 /// ```ignore
 /// declare_bevy_lint_pass! {
 ///     // Declares which lints are emitted by this lint pass.
-///     pub LintPassName => [LINT_NAME.lint],
+///     pub LintPassName => [LINT_NAME],
 ///
 ///     // The following are optional fields, and may be omitted.
 ///     //

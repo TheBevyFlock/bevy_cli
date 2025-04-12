@@ -19,8 +19,8 @@ impl LintGroup for Pedantic {
     const NAME: &str = "bevy::pedantic";
     const LEVEL: Level = Level::Allow;
     const LINTS: &[&Lint] = &[
-        borrowed_reborrowable::BORROWED_REBORROWABLE.lint,
-        main_return_without_appexit::MAIN_RETURN_WITHOUT_APPEXIT.lint,
+        borrowed_reborrowable::BORROWED_REBORROWABLE,
+        main_return_without_appexit::MAIN_RETURN_WITHOUT_APPEXIT,
     ];
 
     fn register_passes(store: &mut LintStore) {

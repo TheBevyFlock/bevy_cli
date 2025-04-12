@@ -75,7 +75,7 @@ declare_bevy_lint! {
 }
 
 declare_bevy_lint_pass! {
-    pub ZstQuery => [ZST_QUERY.lint],
+    pub ZstQuery => [ZST_QUERY],
 }
 
 impl<'tcx> LateLintPass<'tcx> for ZstQuery {
@@ -107,9 +107,9 @@ impl<'tcx> LateLintPass<'tcx> for ZstQuery {
             //       instead suggest `Has<Foo>`
             span_lint_and_help(
                 cx,
-                ZST_QUERY.lint,
+                ZST_QUERY,
                 hir_ty.span,
-                ZST_QUERY.lint.desc,
+                ZST_QUERY.desc,
                 None,
                 query_kind.help(peeled),
             );

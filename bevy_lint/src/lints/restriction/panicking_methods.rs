@@ -69,7 +69,7 @@ declare_bevy_lint! {
 }
 
 declare_bevy_lint_pass! {
-    pub PanickingMethods => [PANICKING_METHODS.lint],
+    pub PanickingMethods => [PANICKING_METHODS],
 }
 
 impl<'tcx> LateLintPass<'tcx> for PanickingMethods {
@@ -191,7 +191,7 @@ impl<'tcx> LateLintPass<'tcx> for PanickingMethods {
 
             span_lint_and_help(
                 cx,
-                PANICKING_METHODS.lint,
+                PANICKING_METHODS,
                 span,
                 format!(
                     "called a `{}` method that can panic when a non-panicking alternative exists",
