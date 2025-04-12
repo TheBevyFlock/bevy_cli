@@ -82,30 +82,18 @@ pub(crate) fn register_lints(store: &mut LintStore) {
 
 /// Registers all lint passes with the [`LintStore`].
 pub(crate) fn register_passes(store: &mut LintStore) {
-    store.register_late_pass(|_| {
-        Box::new(pedantic::borrowed_reborrowable::BorrowedReborrowable::default())
-    });
+    complexity::Complexity::register_passes(store);
+    correctness::Correctness::register_passes(store);
+    nursery::Nursery::register_passes(store);
+    pedantic::Pedantic::register_passes(store);
+    performance::Performance::register_passes(store);
+    restriction::Restriction::register_passes(store);
+    style::Style::register_passes(store);
+    suspicious::Suspicious::register_passes(store);
+
+    // The Cargo lint pass is not associated with a single lint group, so we register it
+    // separately.
     store.register_late_pass(|_| Box::new(cargo::Cargo::default()));
-    store.register_late_pass(|_| {
-        Box::new(suspicious::insert_event_resource::InsertEventResource::default())
-    });
-    store.register_late_pass(|_| {
-        Box::new(suspicious::insert_unit_bundle::InsertUnitBundle::default())
-    });
-    store.register_late_pass(|_| {
-        Box::new(suspicious::iter_current_update_events::IterCurrentUpdateEvents::default())
-    });
-    store.register_late_pass(|_| {
-        Box::new(pedantic::main_return_without_appexit::MainReturnWithoutAppExit::default())
-    });
-    store.register_late_pass(|_| Box::new(restriction::missing_reflect::MissingReflect::default()));
-    store.register_late_pass(|_| {
-        Box::new(restriction::panicking_methods::PanickingMethods::default())
-    });
-    store.register_late_pass(|_| {
-        Box::new(style::plugin_not_ending_in_plugin::PluginNotEndingInPlugin::default())
-    });
-    store.register_late_pass(|_| Box::new(nursery::zst_query::ZstQuery::default()));
 }
 
 /// Registers all [`LintGroup`]s in [`GROUPS`] with the [`LintStore`].

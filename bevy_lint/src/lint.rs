@@ -36,6 +36,9 @@ pub trait LintGroup2 {
     /// A list of all lints in this lint group.
     const LINTS: &[&Lint];
 
+    /// Registers all of this lint group's lint passes into a given [`LintStore`].
+    fn register_passes(store: &mut LintStore);
+
     /// Registers all of this group's lints into a given [`LintStore`].
     ///
     /// By default this will register all lints specified in [`Self::LINTS`].

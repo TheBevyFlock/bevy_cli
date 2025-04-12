@@ -6,7 +6,7 @@
 //!
 //! These lints are **allow** by default.
 
-use rustc_lint::{Level, Lint};
+use rustc_lint::{Level, Lint, LintStore};
 
 use crate::lint::{LintGroup, LintGroup2};
 
@@ -22,6 +22,11 @@ impl LintGroup2 for Restriction {
         missing_reflect::MISSING_REFLECT.lint,
         panicking_methods::PANICKING_METHODS.lint,
     ];
+
+    fn register_passes(store: &mut LintStore) {
+        store.register_late_pass(|_| Box::new(missing_reflect::MissingReflect::default()));
+        store.register_late_pass(|_| Box::new(panicking_methods::PanickingMethods::default()));
+    }
 }
 
 pub(crate) static RESTRICTION: &LintGroup = &LintGroup {

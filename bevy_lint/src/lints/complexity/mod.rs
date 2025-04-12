@@ -2,7 +2,7 @@
 //!
 //! These lints are **warn** by default.
 
-use rustc_lint::{Level, Lint};
+use rustc_lint::{Level, Lint, LintStore};
 
 use crate::lint::{LintGroup, LintGroup2};
 
@@ -12,6 +12,8 @@ impl LintGroup2 for Complexity {
     const NAME: &str = "bevy::complexity";
     const LEVEL: Level = Level::Warn;
     const LINTS: &[&Lint] = &[];
+
+    fn register_passes(_store: &mut LintStore) {}
 }
 
 pub(crate) static COMPLEXITY: &LintGroup = &LintGroup {

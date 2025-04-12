@@ -5,7 +5,7 @@
 //!
 //! These lints are **warn** by default.
 
-use rustc_lint::{Level, Lint};
+use rustc_lint::{Level, Lint, LintStore};
 
 use crate::lint::{LintGroup, LintGroup2};
 
@@ -23,6 +23,16 @@ impl LintGroup2 for Suspicious {
         insert_unit_bundle::INSERT_UNIT_BUNDLE.lint,
         iter_current_update_events::ITER_CURRENT_UPDATE_EVENTS.lint,
     ];
+
+    fn register_passes(store: &mut LintStore) {
+        store.register_late_pass(|_| {
+            Box::new(insert_event_resource::InsertEventResource::default())
+        });
+        store.register_late_pass(|_| Box::new(insert_unit_bundle::InsertUnitBundle::default()));
+        store.register_late_pass(|_| {
+            Box::new(iter_current_update_events::IterCurrentUpdateEvents::default())
+        });
+    }
 }
 
 pub(crate) static SUSPICIOUS: &LintGroup = &LintGroup {

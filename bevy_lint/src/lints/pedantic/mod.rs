@@ -6,7 +6,7 @@
 //!
 //! These lints are **allow** by default.
 
-use rustc_lint::{Level, Lint};
+use rustc_lint::{Level, Lint, LintStore};
 
 use crate::lint::{LintGroup, LintGroup2};
 
@@ -22,6 +22,15 @@ impl LintGroup2 for Pedantic {
         borrowed_reborrowable::BORROWED_REBORROWABLE.lint,
         main_return_without_appexit::MAIN_RETURN_WITHOUT_APPEXIT.lint,
     ];
+
+    fn register_passes(store: &mut LintStore) {
+        store.register_late_pass(|_| {
+            Box::new(borrowed_reborrowable::BorrowedReborrowable::default())
+        });
+        store.register_late_pass(|_| {
+            Box::new(main_return_without_appexit::MainReturnWithoutAppExit::default())
+        });
+    }
 }
 
 pub(crate) static PEDANTIC: &LintGroup = &LintGroup {
