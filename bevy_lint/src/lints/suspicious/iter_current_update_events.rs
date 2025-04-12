@@ -47,7 +47,7 @@ use crate::{declare_bevy_lint, declare_bevy_lint_pass, utils::hir_parse::MethodC
 
 declare_bevy_lint! {
     pub ITER_CURRENT_UPDATE_EVENTS,
-    super::SUSPICIOUS,
+    super::SUSPICIOUS.level,
     "called `Events::<T>::iter_current_update_events()`",
 }
 

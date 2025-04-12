@@ -60,13 +60,6 @@ pub trait LintGroup2 {
 #[deprecated]
 pub struct BevyLint {
     pub lint: &'static Lint,
-    pub group: &'static LintGroup,
-}
-
-impl BevyLint {
-    pub fn id(&self) -> LintId {
-        LintId::of(self.lint)
-    }
 }
 
 /// Represents a lint group.
@@ -115,7 +108,7 @@ macro_rules! declare_bevy_lint {
     {
         $(#[$attr:meta])*
         $vis:vis $name:ident,
-        $group:expr,
+        $level:expr,
         $desc:expr,
         $(@report_in_external_macro = $report_in_external_macro:expr,)?
         $(@crate_level_only = $crate_level_only:expr,)?
@@ -126,16 +119,17 @@ macro_rules! declare_bevy_lint {
         /// ```ignore
         /// Lint {
         #[doc = concat!("    name: \"bevy::", stringify!($name), "\",")]
-        #[doc = concat!("    group: ", stringify!($group), ",")]
+        #[doc = concat!("    group: ", stringify!($level), ",")]
         #[doc = concat!("    description: ", stringify!($desc), ",")]
         /// }
         /// ```
         $(#[$attr])*
+        #[expect(deprecated)]
         $vis static $name: &$crate::lint::BevyLint = &$crate::lint::BevyLint {
             lint: &::rustc_lint::Lint {
                 // Fields that are always configured by macro.
                 name: concat!("bevy::", stringify!($name)),
-                default_level: $group.level,
+                default_level: $level,
                 desc: $desc,
 
                 // Fields that cannot be configured.
@@ -152,7 +146,6 @@ macro_rules! declare_bevy_lint {
 
                 ..::rustc_lint::Lint::default_fields_for_macro()
             },
-            group: $group,
         };
     };
 }

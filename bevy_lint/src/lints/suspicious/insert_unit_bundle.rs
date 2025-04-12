@@ -61,7 +61,7 @@ use crate::{declare_bevy_lint, declare_bevy_lint_pass, utils::hir_parse::MethodC
 
 declare_bevy_lint! {
     pub INSERT_UNIT_BUNDLE,
-    super::SUSPICIOUS,
+    super::SUSPICIOUS.level,
     "inserted a `Bundle` containing a unit `()` type",
 }
 

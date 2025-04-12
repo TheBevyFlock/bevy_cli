@@ -46,7 +46,7 @@ use rustc_span::symbol::Ident;
 
 declare_bevy_lint! {
     pub PLUGIN_NOT_ENDING_IN_PLUGIN,
-    super::STYLE,
+    super::STYLE.level,
     "implemented `Plugin` for a structure whose name does not end in \"Plugin\"",
 }
 

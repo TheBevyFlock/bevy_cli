@@ -70,7 +70,7 @@ declare_bevy_lint! {
     pub ZST_QUERY,
     // This will eventually be a `RESTRICTION` lint, but due to
     // <https://github.com/TheBevyFlock/bevy_cli/issues/279> it is not yet ready for production.
-    super::NURSERY,
+    super::NURSERY.level,
     "queried a zero-sized type",
 }
 
