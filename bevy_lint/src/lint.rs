@@ -3,7 +3,7 @@
 use rustc_lint::{Level, Lint, LintId, LintStore};
 
 /// Represents a lint group that can control the level of a collection of lints.
-pub trait LintGroup2 {
+pub trait LintGroup {
     /// The name of this lint group, starting with the `bevy::` prefix.
     ///
     /// # Example
@@ -120,7 +120,7 @@ macro_rules! declare_bevy_lint {
                 // and constant evaluation because the `*&` prevents this entire struct from being
                 // promoted into an `&'static`. (You can check this yourself with
                 // `-Z unpretty-mir`.)
-                default_level: *&<$group as $crate::lint::LintGroup2>::LEVEL,
+                default_level: *&<$group as $crate::lint::LintGroup>::LEVEL,
                 desc: $desc,
 
                 // Fields that cannot be configured.

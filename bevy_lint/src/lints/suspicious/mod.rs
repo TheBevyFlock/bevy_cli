@@ -7,7 +7,7 @@
 
 use rustc_lint::{Level, Lint, LintStore};
 
-use crate::lint::LintGroup2;
+use crate::lint::LintGroup;
 
 pub mod insert_event_resource;
 pub mod insert_unit_bundle;
@@ -15,7 +15,7 @@ pub mod iter_current_update_events;
 
 pub(crate) struct Suspicious;
 
-impl LintGroup2 for Suspicious {
+impl LintGroup for Suspicious {
     const NAME: &str = "bevy::suspicious";
     const LEVEL: Level = Level::Warn;
     const LINTS: &[&Lint] = &[

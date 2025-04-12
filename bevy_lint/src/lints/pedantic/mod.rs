@@ -8,14 +8,14 @@
 
 use rustc_lint::{Level, Lint, LintStore};
 
-use crate::lint::LintGroup2;
+use crate::lint::LintGroup;
 
 pub mod borrowed_reborrowable;
 pub mod main_return_without_appexit;
 
 pub(crate) struct Pedantic;
 
-impl LintGroup2 for Pedantic {
+impl LintGroup for Pedantic {
     const NAME: &str = "bevy::pedantic";
     const LEVEL: Level = Level::Allow;
     const LINTS: &[&Lint] = &[

@@ -22,7 +22,7 @@
 //!
 //! [lint groups that can be toggled together]: crate#toggling-lints-in-cargotoml
 
-use crate::lint::LintGroup2;
+use crate::lint::LintGroup;
 use rustc_lint::LintStore;
 
 mod cargo;

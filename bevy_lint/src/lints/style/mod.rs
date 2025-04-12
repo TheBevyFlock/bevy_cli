@@ -6,13 +6,13 @@
 
 use rustc_lint::{Level, Lint, LintStore};
 
-use crate::lint::LintGroup2;
+use crate::lint::LintGroup;
 
 pub mod plugin_not_ending_in_plugin;
 
 pub(crate) struct Style;
 
-impl LintGroup2 for Style {
+impl LintGroup for Style {
     const NAME: &str = "bevy::style";
     const LEVEL: Level = Level::Warn;
     const LINTS: &[&Lint] = &[plugin_not_ending_in_plugin::PLUGIN_NOT_ENDING_IN_PLUGIN.lint];

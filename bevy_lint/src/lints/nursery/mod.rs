@@ -4,14 +4,14 @@
 
 use rustc_lint::{Level, Lint, LintStore};
 
-use crate::lint::LintGroup2;
+use crate::lint::LintGroup;
 
 pub mod duplicate_bevy_dependencies;
 pub mod zst_query;
 
 pub(crate) struct Nursery;
 
-impl LintGroup2 for Nursery {
+impl LintGroup for Nursery {
     const NAME: &str = "bevy::nursery";
     const LEVEL: Level = Level::Allow;
     const LINTS: &[&Lint] = &[
