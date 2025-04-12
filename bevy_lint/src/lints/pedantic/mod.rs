@@ -6,7 +6,7 @@
 //!
 //! These lints are **allow** by default.
 
-use rustc_lint::Level;
+use rustc_lint::{Level, Lint};
 
 use crate::lint::{LintGroup, LintGroup2};
 
@@ -18,6 +18,10 @@ pub(crate) struct Pedantic;
 impl LintGroup2 for Pedantic {
     const NAME: &str = "bevy::pedantic";
     const LEVEL: Level = Level::Allow;
+    const LINTS: &[&Lint] = &[
+        borrowed_reborrowable::BORROWED_REBORROWABLE.lint,
+        main_return_without_appexit::MAIN_RETURN_WITHOUT_APPEXIT.lint,
+    ];
 }
 
 pub(crate) static PEDANTIC: &LintGroup = &LintGroup {

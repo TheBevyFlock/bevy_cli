@@ -9,6 +9,9 @@ pub trait LintGroup2 {
 
     /// The default level for all lints in this lint group.
     const LEVEL: Level;
+
+    /// A list of all lints in this lint group.
+    const LINTS: &[&Lint];
 }
 
 /// A Bevy lint definition and its associated group.

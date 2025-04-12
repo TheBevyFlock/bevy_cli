@@ -6,7 +6,7 @@
 //!
 //! These lints are **allow** by default.
 
-use rustc_lint::Level;
+use rustc_lint::{Level, Lint};
 
 use crate::lint::{LintGroup, LintGroup2};
 
@@ -18,6 +18,10 @@ pub(crate) struct Restriction;
 impl LintGroup2 for Restriction {
     const NAME: &str = "bevy::restriction";
     const LEVEL: Level = Level::Allow;
+    const LINTS: &[&Lint] = &[
+        missing_reflect::MISSING_REFLECT.lint,
+        panicking_methods::PANICKING_METHODS.lint,
+    ];
 }
 
 pub(crate) static RESTRICTION: &LintGroup = &LintGroup {

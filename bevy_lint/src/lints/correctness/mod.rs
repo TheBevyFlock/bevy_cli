@@ -5,7 +5,7 @@
 //!
 //! These lints are **deny** by default.
 
-use rustc_lint::Level;
+use rustc_lint::{Level, Lint};
 
 use crate::lint::{LintGroup, LintGroup2};
 
@@ -14,6 +14,7 @@ pub(crate) struct Correctness;
 impl LintGroup2 for Correctness {
     const NAME: &str = "bevy::correctness";
     const LEVEL: Level = Level::Deny;
+    const LINTS: &[&Lint] = &[];
 }
 
 pub(crate) static CORRECTNESS: &LintGroup = &LintGroup {

@@ -2,7 +2,7 @@
 //!
 //! These lints are **allow** by default.
 
-use rustc_lint::Level;
+use rustc_lint::{Level, Lint};
 
 use crate::lint::{LintGroup, LintGroup2};
 
@@ -14,6 +14,10 @@ pub(crate) struct Nursery;
 impl LintGroup2 for Nursery {
     const NAME: &str = "bevy::nursery";
     const LEVEL: Level = Level::Allow;
+    const LINTS: &[&Lint] = &[
+        duplicate_bevy_dependencies::DUPLICATE_BEVY_DEPENDENCIES.lint,
+        zst_query::ZST_QUERY.lint,
+    ];
 }
 
 pub(crate) static NURSERY: &LintGroup = &LintGroup {
