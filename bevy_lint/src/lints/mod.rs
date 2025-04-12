@@ -22,7 +22,7 @@
 //!
 //! [lint groups that can be toggled together]: crate#toggling-lints-in-cargotoml
 
-use crate::lint::{BevyLint, LintGroup};
+use crate::lint::{BevyLint, LintGroup, LintGroup2};
 use rustc_lint::{Lint, LintStore};
 
 mod cargo;
@@ -70,8 +70,14 @@ static GROUPS: &[&LintGroup] = &[
 
 /// Registers all [`BevyLint`]s in [`LINTS`] with the [`LintStore`].
 pub(crate) fn register_lints(store: &mut LintStore) {
-    let lints: Vec<&Lint> = LINTS.iter().map(|x| x.lint).collect();
-    store.register_lints(&lints);
+    complexity::Complexity::register_lints(store);
+    correctness::Correctness::register_lints(store);
+    nursery::Nursery::register_lints(store);
+    pedantic::Pedantic::register_lints(store);
+    performance::Performance::register_lints(store);
+    restriction::Restriction::register_lints(store);
+    style::Style::register_lints(store);
+    suspicious::Suspicious::register_lints(store);
 }
 
 /// Registers all lint passes with the [`LintStore`].

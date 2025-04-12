@@ -1,6 +1,6 @@
 //! Supporting types and macros that help simplify developing a linter.
 
-use rustc_lint::{Level, Lint, LintId};
+use rustc_lint::{Level, Lint, LintId, LintStore};
 
 /// Represents a lint group that can control the level of a collection of lints.
 pub trait LintGroup2 {
@@ -12,6 +12,10 @@ pub trait LintGroup2 {
 
     /// A list of all lints in this lint group.
     const LINTS: &[&Lint];
+
+    fn register_lints(store: &mut LintStore) {
+        store.register_lints(Self::LINTS);
+    }
 }
 
 /// A Bevy lint definition and its associated group.
