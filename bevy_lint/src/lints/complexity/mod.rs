@@ -4,7 +4,14 @@
 
 use rustc_lint::Level;
 
-use crate::lint::LintGroup;
+use crate::lint::{LintGroup, LintGroup2};
+
+pub(crate) struct Complexity;
+
+impl LintGroup2 for Complexity {
+    const NAME: &str = "bevy::complexity";
+    const LEVEL: Level = Level::Warn;
+}
 
 pub(crate) static COMPLEXITY: &LintGroup = &LintGroup {
     name: "bevy::complexity",

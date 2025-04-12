@@ -7,7 +7,14 @@
 
 use rustc_lint::Level;
 
-use crate::lint::LintGroup;
+use crate::lint::{LintGroup, LintGroup2};
+
+pub(crate) struct Correctness;
+
+impl LintGroup2 for Correctness {
+    const NAME: &str = "bevy::correctness";
+    const LEVEL: Level = Level::Deny;
+}
 
 pub(crate) static CORRECTNESS: &LintGroup = &LintGroup {
     name: "bevy::correctness",

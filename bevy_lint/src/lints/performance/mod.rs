@@ -4,7 +4,14 @@
 
 use rustc_lint::Level;
 
-use crate::lint::LintGroup;
+use crate::lint::{LintGroup, LintGroup2};
+
+pub(crate) struct Performance;
+
+impl LintGroup2 for Performance {
+    const NAME: &str = "bevy::performance";
+    const LEVEL: Level = Level::Warn;
+}
 
 pub(crate) static PERFORMANCE: &LintGroup = &LintGroup {
     name: "bevy::performance",
