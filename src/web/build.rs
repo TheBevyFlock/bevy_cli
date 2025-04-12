@@ -1,4 +1,5 @@
 use anyhow::Context as _;
+use semver::VersionReq;
 use tracing::info;
 
 #[cfg(feature = "rustup")]
@@ -94,13 +95,20 @@ pub(crate) fn ensure_web_setup(skip_prompts: bool) -> anyhow::Result<()> {
     cargo::install::if_needed(
         wasm_bindgen::PROGRAM,
         wasm_bindgen::PACKAGE,
-        Some(&wasm_bindgen_version),
+        // wasm-bindgen version needs to be matched exactly
+        VersionReq::parse(&format!("={}", wasm_bindgen_version))
+            .context("failed to determine required wasm-bindgen version")?,
         skip_prompts,
     )?;
 
     // `wasm-opt` for optimizing wasm files
     #[cfg(feature = "wasm-opt")]
-    cargo::install::if_needed(wasm_opt::PACKAGE, wasm_opt::PROGRAM, None, skip_prompts)?;
+    cargo::install::if_needed(
+        wasm_opt::PACKAGE,
+        wasm_opt::PROGRAM,
+        VersionReq::STAR,
+        skip_prompts,
+    )?;
 
     Ok(())
 }

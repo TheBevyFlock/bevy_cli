@@ -1,12 +1,10 @@
-use std::{ffi::OsStr, process::exit};
+use std::{ffi::OsStr, process::exit, str::FromStr as _};
 
 use anyhow::Context;
 use dialoguer::Confirm;
-use semver::VersionReq;
+use semver::{Version, VersionReq};
 
 use crate::external_cli::CommandExt;
-#[cfg(feature = "web")]
-use crate::external_cli::wasm_bindgen::{self, wasm_bindgen_cli_version};
 
 /// Check if the given program is installed on the system.
 ///
@@ -37,17 +35,13 @@ pub(crate) fn if_needed(
             return Ok(false);
         };
 
-        // Its important that the `wasm-bindgen-cli` and the `wasm-bindgen` version match exactly,
-        // therefore compare the desired `package_version` with the installed
-        // `wasm-bindgen-cli` version
-        #[cfg(feature = "web")]
-        if package == wasm_bindgen::PACKAGE {
-            let version = wasm_bindgen_cli_version(&stdout)?;
+        if let Some(version) = parse_version(&stdout) {
             if package_version.matches(&version) {
                 return Ok(false);
             }
+
             prompt = Some(format!(
-                "`{program}:{version}` is installed, but \
+                "`{program}@{version}` is installed, but \
                 version `{package_version}` is required. Install and replace?"
             ));
         }
@@ -79,4 +73,11 @@ pub(crate) fn if_needed(
     cmd.ensure_status()?;
 
     Ok(true)
+}
+
+/// Try to determine the package version from the output of a `--version` command.
+fn parse_version(stdout: &[u8]) -> Option<Version> {
+    String::from_utf8_lossy(stdout)
+        .split_whitespace()
+        .find_map(|word| Version::from_str(word).ok())
 }
