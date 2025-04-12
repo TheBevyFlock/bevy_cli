@@ -60,7 +60,7 @@ use clippy_utils::{
 };
 use rustc_abi::Size;
 use rustc_hir::AmbigArg;
-use rustc_lint::{LateContext, LateLintPass, Level};
+use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::{
     Ty,
     layout::{LayoutOf, TyAndLayout},

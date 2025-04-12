@@ -4,7 +4,7 @@
 
 use rustc_lint::{Level, Lint, LintStore};
 
-use crate::lint::{LintGroup, LintGroup2};
+use crate::lint::LintGroup2;
 
 pub mod duplicate_bevy_dependencies;
 pub mod zst_query;
@@ -24,8 +24,3 @@ impl LintGroup2 for Nursery {
         store.register_late_pass(|_| Box::new(zst_query::ZstQuery::default()));
     }
 }
-
-pub(crate) static NURSERY: &LintGroup = &LintGroup {
-    name: "bevy::nursery",
-    level: Level::Allow,
-};

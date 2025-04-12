@@ -8,7 +8,7 @@
 
 use rustc_lint::{Level, Lint, LintStore};
 
-use crate::lint::{LintGroup, LintGroup2};
+use crate::lint::LintGroup2;
 
 pub mod missing_reflect;
 pub mod panicking_methods;
@@ -28,8 +28,3 @@ impl LintGroup2 for Restriction {
         store.register_late_pass(|_| Box::new(panicking_methods::PanickingMethods::default()));
     }
 }
-
-pub(crate) static RESTRICTION: &LintGroup = &LintGroup {
-    name: "bevy::restriction",
-    level: Level::Allow,
-};

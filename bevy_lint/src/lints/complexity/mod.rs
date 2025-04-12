@@ -4,7 +4,7 @@
 
 use rustc_lint::{Level, Lint, LintStore};
 
-use crate::lint::{LintGroup, LintGroup2};
+use crate::lint::LintGroup2;
 
 pub(crate) struct Complexity;
 
@@ -15,8 +15,3 @@ impl LintGroup2 for Complexity {
 
     fn register_passes(_store: &mut LintStore) {}
 }
-
-pub(crate) static COMPLEXITY: &LintGroup = &LintGroup {
-    name: "bevy::complexity",
-    level: Level::Warn,
-};

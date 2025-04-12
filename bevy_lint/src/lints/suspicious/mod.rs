@@ -7,7 +7,7 @@
 
 use rustc_lint::{Level, Lint, LintStore};
 
-use crate::lint::{LintGroup, LintGroup2};
+use crate::lint::LintGroup2;
 
 pub mod insert_event_resource;
 pub mod insert_unit_bundle;
@@ -34,8 +34,3 @@ impl LintGroup2 for Suspicious {
         });
     }
 }
-
-pub(crate) static SUSPICIOUS: &LintGroup = &LintGroup {
-    name: "bevy::suspicious",
-    level: Level::Warn,
-};

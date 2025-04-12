@@ -6,7 +6,7 @@
 
 use rustc_lint::{Level, Lint, LintStore};
 
-use crate::lint::{LintGroup, LintGroup2};
+use crate::lint::LintGroup2;
 
 pub mod plugin_not_ending_in_plugin;
 
@@ -23,8 +23,3 @@ impl LintGroup2 for Style {
         });
     }
 }
-
-pub(crate) static STYLE: &LintGroup = &LintGroup {
-    name: "bevy::style",
-    level: Level::Warn,
-};

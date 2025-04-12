@@ -62,20 +62,6 @@ pub struct BevyLint {
     pub lint: &'static Lint,
 }
 
-/// Represents a lint group.
-#[derive(PartialEq, Debug)]
-#[deprecated]
-pub struct LintGroup {
-    /// The name of the lint group.
-    ///
-    /// This will be used when trying to enable / disable the group, such as through
-    /// `#![allow(group)]`. By convention, this should start with `bevy::`.
-    pub name: &'static str,
-
-    // The default level all lints within this group should be.
-    pub level: Level,
-}
-
 /// Creates a new [`BevyLint`].
 ///
 /// # Example

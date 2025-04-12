@@ -4,7 +4,7 @@
 
 use rustc_lint::{Level, Lint, LintStore};
 
-use crate::lint::{LintGroup, LintGroup2};
+use crate::lint::LintGroup2;
 
 pub(crate) struct Performance;
 
@@ -15,8 +15,3 @@ impl LintGroup2 for Performance {
 
     fn register_passes(_store: &mut LintStore) {}
 }
-
-pub(crate) static PERFORMANCE: &LintGroup = &LintGroup {
-    name: "bevy::performance",
-    level: Level::Warn,
-};

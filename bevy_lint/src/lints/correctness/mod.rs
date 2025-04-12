@@ -7,7 +7,7 @@
 
 use rustc_lint::{Level, Lint, LintStore};
 
-use crate::lint::{LintGroup, LintGroup2};
+use crate::lint::LintGroup2;
 
 pub(crate) struct Correctness;
 
@@ -18,8 +18,3 @@ impl LintGroup2 for Correctness {
 
     fn register_passes(_store: &mut LintStore) {}
 }
-
-pub(crate) static CORRECTNESS: &LintGroup = &LintGroup {
-    name: "bevy::correctness",
-    level: Level::Deny,
-};
