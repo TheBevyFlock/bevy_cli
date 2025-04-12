@@ -38,11 +38,19 @@ pub(crate) fn select_run_binary<'p>(
         let package = metadata
             .packages
             .iter()
-            .find(|package| package.name == *package_name)
+            .find(|package| {
+                // Only consider packages in the current workspace and with the correct name
+                metadata.workspace_members.contains(&package.id) && package.name == *package_name
+            })
             .ok_or_else(|| anyhow::anyhow!("Failed to find package {package_name}"))?;
         vec![package]
     } else {
-        metadata.packages.iter().collect()
+        metadata
+            .packages
+            .iter()
+            // Only consider packages in the current workspace
+            .filter(|package| metadata.workspace_members.contains(&package.id))
+            .collect()
     };
 
     let mut is_example = false;
