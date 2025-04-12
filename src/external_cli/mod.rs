@@ -56,17 +56,20 @@ impl CommandExt {
     /// Check if the correct version of the program is installed and install if needed.
     ///
     /// The user will be prompted before the installation begins.
-    fn install_if_needed(&self, skip_prompts: bool) -> anyhow::Result<()> {
+    ///
+    /// Returns `true` if a new version was installed.
+    fn install_if_needed(&self) -> anyhow::Result<bool> {
         if let Some(package) = &self.package {
             cargo::install::if_needed(
                 self.inner.get_program(),
                 &package.name,
                 &package.version,
-                skip_prompts,
-            )?;
+                // FIXME: Configure
+                false,
+            )
+        } else {
+            Ok(false)
         }
-
-        Ok(())
     }
 
     /// Add an argument to the program.
@@ -132,10 +135,11 @@ impl CommandExt {
     /// returned.
     pub fn ensure_status(&mut self) -> anyhow::Result<ExitStatus> {
         let program = self.log_execution();
-        let status = self.inner.status()?;
+        let mut status = self.inner.status()?;
 
-        if !status.success() {
-            self.inner.status()?;
+        if !status.success() && (self.install_if_needed()?) {
+            // Retry command
+            status = self.inner.status()?;
         }
 
         anyhow::ensure!(
@@ -155,7 +159,13 @@ impl CommandExt {
     pub fn output(&mut self) -> anyhow::Result<Output> {
         let program = self.log_execution();
 
-        let output = self.inner.output()?;
+        let mut output = self.inner.output()?;
+
+        if !output.status.success() && (self.install_if_needed()?) {
+            // Retry command
+            output = self.inner.output()?;
+        }
+
         let status = output.status;
 
         anyhow::ensure!(
