@@ -64,8 +64,12 @@ impl CommandExt {
     ///
     /// If the command fails and the target is missing,
     /// it can be installed automatically via `rustup`.
-    pub fn require_target<S: AsRef<OsStr>>(&mut self, target: S) -> &mut Self {
-        self.target = Some(target.as_ref().to_owned());
+    pub fn maybe_require_target<S: AsRef<OsStr>>(&mut self, target: Option<S>) -> &mut Self {
+        if let Some(target) = target {
+            self.target = Some(target.as_ref().to_owned());
+        } else {
+            self.target = None;
+        }
         self
     }
 

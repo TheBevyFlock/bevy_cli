@@ -1,9 +1,6 @@
 use anyhow::Context as _;
-use semver::VersionReq;
 use tracing::info;
 
-#[cfg(feature = "rustup")]
-use crate::external_cli::rustup;
 #[cfg(feature = "wasm-opt")]
 use crate::external_cli::wasm_opt;
 
@@ -11,7 +8,7 @@ use crate::{
     bin_target::BinTarget,
     build::args::{BuildArgs, BuildSubcommands},
     external_cli::{
-        cargo::{self, install::AutoInstall, metadata::Metadata},
+        cargo::{self, metadata::Metadata},
         wasm_bindgen,
     },
     web::{
@@ -40,8 +37,6 @@ pub fn build_web(
         anyhow::bail!("tried to build for the web without matching arguments");
     };
 
-    ensure_web_setup(args.auto_install())?;
-
     let mut profile_args = configure_default_web_profiles(metadata)?;
     // `--config` args are resolved from left to right,
     // so the default configuration needs to come before the user args
@@ -51,7 +46,11 @@ pub fn build_web(
     let cargo_args = args.cargo_args_builder();
 
     info!("Compiling to WebAssembly...");
-    cargo::build::command().args(cargo_args).ensure_status()?;
+    cargo::build::command()
+        // Wasm targets are not installed by default
+        .maybe_require_target(args.target())
+        .args(cargo_args)
+        .ensure_status()?;
 
     info!("Bundling JavaScript bindings...");
     wasm_bindgen::bundle(metadata, bin_target)?;
@@ -74,21 +73,4 @@ pub fn build_web(
     }
 
     Ok(web_bundle)
-}
-
-pub(crate) fn ensure_web_setup(auto_install: AutoInstall) -> anyhow::Result<()> {
-    // `wasm32-unknown-unknown` compilation target
-    #[cfg(feature = "rustup")]
-    rustup::install_target_if_needed("wasm32-unknown-unknown", auto_install)?;
-
-    // `wasm-opt` for optimizing wasm files
-    #[cfg(feature = "wasm-opt")]
-    cargo::install::if_needed(
-        wasm_opt::PACKAGE,
-        wasm_opt::PROGRAM,
-        &VersionReq::STAR,
-        auto_install,
-    )?;
-
-    Ok(())
 }

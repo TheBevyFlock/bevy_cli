@@ -1,5 +1,6 @@
 use std::{fs, time::Instant};
 
+use semver::VersionReq;
 use tracing::info;
 
 use crate::{bin_target::BinTarget, external_cli::CommandExt};
@@ -19,6 +20,7 @@ pub(crate) fn optimize_path(bin_target: &BinTarget) -> anyhow::Result<()> {
     let size_before = fs::metadata(&path)?.len();
 
     CommandExt::new(PROGRAM)
+        .require_package(PACKAGE, VersionReq::STAR)
         .arg("--strip-debug")
         .arg("-Os")
         .arg("-o")
