@@ -5,6 +5,29 @@ use rustc_lint::{Level, Lint, LintId, LintStore};
 /// Represents a lint group that can control the level of a collection of lints.
 pub trait LintGroup2 {
     /// The name of this lint group, starting with the `bevy::` prefix.
+    ///
+    /// # Example
+    ///
+    /// ```ignore
+    /// // Lint group definition within `bevy_lint`.
+    /// pub struct Foo;
+    ///
+    /// impl LintGroup2 for Foo {
+    ///     const NAME: &str = "bevy::foo";
+    ///     // ...
+    /// }
+    /// ```
+    ///
+    /// ```ignore
+    /// // Enable this lint group in a user's code.
+    /// #![warn(bevy::foo)]
+    /// ```
+    ///
+    /// ```toml
+    /// # Alternatively, enable this lint group in `Cargo.toml`.
+    /// [package.metadata.bevy_lint]
+    /// foo = "warn"
+    /// ```
     const NAME: &str;
 
     /// The default level for all lints in this lint group.
@@ -13,6 +36,9 @@ pub trait LintGroup2 {
     /// A list of all lints in this lint group.
     const LINTS: &[&Lint];
 
+    /// Registers all of this group's lints into a given [`LintStore`].
+    ///
+    /// By default this will register all lints specified in [`Self::LINTS`].
     fn register_lints(store: &mut LintStore) {
         store.register_lints(Self::LINTS);
     }
