@@ -2,10 +2,11 @@
 
 use std::{
     borrow::Cow,
-    ffi::OsStr,
+    ffi::{OsStr, OsString},
     process::{Command, ExitStatus, Output},
 };
 
+use semver::VersionReq;
 use tracing::{Level, debug, error, info, trace, warn};
 
 pub mod arg_builder;
@@ -17,25 +18,49 @@ pub(crate) mod wasm_bindgen;
 #[cfg(feature = "wasm-opt")]
 pub(crate) mod wasm_opt;
 
+struct Package {
+    /// The name of the package.
+    name: OsString,
+    /// The version the package needs to match.
+    version: VersionReq,
+}
+
 pub struct CommandExt {
+    /// The package that the program can be installed with.
+    package: Option<Package>,
+    /// The command that is configured.
     inner: Command,
+    /// The level to use for logging the command.
     log_level: Level,
 }
 
 impl CommandExt {
+    /// Create a new command for the given program.
     pub fn new<S: AsRef<OsStr>>(program: S) -> Self {
         Self {
+            package: None,
             inner: Command::new(program),
             log_level: Level::DEBUG,
         }
     }
 
-    pub fn arg<S: AsRef<OsStr>>(&mut self, arg: S) -> &mut CommandExt {
+    /// Define the package that allows installation of the program.
+    pub fn with_package<S: AsRef<OsStr>>(&mut self, name: S, version: VersionReq) -> &mut Self {
+        self.package = Some(Package {
+            name: name.as_ref().to_owned(),
+            version,
+        });
+        self
+    }
+
+    /// Add an argument to the program.
+    pub fn arg<S: AsRef<OsStr>>(&mut self, arg: S) -> &mut Self {
         self.inner.arg(arg.as_ref());
         self
     }
 
-    pub fn args<I, S>(&mut self, args: I) -> &mut CommandExt
+    /// Add multiple arguments to the program.
+    pub fn args<I, S>(&mut self, args: I) -> &mut Self
     where
         I: IntoIterator<Item = S>,
         S: AsRef<OsStr>,
@@ -44,11 +69,13 @@ impl CommandExt {
         self
     }
 
-    pub fn log_level(&mut self, level: Level) -> &mut CommandExt {
+    /// Define at which level the execution of the program should be logged.
+    pub fn log_level(&mut self, level: Level) -> &mut Self {
         self.log_level = level;
         self
     }
 
+    /// Log the given message at the configured log level.
     fn log(&self, message: &str) {
         match self.log_level {
             Level::ERROR => error!("{}", message),
@@ -59,6 +86,9 @@ impl CommandExt {
         }
     }
 
+    /// Log the execution of the program.
+    ///
+    /// Returns the name of the program as String.
     fn log_execution(&self) -> String {
         let program = self
             .inner
@@ -87,6 +117,10 @@ impl CommandExt {
     pub fn ensure_status(&mut self) -> anyhow::Result<ExitStatus> {
         let program = self.log_execution();
         let status = self.inner.status()?;
+
+        if !status.success() {
+            self.inner.status()?;
+        }
 
         anyhow::ensure!(
             status.success(),
