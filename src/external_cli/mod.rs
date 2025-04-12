@@ -116,6 +116,13 @@ impl CommandExt {
     fn try_fix_before_retry(&self, auto_install: AutoInstall) -> anyhow::Result<bool> {
         let mut retry = false;
 
+        if self.package.is_some() || self.target.is_some() {
+            tracing::warn!(
+                "Failed to run {}, trying to find automatic fix...",
+                self.inner.get_program().to_string_lossy()
+            )
+        }
+
         if self.install_package_if_needed(auto_install)? {
             retry = true;
         }
