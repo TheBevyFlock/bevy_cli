@@ -1,8 +1,8 @@
-use std::{ffi::OsStr, process::exit, str::FromStr};
+use std::{ffi::OsStr, process::exit};
 
 use anyhow::Context;
 use dialoguer::Confirm;
-use semver::Version;
+use semver::VersionReq;
 
 use crate::external_cli::CommandExt;
 #[cfg(feature = "web")]
@@ -25,13 +25,13 @@ pub fn is_installed<P: AsRef<OsStr>>(program: P) -> Option<Vec<u8>> {
 pub(crate) fn if_needed(
     program: &str,
     package: &str,
-    package_version: Option<&str>,
+    package_version: VersionReq,
     skip_prompts: bool,
 ) -> anyhow::Result<bool> {
     let mut prompt: Option<String> = None;
 
     if let Some(stdout) = is_installed(program) {
-        let Some(package_version) = package_version else {
+        if package_version == VersionReq::STAR {
             // If no `package_version` is specified and the program is installed,
             // there is nothing to do.
             return Ok(false);
@@ -43,13 +43,12 @@ pub(crate) fn if_needed(
         #[cfg(feature = "web")]
         if package == wasm_bindgen::PACKAGE {
             let version = wasm_bindgen_cli_version(&stdout)?;
-            let desired_version = Version::from_str(package_version)?;
-            if version == desired_version {
+            if package_version.matches(&version) {
                 return Ok(false);
             }
             prompt = Some(format!(
                 "`{program}:{version}` is installed, but \
-                version `{desired_version}` is required. Install and replace?"
+                version `{package_version}` is required. Install and replace?"
             ));
         }
     }
@@ -73,8 +72,8 @@ pub(crate) fn if_needed(
     let mut cmd = CommandExt::new(super::program());
     cmd.arg("install").arg(package);
 
-    if let Some(version) = package_version {
-        cmd.arg("--version").arg(version);
+    if package_version != VersionReq::STAR {
+        cmd.arg("--version").arg(package_version.to_string());
     }
 
     cmd.ensure_status()?;
