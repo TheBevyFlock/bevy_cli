@@ -92,6 +92,7 @@ impl CommandExt {
     ///
     /// This requires the `rustup` feature to be enabled, otherwise it's a noop.
     fn install_target_if_needed(&self) -> anyhow::Result<bool> {
+        #[cfg(feature = "rustup")]
         if let Some(target) = &self.target {
             rustup::install_target_if_needed(
                 target,
@@ -101,6 +102,9 @@ impl CommandExt {
         } else {
             Ok(false)
         }
+
+        #[cfg(not(feature = "rustup"))]
+        Ok(false)
     }
 
     /// Try to fix erroneous configuration before retrying the command.
