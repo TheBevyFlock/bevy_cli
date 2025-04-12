@@ -3,12 +3,11 @@
 use std::{env, ffi::OsString};
 
 use anyhow::Context;
-use dialoguer::Confirm;
 use tracing::info;
 
 use crate::external_cli::cargo::install::is_installed;
 
-use super::CommandExt;
+use super::{CommandExt, cargo::install::AutoInstall};
 
 /// The rustup command can be customized via the `BEVY_CLI_RUSTUP` env
 fn program() -> OsString {
@@ -31,7 +30,10 @@ fn is_target_installed(target: &str) -> bool {
 }
 
 /// Install a compilation target, if it is not already installed.
-pub(crate) fn install_target_if_needed(target: &str, silent: bool) -> anyhow::Result<()> {
+pub(crate) fn install_target_if_needed(
+    target: &str,
+    auto_install: AutoInstall,
+) -> anyhow::Result<()> {
     if is_installed(program()).is_none() {
         // `rustup` is not installed on the system
         // Don't perform the check and hope for the best!
@@ -42,19 +44,10 @@ pub(crate) fn install_target_if_needed(target: &str, silent: bool) -> anyhow::Re
         return Ok(());
     }
 
-    if !silent {
-        // Abort if the user doesn't want to install it
-        if !Confirm::new()
-            .with_prompt(format!(
-                "Compilation target `{target}` is missing, should I install it for you?",
-            ))
-            .interact()
-            .context(
-                "failed to show interactive prompt, try using `--yes` to confirm automatically",
-            )?
-        {
-            anyhow::bail!("User does not want to install target `{target}`.");
-        }
+    if !auto_install.confirm(format!(
+        "Compilation target `{target}` is missing, should I install it for you?",
+    ))? {
+        anyhow::bail!("User does not want to install target `{target}`.");
     }
 
     info!("Installing missing target: `{target}`");

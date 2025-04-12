@@ -11,7 +11,7 @@ use crate::{
     bin_target::BinTarget,
     build::args::{BuildArgs, BuildSubcommands},
     external_cli::{
-        cargo::{self, metadata::Metadata},
+        cargo::{self, install::AutoInstall, metadata::Metadata},
         wasm_bindgen,
     },
     web::{
@@ -40,7 +40,7 @@ pub fn build_web(
         anyhow::bail!("tried to build for the web without matching arguments");
     };
 
-    ensure_web_setup(args.skip_prompts)?;
+    ensure_web_setup(args.auto_install())?;
 
     let mut profile_args = configure_default_web_profiles(metadata)?;
     // `--config` args are resolved from left to right,
@@ -76,7 +76,7 @@ pub fn build_web(
     Ok(web_bundle)
 }
 
-pub(crate) fn ensure_web_setup(skip_prompts: bool) -> anyhow::Result<()> {
+pub(crate) fn ensure_web_setup(auto_install: AutoInstall) -> anyhow::Result<()> {
     // The resolved dependency graph is needed to ensure the `wasm-bindgen-cli` version matches
     // exactly the `wasm-bindgen` version
     let metadata = cargo::metadata::metadata()?;
@@ -90,7 +90,7 @@ pub(crate) fn ensure_web_setup(skip_prompts: bool) -> anyhow::Result<()> {
 
     // `wasm32-unknown-unknown` compilation target
     #[cfg(feature = "rustup")]
-    rustup::install_target_if_needed("wasm32-unknown-unknown", skip_prompts)?;
+    rustup::install_target_if_needed("wasm32-unknown-unknown", auto_install)?;
     // `wasm-bindgen-cli` for bundling
     cargo::install::if_needed(
         wasm_bindgen::PROGRAM,
@@ -98,7 +98,7 @@ pub(crate) fn ensure_web_setup(skip_prompts: bool) -> anyhow::Result<()> {
         // wasm-bindgen version needs to be matched exactly
         &VersionReq::parse(&format!("={}", wasm_bindgen_version))
             .context("failed to determine required wasm-bindgen version")?,
-        skip_prompts,
+        auto_install,
     )?;
 
     // `wasm-opt` for optimizing wasm files
@@ -107,7 +107,7 @@ pub(crate) fn ensure_web_setup(skip_prompts: bool) -> anyhow::Result<()> {
         wasm_opt::PACKAGE,
         wasm_opt::PROGRAM,
         &VersionReq::STAR,
-        skip_prompts,
+        auto_install,
     )?;
 
     Ok(())

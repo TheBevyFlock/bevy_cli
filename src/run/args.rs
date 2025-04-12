@@ -108,7 +108,7 @@ pub struct RunWebArgs {
 impl From<RunArgs> for BuildArgs {
     fn from(args: RunArgs) -> Self {
         BuildArgs {
-            skip_prompts: args.skip_prompts,
+            confirm_prompts: args.skip_prompts,
             cargo_args: CargoBuildArgs {
                 common_args: args.cargo_args.common_args,
                 compilation_args: args.cargo_args.compilation_args,

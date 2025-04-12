@@ -6,6 +6,29 @@ use semver::{Version, VersionReq};
 
 use crate::external_cli::CommandExt;
 
+/// Whether to automatically install packages.
+#[derive(Debug, Clone, Copy)]
+pub enum AutoInstall {
+    /// Show a prompt to the user and ask them first before installing.
+    AskUser,
+    /// Always perform installation, without asking the user.
+    Always,
+    /// Never perform installation, without asking the user.
+    Never,
+}
+
+impl AutoInstall {
+    pub fn confirm<S: Into<String>>(&self, prompt: S) -> anyhow::Result<bool> {
+        match self {
+            AutoInstall::AskUser => Confirm::new().with_prompt(prompt).interact().context(
+                "failed to show interactive prompt, try using `--yes` to confirm automatically",
+            ),
+            AutoInstall::Always => Ok(true),
+            AutoInstall::Never => Ok(false),
+        }
+    }
+}
+
 /// Check if the given program is installed on the system.
 ///
 /// This assumes that the program offers a `--version` flag.
@@ -24,7 +47,7 @@ pub(crate) fn if_needed<Pr: AsRef<OsStr>, Pa: AsRef<OsStr>>(
     program: Pr,
     package: Pa,
     package_version: &VersionReq,
-    skip_prompts: bool,
+    auto_install: AutoInstall,
 ) -> anyhow::Result<bool> {
     let mut prompt: Option<String> = None;
     let program = program.as_ref();
@@ -50,19 +73,12 @@ pub(crate) fn if_needed<Pr: AsRef<OsStr>, Pa: AsRef<OsStr>>(
     }
 
     // Abort if the user doesn't want to install it
-    if !skip_prompts
-        && !Confirm::new()
-            .with_prompt(prompt.unwrap_or_else(|| {
-                format!(
-                    "`{}` is missing, should I install it for you?",
-                    program.to_string_lossy()
-                )
-            }))
-            .interact()
-            .context(
-                "failed to show interactive prompt, try using `--yes` to confirm automatically",
-            )?
-    {
+    if !auto_install.confirm(prompt.unwrap_or_else(|| {
+        format!(
+            "`{}` is missing, should I install it for you?",
+            program.to_string_lossy()
+        )
+    }))? {
         exit(1);
     }
 

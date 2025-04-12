@@ -6,6 +6,7 @@ use std::{
     process::{Command, ExitStatus, Output},
 };
 
+use cargo::install::AutoInstall;
 use semver::VersionReq;
 use tracing::{Level, debug, error, info, trace, warn};
 
@@ -65,7 +66,7 @@ impl CommandExt {
                 &package.name,
                 &package.version,
                 // FIXME: Configure
-                false,
+                AutoInstall::Never,
             )
         } else {
             Ok(false)
