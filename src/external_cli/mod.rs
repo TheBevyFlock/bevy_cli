@@ -19,6 +19,7 @@ pub(crate) mod wasm_bindgen;
 #[cfg(feature = "wasm-opt")]
 pub(crate) mod wasm_opt;
 
+#[derive(Debug)]
 struct Package {
     /// The name of the package.
     name: OsString,
@@ -133,6 +134,24 @@ impl CommandExt {
         Ok(retry)
     }
 
+    /// Ensure that the status is successful.
+    /// If not, try to fix the issue automatically.
+    fn success_or_try_fix<Err>(
+        &self,
+        status: &Result<ExitStatus, Err>,
+        auto_install: AutoInstall,
+    ) -> anyhow::Result<bool> {
+        if let Ok(status) = status {
+            if status.success() {
+                Ok(false)
+            } else {
+                self.try_fix_before_retry(auto_install)
+            }
+        } else {
+            self.try_fix_before_retry(auto_install)
+        }
+    }
+
     /// Add an argument to the program.
     pub fn arg<S: AsRef<OsStr>>(&mut self, arg: S) -> &mut Self {
         self.inner.arg(arg.as_ref());
@@ -196,12 +215,14 @@ impl CommandExt {
     /// returned.
     pub fn ensure_status(&mut self, auto_install: AutoInstall) -> anyhow::Result<ExitStatus> {
         let program = self.log_execution();
-        let mut status = self.inner.status()?;
+        let mut status = self.inner.status();
 
-        if !status.success() && (self.try_fix_before_retry(auto_install)?) {
+        if self.success_or_try_fix(&status, auto_install)? {
             // Retry command
-            status = self.inner.status()?;
+            status = self.inner.status();
         }
+
+        let status = status?;
 
         anyhow::ensure!(
             status.success(),
@@ -220,20 +241,20 @@ impl CommandExt {
     pub fn output(&mut self, auto_install: AutoInstall) -> anyhow::Result<Output> {
         let program = self.log_execution();
 
-        let mut output = self.inner.output()?;
+        let mut output = self.inner.output();
 
-        if !output.status.success() && (self.try_fix_before_retry(auto_install)?) {
+        if self.success_or_try_fix(&output.as_ref().map(|output| output.status), auto_install)? {
             // Retry command
-            output = self.inner.output()?;
+            output = self.inner.output();
         }
 
-        let status = output.status;
+        let output = output?;
 
         anyhow::ensure!(
-            status.success(),
+            output.status.success(),
             "Command {} exited with status code {}",
             program,
-            status
+            output.status
         );
 
         Ok(output)
