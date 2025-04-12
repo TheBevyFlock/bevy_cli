@@ -22,7 +22,7 @@ fn is_target_installed(target: &str) -> bool {
     let output = CommandExt::new(program())
         .arg("target")
         .arg("list")
-        .output();
+        .output(AutoInstall::Never);
 
     // Check if the target list has an entry like this:
     // <target_triple> (installed)
@@ -64,7 +64,7 @@ pub(crate) fn install_target_if_needed<T: AsRef<OsStr>>(
         .arg("target")
         .arg("add")
         .arg(target)
-        .ensure_status()
+        .ensure_status(auto_install)
         .context(format!("failed to install target `{target_str}`"))?;
 
     Ok(true)

@@ -2,13 +2,21 @@ use semver::{Comparator, Version, VersionReq};
 
 use crate::bin_target::BinTarget;
 
-use super::{CommandExt, arg_builder::ArgBuilder, cargo::metadata::Metadata};
+use super::{
+    CommandExt,
+    arg_builder::ArgBuilder,
+    cargo::{install::AutoInstall, metadata::Metadata},
+};
 
 pub(crate) const PACKAGE: &str = "wasm-bindgen-cli";
 pub(crate) const PROGRAM: &str = "wasm-bindgen";
 
 /// Bundle the Wasm build for the web.
-pub(crate) fn bundle(metadata: &Metadata, bin_target: &BinTarget) -> anyhow::Result<()> {
+pub(crate) fn bundle(
+    metadata: &Metadata,
+    bin_target: &BinTarget,
+    auto_install: AutoInstall,
+) -> anyhow::Result<()> {
     let original_wasm = bin_target
         .artifact_directory
         .clone()
@@ -49,7 +57,7 @@ pub(crate) fn bundle(metadata: &Metadata, bin_target: &BinTarget) -> anyhow::Res
                 .add_with_value("--target", "web")
                 .arg(original_wasm.to_string_lossy()),
         )
-        .ensure_status()?;
+        .ensure_status(auto_install)?;
 
     Ok(())
 }

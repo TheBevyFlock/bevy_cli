@@ -35,7 +35,7 @@ impl AutoInstall {
 pub fn is_installed<P: AsRef<OsStr>>(program: P) -> Option<Vec<u8>> {
     CommandExt::new(program)
         .arg("--version")
-        .output()
+        .output(AutoInstall::Never)
         .map(|output| output.stdout)
         .ok()
 }
@@ -89,7 +89,7 @@ pub(crate) fn if_needed<Pr: AsRef<OsStr>, Pa: AsRef<OsStr>>(
         cmd.arg("--version").arg(package_version.to_string());
     }
 
-    cmd.ensure_status()?;
+    cmd.ensure_status(auto_install)?;
 
     Ok(true)
 }

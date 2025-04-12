@@ -78,14 +78,13 @@ impl CommandExt {
     /// The user will be prompted before the installation begins.
     ///
     /// Returns `true` if a new version was installed.
-    fn install_package_if_needed(&self) -> anyhow::Result<bool> {
+    fn install_package_if_needed(&self, auto_install: AutoInstall) -> anyhow::Result<bool> {
         if let Some(package) = &self.package {
             cargo::install::if_needed(
                 self.inner.get_program(),
                 &package.name,
                 &package.version,
-                // FIXME: Configure
-                AutoInstall::Never,
+                auto_install,
             )
         } else {
             Ok(false)
@@ -95,14 +94,14 @@ impl CommandExt {
     /// Check if the needed compile targets are installed and install if needed.
     ///
     /// This requires the `rustup` feature to be enabled, otherwise it's a noop.
-    fn install_target_if_needed(&self) -> anyhow::Result<bool> {
+    fn install_target_if_needed(
+        &self,
+        // Only needed with the `rustup` feature
+        #[allow(unused_variables)] auto_install: AutoInstall,
+    ) -> anyhow::Result<bool> {
         #[cfg(feature = "rustup")]
         if let Some(target) = &self.target {
-            rustup::install_target_if_needed(
-                target,
-                // FIXME: Configure
-                AutoInstall::Never,
-            )
+            rustup::install_target_if_needed(target, auto_install)
         } else {
             Ok(false)
         }
@@ -114,13 +113,13 @@ impl CommandExt {
     /// Try to fix erroneous configuration before retrying the command.
     ///
     /// Returns `true` if a fix was applied and retrying might work.
-    fn try_fix_before_retry(&self) -> anyhow::Result<bool> {
+    fn try_fix_before_retry(&self, auto_install: AutoInstall) -> anyhow::Result<bool> {
         let mut retry = false;
 
-        if self.install_package_if_needed()? {
+        if self.install_package_if_needed(auto_install)? {
             retry = true;
         }
-        if self.install_target_if_needed()? {
+        if self.install_target_if_needed(auto_install)? {
             retry = true;
         }
 
@@ -188,11 +187,11 @@ impl CommandExt {
     /// Executes a command as a child process, waiting for it to finish.
     /// If the command did not terminate successfully, an error containing the [`ExitStatus`] is
     /// returned.
-    pub fn ensure_status(&mut self) -> anyhow::Result<ExitStatus> {
+    pub fn ensure_status(&mut self, auto_install: AutoInstall) -> anyhow::Result<ExitStatus> {
         let program = self.log_execution();
         let mut status = self.inner.status()?;
 
-        if !status.success() && (self.try_fix_before_retry()?) {
+        if !status.success() && (self.try_fix_before_retry(auto_install)?) {
             // Retry command
             status = self.inner.status()?;
         }
@@ -211,12 +210,12 @@ impl CommandExt {
     ///
     /// Executes the command as a child process, waiting for it to finish and collecting all of its
     /// output.
-    pub fn output(&mut self) -> anyhow::Result<Output> {
+    pub fn output(&mut self, auto_install: AutoInstall) -> anyhow::Result<Output> {
         let program = self.log_execution();
 
         let mut output = self.inner.output()?;
 
-        if !output.status.success() && (self.try_fix_before_retry()?) {
+        if !output.status.success() && (self.try_fix_before_retry(auto_install)?) {
             // Retry command
             output = self.inner.output()?;
         }

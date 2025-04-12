@@ -50,14 +50,14 @@ pub fn build_web(
         // Wasm targets are not installed by default
         .maybe_require_target(args.target())
         .args(cargo_args)
-        .ensure_status()?;
+        .ensure_status(args.auto_install())?;
 
     info!("Bundling JavaScript bindings...");
-    wasm_bindgen::bundle(metadata, bin_target)?;
+    wasm_bindgen::bundle(metadata, bin_target, args.auto_install())?;
 
     #[cfg(feature = "wasm-opt")]
     if args.is_release() {
-        wasm_opt::optimize_path(bin_target)?;
+        wasm_opt::optimize_path(bin_target, args.auto_install())?;
     }
 
     let web_bundle = create_web_bundle(

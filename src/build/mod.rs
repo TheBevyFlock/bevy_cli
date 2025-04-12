@@ -7,7 +7,7 @@ use crate::{bin_target::select_run_binary, config::CliConfig, external_cli::carg
 pub mod args;
 
 pub fn build(args: &mut BuildArgs) -> anyhow::Result<()> {
-    let metadata = cargo::metadata::metadata_with_args(["--no-deps"])?;
+    let metadata = cargo::metadata::metadata()?;
 
     let bin_target = select_run_binary(
         &metadata,
@@ -28,7 +28,9 @@ pub fn build(args: &mut BuildArgs) -> anyhow::Result<()> {
     }
 
     let cargo_args = args.cargo_args_builder();
-    cargo::build::command().args(cargo_args).ensure_status()?;
+    cargo::build::command()
+        .args(cargo_args)
+        .ensure_status(args.auto_install())?;
 
     Ok(())
 }

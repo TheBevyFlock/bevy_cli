@@ -5,7 +5,10 @@ use crate::build::args::{BuildSubcommands, BuildWebArgs};
 use crate::{
     build::args::BuildArgs,
     config::CliConfig,
-    external_cli::{arg_builder::ArgBuilder, cargo::run::CargoRunArgs},
+    external_cli::{
+        arg_builder::ArgBuilder,
+        cargo::{install::AutoInstall, run::CargoRunArgs},
+    },
 };
 
 use super::cargo::build::{CargoBuildArgs, CargoPackageBuildArgs, CargoTargetBuildArgs};
@@ -18,7 +21,7 @@ pub struct RunArgs {
 
     /// Confirm all prompts automatically.
     #[arg(long = "yes", default_value_t = false)]
-    pub skip_prompts: bool,
+    pub confirm_prompts: bool,
 
     /// Commands to forward to `cargo run`.
     #[clap(flatten)]
@@ -26,6 +29,15 @@ pub struct RunArgs {
 }
 
 impl RunArgs {
+    /// Whether to automatically install missing dependencies.
+    pub(crate) fn auto_install(&self) -> AutoInstall {
+        if self.confirm_prompts {
+            AutoInstall::Always
+        } else {
+            AutoInstall::AskUser
+        }
+    }
+
     /// Whether to run the app in the browser.
     #[cfg(feature = "web")]
     pub(crate) fn is_web(&self) -> bool {
@@ -108,7 +120,7 @@ pub struct RunWebArgs {
 impl From<RunArgs> for BuildArgs {
     fn from(args: RunArgs) -> Self {
         BuildArgs {
-            confirm_prompts: args.skip_prompts,
+            confirm_prompts: args.confirm_prompts,
             cargo_args: CargoBuildArgs {
                 common_args: args.cargo_args.common_args,
                 compilation_args: args.cargo_args.compilation_args,

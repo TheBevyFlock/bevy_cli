@@ -3,13 +3,19 @@ use std::{fs, time::Instant};
 use semver::VersionReq;
 use tracing::info;
 
-use crate::{bin_target::BinTarget, external_cli::CommandExt};
+use crate::{
+    bin_target::BinTarget,
+    external_cli::{CommandExt, cargo::install::AutoInstall},
+};
 
 pub(crate) const PACKAGE: &str = "wasm-opt";
 pub(crate) const PROGRAM: &str = "wasm-opt";
 
 /// Optimize the Wasm binary at the given path with wasm-opt.
-pub(crate) fn optimize_path(bin_target: &BinTarget) -> anyhow::Result<()> {
+pub(crate) fn optimize_path(
+    bin_target: &BinTarget,
+    auto_install: AutoInstall,
+) -> anyhow::Result<()> {
     let path = bin_target
         .artifact_directory
         .clone()
@@ -26,7 +32,7 @@ pub(crate) fn optimize_path(bin_target: &BinTarget) -> anyhow::Result<()> {
         .arg("-o")
         .arg(&path)
         .arg(&path)
-        .ensure_status()?;
+        .ensure_status(auto_install)?;
 
     let size_after = fs::metadata(path)?.len();
     let size_reduction = 1. - (size_after as f32) / (size_before as f32);
