@@ -53,6 +53,22 @@ impl CommandExt {
         self
     }
 
+    /// Check if the correct version of the program is installed and install if needed.
+    ///
+    /// The user will be prompted before the installation begins.
+    fn install_if_needed(&self, skip_prompts: bool) -> anyhow::Result<()> {
+        if let Some(package) = &self.package {
+            cargo::install::if_needed(
+                self.inner.get_program(),
+                &package.name,
+                &package.version,
+                skip_prompts,
+            )?;
+        }
+
+        Ok(())
+    }
+
     /// Add an argument to the program.
     pub fn arg<S: AsRef<OsStr>>(&mut self, arg: S) -> &mut Self {
         self.inner.arg(arg.as_ref());
