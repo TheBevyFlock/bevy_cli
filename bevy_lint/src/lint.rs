@@ -42,6 +42,12 @@ pub trait LintGroup2 {
     fn register_lints(store: &mut LintStore) {
         store.register_lints(Self::LINTS);
     }
+
+    /// Registers this lint group into a given [`LintStore`].
+    fn register_group(store: &mut LintStore) {
+        let lint_ids = Self::LINTS.iter().map(|lint| LintId::of(lint)).collect();
+        store.register_group(true, Self::NAME, None, lint_ids);
+    }
 }
 
 /// A Bevy lint definition and its associated group.

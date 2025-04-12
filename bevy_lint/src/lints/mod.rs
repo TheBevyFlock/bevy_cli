@@ -110,17 +110,12 @@ pub(crate) fn register_passes(store: &mut LintStore) {
 
 /// Registers all [`LintGroup`]s in [`GROUPS`] with the [`LintStore`].
 pub(crate) fn register_groups(store: &mut LintStore) {
-    for &group in GROUPS {
-        let lints = LINTS
-            .iter()
-            .copied()
-            // Only select lints of this specified group.
-            .filter(|l| l.group == group)
-            // Convert the lints into their `LintId`s.
-            .map(BevyLint::id)
-            // Collect into a `Vec`.
-            .collect();
-
-        store.register_group(true, group.name, None, lints);
-    }
+    complexity::Complexity::register_group(store);
+    correctness::Correctness::register_group(store);
+    nursery::Nursery::register_group(store);
+    pedantic::Pedantic::register_group(store);
+    performance::Performance::register_group(store);
+    restriction::Restriction::register_group(store);
+    style::Style::register_group(store);
+    suspicious::Suspicious::register_group(store);
 }
