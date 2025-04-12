@@ -54,7 +54,7 @@ pub fn build_web(
     cargo::build::command().args(cargo_args).ensure_status()?;
 
     info!("Bundling JavaScript bindings...");
-    wasm_bindgen::bundle(bin_target)?;
+    wasm_bindgen::bundle(metadata, bin_target)?;
 
     #[cfg(feature = "wasm-opt")]
     if args.is_release() {
@@ -77,29 +77,9 @@ pub fn build_web(
 }
 
 pub(crate) fn ensure_web_setup(auto_install: AutoInstall) -> anyhow::Result<()> {
-    // The resolved dependency graph is needed to ensure the `wasm-bindgen-cli` version matches
-    // exactly the `wasm-bindgen` version
-    let metadata = cargo::metadata::metadata()?;
-
-    let wasm_bindgen_version = metadata
-        .packages
-        .iter()
-        .find(|package| package.name == "wasm-bindgen")
-        .map(|package| package.version.to_string())
-        .ok_or_else(|| anyhow::anyhow!("Failed to find wasm-bindgen"))?;
-
     // `wasm32-unknown-unknown` compilation target
     #[cfg(feature = "rustup")]
     rustup::install_target_if_needed("wasm32-unknown-unknown", auto_install)?;
-    // `wasm-bindgen-cli` for bundling
-    cargo::install::if_needed(
-        wasm_bindgen::PROGRAM,
-        wasm_bindgen::PACKAGE,
-        // wasm-bindgen version needs to be matched exactly
-        &VersionReq::parse(&format!("={}", wasm_bindgen_version))
-            .context("failed to determine required wasm-bindgen version")?,
-        auto_install,
-    )?;
 
     // `wasm-opt` for optimizing wasm files
     #[cfg(feature = "wasm-opt")]

@@ -46,7 +46,7 @@ impl CommandExt {
     }
 
     /// Define the package that allows installation of the program.
-    pub fn with_package<S: AsRef<OsStr>>(&mut self, name: S, version: VersionReq) -> &mut Self {
+    pub fn require_package<S: AsRef<OsStr>>(&mut self, name: S, version: VersionReq) -> &mut Self {
         self.package = Some(Package {
             name: name.as_ref().to_owned(),
             version,
