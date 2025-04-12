@@ -60,7 +60,7 @@ use clippy_utils::{
 };
 use rustc_abi::Size;
 use rustc_hir::AmbigArg;
-use rustc_lint::{LateContext, LateLintPass};
+use rustc_lint::{LateContext, LateLintPass, Level};
 use rustc_middle::ty::{
     Ty,
     layout::{LayoutOf, TyAndLayout},
@@ -70,7 +70,7 @@ declare_bevy_lint! {
     pub ZST_QUERY,
     // This will eventually be a `RESTRICTION` lint, but due to
     // <https://github.com/TheBevyFlock/bevy_cli/issues/279> it is not yet ready for production.
-    super::NURSERY.level,
+    Level::Allow,
     "queried a zero-sized type",
 }
 
