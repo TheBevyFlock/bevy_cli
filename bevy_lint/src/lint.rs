@@ -2,10 +2,20 @@
 
 use rustc_lint::{Level, Lint, LintId};
 
+/// Represents a lint group that can control the level of a collection of lints.
+pub trait LintGroup2 {
+    /// The name of this lint group, starting with the `bevy::` prefix.
+    const NAME: &str;
+
+    /// The default level for all lints in this lint group.
+    const LEVEL: Level;
+}
+
 /// A Bevy lint definition and its associated group.
 ///
 /// The level of the lint must be the same as the level of the group.
 #[derive(Debug)]
+#[deprecated]
 pub struct BevyLint {
     pub lint: &'static Lint,
     pub group: &'static LintGroup,
@@ -19,6 +29,7 @@ impl BevyLint {
 
 /// Represents a lint group.
 #[derive(PartialEq, Debug)]
+#[deprecated]
 pub struct LintGroup {
     /// The name of the lint group.
     ///
