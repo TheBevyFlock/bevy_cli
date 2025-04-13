@@ -176,10 +176,11 @@ There are several other ways to toggle lints, although some have varying levels 
 
 |Method|Support|Additional Information|
 |-|-|-|
-|`[package.metadata.bevy_lint]`|✅|See [Toggling Lints in `Cargo.toml`](#toggling-lints-in-cargotoml).|
+|`[package.metadata.bevy_lint]` in `Cargo.toml`|✅|See [Toggling Lints in `Cargo.toml`](#toggling-lints-in-cargotoml).|
+|`[workspace.metadata.bevy_lint]` in `Cargo.toml`|✅|See [Toggling Lints in `Cargo.toml`](#toggling-lints-in-cargotoml).|
 |`#[allow(...)]` and related|✅|Must be behind `#[cfg_attr(bevy_lint, ...)]` on stable Rust.|
-|`[lints.bevy]` in `Cargo.toml`|⚠️|Nightly only because `#[register_tool(bevy)]` must always be enabled.|
-|`[workspace.lints.bevy]` in `Cargo.toml`|⚠️|Nightly only (same as `[lints.bevy]`) and prints a warning each time `cargo` is executed.|
+|`[lints.bevy]` in `Cargo.toml`|⚠️|Nightly only because `#[register_tool(bevy)]` must always be enabled. Prints a warning each time `cargo` is run.|
+|`[workspace.lints.bevy]` in `Cargo.toml`|⚠️|Same as `[lints.bevy]`.|
 |`RUSTFLAGS="-A bevy::lint"`|❌|`RUSTFLAGS` applies to dependencies, but they do not have `#[register_tool(bevy)]`.|
 
 ## Compatibility
