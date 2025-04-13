@@ -91,15 +91,6 @@ macro_rules! declare_bevy_lint {
         $(@crate_level_only = $crate_level_only:expr,)?
         $(@eval_always = $eval_always:expr,)?
     } => {
-        /// Click me for more information.
-        ///
-        /// ```ignore
-        /// Lint {
-        #[doc = concat!("    name: \"bevy::", stringify!($name), "\",")]
-        #[doc = concat!("    group: ", stringify!($group), ",")]
-        #[doc = concat!("    description: ", stringify!($desc), ",")]
-        /// }
-        /// ```
         $(#[$attr])*
         $vis static $name: &::rustc_lint::Lint = &::rustc_lint::Lint {
             // Fields that are always configured by macro.
