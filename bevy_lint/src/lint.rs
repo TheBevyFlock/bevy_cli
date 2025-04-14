@@ -12,7 +12,7 @@ pub trait LintGroup {
     /// // Lint group definition within `bevy_lint`.
     /// pub struct Foo;
     ///
-    /// impl LintGroup2 for Foo {
+    /// impl LintGroup for Foo {
     ///     const NAME: &str = "bevy::foo";
     ///     // ...
     /// }
@@ -37,6 +37,15 @@ pub trait LintGroup {
     const LINTS: &[&Lint];
 
     /// Registers all of this lint group's lint passes into a given [`LintStore`].
+    ///
+    /// When implementing this function, you'll often be calling
+    /// [`LintStore::register_late_pass()`] like so:
+    ///
+    /// ```ignore
+    /// fn register_passes(store: &mut LintStore) {
+    ///     store.register_late_pass(|_| Box::new(my_lint::MyLint::default()));
+    /// }
+    /// ```
     fn register_passes(store: &mut LintStore);
 
     /// Registers all of this group's lints into a given [`LintStore`].
