@@ -91,27 +91,26 @@ impl CargoCompilationArgs {
         }
     }
 
+    /// The platform to target with the build.
+    ///
+    /// On web, defaults to `wasm32-unknown-unknown`.
     pub(crate) fn target(&self, is_web: bool) -> Option<String> {
         if is_web {
-            Some("wasm32-unknown-unknown".to_string())
+            self.target
+                .clone()
+                // Default to `wasm32-unknown-unknown`
+                .or_else(|| Some("wasm32-unknown-unknown".to_string()))
         } else {
             self.target.clone()
         }
     }
 
     pub(crate) fn args_builder(&self, is_web: bool) -> ArgBuilder {
-        // web takes precedence over --target <TRIPLE>
-        let target = if is_web {
-            Some("wasm32-unknown-unknown".to_string())
-        } else {
-            self.target.clone()
-        };
-
         ArgBuilder::new()
             .add_with_value("--profile", self.profile(is_web))
             .add_opt_value("--jobs", &self.jobs.map(|jobs| jobs.to_string()))
             .add_flag_if("--keep-going", self.is_keep_going)
-            .add_opt_value("--target", &target)
+            .add_opt_value("--target", &self.target(is_web))
             .add_opt_value("--target-dir", &self.target_dir)
     }
 }
@@ -164,10 +163,15 @@ pub struct CargoCommonArgs {
 
     #[arg(long = "rustflags", allow_hyphen_values = true)]
     pub rustflags: Option<String>,
+    /// Unstable (nightly-only) flags to Cargo, see `cargo -Z help` for details.
+    #[clap(short = 'Z', value_name = "FLAG")]
+    pub unstable_flags: Vec<String>,
 }
 
 impl CargoCommonArgs {
     pub(crate) fn args_builder(&self) -> ArgBuilder {
-        ArgBuilder::new().add_values_separately("--config", self.config.iter())
+        ArgBuilder::new()
+            .add_values_separately("--config", self.config.iter())
+            .add_values_separately("-Z", self.unstable_flags.iter())
     }
 }
