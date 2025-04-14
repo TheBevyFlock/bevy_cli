@@ -23,14 +23,15 @@ pub fn run(args: &mut RunArgs) -> anyhow::Result<()> {
 
     #[cfg(feature = "web")]
     if args.is_web() {
-        return run_web(args, config.rustflags().as_deref(), &metadata, &bin_target);
+        return run_web(args, &metadata, &bin_target);
     }
 
     let cargo_args = args.cargo_args_builder();
+
     // For native builds, wrap `cargo run`
     cargo::run::command()
         .args(cargo_args)
-        .env("RUSTFLAGS", config.rustflags())
+        .env("RUSTFLAGS", args.cargo_args.common_args.rustflags.clone())
         .ensure_status()?;
 
     Ok(())

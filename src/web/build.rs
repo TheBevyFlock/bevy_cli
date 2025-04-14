@@ -32,7 +32,6 @@ use super::bundle::WebBundle;
 /// - Creating a bundled folder (if requested)
 pub fn build_web(
     args: &mut BuildArgs,
-    rustflags: Option<&str>,
     metadata: &Metadata,
     bin_target: &BinTarget,
 ) -> anyhow::Result<WebBundle> {
@@ -54,7 +53,7 @@ pub fn build_web(
 
     cargo::build::command()
         .args(cargo_args)
-        .env("RUSTFLAGS", rustflags)
+        .env("RUSTFLAGS", args.cargo_args.common_args.rustflags.clone())
         .ensure_status()?;
 
     info!("Bundling JavaScript bindings...");

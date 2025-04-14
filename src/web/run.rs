@@ -16,7 +16,6 @@ use super::{build::build_web, serve::serve};
 /// Requires [`RunSubcommands::Web`] to be defined.
 pub(crate) fn run_web(
     args: &RunArgs,
-    rustflags: Option<&str>,
     metadata: &Metadata,
     bin_target: &BinTarget,
 ) -> anyhow::Result<()> {
@@ -36,7 +35,7 @@ pub(crate) fn run_web(
         build_args.cargo_args.target_args.bin = Some(bin_target.bin_name.clone());
     }
 
-    let web_bundle = build_web(&mut build_args, rustflags, metadata, bin_target)?;
+    let web_bundle = build_web(&mut build_args, metadata, bin_target)?;
 
     let port = web_args.port;
     let url = format!("http://localhost:{port}");
