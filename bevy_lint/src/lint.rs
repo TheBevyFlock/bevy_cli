@@ -51,6 +51,14 @@ pub trait LintGroup {
         let lint_ids = Self::LINTS.iter().map(|lint| LintId::of(lint)).collect();
         store.register_group(true, Self::NAME, None, lint_ids);
     }
+
+    /// A utility functions that calls [`Self::register_lints()`], [`Self::register_passes()`], and
+    /// [`Self::register_group()`] for the same [`LintStore`].
+    fn register(store: &mut LintStore) {
+        Self::register_passes(store);
+        Self::register_lints(store);
+        Self::register_group(store);
+    }
 }
 
 /// Creates a new [`Lint`].

@@ -36,42 +36,19 @@ pub mod restriction;
 pub mod style;
 pub mod suspicious;
 
-/// Registers all [`BevyLint`]s in [`LINTS`] with the [`LintStore`].
-pub(crate) fn register_lints(store: &mut LintStore) {
-    complexity::Complexity::register_lints(store);
-    correctness::Correctness::register_lints(store);
-    nursery::Nursery::register_lints(store);
-    pedantic::Pedantic::register_lints(store);
-    performance::Performance::register_lints(store);
-    restriction::Restriction::register_lints(store);
-    style::Style::register_lints(store);
-    suspicious::Suspicious::register_lints(store);
-}
-
-/// Registers all lint passes with the [`LintStore`].
-pub(crate) fn register_passes(store: &mut LintStore) {
-    complexity::Complexity::register_passes(store);
-    correctness::Correctness::register_passes(store);
-    nursery::Nursery::register_passes(store);
-    pedantic::Pedantic::register_passes(store);
-    performance::Performance::register_passes(store);
-    restriction::Restriction::register_passes(store);
-    style::Style::register_passes(store);
-    suspicious::Suspicious::register_passes(store);
+/// Registers all lints, lint passes, and lint groups offered by `bevy_lint` into a given
+/// [`LintStore`].
+pub(crate) fn register(store: &mut LintStore) {
+    complexity::Complexity::register(store);
+    correctness::Correctness::register(store);
+    nursery::Nursery::register(store);
+    pedantic::Pedantic::register(store);
+    performance::Performance::register(store);
+    restriction::Restriction::register(store);
+    style::Style::register(store);
+    suspicious::Suspicious::register(store);
 
     // The Cargo lint pass is not associated with a single lint group, so we register it
     // separately.
     store.register_late_pass(|_| Box::new(cargo::Cargo::default()));
-}
-
-/// Registers all [`LintGroup`]s in [`GROUPS`] with the [`LintStore`].
-pub(crate) fn register_groups(store: &mut LintStore) {
-    complexity::Complexity::register_group(store);
-    correctness::Correctness::register_group(store);
-    nursery::Nursery::register_group(store);
-    pedantic::Pedantic::register_group(store);
-    performance::Performance::register_group(store);
-    restriction::Restriction::register_group(store);
-    style::Style::register_group(store);
-    suspicious::Suspicious::register_group(store);
 }
