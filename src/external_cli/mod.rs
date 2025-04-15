@@ -93,17 +93,16 @@ impl CommandExt {
         let envs = self
             .inner
             .get_envs()
-            .map(|(key, val)| {
+            .filter_map(|(key, val)| {
                 let key = key.to_string_lossy();
-                let val = val
-                    .as_ref()
-                    .map_or_else(|| Cow::Borrowed("<unset>"), |v| v.to_string_lossy());
-                format!("{key}={val}")
+                val.map(|v| v.to_string_lossy())
+                    .map(|value| format!("{key}={value}"))
             })
             .collect::<Vec<_>>()
-            .join(", ");
+            .join(",");
 
         self.log(format!("Running: `{program} {args}`").as_str());
+
         if !envs.is_empty() {
             self.log(&format!("With env: {envs}"));
         }
