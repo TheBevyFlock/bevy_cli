@@ -1073,9 +1073,9 @@ checksum = "f46ad14479a25103f283c0f10005961cf086d8dc42205bb44c46ac563475dca6"
 
 [[package]]
 name = "clippy_utils"
-version = "0.1.87"
+version = "0.1.88"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "657c43813e9c80e700ff3a277547d10a99710c865ad8528874ed64e079a69635"
+checksum = "07a197dfde816f2732f1e1f43df2e4b93a8eead5f26d4deb3bc54b1fb6412ebf"
 dependencies = [
  "arrayvec",
  "itertools 0.12.1",
