@@ -244,6 +244,43 @@ mod tests {
         }
 
         #[test]
+        fn should_return_merged_config_for_native_dev() -> anyhow::Result<()> {
+            let metadata = json!({
+                "features": ["native-dev"],
+                "dev": {
+                    "features": [
+                        "bevy/dynamic_linking",
+                        "bevy/bevy_dev_tools",
+                        "bevy/bevy_ui_debug"
+                    ],
+                    "default_features": true,
+                },
+                "web": {
+                    "features": ["web"],
+                    "default_features": false,
+                    "dev": {
+                        "features": ["web-dev"],
+                    }
+                }
+            });
+
+            assert_eq!(
+                CliConfig::merged_from_metadata(Some(&metadata), false, false)?,
+                CliConfig {
+                    target: None,
+                    features: vec![
+                        "native-dev".to_owned(),
+                        "bevy/dynamic_linking".to_owned(),
+                        "bevy/bevy_dev_tools".to_owned(),
+                        "bevy/bevy_ui_debug".to_owned()
+                    ],
+                    default_features: Some(true),
+                }
+            );
+            Ok(())
+        }
+
+        #[test]
         fn should_not_require_any_config() -> anyhow::Result<()> {
             let metadata = json!({});
 
