@@ -8,7 +8,7 @@ use tracing::Level;
 
 use crate::external_cli::CommandExt;
 
-use super::program;
+use super::{install::AutoInstall, program};
 
 /// Create a command to run `cargo metadata`.
 pub(crate) fn command() -> CommandExt {
@@ -34,7 +34,7 @@ where
     I: IntoIterator<Item = S>,
     S: AsRef<OsStr>,
 {
-    let output = command().args(additional_args).output()?;
+    let output = command().args(additional_args).output(AutoInstall::Never)?;
     let metadata = serde_json::from_slice(&output.stdout)
         .context("Failed to parse `cargo metadata` output")?;
     Ok(metadata)
