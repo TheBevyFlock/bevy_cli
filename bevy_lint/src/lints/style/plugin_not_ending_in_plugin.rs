@@ -37,10 +37,10 @@
 //! }
 //! ```
 
-use crate::{declare_bevy_lint, declare_bevy_lint_pass};
-use clippy_utils::{diagnostics::span_lint_hir_and_then, match_def_path, path_res};
+use crate::{declare_bevy_lint, declare_bevy_lint_pass, utils::hir_parse::impls_trait};
+use clippy_utils::{diagnostics::span_lint_hir_and_then, path_res};
 use rustc_errors::Applicability;
-use rustc_hir::{HirId, Item, ItemKind, OwnerId, def::Res};
+use rustc_hir::{HirId, Item, ItemKind, OwnerId};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_span::symbol::Ident;
 
@@ -56,16 +56,8 @@ declare_bevy_lint_pass! {
 
 impl<'tcx> LateLintPass<'tcx> for PluginNotEndingInPlugin {
     fn check_item(&mut self, cx: &LateContext<'tcx>, item: &Item<'tcx>) {
-        // Find `impl` items...
         if let ItemKind::Impl(impl_) = item.kind
-            // ...that implement a trait...
-            && let Some(of_trait) = impl_.of_trait
-            // ...where the trait is a path to user code... (I don't believe this will ever be
-            // false, since the alternatives are primitives, `Self`, and others that wouldn't make
-            // since in this scenario.)
-            && let Res::Def(_, trait_def_id) = of_trait.path.res
-            // ...where the trait being implemented is Bevy's `Plugin`...
-            && match_def_path(cx, trait_def_id, &crate::paths::PLUGIN)
+            && impls_trait(cx, impl_, &crate::paths::PLUGIN)
         {
             // Try to resolve where this type was originally defined. This will result in a `DefId`
             // pointing to the original `struct Foo` definition, or `impl <T>` if it's a generic
