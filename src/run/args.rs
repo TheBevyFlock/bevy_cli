@@ -74,6 +74,12 @@ impl RunArgs {
                 .is_no_default_features
                 .unwrap_or(!config.default_features()),
         );
+        self.cargo_args.common_args.rustflags = self
+            .cargo_args
+            .common_args
+            .rustflags
+            .clone()
+            .or(config.rustflags());
     }
 }
 

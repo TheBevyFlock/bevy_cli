@@ -50,7 +50,11 @@ pub fn build_web(
     let cargo_args = args.cargo_args_builder();
 
     info!("Compiling to WebAssembly...");
-    cargo::build::command().args(cargo_args).ensure_status()?;
+
+    cargo::build::command()
+        .args(cargo_args)
+        .env("RUSTFLAGS", args.cargo_args.common_args.rustflags.clone())
+        .ensure_status()?;
 
     info!("Bundling JavaScript bindings...");
     wasm_bindgen::bundle(bin_target)?;

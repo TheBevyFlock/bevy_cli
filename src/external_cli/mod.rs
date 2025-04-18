@@ -44,6 +44,17 @@ impl CommandExt {
         self
     }
 
+    pub fn env<K, V>(&mut self, key: K, val: Option<V>) -> &mut CommandExt
+    where
+        K: AsRef<OsStr>,
+        V: AsRef<OsStr>,
+    {
+        if let Some(val) = val {
+            self.inner.env(key, val);
+        }
+        self
+    }
+
     pub fn log_level(&mut self, level: Level) -> &mut CommandExt {
         self.log_level = level;
         self
@@ -79,7 +90,22 @@ impl CommandExt {
             .collect::<Vec<Cow<_>>>()
             .join(" ");
 
+        let envs = self
+            .inner
+            .get_envs()
+            .filter_map(|(key, val)| {
+                let key = key.to_string_lossy();
+                val.map(|v| v.to_string_lossy())
+                    .map(|value| format!("{key}={value}"))
+            })
+            .collect::<Vec<_>>()
+            .join(",");
+
         self.log(format!("Running: `{program} {args}`").as_str());
+
+        if !envs.is_empty() {
+            self.log(&format!("With env: {envs}"));
+        }
 
         let status = self.inner.status()?;
 
