@@ -161,6 +161,25 @@ impl ConventionalNameTraitImpl {
     fn name_suggestion(&self, struct_name: &str) -> String {
         match self {
             ConventionalNameTraitImpl::SystemSet => {
+                // There are several competing naming standards. These are a few that we specially
+                // check for.
+                const INCORRECT_SUFFIXES: [&str; 3] = [
+                    "System",
+                    "Systems",
+                    "Steps",
+                ];
+
+                // If the name ends in one of the other suffixes, strip it out and replace it with
+                // "Set". If a struct was originally named `FooSystem`, this suggests `FooSet`
+                // instead of `FooSystemSet`.
+                for incorrect_suffix in INCORRECT_SUFFIXES {
+                    if struct_name.ends_with(incorrect_suffix) {
+                        let stripped_name = &struct_name[0..(struct_name.len() - incorrect_suffix.len())];
+                        return format!("{stripped_name}Set");
+                    }
+                }
+
+                // Assume that the struct does not have any suffix, so just append "Set".
                 format!("{struct_name}Set")
             }
         }
