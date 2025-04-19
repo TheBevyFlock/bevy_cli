@@ -90,10 +90,9 @@ pub struct Package {
 impl Package {
     /// Check if the package has an executable binary.
     pub fn has_bin(&self) -> bool {
-        self.targets.iter().any(|target| {
-            target
-                .kind.contains(&TargetKind::Bin)
-        })
+        self.targets
+            .iter()
+            .any(|target| target.kind.contains(&TargetKind::Bin))
     }
 
     /// An iterator over all binary targets contained in this package.
