@@ -47,7 +47,9 @@ pub(crate) async fn serve(
 
     let mut router = Router::new();
 
-    tracing::debug!("Adding response headers {header_map:?}");
+    if !header_map.is_empty() {
+        tracing::debug!("Adding response headers {header_map:?}");
+    }
 
     match web_bundle.clone() {
         WebBundle::Packed(PackedBundle { path }) => {

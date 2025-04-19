@@ -38,8 +38,6 @@ pub const PLUGIN: [&str; 3] = ["bevy_app", "plugin", "Plugin"];
 pub const PTR_MUT: [&str; 2] = ["bevy_ptr", "PtrMut"];
 /// <https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_ecs/src/system/query.rs#L379>
 pub const QUERY: [&str; 4] = ["bevy_ecs", "system", "query", "Query"];
-/// <https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_ecs/src/query/state.rs#L66>
-pub const QUERY_STATE: [&str; 4] = ["bevy_ecs", "query", "state", "QueryState"];
 /// <https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_reflect/src/reflect.rs#L413>
 pub const REFLECT: [&str; 3] = ["bevy_reflect", "reflect", "Reflect"];
 /// <https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_ecs/src/change_detection.rs#L675>

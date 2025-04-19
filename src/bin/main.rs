@@ -64,8 +64,10 @@ pub enum Subcommands {
     /// Create a new Bevy project from a specified template.
     New(NewArgs),
     /// Build your Bevy app.
+    #[command(visible_alias = "b")]
     Build(BuildArgs),
     /// Run your Bevy app.
+    #[command(visible_alias = "r")]
     Run(RunArgs),
     /// Check the current project using Bevy-specific lints.
     ///

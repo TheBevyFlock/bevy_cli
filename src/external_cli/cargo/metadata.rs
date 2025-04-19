@@ -90,26 +90,23 @@ pub struct Package {
 impl Package {
     /// Check if the package has an executable binary.
     pub fn has_bin(&self) -> bool {
-        self.targets.iter().any(|target| {
-            target
-                .kind
-                .iter()
-                .any(|target_kind| *target_kind == TargetKind::Bin)
-        })
+        self.targets
+            .iter()
+            .any(|target| target.kind.contains(&TargetKind::Bin))
     }
 
     /// An iterator over all binary targets contained in this package.
     pub fn bin_targets(&self) -> impl Iterator<Item = &Target> {
         self.targets
             .iter()
-            .filter(|target| target.kind.iter().any(|kind| *kind == TargetKind::Bin))
+            .filter(|target| target.kind.contains(&TargetKind::Bin))
     }
 
     /// An iterator over all example targets contained in this package.
     pub fn example_targets(&self) -> impl Iterator<Item = &Target> {
         self.targets
             .iter()
-            .filter(|target| target.kind.iter().any(|kind| *kind == TargetKind::Example))
+            .filter(|target| target.kind.contains(&TargetKind::Example))
     }
 }
 
