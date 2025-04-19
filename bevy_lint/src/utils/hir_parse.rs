@@ -6,7 +6,7 @@ use rustc_hir::{
     def::{DefKind, Res},
 };
 use rustc_lint::LateContext;
-use rustc_span::{Span, Symbol};
+use rustc_span::{Ident, Span, kw};
 
 /// Returns the list of types inside a tuple type.
 ///
@@ -243,9 +243,13 @@ impl<'tcx> MethodCall<'tcx> {
                     // If the name of the first argument is `self`, then it *must* be a method.
                     // `self` is a reserved keyword, and cannot be used as a general function
                     // argument name.
-                    if inputs
-                        .first()
-                        .is_some_and(|ident| ident.name == Symbol::intern("self"))
+                    if let [
+                        Some(Ident {
+                            name: kw::SelfLower,
+                            ..
+                        }),
+                        ..,
+                    ] = inputs
                     {
                         let method_path = match *qpath {
                             // If the qualified path is resolved, the method path must be the final
