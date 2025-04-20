@@ -44,7 +44,7 @@ pub const REFLECT: [&str; 3] = ["bevy_reflect", "reflect", "Reflect"];
 pub const RES_MUT: [&str; 3] = ["bevy_ecs", "change_detection", "ResMut"];
 /// <https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_ecs/src/resource.rs#L75>
 pub const RESOURCE: [&str; 3] = ["bevy_ecs", "resource", "Resource"];
-/// <https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_ecs/src/world/mod.rs#L94>
-pub const WORLD: [&str; 3] = ["bevy_ecs", "world", "World"];
 /// <https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_ecs/src/schedule/set.rs>
 pub const SYSTEM_SET: [&str; 4] = ["bevy_ecs", "schedule", "set", "SystemSet"];
+/// <https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_ecs/src/world/mod.rs#L94>
+pub const WORLD: [&str; 3] = ["bevy_ecs", "world", "World"];
