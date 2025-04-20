@@ -5,7 +5,6 @@ use clap::{ArgAction, Args};
 use super::arg_builder::ArgBuilder;
 
 pub(crate) mod build;
-#[cfg(feature = "web")]
 pub(crate) mod install;
 pub(crate) mod metadata;
 pub(crate) mod run;

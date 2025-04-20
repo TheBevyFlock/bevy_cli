@@ -7,7 +7,7 @@ pub use self::args::RunArgs;
 pub mod args;
 
 pub fn run(args: &mut RunArgs) -> anyhow::Result<()> {
-    let metadata = cargo::metadata::metadata_with_args(["--no-deps"])?;
+    let metadata = cargo::metadata::metadata()?;
 
     let bin_target = select_run_binary(
         &metadata,
@@ -18,7 +18,12 @@ pub fn run(args: &mut RunArgs) -> anyhow::Result<()> {
         args.profile(),
     )?;
 
-    let config = CliConfig::for_package(&metadata, bin_target.package, true, args.is_release())?;
+    let config = CliConfig::for_package(
+        &metadata,
+        bin_target.package,
+        args.is_web(),
+        args.is_release(),
+    )?;
     args.apply_config(&config);
 
     #[cfg(feature = "web")]
@@ -32,7 +37,7 @@ pub fn run(args: &mut RunArgs) -> anyhow::Result<()> {
     cargo::run::command()
         .args(cargo_args)
         .env("RUSTFLAGS", args.cargo_args.common_args.rustflags.clone())
-        .ensure_status()?;
+        .ensure_status(args.auto_install())?;
 
     Ok(())
 }
