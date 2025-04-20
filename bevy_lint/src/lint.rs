@@ -112,11 +112,11 @@ macro_rules! declare_bevy_lint {
         $vis static $name: &::rustc_lint::Lint = &::rustc_lint::Lint {
             // Fields that are always configured by macro.
             name: concat!("bevy::", stringify!($name)),
-            // The `*&` is a stupid hack that appears to fix a compiler bug. Without it, lints
-            // will simply refuse emit any diagnostics. I think this is caused by MIR promotion
-            // and constant evaluation because the `*&` prevents this entire struct from being
-            // promoted into an `&'static`. (You can check this yourself with
-            // `-Z unpretty-mir`.)
+            // The `*&` is a silly hack that appears to fix a compiler bug. Without it, lints will
+            // misbehave, emitting diagnostics at the incorrect lint level (usually when the user
+            // modifies the default lint level with `#[deny(...)]` and `#[warn(...)]`). I *think*
+            // this is caused by a bug in MIR promotion, as the `*&` fix prevents this entire struct
+            // from being constant evaluated, but I'm still unsure of the root cause.
             default_level: *&<$group as $crate::lint::LintGroup>::LEVEL,
             desc: $desc,
 
