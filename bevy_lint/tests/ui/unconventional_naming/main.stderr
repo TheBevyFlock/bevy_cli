@@ -1,4 +1,4 @@
-error: Unconventional struct name for this trait impl
+error: unconventional type name for a `Plugin` or `SystemSet`
   --> tests/ui/unconventional_naming/main.rs:10:8
    |
 10 | struct MyAudio;

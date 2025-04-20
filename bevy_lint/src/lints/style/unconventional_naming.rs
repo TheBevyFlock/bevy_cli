@@ -36,7 +36,7 @@ use crate::{declare_bevy_lint, declare_bevy_lint_pass, utils::hir_parse::impls_t
 declare_bevy_lint! {
     pub UNCONVENTIONAL_NAMING,
     super::STYLE,
-    "Unconventional struct name for this trait impl",
+    "unconventional type name for a `Plugin` or `SystemSet`",
 }
 
 declare_bevy_lint_pass! {
@@ -47,8 +47,7 @@ impl<'tcx> LateLintPass<'tcx> for UnconventionalNaming {
     fn check_item(&mut self, cx: &LateContext<'tcx>, item: &Item<'tcx>) {
         // Find `impl` items...
         if let ItemKind::Impl(impl_) = item.kind
-            && let Some(conventional_name_impl) =
-                ConventionalNameTraitImpl::try_from_impl(cx, impl_)
+            && let Some(conventional_name_impl) = TraitConvention::try_from_impl(cx, impl_)
         {
             // Try to resolve where this type was originally defined. This will result in a `DefId`
             // pointing to the original `struct Foo` definition, or `impl <T>` if it's a generic
@@ -110,7 +109,7 @@ impl<'tcx> LateLintPass<'tcx> for UnconventionalNaming {
                 |diag| {
                     diag.span_suggestion(
                         struct_span,
-                        format!("rename the {conventional_name_impl}"),
+                        format!("rename the {}", conventional_name_impl.name()),
                         conventional_name_impl.name_suggestion(struct_name.as_str()),
                         // There may be other references that also need to be renamed.
                         Applicability::MaybeIncorrect,
@@ -118,7 +117,7 @@ impl<'tcx> LateLintPass<'tcx> for UnconventionalNaming {
 
                     diag.span_note(
                         item.span,
-                        format!("`{conventional_name_impl}` implemented here"),
+                        format!("`{}` implemented here", conventional_name_impl.name()),
                     );
                 },
             );
@@ -126,60 +125,51 @@ impl<'tcx> LateLintPass<'tcx> for UnconventionalNaming {
     }
 }
 
-enum ConventionalNameTraitImpl {
+enum TraitConvention {
     SystemSet,
 }
 
-impl std::fmt::Display for ConventionalNameTraitImpl {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            ConventionalNameTraitImpl::SystemSet => {
-                write!(f, "SystemSet")
-            }
-        }
-    }
-}
-
-impl ConventionalNameTraitImpl {
+impl TraitConvention {
     /// check if this `impl` block implements a Bevy trait that should follow a naming pattern
     fn try_from_impl(cx: &LateContext, impl_: &Impl) -> Option<Self> {
         if impls_trait(cx, impl_, &crate::paths::SYSTEM_SET) {
-            Some(ConventionalNameTraitImpl::SystemSet)
+            Some(TraitConvention::SystemSet)
         } else {
             None
+        }
+    }
+
+    fn name(&self) -> &'static str {
+        match self {
+            TraitConvention::SystemSet => "SystemSet",
         }
     }
 
     /// Test if the Structure name matches the naming convention
     fn matches_conventional_name(&self, struct_name: &str) -> bool {
         match self {
-            ConventionalNameTraitImpl::SystemSet => struct_name.ends_with("Set"),
+            TraitConvention::SystemSet => struct_name.ends_with("Set"),
         }
     }
 
     /// Suggest a name for the Structure that matches the naming pattern
     fn name_suggestion(&self, struct_name: &str) -> String {
         match self {
-            ConventionalNameTraitImpl::SystemSet => {
+            TraitConvention::SystemSet => {
                 // There are several competing naming standards. These are a few that we specially
                 // check for.
-                const INCORRECT_SUFFIXES: [&str; 3] = [
-                    "System",
-                    "Systems",
-                    "Steps",
-                ];
+                const INCORRECT_SUFFIXES: [&str; 3] = ["System", "Systems", "Steps"];
 
                 // If the name ends in one of the other suffixes, strip it out and replace it with
                 // "Set". If a struct was originally named `FooSystem`, this suggests `FooSet`
                 // instead of `FooSystemSet`.
                 for incorrect_suffix in INCORRECT_SUFFIXES {
                     if struct_name.ends_with(incorrect_suffix) {
-                        let stripped_name = &struct_name[0..(struct_name.len() - incorrect_suffix.len())];
+                        let stripped_name =
+                            &struct_name[0..(struct_name.len() - incorrect_suffix.len())];
                         return format!("{stripped_name}Set");
                     }
                 }
-
-                // Assume that the struct does not have any suffix, so just append "Set".
                 format!("{struct_name}Set")
             }
         }
