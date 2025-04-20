@@ -46,10 +46,12 @@ pub fn build_web(
     let cargo_args = args.cargo_args_builder();
 
     info!("Compiling to WebAssembly...");
+
     cargo::build::command()
         // Wasm targets are not installed by default
         .maybe_require_target(args.target())
         .args(cargo_args)
+        .env("RUSTFLAGS", args.cargo_args.common_args.rustflags.clone())
         .ensure_status(args.auto_install())?;
 
     info!("Bundling JavaScript bindings...");
