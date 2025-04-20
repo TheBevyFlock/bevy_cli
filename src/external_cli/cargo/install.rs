@@ -11,13 +11,20 @@ use crate::external_cli::CommandExt;
 pub enum AutoInstall {
     /// Show a prompt to the user and ask them first before installing.
     AskUser,
-    /// Always perform installation, without asking the user.
+    /// Always perform installation and don't show a prompt to the user.
     Always,
-    /// Never perform installation, without asking the user.
+    /// Never perform installation and don't show a prompt to the user.
     Never,
 }
 
 impl AutoInstall {
+    /// Confirm the installation with the auto install preferences.
+    ///
+    /// The given prompt is used when the user should be asked before installing.
+    ///
+    /// Returns `true` if the installation should be performed and `false` if not.
+    /// An error is returned when an interactive prompt cannot be shown,
+    /// e.g. when used in a non-interactive shell.
     pub fn confirm<S: Into<String>>(&self, prompt: S) -> anyhow::Result<bool> {
         match self {
             AutoInstall::AskUser => Confirm::new().with_prompt(prompt).interact().context(
