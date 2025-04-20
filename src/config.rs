@@ -324,6 +324,7 @@ mod tests {
                         "bevy/bevy_ui_debug".to_owned()
                     ],
                     default_features: Some(true),
+                    rustflags: Vec::new()
                 }
             );
             Ok(())
