@@ -72,7 +72,11 @@ impl RunArgs {
     ///
     /// CLI arguments take precedence.
     pub(crate) fn apply_config(&mut self, config: &CliConfig) {
-        tracing::debug!("Using config {config:?}");
+        if config.is_default() {
+            return;
+        }
+
+        tracing::debug!("Using defaults from bevy_cli config:\n{config}");
         if self.cargo_args.compilation_args.target.is_none() {
             self.cargo_args.compilation_args.target = config.target().map(ToOwned::to_owned);
         }

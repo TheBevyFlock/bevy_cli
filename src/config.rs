@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use anyhow::{Context, bail};
 use serde_json::{Map, Value};
 
@@ -14,6 +16,18 @@ pub struct CliConfig {
 }
 
 impl CliConfig {
+    /// Returns `true` if the config doesn't change the defaults.
+    pub fn is_default(&self) -> bool {
+        // Using destructuring to ensure that all fields are considered
+        let Self {
+            target,
+            features,
+            default_features,
+        } = self;
+
+        target.is_none() && features.is_empty() && default_features.is_none()
+    }
+
     /// The platform to target with the build.
     pub fn target(&self) -> Option<&str> {
         self.target.as_deref()
@@ -167,6 +181,37 @@ fn extract_default_features(cli_metadata: &Map<String, Value>) -> anyhow::Result
         Value::Bool(default_features) => Ok(Some(default_features).copied()),
         Value::Null => Ok(None),
         _ => bail!("default_features must be an array"),
+    }
+}
+
+impl Display for CliConfig {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        // Using destructuring to ensure that all fields are considered
+        let Self {
+            target,
+            default_features,
+            features,
+        } = self;
+
+        if let Some(target) = target {
+            writeln!(f, r#"target = "{target}""#)?;
+        }
+
+        if let Some(default_features) = default_features {
+            writeln!(f, "default_features = {default_features}")?;
+        }
+
+        if !features.is_empty() {
+            let features = self
+                .features
+                .iter()
+                .map(|feature| format!(r#""{feature}""#))
+                .collect::<Vec<String>>()
+                .join(", ");
+            writeln!(f, "features = [{features}]")?;
+        }
+
+        Ok(())
     }
 }
 
