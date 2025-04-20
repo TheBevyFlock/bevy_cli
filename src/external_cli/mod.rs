@@ -168,6 +168,8 @@ impl CommandExt {
         self
     }
 
+    /// Inserts or updates an explicit environment variable mapping if some value is provided.
+    /// Wrapper method around [`Command::env`] that allows to pass an `Option<value>` instead.
     pub fn env<K, V>(&mut self, key: K, val: Option<V>) -> &mut CommandExt
     where
         K: AsRef<OsStr>,
