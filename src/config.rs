@@ -193,12 +193,14 @@ impl Display for CliConfig {
             features,
         } = self;
 
+        let mut lines: Vec<String> = Vec::new();
+
         if let Some(target) = target {
-            writeln!(f, r#"target = "{target}""#)?;
+            lines.push(format!(r#"target = "{target}""#));
         }
 
         if let Some(default_features) = default_features {
-            writeln!(f, "default_features = {default_features}")?;
+            lines.push(format!("default_features = {default_features}"));
         }
 
         if !features.is_empty() {
@@ -208,10 +210,10 @@ impl Display for CliConfig {
                 .map(|feature| format!(r#""{feature}""#))
                 .collect::<Vec<String>>()
                 .join(", ");
-            writeln!(f, "features = [{features}]")?;
+            lines.push(format!("features = [{features}]"));
         }
 
-        Ok(())
+        write!(f, "{}", lines.join("\n"))
     }
 }
 
