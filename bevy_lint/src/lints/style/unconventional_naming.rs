@@ -109,7 +109,13 @@ impl<'tcx> LateLintPass<'tcx> for UnconventionalNaming {
                 |diag| {
                     diag.span_suggestion(
                         struct_span,
-                        format!("rename the {}", conventional_name_impl.name()),
+                        format!(
+                            "structure that implements {} should end in {}, rename {} to {}",
+                            conventional_name_impl.name(),
+                            conventional_name_impl.suffix(),
+                            struct_name.as_str(),
+                            conventional_name_impl.name_suggestion(struct_name.as_str())
+                        ),
                         conventional_name_impl.name_suggestion(struct_name.as_str()),
                         // There may be other references that also need to be renamed.
                         Applicability::MaybeIncorrect,
@@ -151,6 +157,13 @@ impl TraitConvention {
         }
     }
 
+    fn suffix(&self) -> &'static str {
+        match self {
+            TraitConvention::SystemSet => "Set",
+            TraitConvention::Plugin => "Plugin",
+        }
+    }
+
     /// Test if the Structure name matches the naming convention
     fn matches_conventional_name(&self, struct_name: &str) -> bool {
         match self {
@@ -174,12 +187,12 @@ impl TraitConvention {
                     if struct_name.ends_with(incorrect_suffix) {
                         let stripped_name =
                             &struct_name[0..(struct_name.len() - incorrect_suffix.len())];
-                        return format!("{stripped_name}Set");
+                        return format!("{stripped_name}{}", self.suffix());
                     }
                 }
-                format!("{struct_name}Set")
+                format!("{struct_name}{}", self.suffix())
             }
-            TraitConvention::Plugin => format!("{struct_name}Plugin"),
+            TraitConvention::Plugin => format!("{struct_name}{}", self.suffix()),
         }
     }
 }

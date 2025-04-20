@@ -9,12 +9,12 @@ use bevy::prelude::*;
 #[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
 struct MyAudio;
 //~^ ERROR: unconventional type name for a `Plugin` or `SystemSet`
-//~| HELP: rename the SystemSet
+//~| HELP: structure that implements SystemSet should end in Set, rename MyAudio to MyAudioSet
 
 // This should raise an error, since it does not end in "Plugin".
 struct Foo;
 //~^ ERROR: unconventional type name for a `Plugin` or `SystemSet`
-//~| HELP: rename the Plugin
+//~| HELP: structure that implements Plugin should end in Plugin, rename Foo to FooPlugin
 
 //~v NOTE: `Plugin` implemented here
 impl Plugin for Foo {
