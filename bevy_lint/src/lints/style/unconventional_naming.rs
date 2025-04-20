@@ -125,8 +125,11 @@ impl<'tcx> LateLintPass<'tcx> for UnconventionalNaming {
     }
 }
 
+/// Collections of bevy traits where types that implement this trait should follow a specific naming
+/// convention
 enum TraitConvention {
     SystemSet,
+    Plugin,
 }
 
 impl TraitConvention {
@@ -134,6 +137,8 @@ impl TraitConvention {
     fn try_from_impl(cx: &LateContext, impl_: &Impl) -> Option<Self> {
         if impls_trait(cx, impl_, &crate::paths::SYSTEM_SET) {
             Some(TraitConvention::SystemSet)
+        } else if impls_trait(cx, impl_, &crate::paths::PLUGIN) {
+            Some(TraitConvention::Plugin)
         } else {
             None
         }
@@ -142,6 +147,7 @@ impl TraitConvention {
     fn name(&self) -> &'static str {
         match self {
             TraitConvention::SystemSet => "SystemSet",
+            TraitConvention::Plugin => "Plugin",
         }
     }
 
@@ -149,6 +155,7 @@ impl TraitConvention {
     fn matches_conventional_name(&self, struct_name: &str) -> bool {
         match self {
             TraitConvention::SystemSet => struct_name.ends_with("Set"),
+            TraitConvention::Plugin => struct_name.ends_with("Plugin"),
         }
     }
 
@@ -172,6 +179,7 @@ impl TraitConvention {
                 }
                 format!("{struct_name}Set")
             }
+            TraitConvention::Plugin => format!("{struct_name}Plugin"),
         }
     }
 }

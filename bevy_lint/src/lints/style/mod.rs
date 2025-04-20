@@ -8,7 +8,6 @@ use rustc_lint::Level;
 
 use crate::lint::LintGroup;
 
-pub mod plugin_not_ending_in_plugin;
 pub mod unconventional_naming;
 
 pub(crate) static STYLE: &LintGroup = &LintGroup {

@@ -49,7 +49,6 @@ static LINTS: &[&BevyLint] = &[
     pedantic::main_return_without_appexit::MAIN_RETURN_WITHOUT_APPEXIT,
     restriction::missing_reflect::MISSING_REFLECT,
     restriction::panicking_methods::PANICKING_METHODS,
-    style::plugin_not_ending_in_plugin::PLUGIN_NOT_ENDING_IN_PLUGIN,
     style::unconventional_naming::UNCONVENTIONAL_NAMING,
     nursery::zst_query::ZST_QUERY,
 ];
@@ -96,9 +95,6 @@ pub(crate) fn register_passes(store: &mut LintStore) {
     store.register_late_pass(|_| Box::new(restriction::missing_reflect::MissingReflect::default()));
     store.register_late_pass(|_| {
         Box::new(restriction::panicking_methods::PanickingMethods::default())
-    });
-    store.register_late_pass(|_| {
-        Box::new(style::plugin_not_ending_in_plugin::PluginNotEndingInPlugin::default())
     });
     store.register_late_pass(|_| {
         Box::new(style::unconventional_naming::UnconventionalNaming::default())

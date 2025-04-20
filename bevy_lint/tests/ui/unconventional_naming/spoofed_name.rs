@@ -3,7 +3,7 @@
 
 #![feature(register_tool)]
 #![register_tool(bevy)]
-#![deny(bevy::plugin_not_ending_in_plugin)]
+#![deny(bevy::unconventional_naming)]
 //~^ NOTE: the lint level is defined here
 
 use bevy::prelude::*;
@@ -11,8 +11,8 @@ use bevy::prelude::*;
 mod bar {
     pub mod baz {
         pub struct Foo;
-        //~^ ERROR: implemented `Plugin` for a structure whose name does not end in "Plugin"
-        //~| HELP: rename the plugin
+        //~^ ERROR: unconventional type name for a `Plugin` or `SystemSet`
+        //~| HELP: rename the Plugin
     }
 }
 
