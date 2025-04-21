@@ -32,9 +32,11 @@ pub fn run(args: &mut RunArgs) -> anyhow::Result<()> {
     }
 
     let cargo_args = args.cargo_args_builder();
+
     // For native builds, wrap `cargo run`
     cargo::run::command()
         .args(cargo_args)
+        .env("RUSTFLAGS", args.cargo_args.common_args.rustflags.clone())
         .ensure_status(args.auto_install())?;
 
     Ok(())

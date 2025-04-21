@@ -26,6 +26,12 @@ pub struct RunArgs {
     /// Commands to forward to `cargo run`.
     #[clap(flatten)]
     pub cargo_args: CargoRunArgs,
+
+    /// Arguments to pass to the underlying Bevy app.
+    ///
+    /// Specified after `--`.
+    #[clap(last = true, name = "ARGS")]
+    pub forward_args: Vec<String>,
 }
 
 impl RunArgs {
@@ -65,7 +71,14 @@ impl RunArgs {
 
     /// Generate arguments for `cargo`.
     pub(crate) fn cargo_args_builder(&self) -> ArgBuilder {
-        self.cargo_args.args_builder(self.is_web())
+        let mut arg_builder = self.cargo_args.args_builder(self.is_web());
+
+        if !self.forward_args.is_empty() {
+            // This MUST come last to avoid forwarding other args
+            arg_builder = arg_builder.arg("--").args(self.forward_args.iter());
+        }
+
+        arg_builder
     }
 
     /// Apply the config on top of the CLI arguments.
@@ -90,6 +103,12 @@ impl RunArgs {
                 .is_no_default_features
                 .unwrap_or(!config.default_features()),
         );
+        self.cargo_args.common_args.rustflags = self
+            .cargo_args
+            .common_args
+            .rustflags
+            .clone()
+            .or(config.rustflags());
     }
 }
 
