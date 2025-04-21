@@ -2,24 +2,25 @@ error: unconventional type name for a `Plugin` or `SystemSet`
   --> tests/ui/unconventional_naming/spoofed_name.rs:13:20
    |
 13 |         pub struct Foo;
+   |                    ^^^ help: rename `Foo`: `FooPlugin`
+   |
+note: structures that implement `Plugin` should end in `Plugin`
+  --> tests/ui/unconventional_naming/spoofed_name.rs:13:20
+   |
+13 |         pub struct Foo;
    |                    ^^^
-   |
 note: `Plugin` implemented here
-  --> tests/ui/unconventional_naming/spoofed_name.rs:23:1
+  --> tests/ui/unconventional_naming/spoofed_name.rs:24:1
    |
-23 | / impl Plugin for FooPlugin {
-24 | |     fn build(&self, _app: &mut App) {}
-25 | | }
+24 | / impl Plugin for FooPlugin {
+25 | |     fn build(&self, _app: &mut App) {}
+26 | | }
    | |_^
 note: the lint level is defined here
   --> tests/ui/unconventional_naming/spoofed_name.rs:6:9
    |
 6  | #![deny(bevy::unconventional_naming)]
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-help: structure that implements Plugin should end in Plugin, rename Foo to FooPlugin
-   |
-13 |         pub struct FooPlugin;
-   |                       ++++++
 
 error: aborting due to 1 previous error
 

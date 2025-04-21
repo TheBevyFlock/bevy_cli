@@ -99,7 +99,6 @@ impl<'tcx> LateLintPass<'tcx> for UnconventionalNaming {
                 def_id: struct_local_def_id,
             }
             .into();
-
             span_lint_hir_and_then(
                 cx,
                 UNCONVENTIONAL_NAMING.lint,
@@ -107,17 +106,19 @@ impl<'tcx> LateLintPass<'tcx> for UnconventionalNaming {
                 struct_span,
                 UNCONVENTIONAL_NAMING.lint.desc,
                 |diag| {
-                    diag.span_suggestion(
+                    diag.span_note(
                         struct_span,
                         format!(
-                            "structure that implements {} should end in {}, rename {} to {}",
+                            "structures that implement `{}` should end in `{}`",
                             conventional_name_impl.name(),
-                            conventional_name_impl.suffix(),
-                            struct_name.as_str(),
-                            conventional_name_impl.name_suggestion(struct_name.as_str())
+                            conventional_name_impl.suffix()
                         ),
+                    );
+
+                    diag.span_suggestion(
+                        struct_span,
+                        format!("rename `{}`", struct_name.as_str(),),
                         conventional_name_impl.name_suggestion(struct_name.as_str()),
-                        // There may be other references that also need to be renamed.
                         Applicability::MaybeIncorrect,
                     );
 
