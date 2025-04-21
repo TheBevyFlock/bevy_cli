@@ -1,11 +1,12 @@
 use std::fmt::Display;
 
 use anyhow::{Context, bail};
+use serde::Serialize;
 use serde_json::{Map, Value};
 
 use crate::external_cli::cargo::metadata::{Metadata, Package};
 
-#[derive(Default, Debug, Clone, PartialEq)]
+#[derive(Default, Debug, Clone, PartialEq, Serialize)]
 pub struct CliConfig {
     /// The platform to target with the build.
     target: Option<String>,
@@ -186,34 +187,20 @@ fn extract_default_features(cli_metadata: &Map<String, Value>) -> anyhow::Result
 
 impl Display for CliConfig {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        // Using destructuring to ensure that all fields are considered
-        let Self {
-            target,
-            default_features,
-            features,
-        } = self;
-
-        let mut lines: Vec<String> = Vec::new();
-
-        if let Some(target) = target {
-            lines.push(format!(r#"target = "{target}""#));
-        }
-
-        if let Some(default_features) = default_features {
-            lines.push(format!("default_features = {default_features}"));
-        }
-
-        if !features.is_empty() {
-            let features = self
-                .features
-                .iter()
-                .map(|feature| format!(r#""{feature}""#))
+        let document = toml_edit::ser::to_document(self).map_err(|_| std::fmt::Error)?;
+        write!(
+            f,
+            "{}",
+            document
+                .to_string()
+                // Remove trailing newline
+                .trim_end()
+                .lines()
+                // Align lines with the debug message
+                .map(|line| format!("      {line}"))
                 .collect::<Vec<String>>()
-                .join(", ");
-            lines.push(format!("features = [{features}]"));
-        }
-
-        write!(f, "{}", lines.join("\n"))
+                .join("\n")
+        )
     }
 }
 
