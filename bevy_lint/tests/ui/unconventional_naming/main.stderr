@@ -22,23 +22,77 @@ note: the lint level is defined here
    = note: this error originates in the derive macro `SystemSet` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: unconventional type name for a `Plugin` or `SystemSet`
-  --> tests/ui/unconventional_naming/main.rs:16:8
+  --> tests/ui/unconventional_naming/main.rs:21:8
    |
-16 | struct Foo;
+21 | struct MyAudioSystem;
+   |        ^^^^^^^^^^^^^ help: rename `MyAudioSystem`: `MyAudioSet`
+   |
+note: structures that implement `SystemSet` should end in `Set`
+  --> tests/ui/unconventional_naming/main.rs:21:8
+   |
+21 | struct MyAudioSystem;
+   |        ^^^^^^^^^^^^^
+note: `SystemSet` implemented here
+  --> tests/ui/unconventional_naming/main.rs:20:10
+   |
+20 | #[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
+   |          ^^^^^^^^^
+   = note: this error originates in the derive macro `SystemSet` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: unconventional type name for a `Plugin` or `SystemSet`
+  --> tests/ui/unconventional_naming/main.rs:28:8
+   |
+28 | struct MyAudioSystems;
+   |        ^^^^^^^^^^^^^^ help: rename `MyAudioSystems`: `MyAudioSet`
+   |
+note: structures that implement `SystemSet` should end in `Set`
+  --> tests/ui/unconventional_naming/main.rs:28:8
+   |
+28 | struct MyAudioSystems;
+   |        ^^^^^^^^^^^^^^
+note: `SystemSet` implemented here
+  --> tests/ui/unconventional_naming/main.rs:27:10
+   |
+27 | #[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
+   |          ^^^^^^^^^
+   = note: this error originates in the derive macro `SystemSet` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: unconventional type name for a `Plugin` or `SystemSet`
+  --> tests/ui/unconventional_naming/main.rs:35:8
+   |
+35 | struct MyAudioSteps;
+   |        ^^^^^^^^^^^^ help: rename `MyAudioSteps`: `MyAudioSet`
+   |
+note: structures that implement `SystemSet` should end in `Set`
+  --> tests/ui/unconventional_naming/main.rs:35:8
+   |
+35 | struct MyAudioSteps;
+   |        ^^^^^^^^^^^^
+note: `SystemSet` implemented here
+  --> tests/ui/unconventional_naming/main.rs:34:10
+   |
+34 | #[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
+   |          ^^^^^^^^^
+   = note: this error originates in the derive macro `SystemSet` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: unconventional type name for a `Plugin` or `SystemSet`
+  --> tests/ui/unconventional_naming/main.rs:41:8
+   |
+41 | struct Foo;
    |        ^^^ help: rename `Foo`: `FooPlugin`
    |
 note: structures that implement `Plugin` should end in `Plugin`
-  --> tests/ui/unconventional_naming/main.rs:16:8
+  --> tests/ui/unconventional_naming/main.rs:41:8
    |
-16 | struct Foo;
+41 | struct Foo;
    |        ^^^
 note: `Plugin` implemented here
-  --> tests/ui/unconventional_naming/main.rs:22:1
+  --> tests/ui/unconventional_naming/main.rs:47:1
    |
-22 | / impl Plugin for Foo {
-23 | |     fn build(&self, _app: &mut App) {}
-24 | | }
+47 | / impl Plugin for Foo {
+48 | |     fn build(&self, _app: &mut App) {}
+49 | | }
    | |_^
 
-error: aborting due to 2 previous errors
+error: aborting due to 5 previous errors
 
