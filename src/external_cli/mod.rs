@@ -1,8 +1,8 @@
 //! Wrappers and utilities to deal with external CLI applications, like `cargo`.
 
 use std::{
-    borrow::Cow,
     ffi::{OsStr, OsString},
+    fmt::Display,
     process::{Command, ExitStatus, Output},
 };
 
@@ -199,23 +199,7 @@ impl CommandExt {
     }
 
     /// Log the execution of the program.
-    ///
-    /// Returns the name of the program as String.
-    fn log_execution(&self) -> String {
-        let program = self
-            .inner
-            .get_program()
-            .to_str()
-            .unwrap_or_default()
-            .to_string();
-
-        let args = self
-            .inner
-            .get_args()
-            .map(|arg| arg.to_string_lossy())
-            .collect::<Vec<Cow<_>>>()
-            .join(" ");
-
+    fn log_execution(&self) {
         let envs = self
             .inner
             .get_envs()
@@ -227,13 +211,11 @@ impl CommandExt {
             .collect::<Vec<_>>()
             .join(",");
 
-        self.log(format!("Running: `{program} {args}`").as_str());
+        self.log(format!("Running: `{self}`").as_str());
 
         if !envs.is_empty() {
             self.log(&format!("With env: {envs}"));
         }
-
-        program
     }
 
     /// Wrapper method around [`Command::status`].
@@ -242,7 +224,7 @@ impl CommandExt {
     /// If the command did not terminate successfully, an error containing the [`ExitStatus`] is
     /// returned.
     pub fn ensure_status(&mut self, auto_install: AutoInstall) -> anyhow::Result<ExitStatus> {
-        let program = self.log_execution();
+        self.log_execution();
         let mut status = self.inner.status();
 
         if self.success_or_try_fix(&status, auto_install)? {
@@ -254,8 +236,7 @@ impl CommandExt {
 
         anyhow::ensure!(
             status.success(),
-            "Command {} exited with status code {}",
-            program,
+            "Command `{self}` exited with status code {}",
             status
         );
 
@@ -267,7 +248,7 @@ impl CommandExt {
     /// Executes the command as a child process, waiting for it to finish and collecting all of its
     /// output.
     pub fn output(&mut self, auto_install: AutoInstall) -> anyhow::Result<Output> {
-        let program = self.log_execution();
+        self.log_execution();
 
         let mut output = self.inner.output();
 
@@ -280,11 +261,25 @@ impl CommandExt {
 
         anyhow::ensure!(
             output.status.success(),
-            "Command {} exited with status code {}",
-            program,
+            "Command `{self}` exited with status code {}",
             output.status
         );
 
         Ok(output)
+    }
+}
+
+impl Display for CommandExt {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let program = self.inner.get_program().to_string_lossy();
+
+        let args = self
+            .inner
+            .get_args()
+            .map(|arg| arg.to_string_lossy())
+            .collect::<Vec<_>>()
+            .join(" ");
+
+        write!(f, "{program} {args}")
     }
 }
