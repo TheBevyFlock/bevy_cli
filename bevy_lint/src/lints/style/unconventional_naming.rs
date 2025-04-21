@@ -157,7 +157,7 @@ impl TraitConvention {
             TraitConvention::Plugin => "Plugin",
         }
     }
-
+    /// Returns the suffix that should be used when implementing this trait
     fn suffix(&self) -> &'static str {
         match self {
             TraitConvention::SystemSet => "Set",
