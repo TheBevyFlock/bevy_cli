@@ -118,6 +118,10 @@ pub fn create_web_bundle(
     let _ = fs::remove_dir_all(&base_path);
 
     // Build artifacts
+    tracing::debug!(
+        "Copying build artifacts from file://{}",
+        linked.build_artifact_path.to_string_lossy()
+    );
     fs::create_dir_all(base_path.join("build"))?;
     fs::copy(
         linked.build_artifact_path.join(&linked.wasm_file_name),
@@ -132,6 +136,10 @@ pub fn create_web_bundle(
 
     // Assets
     if let Some(assets_path) = linked.assets_path {
+        tracing::debug!(
+            "Copying assets from file://{}",
+            assets_path.to_string_lossy()
+        );
         fs_extra::dir::copy(
             assets_path,
             &base_path,
@@ -145,6 +153,10 @@ pub fn create_web_bundle(
 
     // Custom web assets
     if custom_web_folder.exists() {
+        tracing::debug!(
+            "Copying custom web assets from file://{}",
+            custom_web_folder.to_string_lossy()
+        );
         fs_extra::dir::copy(
             custom_web_folder,
             &base_path,
@@ -158,6 +170,7 @@ pub fn create_web_bundle(
     }
 
     // Index (pre-processed)
+    tracing::debug!("Writing index.html");
     fs::write(base_path.join("index.html"), &index)
         .context("failed to write processed index.html")?;
 
