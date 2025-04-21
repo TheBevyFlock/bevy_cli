@@ -34,9 +34,12 @@ where
     I: IntoIterator<Item = S>,
     S: AsRef<OsStr>,
 {
-    let output = command().args(additional_args).output(AutoInstall::Never)?;
+    let output = command()
+        .args(additional_args)
+        .output(AutoInstall::Never)
+        .context("failed to obtain package metadata, are you in a cargo workspace?")?;
     let metadata = serde_json::from_slice(&output.stdout)
-        .context("Failed to parse `cargo metadata` output")?;
+        .context("failed to parse `cargo metadata` output")?;
     Ok(metadata)
 }
 
