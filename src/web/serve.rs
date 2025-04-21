@@ -53,10 +53,7 @@ pub(crate) async fn serve(
 
     match web_bundle.clone() {
         WebBundle::Packed(PackedBundle { path }) => {
-            router = router.route_service(
-                &format!("/{}", path.display()),
-                ServeFile::new("index.html"),
-            );
+            router = router.route_service("/", ServeDir::new(path));
         }
         WebBundle::Linked(LinkedBundle {
             build_artifact_path,
