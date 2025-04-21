@@ -7,7 +7,7 @@ pub use self::args::RunArgs;
 pub mod args;
 
 pub fn run(args: &mut RunArgs) -> anyhow::Result<()> {
-    let metadata = cargo::metadata::metadata_with_args(["--no-deps"])?;
+    let metadata = cargo::metadata::metadata()?;
 
     let bin_target = select_run_binary(
         &metadata,
@@ -32,8 +32,12 @@ pub fn run(args: &mut RunArgs) -> anyhow::Result<()> {
     }
 
     let cargo_args = args.cargo_args_builder();
+
     // For native builds, wrap `cargo run`
-    cargo::run::command().args(cargo_args).ensure_status()?;
+    cargo::run::command()
+        .args(cargo_args)
+        .env("RUSTFLAGS", args.cargo_args.common_args.rustflags.clone())
+        .ensure_status(args.auto_install())?;
 
     Ok(())
 }

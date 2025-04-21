@@ -2,7 +2,10 @@ use clap::{ArgAction, Args, Subcommand};
 
 use crate::{
     config::CliConfig,
-    external_cli::{arg_builder::ArgBuilder, cargo::build::CargoBuildArgs},
+    external_cli::{
+        arg_builder::ArgBuilder,
+        cargo::{build::CargoBuildArgs, install::AutoInstall},
+    },
 };
 
 #[derive(Debug, Args)]
@@ -13,7 +16,7 @@ pub struct BuildArgs {
 
     /// Confirm all prompts automatically.
     #[arg(long = "yes", default_value_t = false)]
-    pub skip_prompts: bool,
+    pub confirm_prompts: bool,
 
     /// Arguments to forward to `cargo build`.
     #[clap(flatten)]
@@ -21,6 +24,15 @@ pub struct BuildArgs {
 }
 
 impl BuildArgs {
+    /// Whether to automatically install missing dependencies.
+    pub(crate) fn auto_install(&self) -> AutoInstall {
+        if self.confirm_prompts {
+            AutoInstall::Always
+        } else {
+            AutoInstall::AskUser
+        }
+    }
+
     /// Determine if the app is being built for the web.
     #[cfg(feature = "web")]
     pub(crate) fn is_web(&self) -> bool {
@@ -69,6 +81,12 @@ impl BuildArgs {
                 .is_no_default_features
                 .unwrap_or(!config.default_features()),
         );
+        self.cargo_args.common_args.rustflags = self
+            .cargo_args
+            .common_args
+            .rustflags
+            .clone()
+            .or(config.rustflags());
     }
 }
 

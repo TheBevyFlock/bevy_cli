@@ -11,6 +11,8 @@ pub struct CliConfig {
     features: Vec<String>,
     /// Whether to use default features.
     default_features: Option<bool>,
+    /// Additional flags for `rustc`
+    rustflags: Vec<String>,
 }
 
 impl CliConfig {
@@ -29,6 +31,14 @@ impl CliConfig {
     /// The features enabled in the config.
     pub fn features(&self) -> &[String] {
         &self.features
+    }
+
+    /// The rustflags enabled in the config
+    pub fn rustflags(&self) -> Option<String> {
+        if self.rustflags.is_empty() {
+            return None;
+        }
+        Some(self.rustflags.clone().join(" "))
     }
 
     /// Determine the Bevy CLI config as defined in the given package.
@@ -106,6 +116,7 @@ impl CliConfig {
             target: extract_target(metadata)?,
             features: extract_features(metadata)?,
             default_features: extract_default_features(metadata)?,
+            rustflags: extract_rustflags(metadata)?,
         })
     }
 
@@ -116,8 +127,10 @@ impl CliConfig {
     pub fn overwrite(mut self, with: &Self) -> Self {
         self.target = with.target.clone().or(self.target);
         self.default_features = with.default_features.or(self.default_features);
-        // Features are additive
+
+        // Features and Rustflags are additive
         self.features.extend(with.features.iter().cloned());
+        self.rustflags.extend(with.rustflags.iter().cloned());
 
         self
     }
@@ -170,6 +183,27 @@ fn extract_default_features(cli_metadata: &Map<String, Value>) -> anyhow::Result
     }
 }
 
+fn extract_rustflags(cli_metadata: &Map<String, Value>) -> anyhow::Result<Vec<String>> {
+    let Some(rustflags) = cli_metadata.get("rustflags") else {
+        return Ok(Vec::new());
+    };
+
+    match rustflags {
+        Value::Array(rustflags) => rustflags
+            .iter()
+            .map(|value| {
+                value
+                    .as_str()
+                    .map(std::string::ToString::to_string)
+                    .ok_or_else(|| anyhow::anyhow!("each rustflag must be a string"))
+            })
+            .collect(),
+        Value::String(rustflag) => Ok(vec![rustflag.clone()]),
+        Value::Null => Ok(Vec::new()),
+        _ => bail!("rustflags must be an array or string"),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -182,6 +216,7 @@ mod tests {
         #[test]
         fn should_return_merged_config_for_web_dev() -> anyhow::Result<()> {
             let metadata = json!({
+                "rustflags": ["-C opt-level=2"],
                 "features": ["base"],
                 "dev": {
                     "features": ["dev"],
@@ -191,7 +226,8 @@ mod tests {
                     "default_features": false,
                     "dev": {
                         "features": ["web-dev"],
-                    }
+                        "rustflags": ["--cfg","getrandom_backend=\"wasm_js\""]
+                    },
                 }
             });
 
@@ -206,6 +242,11 @@ mod tests {
                         "web-dev".to_owned()
                     ],
                     default_features: Some(false),
+                    rustflags: vec![
+                        "-C opt-level=2".to_string(),
+                        "--cfg".to_string(),
+                        "getrandom_backend=\"wasm_js\"".to_string()
+                    ]
                 }
             );
             Ok(())
@@ -214,6 +255,7 @@ mod tests {
         #[test]
         fn should_return_merged_config_for_native_release() -> anyhow::Result<()> {
             let metadata = json!({
+                "rustflags": ["-C opt-level=2"],
                 "features": ["base"],
                 "release": {
                     "features": ["release"],
@@ -223,7 +265,13 @@ mod tests {
                     "default_features": false,
                     "release": {
                         "features": ["native-release"],
+                        "rustflags": ["-C debuginfo=1"]
                     }
+                },
+                "web": {
+                    "features": ["web"],
+                    "default_features": false,
+                    "rustflags": ["--cfg","getrandom_backend=\"wasm_js\""]
                 }
             });
 
@@ -238,6 +286,7 @@ mod tests {
                         "native-release".to_owned()
                     ],
                     default_features: Some(false),
+                    rustflags: vec!["-C opt-level=2".to_string(), "-C debuginfo=1".to_string()]
                 }
             );
             Ok(())
@@ -275,6 +324,7 @@ mod tests {
                         "bevy/bevy_ui_debug".to_owned()
                     ],
                     default_features: Some(true),
+                    rustflags: Vec::new()
                 }
             );
             Ok(())
@@ -296,13 +346,16 @@ mod tests {
             let metadata = json!({
                 "features": ["base"],
                 "dev": {
+                    "rustflags": ["-C opt-level=2"],
                     "features": ["dev"],
                     "default_features": true,
                 },
                 "web": {
                     "features": ["web"],
                     "default_features": false,
+                    "rustflags": ["--cfg","getrandom_backend=\"wasm_js\""],
                     "dev": {
+                        "rustflags": ["-C debuginfo=1"],
                         "features": ["web-dev"],
                     }
                 }
@@ -314,6 +367,7 @@ mod tests {
                     target: None,
                     features: vec!["base".to_owned(),],
                     default_features: None,
+                    rustflags: Vec::new()
                 }
             );
             Ok(())
