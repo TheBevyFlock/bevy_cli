@@ -117,7 +117,7 @@ impl<'tcx> LateLintPass<'tcx> for UnconventionalNaming {
 
                     diag.span_suggestion(
                         struct_span,
-                        format!("rename `{}`", struct_name.as_str(),),
+                        format!("rename `{}`", struct_name.as_str()),
                         conventional_name_impl.name_suggestion(struct_name.as_str()),
                         Applicability::MaybeIncorrect,
                     );
