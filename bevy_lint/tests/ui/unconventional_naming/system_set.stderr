@@ -2,9 +2,9 @@ error: unconventional type name for a `SystemSet`
   --> tests/ui/unconventional_naming/system_set.rs:10:8
    |
 10 | struct MyAudio;
-   |        ^^^^^^^ help: rename `MyAudio`: `MyAudioSet`
+   |        ^^^^^^^ help: rename `MyAudio`: `MyAudioSystems`
    |
-note: structures that implement `SystemSet` should end in `Set`
+note: structures that implement `SystemSet` should end in `Systems`
   --> tests/ui/unconventional_naming/system_set.rs:10:8
    |
 10 | struct MyAudio;
@@ -25,9 +25,9 @@ error: unconventional type name for a `SystemSet`
   --> tests/ui/unconventional_naming/system_set.rs:21:8
    |
 21 | struct MyAudioSystem;
-   |        ^^^^^^^^^^^^^ help: rename `MyAudioSystem`: `MyAudioSet`
+   |        ^^^^^^^^^^^^^ help: rename `MyAudioSystem`: `MyAudioSystems`
    |
-note: structures that implement `SystemSet` should end in `Set`
+note: structures that implement `SystemSet` should end in `Systems`
   --> tests/ui/unconventional_naming/system_set.rs:21:8
    |
 21 | struct MyAudioSystem;
@@ -42,14 +42,14 @@ note: `SystemSet` implemented here
 error: unconventional type name for a `SystemSet`
   --> tests/ui/unconventional_naming/system_set.rs:28:8
    |
-28 | struct MyAudioSystems;
-   |        ^^^^^^^^^^^^^^ help: rename `MyAudioSystems`: `MyAudioSet`
+28 | struct MyAudioSet;
+   |        ^^^^^^^^^^ help: rename `MyAudioSet`: `MyAudioSystems`
    |
-note: structures that implement `SystemSet` should end in `Set`
+note: structures that implement `SystemSet` should end in `Systems`
   --> tests/ui/unconventional_naming/system_set.rs:28:8
    |
-28 | struct MyAudioSystems;
-   |        ^^^^^^^^^^^^^^
+28 | struct MyAudioSet;
+   |        ^^^^^^^^^^
 note: `SystemSet` implemented here
   --> tests/ui/unconventional_naming/system_set.rs:27:10
    |
@@ -61,9 +61,9 @@ error: unconventional type name for a `SystemSet`
   --> tests/ui/unconventional_naming/system_set.rs:35:8
    |
 35 | struct MyAudioSteps;
-   |        ^^^^^^^^^^^^ help: rename `MyAudioSteps`: `MyAudioSet`
+   |        ^^^^^^^^^^^^ help: rename `MyAudioSteps`: `MyAudioSystems`
    |
-note: structures that implement `SystemSet` should end in `Set`
+note: structures that implement `SystemSet` should end in `Systems`
   --> tests/ui/unconventional_naming/system_set.rs:35:8
    |
 35 | struct MyAudioSteps;
