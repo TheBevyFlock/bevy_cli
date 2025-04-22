@@ -6,10 +6,9 @@ description: |
   This action currently uses Rustup to install the required toolchain components, and it uses
   `cargo install` to install the linter itself. The linter will be installed to `~/.cargo/bin` and
   will be available through the `PATH` by default.
-  
+
   Note that this currently will override the default Rustup toolchain to nightly. You can fix this
-  by calling `rustup default` after this action is run. (See
-  <https://github.com/dtolnay/rust-toolchain/pull/144>.)
+  by calling `rustup default` after this action is run.
 runs:
   using: composite
   steps:
