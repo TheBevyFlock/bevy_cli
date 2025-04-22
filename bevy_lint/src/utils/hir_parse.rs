@@ -1,8 +1,8 @@
 //! Utility functions for parsing HIR types.
 
-use clippy_utils::source::snippet_opt;
+use clippy_utils::{match_def_path, source::snippet_opt};
 use rustc_hir::{
-    Expr, ExprKind, GenericArg, GenericArgs, Node, Path, PathSegment, QPath, Ty, TyKind,
+    Expr, ExprKind, GenericArg, GenericArgs, Impl, Node, Path, PathSegment, QPath, Ty, TyKind,
     def::{DefKind, Res},
 };
 use rustc_lint::LateContext;
@@ -300,4 +300,13 @@ impl<'tcx> MethodCall<'tcx> {
             _ => None,
         }
     }
+}
+
+/// Checks if the [`Impl`] implements a given trait from Bevy.
+pub fn impls_trait(cx: &LateContext, impl_: &Impl, trait_path: &[&str]) -> bool {
+    impl_.of_trait.is_some_and(|of_trait| {
+        matches!(of_trait.path.res, Res::Def(_, trait_def_id)
+            // is the trait being implemented the specified trait from Bevy
+            if match_def_path(cx, trait_def_id, trait_path))
+    })
 }
