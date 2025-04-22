@@ -1,8 +1,6 @@
 use anyhow::Context as _;
 use tracing::info;
 
-#[cfg(feature = "rustup")]
-use crate::external_cli::rustup;
 #[cfg(feature = "wasm-opt")]
 use crate::external_cli::wasm_opt;
 
@@ -39,8 +37,6 @@ pub fn build_web(
         anyhow::bail!("tried to build for the web without matching arguments");
     };
 
-    ensure_web_setup(args.skip_prompts)?;
-
     let mut profile_args = configure_default_web_profiles(metadata)?;
     // `--config` args are resolved from left to right,
     // so the default configuration needs to come before the user args
@@ -50,14 +46,20 @@ pub fn build_web(
     let cargo_args = args.cargo_args_builder();
 
     info!("Compiling to WebAssembly...");
-    cargo::build::command().args(cargo_args).ensure_status()?;
+
+    cargo::build::command()
+        // Wasm targets are not installed by default
+        .maybe_require_target(args.target())
+        .args(cargo_args)
+        .env("RUSTFLAGS", args.cargo_args.common_args.rustflags.clone())
+        .ensure_status(args.auto_install())?;
 
     info!("Bundling JavaScript bindings...");
-    wasm_bindgen::bundle(bin_target)?;
+    wasm_bindgen::bundle(metadata, bin_target, args.auto_install())?;
 
     #[cfg(feature = "wasm-opt")]
     if args.is_release() {
-        wasm_opt::optimize_path(bin_target)?;
+        wasm_opt::optimize_path(bin_target, args.auto_install())?;
     }
 
     let web_bundle = create_web_bundle(
@@ -73,34 +75,4 @@ pub fn build_web(
     }
 
     Ok(web_bundle)
-}
-
-pub(crate) fn ensure_web_setup(skip_prompts: bool) -> anyhow::Result<()> {
-    // The resolved dependency graph is needed to ensure the `wasm-bindgen-cli` version matches
-    // exactly the `wasm-bindgen` version
-    let metadata = cargo::metadata::metadata()?;
-
-    let wasm_bindgen_version = metadata
-        .packages
-        .iter()
-        .find(|package| package.name == "wasm-bindgen")
-        .map(|package| package.version.to_string())
-        .ok_or_else(|| anyhow::anyhow!("Failed to find wasm-bindgen"))?;
-
-    // `wasm32-unknown-unknown` compilation target
-    #[cfg(feature = "rustup")]
-    rustup::install_target_if_needed("wasm32-unknown-unknown", skip_prompts)?;
-    // `wasm-bindgen-cli` for bundling
-    cargo::install::if_needed(
-        wasm_bindgen::PROGRAM,
-        wasm_bindgen::PACKAGE,
-        Some(&wasm_bindgen_version),
-        skip_prompts,
-    )?;
-
-    // `wasm-opt` for optimizing wasm files
-    #[cfg(feature = "wasm-opt")]
-    cargo::install::if_needed(wasm_opt::PACKAGE, wasm_opt::PROGRAM, None, skip_prompts)?;
-
-    Ok(())
 }

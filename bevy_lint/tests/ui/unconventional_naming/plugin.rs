@@ -1,14 +1,15 @@
 #![feature(register_tool)]
 #![register_tool(bevy)]
-#![deny(bevy::plugin_not_ending_in_plugin)]
+#![deny(bevy::unconventional_naming)]
 //~^ NOTE: the lint level is defined here
-
+#![allow(dead_code)]
 use bevy::prelude::*;
 
 // This should raise an error, since it does not end in "Plugin".
 struct Foo;
-//~^ ERROR: implemented `Plugin` for a structure whose name does not end in "Plugin"
-//~| HELP: rename the plugin
+//~^ ERROR: unconventional type name for a `Plugin`
+//~| NOTE: structures that implement `Plugin` should end in `Plugin`
+//~| HELP: rename `Foo`
 
 //~v NOTE: `Plugin` implemented here
 impl Plugin for Foo {
@@ -23,7 +24,7 @@ impl Plugin for BarPlugin {
 }
 
 // Though this does not end in "Plugin", the lint is silenced, so no error is raised.
-#[allow(bevy::plugin_not_ending_in_plugin)]
+#[allow(bevy::unconventional_naming)]
 struct Baz;
 
 impl Plugin for Baz {

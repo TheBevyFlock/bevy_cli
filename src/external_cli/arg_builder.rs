@@ -131,6 +131,16 @@ impl ArgBuilder {
         self
     }
 
+    /// Add a list of positional arguments.
+    pub fn args<I, V>(mut self, iter: I) -> Self
+    where
+        V: Into<String>,
+        I: IntoIterator<Item = V>,
+    {
+        self.0.extend(iter.into_iter().map(|value| value.into()));
+        self
+    }
+
     /// Add all arguments from the other builder to this one.
     pub fn append(mut self, mut other: ArgBuilder) -> Self {
         self.0.append(&mut other.0);
