@@ -22,7 +22,7 @@
 //! # use bevy::prelude::*;
 //! #
 //! #[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
-//! struct MyAudioSet;
+//! struct MyAudioSystems;
 //! ```
 
 use clippy_utils::{diagnostics::span_lint_hir_and_then, path_res};
@@ -161,7 +161,7 @@ impl TraitConvention {
     /// Returns the suffix that should be used when implementing this trait
     fn suffix(&self) -> &'static str {
         match self {
-            TraitConvention::SystemSet => "Set",
+            TraitConvention::SystemSet => "Systems",
             TraitConvention::Plugin => "Plugin",
         }
     }
@@ -172,10 +172,7 @@ impl TraitConvention {
 
     /// Test if the Structure name matches the naming convention
     fn matches_conventional_name(&self, struct_name: &str) -> bool {
-        match self {
-            TraitConvention::SystemSet => struct_name.ends_with("Set"),
-            TraitConvention::Plugin => struct_name.ends_with("Plugin"),
-        }
+        struct_name.ends_with(self.suffix())
     }
 
     /// Suggest a name for the Structure that matches the naming pattern
@@ -184,11 +181,11 @@ impl TraitConvention {
             TraitConvention::SystemSet => {
                 // There are several competing naming standards. These are a few that we specially
                 // check for.
-                const INCORRECT_SUFFIXES: [&str; 3] = ["System", "Systems", "Steps"];
+                const INCORRECT_SUFFIXES: [&str; 3] = ["System", "Set", "Steps"];
 
                 // If the name ends in one of the other suffixes, strip it out and replace it with
-                // "Set". If a struct was originally named `FooSystem`, this suggests `FooSet`
-                // instead of `FooSystemSet`.
+                // "Systems". If a struct was originally named `FooSet`, this suggests `FooSystems`
+                // instead of `FooSetSystems`.
                 for incorrect_suffix in INCORRECT_SUFFIXES {
                     if struct_name.ends_with(incorrect_suffix) {
                         let stripped_name =
