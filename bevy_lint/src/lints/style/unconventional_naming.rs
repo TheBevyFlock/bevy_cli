@@ -1,17 +1,33 @@
-//! Checks for structures that implement a Bevy trait and do not follow the opinionated naming
-//! Convention
+//! Checks for types that implement certain Bevy traits but do not follow that trait's naming
+//! convention.
+//!
+//! This lint currently enforces the following conventions:
+//!
+//! |Trait|Convention|
+//! |-|-|
+//! |`Plugin`|Name ends in "Plugin"|
+//! |`SystemSet`|Name ends in "Systems"|
 //!
 //! # Motivation
 //!
-//! To keep naming consistent, commonly used traits in Bevy should follow an opinionated naming
-//! Pattern to easily understand how a type should be used.
-//!
+//! Bevy provides several traits, such as `Plugin` and `SystemSet`, that designate the primary
+//! purpose of a type. It is common for these types to follow certain naming conventions that
+//! *signal* how it should be used. This lint helps enforce these conventions to ensure consistency
+//! across the Bevy engine and ecosystem.
 //!
 //! # Example
 //!
 //! ```
 //! # use bevy::prelude::*;
 //! #
+//! struct Physics;
+//!
+//! impl Plugin for Physics {
+//! #     fn build(&self, app: &mut App) {}
+//! #
+//!     // ...
+//! }
+//!
 //! #[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
 //! struct MyAudio;
 //! ```
@@ -21,6 +37,14 @@
 //! ```
 //! # use bevy::prelude::*;
 //! #
+//! struct PhysicsPlugin;
+//!
+//! impl Plugin for PhysicsPlugin {
+//! #     fn build(&self, app: &mut App) {}
+//! #
+//!     // ...
+//! }
+//!
 //! #[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
 //! struct MyAudioSystems;
 //! ```
