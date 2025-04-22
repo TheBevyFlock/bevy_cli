@@ -15,11 +15,11 @@ pub(crate) struct Style;
 impl LintGroup for Style {
     const NAME: &str = "bevy::style";
     const LEVEL: Level = Level::Warn;
-    const LINTS: &[&Lint] = &[plugin_not_ending_in_plugin::PLUGIN_NOT_ENDING_IN_PLUGIN];
+    const LINTS: &[&Lint] = &[unconventional_naming::UNCONVENTIONAL_NAMING];
 
     fn register_passes(store: &mut LintStore) {
         store.register_late_pass(|_| {
-            Box::new(plugin_not_ending_in_plugin::PluginNotEndingInPlugin::default())
+            Box::new(unconventional_naming::UnconventionalNaming::default())
         });
     }
 }

@@ -35,12 +35,12 @@ use crate::{declare_bevy_lint, declare_bevy_lint_pass, utils::hir_parse::impls_t
 
 declare_bevy_lint! {
     pub UNCONVENTIONAL_NAMING,
-    super::STYLE,
+    super::Style,
     "unconventional type name for a `Plugin` or `SystemSet`",
 }
 
 declare_bevy_lint_pass! {
-    pub UnconventionalNaming => [UNCONVENTIONAL_NAMING.lint],
+    pub UnconventionalNaming => [UNCONVENTIONAL_NAMING],
 }
 
 impl<'tcx> LateLintPass<'tcx> for UnconventionalNaming {
@@ -101,7 +101,7 @@ impl<'tcx> LateLintPass<'tcx> for UnconventionalNaming {
             .into();
             span_lint_hir_and_then(
                 cx,
-                UNCONVENTIONAL_NAMING.lint,
+                UNCONVENTIONAL_NAMING,
                 struct_hir_id,
                 struct_span,
                 conventional_name_impl.lint_description(),
