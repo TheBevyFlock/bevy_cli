@@ -1,9 +1,12 @@
+use std::fmt::Display;
+
 use anyhow::{Context, bail};
+use serde::Serialize;
 use serde_json::{Map, Value};
 
 use crate::external_cli::cargo::metadata::{Metadata, Package};
 
-#[derive(Default, Debug, Clone, PartialEq)]
+#[derive(Default, Debug, Clone, PartialEq, Serialize)]
 pub struct CliConfig {
     /// The platform to target with the build.
     target: Option<String>,
@@ -16,6 +19,22 @@ pub struct CliConfig {
 }
 
 impl CliConfig {
+    /// Returns `true` if the config doesn't change the defaults.
+    pub fn is_default(&self) -> bool {
+        // Using destructuring to ensure that all fields are considered
+        let Self {
+            target,
+            features,
+            default_features,
+            rustflags,
+        } = self;
+
+        target.is_none()
+            && features.is_empty()
+            && default_features.is_none()
+            && rustflags.is_empty()
+    }
+
     /// The platform to target with the build.
     pub fn target(&self) -> Option<&str> {
         self.target.as_deref()
@@ -201,6 +220,25 @@ fn extract_rustflags(cli_metadata: &Map<String, Value>) -> anyhow::Result<Vec<St
         Value::String(rustflag) => Ok(vec![rustflag.clone()]),
         Value::Null => Ok(Vec::new()),
         _ => bail!("rustflags must be an array or string"),
+    }
+}
+
+impl Display for CliConfig {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let document = toml_edit::ser::to_document(self).map_err(|_| std::fmt::Error)?;
+        write!(
+            f,
+            "{}",
+            document
+                .to_string()
+                // Remove trailing newline
+                .trim_end()
+                .lines()
+                // Align lines with the debug message
+                .map(|line| format!("      {line}"))
+                .collect::<Vec<String>>()
+                .join("\n")
+        )
     }
 }
 

@@ -7,7 +7,7 @@ use axum::{
     },
     middleware::map_response,
     response::Response,
-    routing::{any, get},
+    routing::{any, get, get_service},
 };
 use http::HeaderMap;
 use std::net::SocketAddr;
@@ -53,10 +53,9 @@ pub(crate) async fn serve(
 
     match web_bundle.clone() {
         WebBundle::Packed(PackedBundle { path }) => {
-            router = router.route_service(
-                &format!("/{}", path.display()),
-                ServeFile::new("index.html"),
-            );
+            // Using `fallback_service` instead of `route_service`
+            // to recursively serve the directory with correct MIME types
+            router = router.fallback_service(get_service(ServeDir::new(path)));
         }
         WebBundle::Linked(LinkedBundle {
             build_artifact_path,
