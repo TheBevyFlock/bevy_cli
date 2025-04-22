@@ -8,7 +8,7 @@ use bevy::prelude::*;
 //~v NOTE: `SystemSet` implemented here
 #[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
 struct MyAudio;
-//~^ ERROR: unconventional type name for a `Plugin` or `SystemSet`
+//~^ ERROR: unconventional type name for a `SystemSet`
 //~| NOTE: structures that implement `SystemSet` should end in `Set`
 //~| HELP: rename `MyAudio`
 
@@ -19,20 +19,20 @@ struct MyAudioSet;
 //~v NOTE: `SystemSet` implemented here
 #[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
 struct MyAudioSystem;
-//~^ ERROR: unconventional type name for a `Plugin` or `SystemSet`
+//~^ ERROR: unconventional type name for a `SystemSet`
 //~| NOTE: structures that implement `SystemSet` should end in `Set`
 //~| HELP: rename `MyAudioSystem`
 
 //~v NOTE: `SystemSet` implemented here
 #[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
 struct MyAudioSystems;
-//~^ ERROR: unconventional type name for a `Plugin` or `SystemSet`
+//~^ ERROR: unconventional type name for a `SystemSet`
 //~| NOTE: structures that implement `SystemSet` should end in `Set`
 //~| HELP: rename `MyAudioSystems`
 
 //~v NOTE: `SystemSet` implemented here
 #[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
 struct MyAudioSteps;
-//~^ ERROR: unconventional type name for a `Plugin` or `SystemSet`
+//~^ ERROR: unconventional type name for a `SystemSet`
 //~| NOTE: structures that implement `SystemSet` should end in `Set`
 //~| HELP: rename `MyAudioSteps`

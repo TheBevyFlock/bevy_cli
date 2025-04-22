@@ -11,7 +11,7 @@ use bevy::prelude::*;
 mod bar {
     pub mod baz {
         pub struct Foo;
-        //~^ ERROR: unconventional type name for a `Plugin` or `SystemSet`
+        //~^ ERROR: unconventional type name for a `Plugin`
         //~| NOTE: structures that implement `Plugin` should end in `Plugin`
         //~| HELP: rename `Foo`
     }

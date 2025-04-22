@@ -1,4 +1,4 @@
-error: unconventional type name for a `Plugin` or `SystemSet`
+error: unconventional type name for a `Plugin`
   --> tests/ui/unconventional_naming/spoofed_name.rs:13:20
    |
 13 |         pub struct Foo;

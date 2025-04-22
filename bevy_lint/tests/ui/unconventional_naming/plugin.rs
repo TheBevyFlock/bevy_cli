@@ -7,7 +7,7 @@ use bevy::prelude::*;
 
 // This should raise an error, since it does not end in "Plugin".
 struct Foo;
-//~^ ERROR: unconventional type name for a `Plugin` or `SystemSet`
+//~^ ERROR: unconventional type name for a `Plugin`
 //~| NOTE: structures that implement `Plugin` should end in `Plugin`
 //~| HELP: rename `Foo`
 

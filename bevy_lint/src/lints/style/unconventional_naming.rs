@@ -104,7 +104,7 @@ impl<'tcx> LateLintPass<'tcx> for UnconventionalNaming {
                 UNCONVENTIONAL_NAMING.lint,
                 struct_hir_id,
                 struct_span,
-                UNCONVENTIONAL_NAMING.lint.desc,
+                conventional_name_impl.lint_description(),
                 |diag| {
                     diag.span_note(
                         struct_span,
@@ -164,6 +164,10 @@ impl TraitConvention {
             TraitConvention::SystemSet => "Set",
             TraitConvention::Plugin => "Plugin",
         }
+    }
+
+    fn lint_description(&self) -> String {
+        format!("unconventional type name for a `{}`", self.name())
     }
 
     /// Test if the Structure name matches the naming convention
