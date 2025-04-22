@@ -112,12 +112,12 @@ use rustc_span::{Span, def_id::LocalDefId, symbol::kw};
 
 declare_bevy_lint! {
     pub BORROWED_REBORROWABLE,
-    super::PEDANTIC,
+    super::Pedantic,
     "function parameter takes a mutable reference to a re-borrowable type",
 }
 
 declare_bevy_lint_pass! {
-    pub BorrowedReborrowable => [BORROWED_REBORROWABLE.lint],
+    pub BorrowedReborrowable => [BORROWED_REBORROWABLE],
 }
 
 impl<'tcx> LateLintPass<'tcx> for BorrowedReborrowable {
@@ -220,7 +220,7 @@ impl<'tcx> LateLintPass<'tcx> for BorrowedReborrowable {
 
             span_lint_and_sugg(
                 cx,
-                BORROWED_REBORROWABLE.lint,
+                BORROWED_REBORROWABLE,
                 // The span contains both the argument name and type.
                 arg_params[arg_index].span,
                 reborrowable.message(),

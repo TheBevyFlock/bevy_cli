@@ -1,36 +1,76 @@
 //! Supporting types and macros that help simplify developing a linter.
 
-use rustc_lint::{Level, Lint, LintId};
+use rustc_lint::{Level, Lint, LintId, LintStore};
 
-/// A Bevy lint definition and its associated group.
-///
-/// The level of the lint must be the same as the level of the group.
-#[derive(Debug)]
-pub struct BevyLint {
-    pub lint: &'static Lint,
-    pub group: &'static LintGroup,
-}
+/// Represents a lint group that can control the level of a collection of lints.
+pub trait LintGroup {
+    /// The name of this lint group, starting with the `bevy::` prefix.
+    ///
+    /// # Example
+    ///
+    /// ```ignore
+    /// // Lint group definition within `bevy_lint`.
+    /// pub struct Foo;
+    ///
+    /// impl LintGroup for Foo {
+    ///     const NAME: &str = "bevy::foo";
+    ///     // ...
+    /// }
+    /// ```
+    ///
+    /// ```ignore
+    /// // Enable this lint group in a user's code.
+    /// #![warn(bevy::foo)]
+    /// ```
+    ///
+    /// ```toml
+    /// # Alternatively, enable this lint group in `Cargo.toml`.
+    /// [package.metadata.bevy_lint]
+    /// foo = "warn"
+    /// ```
+    const NAME: &str;
 
-impl BevyLint {
-    pub fn id(&self) -> LintId {
-        LintId::of(self.lint)
+    /// The default level for all lints in this lint group.
+    const LEVEL: Level;
+
+    /// A list of all lints in this lint group.
+    const LINTS: &[&Lint];
+
+    /// Registers all of this lint group's lint passes into a given [`LintStore`].
+    ///
+    /// When implementing this function, you'll often be calling
+    /// [`LintStore::register_late_pass()`] like so:
+    ///
+    /// ```ignore
+    /// fn register_passes(store: &mut LintStore) {
+    ///     store.register_late_pass(|_| Box::new(my_lint::MyLint::default()));
+    /// }
+    /// ```
+    fn register_passes(store: &mut LintStore);
+
+    /// Registers all of this group's lints into a given [`LintStore`].
+    ///
+    /// By default this will register all lints specified in [`Self::LINTS`].
+    fn register_lints(store: &mut LintStore) {
+        store.register_lints(Self::LINTS);
+    }
+
+    /// Registers this lint group into a given [`LintStore`].
+    fn register_group(store: &mut LintStore) {
+        let lint_ids = Self::LINTS.iter().map(|lint| LintId::of(lint)).collect();
+        store.register_group(true, Self::NAME, None, lint_ids);
+    }
+
+    /// A utility functions that calls [`Self::register_lints()`], [`Self::register_passes()`], and
+    /// [`Self::register_group()`] for the same [`LintStore`].
+    fn register(store: &mut LintStore) {
+        Self::register_passes(store);
+        Self::register_lints(store);
+        Self::register_group(store);
     }
 }
 
-/// Represents a lint group.
-#[derive(PartialEq, Debug)]
-pub struct LintGroup {
-    /// The name of the lint group.
-    ///
-    /// This will be used when trying to enable / disable the group, such as through
-    /// `#![allow(group)]`. By convention, this should start with `bevy::`.
-    pub name: &'static str,
-
-    // The default level all lints within this group should be.
-    pub level: Level,
-}
-
-/// Creates a new [`BevyLint`].
+/// Creates a new [`Lint`].
 ///
 /// # Example
 ///
@@ -38,8 +78,8 @@ pub struct LintGroup {
 /// declare_bevy_lint! {
 ///     // This lint will be named `bevy::lint_name`.
 ///     pub LINT_NAME,
-///     // The path to the lint group static.
-///     super::LINT_GROUP,
+///     // The path to the lint group type.
+///     super::LintGroup,
 ///     // The description printed by `bevy_lint_driver rustc -W help`, and sometimes also used in
 ///     // diagnostic messages.
 ///     "short description of lint",
@@ -62,44 +102,37 @@ macro_rules! declare_bevy_lint {
     {
         $(#[$attr:meta])*
         $vis:vis $name:ident,
-        $group:expr,
+        $group:ty,
         $desc:expr,
         $(@report_in_external_macro = $report_in_external_macro:expr,)?
         $(@crate_level_only = $crate_level_only:expr,)?
         $(@eval_always = $eval_always:expr,)?
     } => {
-        /// Click me for more information.
-        ///
-        /// ```ignore
-        /// Lint {
-        #[doc = concat!("    name: \"bevy::", stringify!($name), "\",")]
-        #[doc = concat!("    group: ", stringify!($group), ",")]
-        #[doc = concat!("    description: ", stringify!($desc), ",")]
-        /// }
-        /// ```
         $(#[$attr])*
-        $vis static $name: &$crate::lint::BevyLint = &$crate::lint::BevyLint {
-            lint: &::rustc_lint::Lint {
-                // Fields that are always configured by macro.
-                name: concat!("bevy::", stringify!($name)),
-                default_level: $group.level,
-                desc: $desc,
+        $vis static $name: &::rustc_lint::Lint = &::rustc_lint::Lint {
+            // Fields that are always configured by macro.
+            name: concat!("bevy::", stringify!($name)),
+            // The `*&` is a silly hack that appears to fix a compiler bug. Without it, lints will
+            // misbehave, emitting diagnostics at the incorrect lint level (usually when the user
+            // modifies the default lint level with `#[deny(...)]` and `#[warn(...)]`). I *think*
+            // this is caused by a bug in MIR promotion, as the `*&` fix prevents this entire struct
+            // from being constant evaluated, but I'm still unsure of the root cause.
+            default_level: *&<$group as $crate::lint::LintGroup>::LEVEL,
+            desc: $desc,
 
-                // Fields that cannot be configured.
-                edition_lint_opts: None,
-                future_incompatible: None,
-                feature_gate: None,
-                is_externally_loaded: true,
+            // Fields that cannot be configured.
+            edition_lint_opts: None,
+            future_incompatible: None,
+            feature_gate: None,
+            is_externally_loaded: true,
 
-                // Fields that may sometimes be configured by macro. These all default to false in
-                // `Lint::default_fields_for_macro()`, but may be overridden to true.
-                $(report_in_external_macro: $report_in_external_macro,)?
-                $(crate_level_only: $crate_level_only,)?
-                $(eval_always: $eval_always,)?
+            // Fields that may sometimes be configured by macro. These all default to false in
+            // `Lint::default_fields_for_macro()`, but may be overridden to true.
+            $(report_in_external_macro: $report_in_external_macro,)?
+            $(crate_level_only: $crate_level_only,)?
+            $(eval_always: $eval_always,)?
 
-                ..::rustc_lint::Lint::default_fields_for_macro()
-            },
-            group: $group,
+            ..::rustc_lint::Lint::default_fields_for_macro()
         };
     };
 }
@@ -114,7 +147,7 @@ macro_rules! declare_bevy_lint {
 /// ```ignore
 /// declare_bevy_lint_pass! {
 ///     // Declares which lints are emitted by this lint pass.
-///     pub LintPassName => [LINT_NAME.lint],
+///     pub LintPassName => [LINT_NAME],
 ///
 ///     // The following are optional fields, and may be omitted.
 ///     //

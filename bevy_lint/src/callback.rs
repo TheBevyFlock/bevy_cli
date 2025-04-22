@@ -42,9 +42,7 @@ impl Callbacks for BevyLintCallback {
                 (previous)(session, store);
             }
 
-            crate::lints::register_lints(store);
-            crate::lints::register_passes(store);
-            crate::lints::register_groups(store);
+            crate::lints::register(store);
         }));
 
         config.override_queries = Some(|_session, providers| {

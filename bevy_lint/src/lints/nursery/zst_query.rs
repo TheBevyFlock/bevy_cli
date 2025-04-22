@@ -70,12 +70,12 @@ declare_bevy_lint! {
     pub ZST_QUERY,
     // This will eventually be a `RESTRICTION` lint, but due to
     // <https://github.com/TheBevyFlock/bevy_cli/issues/279> it is not yet ready for production.
-    super::NURSERY,
+    super::Nursery,
     "queried a zero-sized type",
 }
 
 declare_bevy_lint_pass! {
-    pub ZstQuery => [ZST_QUERY.lint],
+    pub ZstQuery => [ZST_QUERY],
 }
 
 impl<'tcx> LateLintPass<'tcx> for ZstQuery {
@@ -107,9 +107,9 @@ impl<'tcx> LateLintPass<'tcx> for ZstQuery {
             //       instead suggest `Has<Foo>`
             span_lint_and_help(
                 cx,
-                ZST_QUERY.lint,
+                ZST_QUERY,
                 hir_ty.span,
-                ZST_QUERY.lint.desc,
+                ZST_QUERY.desc,
                 None,
                 query_kind.help(peeled),
             );
