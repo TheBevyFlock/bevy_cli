@@ -22,6 +22,29 @@ At this point, the CLI is not published as a package yet and needs to be install
 cargo install --git https://github.com/TheBevyFlock/bevy_cli --locked bevy_cli
 ```
 
+### Nix flake
+A nix flake is also provided:
+```nix
+{
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    bevy_cli.url = "github:TheBevyFlock/bevy_cli";
+  };
+  
+  outputs = { self, nixpkgs, bevy_cli }: {
+    nixosConfigurations.<your_hostname> = nixpkgs.lib.nixosSystem {
+      modules = [
+        ({ pkgs, ... }: {
+          environment.systemPackages = [
+            bevy_cli.packages.${pkgs.system}.default
+          ];
+        })
+      ];
+    };
+  };
+}
+```
+
 ## Logging
 
 The default logging level for the CLI is set to `info`. To change the log level set the `BEVY_LOG` environment variable.
