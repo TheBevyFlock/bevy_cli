@@ -1,7 +1,7 @@
-use anyhow::{Context, anyhow, ensure};
+use anyhow::Context;
 use std::{
     env,
-    path::PathBuf,
+    path::{Path, PathBuf},
     process::{Command, ExitCode},
 };
 
@@ -69,30 +69,66 @@ fn show_version() {
 
 /// Returns the path to `bevy_lint_driver`.
 ///
-/// This function assumes that `bevy_lint` and `bevy_lint_driver` are installed into the same
-/// folder, and will error if this is not the case. This function does not search the `PATH`.
+/// This function will first search the folder of the current executable for `bevy_lint_driver`. If
+/// found, that path will be returned. If `bevy_lint_driver` is not within the same folder as
+/// `bevy_lint`, it will be searched for in the `PATH` instead.
 ///
 /// # Errors
 ///
-/// This may error if the current executable cannot be found or `bevy_lint_driver` does not exist.
+/// This will error if `bevy_lint_driver` could not be found in either the current executable's
+/// folder or the `PATH`, or if the `PATH` environmental variable could not be accessed.
 fn driver_path() -> anyhow::Result<PathBuf> {
-    // The `bevy_lint` lives in the same folder as `bevy_lint_driver`, so we can easily find it
-    // using the path of the current executable.
-    let driver_path = env::current_exe()
-        .context("Failed to retrieve the path to the current executable.")?
-        .parent()
-        .ok_or(anyhow!("Path to file must have a parent."))?
-        .join("bevy_lint_driver")
-        .with_extension(env::consts::EXE_EXTENSION);
+    // The file name of `bevy_lint_driver` with the correct executable extension.
+    let driver_file_name = Path::new("bevy_lint_driver").with_extension(env::consts::EXE_EXTENSION);
 
-    ensure!(
-        driver_path.exists(),
-        "Could not find `bevy_lint_driver` at {}, please ensure it is installed!",
-        driver_path.display(),
-    );
+    // The folder the current executable is within. This resolves all symbolic links, meaning the
+    // folder of the actual executable and not the link will be found. If the executable folder
+    // could not be found, this will be `None`.
+    let executable_folder = env::current_exe()
+        .and_then(|path| path.canonicalize())
+        .ok()
+        .and_then(|path| path.parent().map(Path::to_path_buf));
 
-    // Convert the local path to the absolute path. We don't want `rustc` getting
-    // confused! `canonicalize()` requires for the path to exist, so we do it after the nice error
-    // message.
-    driver_path.canonicalize().map_err(anyhow::Error::from)
+    if let Some(executable_folder) = executable_folder {
+        let driver_path = executable_folder.join(&driver_file_name);
+
+        // If `bevy_lint_driver` exists within the executable folder, we return that path.
+        if driver_path.is_file() {
+            // The driver path should be absolute so `rustc` does not get confused when we give it
+            // the path.
+            debug_assert!(
+                driver_path.is_absolute(),
+                "the executable folder was previously canonicalized, but the driver path {} is not absolute",
+                driver_path.display()
+            );
+
+            // There is a `bevy_lint_driver` within the same folder as the executable, return it
+            // and do not search the `PATH`.
+            return Ok(driver_path);
+        }
+    }
+
+    let path = env::var_os("PATH").context("could not fetch the `PATH` environmental variable")?;
+
+    // Search the `PATH` for `bevy_lint_driver`. This is adopted from
+    // <https://stackoverflow.com/a/37499032>, thank you!
+    let driver_path = env::split_paths(&path)
+        // Filter the `PATH` for paths to `bevy_lint_driver`.
+        .filter_map(|folder| {
+            let driver_path = folder.join(&driver_file_name);
+
+            // If `bevy_lint_driver` exists in this `PATH` folder, return it.
+            driver_path.is_file().then_some(driver_path)
+        })
+        // Get the first occurrence of `bevy_lint_driver` in `PATH`.
+        .next()
+        .context("could not find `bevy_lint_driver` in the `PATH`")?;
+
+    // Get the absolute path the `bevy_lint_driver` and return it.
+    driver_path.canonicalize().with_context(|| {
+        format!(
+            "could not get the absolute path of {}",
+            driver_path.display()
+        )
+    })
 }
