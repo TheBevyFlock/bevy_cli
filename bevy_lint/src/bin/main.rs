@@ -1,8 +1,9 @@
-use anyhow::Context;
+use anyhow::{Context, ensure};
 use std::{
     env,
+    ffi::OsString,
     path::{Path, PathBuf},
-    process::{Command, ExitCode},
+    process::{Command, ExitCode, Stdio},
 };
 
 /// The Rustup toolchain channel specified by `rust-toolchain.toml`. This is set by `build.rs`.
@@ -20,6 +21,8 @@ fn main() -> anyhow::Result<ExitCode> {
 
     // Find the path to `bevy_lint_driver`.
     let driver_path = driver_path()?;
+
+    todo!();
 
     // Run `rustup run nightly-YYYY-MM-DD cargo check`.
     let status = Command::new("rustup")
@@ -99,7 +102,7 @@ fn driver_path() -> anyhow::Result<PathBuf> {
             debug_assert!(
                 driver_path.is_absolute(),
                 "the executable folder was previously canonicalized, but the driver path {} is not absolute",
-                driver_path.display()
+                driver_path.display(),
             );
 
             // There is a `bevy_lint_driver` within the same folder as the executable, return it
@@ -128,7 +131,65 @@ fn driver_path() -> anyhow::Result<PathBuf> {
     driver_path.canonicalize().with_context(|| {
         format!(
             "could not get the absolute path of {}",
-            driver_path.display()
+            driver_path.display(),
         )
     })
+}
+
+/// Locates the path to the Rust compiler.
+///
+/// If the `BEVY_LINT_RUSTC` environmental variable is specified, its value will be returned. If
+/// the variable does not exist, `rustup which rustc` will be called to locate `rustc`.
+fn rustc_path() -> anyhow::Result<PathBuf> {
+    if let Some(rustc_path) = env::var_os("BEVY_LINT_RUSTC") {
+        let rustc_path = PathBuf::from(rustc_path);
+
+        ensure!(
+            rustc_path.is_file(),
+            "the path in `BEVY_LINT_RUSTC`, {}, does not exist",
+            rustc_path.display(),
+        );
+
+        return rustc_path.canonicalize().with_context(|| {
+            format!(
+                "could not get the absolute path of {}",
+                rustc_path.display(),
+            )
+        });
+    }
+
+    let output = Command::new("rustup")
+        .arg("which")
+        .arg("rustc")
+        .arg(format!("--toolchain={RUST_TOOLCHAIN_CHANNEL}"))
+        .stderr(Stdio::inherit())
+        .output()
+        .context("failed to spawn `rustup` to locate a `rustc`, is it installed?")?;
+
+    ensure!(
+        output.status.success(),
+        "could not locate `rustc` using `rustup`, is the toolchain {RUST_TOOLCHAIN_CHANNEL} installed?",
+    );
+
+    let rustc_path = Path::new(
+        // Rustup should only emit UTF-8, as it's a Rust program, so it should be safe to error
+        // here when invalid UTF-8 is found.
+        str::from_utf8(&output.stdout)
+            .context("the output of `rustup which` is not valid UTF-8")?
+            .trim_end(),
+    );
+
+    ensure!(
+        rustc_path.is_file(),
+        "the path returned by `rustup which rustc`, {}, does not exist",
+        rustc_path.display(),
+    );
+
+    debug_assert!(
+        rustc_path.is_absolute(),
+        "`rustup which` should canonicalize the path to `rustc`, {}, but it is not absolute",
+        rustc_path.display(),
+    );
+
+    Ok(rustc_path.to_path_buf())
 }
