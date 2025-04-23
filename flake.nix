@@ -38,7 +38,7 @@
           overlays = [(import inputs.rust-overlay)];
         };
 
-        # Add a default devshell with rust tools and depencies to compile and work on the project with
+        # Add a default devshell with rust tools and dependencies to compile and work on the project with
         devShells.default = pkgs.mkShell {
           LD_LIBRARY_PATH = "${pkgs.lib.makeLibraryPath runtimeDeps}";
           packages = tools;
