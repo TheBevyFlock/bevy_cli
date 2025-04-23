@@ -8,8 +8,7 @@ use crate::{bin_target::select_run_binary, config::CliConfig, external_cli::carg
 
 pub mod args;
 
-/// Tries to build the project with the given [`BuildArgs`] by merging the [`CliConfig`] with the
-/// [`BuildArgs`]. [`BuildArgs`] take precedence.
+/// Tries to build the project with the given [`BuildArgs`].
 ///
 /// # Errors
 ///

@@ -8,6 +8,11 @@ pub use self::args::RunArgs;
 
 pub mod args;
 
+/// Tries to run the project with the given [`RunArgs`].
+///
+/// # Errors
+///
+/// will error if the build process can not be completed
 pub fn run(args: &mut RunArgs) -> anyhow::Result<()> {
     let metadata = cargo::metadata::metadata()?;
 
