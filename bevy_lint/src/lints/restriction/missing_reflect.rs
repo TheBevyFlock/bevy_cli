@@ -55,7 +55,13 @@
 //! Code](../../index.html#toggling-lints-in-code).
 
 use crate::{declare_bevy_lint, declare_bevy_lint_pass};
-use clippy_utils::{def_path_res, diagnostics::span_lint_hir_and_then, sugg::DiagExt};
+use clippy_utils::{
+    def_path_res,
+    diagnostics::span_lint_hir_and_then,
+    get_trait_def_id,
+    sugg::DiagExt,
+    ty::{implements_trait, ty_from_hir_ty},
+};
 use rustc_errors::Applicability;
 use rustc_hir::{
     HirId, Item, ItemKind, Node, OwnerId, QPath, TyKind,
@@ -104,6 +110,11 @@ impl<'tcx> LateLintPass<'tcx> for MissingReflect {
                 .filter(|trait_type| !reflected.contains(trait_type))
                 .collect();
 
+        // This is rather expensive so we should not do it again for each diagnostics (and for each
+        // field) we check. We also expect this trait to be present.
+        let Some(reflect_trait_def_id) = get_trait_def_id(cx.tcx, &crate::paths::REFLECT) else {
+            return;
+        };
         // Emit diagnostics for each of these types.
         for (checked_trait, trait_name, message_phrase) in [
             (events, "Event", "an event"),
@@ -117,6 +128,33 @@ impl<'tcx> LateLintPass<'tcx> for MissingReflect {
                     .in_external_macro(cx.tcx.sess.source_map())
                 {
                     continue;
+                }
+
+                let mut applicability = Applicability::MachineApplicable;
+                // We know this `hir_id` needs to be a struct so we convert the `LocalDefId` to its
+                // `ItemKind`.
+                if let ItemKind::Struct(_, data, _) = cx
+                    .tcx
+                    .hir_expect_item(without_reflect.hir_id.owner.def_id)
+                    .kind
+                {
+                    // Iterate through each field of the struct
+                    for field in data.fields() {
+                        // Check if the type of the field is a named type
+                        if let TyKind::Path(QPath::Resolved(_, path)) = field.ty.kind {
+                            // Check that the resolved path corresponds to a Type definition
+                            if let Res::Def(_, _) = path.res {
+                                let ty = ty_from_hir_ty(cx, field.ty);
+                                // Check if the field's type implements the `Reflect` trait.
+                                // If not change the `Applicability` level to `MaybeIncorrect` and
+                                // exit the iteration
+                                if !implements_trait(cx, ty, reflect_trait_def_id, &[]) {
+                                    applicability = Applicability::MaybeIncorrect;
+                                    break;
+                                }
+                            }
+                        }
+                    }
                 }
 
                 span_lint_hir_and_then(
@@ -142,7 +180,7 @@ impl<'tcx> LateLintPass<'tcx> for MissingReflect {
                             // This suggestion may result in two consecutive
                             // `#[derive(...)]` attributes, but `rustfmt` merges them
                             // afterwards.
-                            Applicability::MaybeIncorrect,
+                            applicability,
                         );
                     },
                 );
