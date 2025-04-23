@@ -1,12 +1,12 @@
 //! Utility functions for parsing HIR types.
 
-use clippy_utils::source::snippet_opt;
+use clippy_utils::{match_def_path, source::snippet_opt};
 use rustc_hir::{
-    Expr, ExprKind, GenericArg, GenericArgs, Node, Path, PathSegment, QPath, Ty, TyKind,
+    Expr, ExprKind, GenericArg, GenericArgs, Impl, Node, Path, PathSegment, QPath, Ty, TyKind,
     def::{DefKind, Res},
 };
 use rustc_lint::LateContext;
-use rustc_span::{Span, Symbol};
+use rustc_span::{Ident, Span, kw};
 
 /// Returns the list of types inside a tuple type.
 ///
@@ -243,9 +243,13 @@ impl<'tcx> MethodCall<'tcx> {
                     // If the name of the first argument is `self`, then it *must* be a method.
                     // `self` is a reserved keyword, and cannot be used as a general function
                     // argument name.
-                    if inputs
-                        .first()
-                        .is_some_and(|ident| ident.name == Symbol::intern("self"))
+                    if let [
+                        Some(Ident {
+                            name: kw::SelfLower,
+                            ..
+                        }),
+                        ..,
+                    ] = inputs
                     {
                         let method_path = match *qpath {
                             // If the qualified path is resolved, the method path must be the final
@@ -296,4 +300,13 @@ impl<'tcx> MethodCall<'tcx> {
             _ => None,
         }
     }
+}
+
+/// Checks if the [`Impl`] implements a given trait from Bevy.
+pub fn impls_trait(cx: &LateContext, impl_: &Impl, trait_path: &[&str]) -> bool {
+    impl_.of_trait.is_some_and(|of_trait| {
+        matches!(of_trait.path.res, Res::Def(_, trait_def_id)
+            // is the trait being implemented the specified trait from Bevy
+            if match_def_path(cx, trait_def_id, trait_path))
+    })
 }

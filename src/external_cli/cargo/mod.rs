@@ -5,7 +5,6 @@ use clap::{ArgAction, Args};
 use super::arg_builder::ArgBuilder;
 
 pub(crate) mod build;
-#[cfg(feature = "web")]
 pub(crate) mod install;
 pub(crate) mod metadata;
 pub(crate) mod run;
@@ -160,7 +159,9 @@ pub struct CargoCommonArgs {
     /// This flag may be specified multiple times.
     #[clap(long = "config", value_name = "KEY=VALUE|PATH")]
     pub config: Vec<String>,
-
+    /// custom flags to pass to all compiler invocations
+    #[arg(long = "rustflags", allow_hyphen_values = true)]
+    pub rustflags: Option<String>,
     /// Unstable (nightly-only) flags to Cargo, see `cargo -Z help` for details.
     #[clap(short = 'Z', value_name = "FLAG")]
     pub unstable_flags: Vec<String>,

@@ -99,25 +99,25 @@
 use std::ops::ControlFlow;
 
 use crate::{declare_bevy_lint, declare_bevy_lint_pass};
-use clippy_utils::{diagnostics::span_lint_and_sugg, source::snippet_opt, ty::match_type};
+use clippy_utils::{
+    diagnostics::span_lint_and_sugg,
+    source::{snippet, snippet_opt},
+    ty::match_type,
+};
 use rustc_errors::Applicability;
 use rustc_hir::{Body, FnDecl, MutTy, Mutability, intravisit::FnKind};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::{Interner, Ty, TyKind, TypeVisitable, TypeVisitor};
-use rustc_span::{
-    Span,
-    def_id::LocalDefId,
-    symbol::{Ident, kw},
-};
+use rustc_span::{Span, def_id::LocalDefId, symbol::kw};
 
 declare_bevy_lint! {
     pub BORROWED_REBORROWABLE,
-    super::PEDANTIC,
+    super::Pedantic,
     "function parameter takes a mutable reference to a re-borrowable type",
 }
 
 declare_bevy_lint_pass! {
-    pub BorrowedReborrowable => [BORROWED_REBORROWABLE.lint],
+    pub BorrowedReborrowable => [BORROWED_REBORROWABLE],
 }
 
 impl<'tcx> LateLintPass<'tcx> for BorrowedReborrowable {
@@ -126,7 +126,7 @@ impl<'tcx> LateLintPass<'tcx> for BorrowedReborrowable {
         cx: &LateContext<'tcx>,
         kind: FnKind<'tcx>,
         decl: &'tcx FnDecl<'tcx>,
-        _: &'tcx Body<'tcx>,
+        body: &'tcx Body<'tcx>,
         fn_span: Span,
         def_id: LocalDefId,
     ) {
@@ -142,17 +142,29 @@ impl<'tcx> LateLintPass<'tcx> for BorrowedReborrowable {
             _ => cx.tcx.fn_sig(def_id).instantiate_identity(),
         };
 
+        // A list of argument types, used in the actual lint check.
+        let arg_types = fn_sig.inputs().skip_binder();
+        // A list of argument names, used to check and skip `&mut self`.
         let arg_names = cx.tcx.fn_arg_names(def_id);
+        // A list of argument parameters, used to find the span of arguments.
+        let arg_params = body.params;
 
-        let args = fn_sig.inputs().skip_binder();
+        debug_assert_eq!(
+            arg_types.len(),
+            arg_names.len(),
+            "there must be the same number of argument types and names"
+        );
+        debug_assert_eq!(
+            arg_types.len(),
+            arg_params.len(),
+            "there must be the same number of argument types and parameters"
+        );
 
-        for (arg_index, arg_ty) in args.iter().enumerate() {
+        for (arg_index, arg_ty) in arg_types.iter().enumerate() {
             let TyKind::Ref(region, ty, Mutability::Mut) = arg_ty.kind() else {
                 // We only care about `&mut` parameters
                 continue;
             };
-
-            let arg_ident = arg_names[arg_index];
 
             // This lint would emit a warning on `&mut self` if `self` was reborrowable. This isn't
             // useful, though, because it would hurt the ergonomics of using methods of
@@ -161,7 +173,7 @@ impl<'tcx> LateLintPass<'tcx> for BorrowedReborrowable {
             // To avoid this, we skip any parameter named `self`. This won't false-positive on
             // other function arguments named `self`, since it is a special keyword that is
             // disallowed in other positions.
-            if arg_ident.name == kw::SelfLower {
+            if arg_names[arg_index].is_some_and(|ident| ident.name == kw::SelfLower) {
                 continue;
             }
 
@@ -187,8 +199,6 @@ impl<'tcx> LateLintPass<'tcx> for BorrowedReborrowable {
                 continue;
             }
 
-            let span = decl.inputs[arg_index].span.to(arg_ident.span);
-
             // This tries to get the user-written form of `T` given the HIR representation for `&T`
             // / `&mut T`. If we cannot for whatever reason, we fallback to using
             // `Ty::to_string()` to get the fully-qualified form of `T`.
@@ -205,15 +215,17 @@ impl<'tcx> LateLintPass<'tcx> for BorrowedReborrowable {
                 // If it's not a `Ref` for whatever reason, fallback to our default value.
                 _ => None,
             }
+            // We previously peeled the `&mut` reference, so `ty` is just the underlying `T`.
             .unwrap_or_else(|| ty.to_string());
 
             span_lint_and_sugg(
                 cx,
-                BORROWED_REBORROWABLE.lint,
-                span,
+                BORROWED_REBORROWABLE,
+                // The span contains both the argument name and type.
+                arg_params[arg_index].span,
                 reborrowable.message(),
                 reborrowable.help(),
-                reborrowable.suggest(arg_ident, ty_snippet),
+                reborrowable.suggest(cx, arg_params[arg_index].pat.span, ty_snippet),
                 // Not machine-applicable since the function body may need to
                 // also be updated to account for the removed ref
                 Applicability::MaybeIncorrect,
@@ -293,8 +305,9 @@ impl Reborrowable {
         format!("use `{name}` instead")
     }
 
-    fn suggest(&self, ident: Ident, ty: String) -> String {
-        format!("mut {ident}: {ty}")
+    fn suggest(&self, cx: &LateContext, name: Span, ty: String) -> String {
+        let name = snippet(cx, name, "_");
+        format!("mut {name}: {ty}")
     }
 }
 

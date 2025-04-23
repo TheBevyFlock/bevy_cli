@@ -4,13 +4,22 @@
 //!
 //! These lints are **warn** by default.
 
-use rustc_lint::Level;
+use rustc_lint::{Level, Lint, LintStore};
 
 use crate::lint::LintGroup;
 
-pub mod plugin_not_ending_in_plugin;
+pub mod unconventional_naming;
 
-pub(crate) static STYLE: &LintGroup = &LintGroup {
-    name: "bevy::style",
-    level: Level::Warn,
-};
+pub(crate) struct Style;
+
+impl LintGroup for Style {
+    const NAME: &str = "bevy::style";
+    const LEVEL: Level = Level::Warn;
+    const LINTS: &[&Lint] = &[unconventional_naming::UNCONVENTIONAL_NAMING];
+
+    fn register_passes(store: &mut LintStore) {
+        store.register_late_pass(|_| {
+            Box::new(unconventional_naming::UnconventionalNaming::default())
+        });
+    }
+}

@@ -187,7 +187,7 @@ There are several other ways to toggle lints, although some have varying levels 
 
 |`bevy_lint` Version|Rust Version|Rustup Toolchain|Bevy Version|
 |-|-|-|-|
-|0.3.0-dev|1.87.0|`nightly-2025-02-20`|0.16|
+|0.3.0-dev|1.88.0|`nightly-2025-04-03`|0.16|
 |0.2.0|1.87.0|`nightly-2025-02-20`|0.15|
 |0.1.0|1.84.0|`nightly-2024-11-14`|0.14|
 

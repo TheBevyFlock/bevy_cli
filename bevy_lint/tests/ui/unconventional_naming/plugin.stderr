@@ -1,0 +1,26 @@
+error: unconventional type name for a `Plugin`
+  --> tests/ui/unconventional_naming/plugin.rs:9:8
+   |
+9  | struct Foo;
+   |        ^^^ help: rename `Foo`: `FooPlugin`
+   |
+note: structures that implement `Plugin` should end in `Plugin`
+  --> tests/ui/unconventional_naming/plugin.rs:9:8
+   |
+9  | struct Foo;
+   |        ^^^
+note: `Plugin` implemented here
+  --> tests/ui/unconventional_naming/plugin.rs:15:1
+   |
+15 | / impl Plugin for Foo {
+16 | |     fn build(&self, _app: &mut App) {}
+17 | | }
+   | |_^
+note: the lint level is defined here
+  --> tests/ui/unconventional_naming/plugin.rs:3:9
+   |
+3  | #![deny(bevy::unconventional_naming)]
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: aborting due to 1 previous error
+

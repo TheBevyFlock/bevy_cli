@@ -61,12 +61,12 @@ use crate::{declare_bevy_lint, declare_bevy_lint_pass, utils::hir_parse::MethodC
 
 declare_bevy_lint! {
     pub INSERT_UNIT_BUNDLE,
-    super::SUSPICIOUS,
+    super::Suspicious,
     "inserted a `Bundle` containing a unit `()` type",
 }
 
 declare_bevy_lint_pass! {
-    pub InsertUnitBundle => [INSERT_UNIT_BUNDLE.lint],
+    pub InsertUnitBundle => [INSERT_UNIT_BUNDLE],
     @default = {
         spawn: Symbol = sym!(spawn),
     },
@@ -109,10 +109,10 @@ impl<'tcx> LateLintPass<'tcx> for InsertUnitBundle {
         if bundle_ty.is_unit() {
             span_lint_hir_and_then(
                 cx,
-                INSERT_UNIT_BUNDLE.lint,
+                INSERT_UNIT_BUNDLE,
                 bundle_expr.hir_id,
                 bundle_expr.span,
-                INSERT_UNIT_BUNDLE.lint.desc,
+                INSERT_UNIT_BUNDLE.desc,
                 |diag| {
                     diag.note("unit `()` types are skipped instead of spawned")
                         .span_suggestion(
@@ -136,10 +136,10 @@ impl<'tcx> LateLintPass<'tcx> for InsertUnitBundle {
 
             span_lint_hir_and_then(
                 cx,
-                INSERT_UNIT_BUNDLE.lint,
+                INSERT_UNIT_BUNDLE,
                 expr.hir_id,
                 expr.span,
-                INSERT_UNIT_BUNDLE.lint.desc,
+                INSERT_UNIT_BUNDLE.desc,
                 |diag| {
                     diag.note("unit `()` types are skipped instead of spawned");
                 },

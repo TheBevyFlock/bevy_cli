@@ -5,7 +5,10 @@ use crate::build::args::{BuildSubcommands, BuildWebArgs};
 use crate::{
     build::args::BuildArgs,
     config::CliConfig,
-    external_cli::{arg_builder::ArgBuilder, cargo::run::CargoRunArgs},
+    external_cli::{
+        arg_builder::ArgBuilder,
+        cargo::{install::AutoInstall, run::CargoRunArgs},
+    },
 };
 
 use super::cargo::build::{CargoBuildArgs, CargoPackageBuildArgs, CargoTargetBuildArgs};
@@ -18,14 +21,29 @@ pub struct RunArgs {
 
     /// Confirm all prompts automatically.
     #[arg(long = "yes", default_value_t = false)]
-    pub skip_prompts: bool,
+    pub confirm_prompts: bool,
 
     /// Commands to forward to `cargo run`.
     #[clap(flatten)]
     pub cargo_args: CargoRunArgs,
+
+    /// Arguments to pass to the underlying Bevy app.
+    ///
+    /// Specified after `--`.
+    #[clap(last = true, name = "ARGS")]
+    pub forward_args: Vec<String>,
 }
 
 impl RunArgs {
+    /// Whether to automatically install missing dependencies.
+    pub(crate) fn auto_install(&self) -> AutoInstall {
+        if self.confirm_prompts {
+            AutoInstall::Always
+        } else {
+            AutoInstall::AskUser
+        }
+    }
+
     /// Whether to run the app in the browser.
     #[cfg(feature = "web")]
     pub(crate) fn is_web(&self) -> bool {
@@ -53,14 +71,25 @@ impl RunArgs {
 
     /// Generate arguments for `cargo`.
     pub(crate) fn cargo_args_builder(&self) -> ArgBuilder {
-        self.cargo_args.args_builder(self.is_web())
+        let mut arg_builder = self.cargo_args.args_builder(self.is_web());
+
+        if !self.forward_args.is_empty() {
+            // This MUST come last to avoid forwarding other args
+            arg_builder = arg_builder.arg("--").args(self.forward_args.iter());
+        }
+
+        arg_builder
     }
 
     /// Apply the config on top of the CLI arguments.
     ///
     /// CLI arguments take precedence.
     pub(crate) fn apply_config(&mut self, config: &CliConfig) {
-        tracing::debug!("Using config {config:?}");
+        if config.is_default() {
+            return;
+        }
+
+        tracing::debug!("Using defaults from bevy_cli config:\n{config}");
         if self.cargo_args.compilation_args.target.is_none() {
             self.cargo_args.compilation_args.target = config.target().map(ToOwned::to_owned);
         }
@@ -74,6 +103,12 @@ impl RunArgs {
                 .is_no_default_features
                 .unwrap_or(!config.default_features()),
         );
+        self.cargo_args.common_args.rustflags = self
+            .cargo_args
+            .common_args
+            .rustflags
+            .clone()
+            .or(config.rustflags());
     }
 }
 
@@ -108,7 +143,7 @@ pub struct RunWebArgs {
 impl From<RunArgs> for BuildArgs {
     fn from(args: RunArgs) -> Self {
         BuildArgs {
-            skip_prompts: args.skip_prompts,
+            confirm_prompts: args.confirm_prompts,
             cargo_args: CargoBuildArgs {
                 common_args: args.cargo_args.common_args,
                 compilation_args: args.cargo_args.compilation_args,
