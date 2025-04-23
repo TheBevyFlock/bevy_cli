@@ -3,7 +3,7 @@
 pub(crate) mod bin_target;
 pub mod build;
 pub mod config;
-pub mod external_cli;
+pub(crate) mod external_cli;
 pub mod lint;
 pub mod run;
 pub mod template;

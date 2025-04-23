@@ -8,6 +8,7 @@ use crate::{
     },
 };
 
+/// Arguments for building a Bevy project.
 #[derive(Debug, Args)]
 pub struct BuildArgs {
     /// The subcommands available for the build command.
@@ -94,6 +95,7 @@ impl BuildArgs {
     }
 }
 
+/// The subcommands available for the build command.
 #[derive(Debug, Subcommand)]
 pub enum BuildSubcommands {
     /// Build your app for the browser.
@@ -101,6 +103,7 @@ pub enum BuildSubcommands {
     Web(BuildWebArgs),
 }
 
+/// Additional Arguments for building a Bevy web project.
 #[derive(Debug, Args)]
 pub struct BuildWebArgs {
     // Bundle all web artifacts into a single folder.

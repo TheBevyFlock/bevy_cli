@@ -1,3 +1,5 @@
+//! Utilities to run a Bevy app targeting either native or web platforms.
+
 #[cfg(feature = "web")]
 use crate::web::run::run_web;
 use crate::{bin_target::select_run_binary, config::CliConfig, external_cli::cargo};

@@ -10,7 +10,7 @@ use cargo::install::AutoInstall;
 use semver::VersionReq;
 use tracing::{Level, debug, error, info, trace, warn};
 
-pub mod arg_builder;
+pub(crate) mod arg_builder;
 pub(crate) mod cargo;
 #[cfg(feature = "rustup")]
 pub(crate) mod rustup;
