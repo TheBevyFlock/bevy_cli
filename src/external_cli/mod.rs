@@ -53,6 +53,7 @@ impl CommandExt {
     ///
     /// If the command fails and the package is missing,
     /// it can be installed automatically via `cargo install`.
+    #[cfg(feature = "web")]
     pub fn require_package<S: AsRef<OsStr>>(&mut self, name: S, version: VersionReq) -> &mut Self {
         self.package = Some(Package {
             name: name.as_ref().to_owned(),
@@ -65,6 +66,7 @@ impl CommandExt {
     ///
     /// If the command fails and the target is missing,
     /// it can be installed automatically via `rustup`.
+    #[cfg(feature = "web")]
     pub fn maybe_require_target<S: AsRef<OsStr>>(&mut self, target: Option<S>) -> &mut Self {
         if let Some(target) = target {
             self.target = Some(target.as_ref().to_owned());
