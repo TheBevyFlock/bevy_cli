@@ -1,0 +1,87 @@
+error: defined an event without a `Reflect` implementation
+  --> tests/ui/missing_reflect/none_reflect_fields.rs:36:1
+   |
+36 | struct MyEvent(NonReflect);
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: `Event` implemented here
+  --> tests/ui/missing_reflect/none_reflect_fields.rs:33:10
+   |
+33 | #[derive(Event)]
+   |          ^^^^^
+note: the lint level is defined here
+  --> tests/ui/missing_reflect/none_reflect_fields.rs:8:9
+   |
+8  | #![deny(bevy::missing_reflect)]
+   |         ^^^^^^^^^^^^^^^^^^^^^
+   = note: this error originates in the derive macro `Event` (in Nightly builds, run with -Z macro-backtrace for more info)
+help: `Reflect` can be automatically derived
+   |
+36 + #[derive(Reflect)]
+37 | struct MyEvent(NonReflect);
+   |
+
+error: defined a component without a `Reflect` implementation
+  --> tests/ui/missing_reflect/none_reflect_fields.rs:18:1
+   |
+18 | / struct MyComponent {
+19 | |     reflect: u64,
+20 | |     non_reflect: NonReflect,
+21 | | }
+   | |_^
+   |
+note: `Component` implemented here
+  --> tests/ui/missing_reflect/none_reflect_fields.rs:15:10
+   |
+15 | #[derive(Component)]
+   |          ^^^^^^^^^
+   = note: this error originates in the derive macro `Component` (in Nightly builds, run with -Z macro-backtrace for more info)
+help: `Reflect` can be automatically derived
+   |
+18 + #[derive(Reflect)]
+19 | struct MyComponent {
+   |
+
+error: defined a resource without a `Reflect` implementation
+  --> tests/ui/missing_reflect/none_reflect_fields.rs:27:1
+   |
+27 | / struct MyResource {
+28 | |     field_1: usize,
+29 | |     field_2: NonReflect,
+30 | | }
+   | |_^
+   |
+note: `Resource` implemented here
+  --> tests/ui/missing_reflect/none_reflect_fields.rs:24:10
+   |
+24 | #[derive(Resource)]
+   |          ^^^^^^^^
+   = note: this error originates in the derive macro `Resource` (in Nightly builds, run with -Z macro-backtrace for more info)
+help: `Reflect` can be automatically derived
+   |
+27 + #[derive(Reflect)]
+28 | struct MyResource {
+   |
+
+error: defined a resource without a `Reflect` implementation
+  --> tests/ui/missing_reflect/none_reflect_fields.rs:40:1
+   |
+40 | / struct MyImplResource {
+41 | |     reflect: u64,
+42 | |     non_reflect: NonReflect,
+43 | | }
+   | |_^
+   |
+note: `Resource` implemented here
+  --> tests/ui/missing_reflect/none_reflect_fields.rs:46:1
+   |
+46 | impl Resource for MyImplResource {}
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+help: `Reflect` can be automatically derived
+   |
+40 + #[derive(Reflect)]
+41 | struct MyImplResource {
+   |
+
+error: aborting due to 4 previous errors
+
