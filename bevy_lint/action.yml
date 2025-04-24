@@ -6,23 +6,12 @@ description: |
   This action currently uses Rustup to install the required toolchain components, and it uses
   `cargo install` to install the linter itself. The linter will be installed to `~/.cargo/bin` and
   will be available through the `PATH` by default.
+
+  Note that this currently will override the default Rustup toolchain to nightly. You can fix this
+  by calling `rustup default` after this action is run.
 runs:
   using: composite
   steps:
-    # `dtolnay/rust-toolchain` overrides the default toolchain. We track what the original default
-    # is and restore it afterwards.
-    - name: Save original toolchain
-      id: original-toolchain
-      shell: bash
-      # This may fail if Rustup is not installed, in which case we continue anyways.
-      continue-on-error: true
-      run: |
-        # This prints what toolchain is installed, such as "stable-aarch64-apple-darwin (default)".
-        DEFAULT="$(rustup default)"
-
-        # We use `%` to strip "(default)" from the end of the output.
-        echo "original-toolchain=${DEFAULT%(default)}" >> "${GITHUB_OUTPUT}"
-
     - name: Install Rust toolchain and components
       uses: dtolnay/rust-toolchain@master
       with:
@@ -40,12 +29,3 @@ runs:
           --branch main \
           --locked \
           bevy_lint
-
-    - name: Restore original toolchain
-      # If Rustup wasn't installed, causing `original-toolchain` to fail, we don't need to restore
-      # the original toolchain since there wasn't one in the first place!
-      if: ${{ steps.original-toolchain.outcome != 'failure' }}
-      shell: bash
-      env:
-        ORIGINAL_TOOLCHAIN: ${{ steps.original-toolchain.outputs.original-toolchain }}
-      run: rustup default "${ORIGINAL_TOOLCHAIN}"
