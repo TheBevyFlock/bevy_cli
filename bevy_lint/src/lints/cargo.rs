@@ -9,7 +9,7 @@ use rustc_session::{config::Input, utils::was_invoked_from_cargo};
 use rustc_span::Symbol;
 
 declare_bevy_lint_pass! {
-    pub Cargo => [DUPLICATE_BEVY_DEPENDENCIES.lint],
+    pub Cargo => [DUPLICATE_BEVY_DEPENDENCIES],
     @default = {
         bevy: Symbol = sym!(bevy),
     },

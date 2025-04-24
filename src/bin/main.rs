@@ -103,7 +103,8 @@ pub struct NewArgs {
 
     /// The name of the template to use for generating the project.
     ///
-    /// Templates are GitHub repositories. Any repo prefixed with `bevy_new_` will be usable via
+    /// Templates are GitHub repositories. Any repository from the GitHub organization
+    /// "TheBevyFlock" with the prefix `bevy_new_` will be usable via
     /// its shortcut form i.e. `2d` will use the template `bevy_new_2d`. Full GitHub URLs can also
     /// be passed in the template argument.
     ///
