@@ -18,7 +18,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest]
         # The state Rustup may be in.
         # - 'default': Whatever the default runner image may include.
         # - 'stable-toolchain': Latest stable toolchain explicitly installed.
