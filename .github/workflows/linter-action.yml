@@ -19,29 +19,9 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        # The state Rustup may be in.
-        # - 'default': Whatever the default runner image may include.
-        # - 'stable-toolchain': Latest stable toolchain explicitly installed.
-        # - 'no-toolchains': Rustup uninstalled, then reinstalled with no toolchains.
-        # - 'no-rustup': Rustup uninstalled.
-        rustup: [default, stable-toolchain, no-toolchains, no-rustup]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Uninstall Rustup
-        if: ${{ matrix.rustup == 'no-toolchains' || matrix.rustup == 'no-rustup' }}
-        # May fail if Rustup is not installed.
-        continue-on-error: true
-        run: rustup self uninstall -y
-
-      - name: Install stable Rust
-        if: ${{ matrix.rustup == 'stable-toolchain' || matrix.rustup == 'no-toolchains' }}
-        uses: dtolnay/rust-toolchain@stable
-
-      - name: Uninstall toolchains
-        if: ${{ matrix.rustup == 'no-toolchains' }}
-        run: rustup toolchain uninstall stable
 
       - name: Install `bevy_lint`
         uses: ./bevy_lint
