@@ -237,7 +237,7 @@ Note that this action overrides the default toolchain and configures it to be th
 
 > **Important**
 >
-> The action is only available for versions v0.3.0 and onward. v0.2.0 and v0.1.0 will not work, however you may make emulate it by manually running the [installation commands](#installation) in your workflow.
+> The action is only available for versions v0.3.0 and onward. v0.2.0 and v0.1.0 will not work, however you may emulate it by manually running the [installation commands](#installation) in your workflow.
 
 </div>
 
