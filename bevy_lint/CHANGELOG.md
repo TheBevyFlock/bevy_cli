@@ -14,6 +14,18 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 ### Added
 
 - Lint `iter_current_update_events` to `suspicious` ([#314](https://github.com/TheBevyFlock/bevy_cli/pull/314))
+- Lint `unconventional_naming` to `style` ([#345](https://github.com/TheBevyFlock/bevy_cli/pull/345))
+
+### Changed
+
+- The linter now supports Bevy 0.16, but no longer supports Bevy 0.15 ([#323](https://github.com/TheBevyFlock/bevy_cli/pull/323))
+    - Eventually the linter will support multiple versions of Bevy at the same time. Please see [#138](https://github.com/TheBevyFlock/bevy_cli/issues/138) for more information.
+- Code originating from external macros will be skipped in all existing lints ([#263](https://github.com/TheBevyFlock/bevy_cli/pull/263))
+- Merged `plugin_not_ending_in_plugin` into `unconventional_naming` ([#345](https://github.com/TheBevyFlock/bevy_cli/pull/345))
+
+### Fixed
+
+- `main_return_without_appexit` no longer emits a lint if `AppExit` is stored in a variable ([#346](https://github.com/TheBevyFlock/bevy_cli/pull/346)
 
 ## [v0.2.0] - 2025-03-19
 
