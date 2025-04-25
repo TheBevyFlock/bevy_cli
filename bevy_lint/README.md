@@ -217,6 +217,22 @@ You may install the unstable, bleeding-edge version from the `main` branch:
   uses: TheBevyFlock/bevy_cli/bevy_lint@main
 ```
 
+Note that this action overrides the default toolchain and configures it to be the nightly version specified in the [compatibility table](#compatibility). If you previously installed another Rustup toolchain, you may wish to reconfigure it to be the default:
+
+```yml
+# Sets the default toolchain to be stable Rust.
+- name: Install stable Rust
+  uses: dtolnay/rust-toolchain@stable
+
+# Overrides the default toolchain to be nightly Rust.
+- name: Install `bevy_lint`
+  uses: TheBevyFlock/bevy_cli/bevy_lint@lint-vX.Y.Z
+
+# Resets the default toolchain back to stable Rust.
+- name: Configure the default Rust toolchain
+  run: rustup default stable
+```
+
 <div class="rustdoc-alert rustdoc-alert-important">
 
 > **Important**
