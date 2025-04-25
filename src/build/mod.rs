@@ -1,4 +1,4 @@
-//! Utilities to build a Bevy app targeting either native or web platforms.
+//! Provides functionalities to build a Bevy app targeting either native or web platforms.
 
 use args::BuildArgs;
 

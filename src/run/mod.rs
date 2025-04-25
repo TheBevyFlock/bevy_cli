@@ -1,4 +1,4 @@
-//! Utilities to run a Bevy app targeting either native or web platforms.
+//! Provides functionalities to run a Bevy app targeting either native or web platforms.
 
 #[cfg(feature = "web")]
 use crate::web::run::run_web;
