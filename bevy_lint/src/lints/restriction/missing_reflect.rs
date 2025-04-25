@@ -110,8 +110,9 @@ impl<'tcx> LateLintPass<'tcx> for MissingReflect {
                 .filter(|trait_type| !reflected.contains(trait_type))
                 .collect();
 
-        // This is rather expensive so we should not do it again for each diagnostics (and for each
-        // field) we check. We also expect this trait to be present.
+        // This is an expensive function that is purposefully called outside of the `for` loop. Note
+        // that this will only return `None` if `Reflect` does not exist (e.g. `bevy_reflect` is not
+        // available.)
         let Some(reflect_trait_def_id) = get_trait_def_id(cx.tcx, &crate::paths::REFLECT) else {
             return;
         };
