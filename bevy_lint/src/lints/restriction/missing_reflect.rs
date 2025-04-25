@@ -111,9 +111,10 @@ impl<'tcx> LateLintPass<'tcx> for MissingReflect {
                 .collect();
 
         // This is an expensive function that is purposefully called outside of the `for` loop. Note
-        // that this will only return `None` if `Reflect` does not exist (e.g. `bevy_reflect` is not
-        // available.)
-        let Some(reflect_trait_def_id) = get_trait_def_id(cx.tcx, &crate::paths::REFLECT) else {
+        // that this will only return `None` if `PartialReflect` does not exist (e.g. `bevy_reflect`
+        // is not available.)
+        let Some(reflect_trait_def_id) = get_trait_def_id(cx.tcx, &crate::paths::PARTIAL_REFLECT)
+        else {
             return;
         };
         // Emit diagnostics for each of these types.

@@ -32,6 +32,8 @@ pub const MUT: [&str; 3] = ["bevy_ecs", "change_detection", "Mut"];
 pub const MUT_UNTYPED: [&str; 3] = ["bevy_ecs", "change_detection", "MutUntyped"];
 /// <https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_ecs/src/change_detection.rs#L734>
 pub const NON_SEND_MUT: [&str; 3] = ["bevy_ecs", "change_detection", "NonSendMut"];
+/// <https://github.com/bevyengine/bevy/blob/v0.16.0/crates/bevy_reflect/src/reflect.rs#L84>
+pub const PARTIAL_REFLECT: [&str; 3] = ["bevy_reflect", "reflect", "PartialReflect"];
 /// <https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_app/src/plugin.rs#L57>
 pub const PLUGIN: [&str; 3] = ["bevy_app", "plugin", "Plugin"];
 /// <https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_ptr/src/lib.rs#L178>
