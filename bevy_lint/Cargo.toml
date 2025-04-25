@@ -54,10 +54,10 @@ toml_edit = { version = "0.22.22", default-features = false, features = [
 bevy = { version = "0.16.0-rc.2", default-features = false, features = ["std"] }
 
 # Used to deserialize `--message-format=json` messages from Cargo.
-serde_json = "1.0.128"
+serde_json = "1.0.140"
 
 # Ensures the error messages for lints do not regress.
-ui_test = "0.29.1"
+ui_test = "0.29.2"
 
 [package.metadata.rust-analyzer]
 # Enables Rust-Analyzer support for `rustc` crates.
