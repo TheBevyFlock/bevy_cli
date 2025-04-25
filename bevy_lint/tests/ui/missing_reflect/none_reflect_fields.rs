@@ -24,23 +24,14 @@ struct MyComponent {
 #[derive(Resource)]
 //~| HELP: `Reflect` can be automatically derived
 //~v ERROR: defined a resource without a `Reflect` implementation
-struct MyResource {
-    field_1: usize,
-    field_2: NonReflect,
+enum MyResource {
+    Reflectable(String),
+    NonReflectable(NonReflect),
 }
-
-//~v NOTE: `Event` implemented here
-#[derive(Event)]
 //~| HELP: `Reflect` can be automatically derived
 //~v ERROR: defined an event without a `Reflect` implementation
 struct MyEvent(NonReflect);
-
-//~| HELP: `Reflect` can be automatically derived
-//~v ERROR: defined a resource without a `Reflect` implementation
-struct MyImplResource {
-    reflect: u64,
-    non_reflect: NonReflect,
+//~v NOTE: `Event` implemented here
+impl Event for MyEvent {
+    type Traversal = ();
 }
-
-//~v NOTE: `Resource` implemented here
-impl Resource for MyImplResource {}
