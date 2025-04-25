@@ -68,7 +68,7 @@ use rustc_hir::{
     def::{DefKind, Res},
 };
 use rustc_lint::{LateContext, LateLintPass};
-use rustc_middle::ty::TyCtxt;
+use rustc_middle::{span_bug, ty::TyCtxt};
 use rustc_span::Span;
 
 declare_bevy_lint! {
