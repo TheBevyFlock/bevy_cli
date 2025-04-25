@@ -147,15 +147,12 @@ impl<'tcx> LateLintPass<'tcx> for MissingReflect {
                 // Extract a list of all fields within the structure definition.
                 let fields = match without_reflect_item.kind {
                     ItemKind::Struct(_, data, _) => data.fields().to_vec(),
-                    ItemKind::Enum(_, enum_def, _) => {
-                        let mut fields = Vec::new();
-
-                        for variant in enum_def.variants {
-                            fields.extend_from_slice(variant.data.fields());
-                        }
-
-                        fields
-                    }
+                    ItemKind::Enum(_, enum_def, _) => enum_def
+                        .variants
+                        .iter()
+                        .flat_map(|variant| variant.data.fields())
+                        .copied()
+                        .collect(),
                     // Unions are explicitly unsupported by `#[derive(Reflect)]`, so we don't even
                     // both checking the fields and just set the applicability to "maybe incorrect".
                     ItemKind::Union(..) => {
@@ -199,9 +196,6 @@ impl<'tcx> LateLintPass<'tcx> for MissingReflect {
                             without_reflect.item_span,
                             "`Reflect` can be automatically derived",
                             "#[derive(Reflect)]",
-                            // This can usually be automatically applied by `rustfix` without
-                            // issues, unless one of the fields of the struct does not
-                            // implement `Reflect` (see #141).
                             // This suggestion may result in two consecutive
                             // `#[derive(...)]` attributes, but `rustfmt` merges them
                             // afterwards.
