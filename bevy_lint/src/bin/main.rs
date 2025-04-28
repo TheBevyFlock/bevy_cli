@@ -1,6 +1,7 @@
-use anyhow::{ensure, Context};
+use anyhow::{Context, ensure};
 use std::{
     env,
+    ffi::OsString,
     iter,
     path::{Path, PathBuf},
     process::{Command, ExitCode, Stdio},
@@ -20,7 +21,7 @@ fn main() -> anyhow::Result<ExitCode> {
     }
 
     // Find the path to `bevy_lint_driver`.
-    let driver_path = driver_path()?;
+    let driver_path = rustc_workspace_wrapper();
 
     let mut command = Command::new("cargo");
 
@@ -64,17 +65,23 @@ fn show_version() {
     println!("{NAME} v{VERSION}");
 }
 
-/// Returns the path to `bevy_lint_driver`.
+/// This returns the value that should be set for the `RUSTC_WORKSPACE_WRAPPER` environmental
+/// variable when running the linter.
 ///
-/// This function will first search the folder of the current executable for `bevy_lint_driver`. If
-/// found, that path will be returned. If `bevy_lint_driver` is not within the same folder as
-/// `bevy_lint`, it will be searched for in the `PATH` instead.
+/// `RUSTC_WORKSPACE_WRAPPER` instructs Cargo to call `$RUSTC_WORKSPACE_WRAPPER rustc main.rs`
+/// instead of just `rustc main.rs`. The `rustc` wrapper for `bevy_lint` is `bevy_lint_driver`,
+/// which acts very similar to normal `rustc` with the exception that it registers custom lints.
 ///
-/// # Errors
+/// This function does its best to return the path to `bevy_lint_driver`. If the linter was
+/// installed with `cargo install`, `bevy_lint` and `bevy_lint_driver` will be within the same
+/// folder (usually `~/.cargo/bin`). When this is the case, this function will return the absolute
+/// path to `bevy_lint_driver` in the form of an [`OsString`].
 ///
-/// This will error if `bevy_lint_driver` could not be found in either the current executable's
-/// folder or the `PATH`, or if the `PATH` environmental variable could not be accessed.
-fn driver_path() -> anyhow::Result<PathBuf> {
+/// When `bevy_lint_driver` is not within the same folder as `bevy_lint`, this function will simply
+/// return the string `"bevy_lint_driver"`[^0] and hope that it is available in the `PATH`.
+///
+/// [^0]: On Windows this will be `"bevy_lint_driver.exe"`, but will have the same effect.
+fn rustc_workspace_wrapper() -> OsString {
     // The file name of `bevy_lint_driver` with the correct executable extension.
     let driver_file_name = Path::new("bevy_lint_driver").with_extension(env::consts::EXE_EXTENSION);
 
@@ -101,33 +108,11 @@ fn driver_path() -> anyhow::Result<PathBuf> {
 
             // There is a `bevy_lint_driver` within the same folder as the executable, return it
             // and do not search the `PATH`.
-            return Ok(driver_path);
+            return driver_path.into_os_string();
         }
     }
 
-    let path = env::var_os("PATH").context("could not fetch the `PATH` environmental variable")?;
-
-    // Search the `PATH` for `bevy_lint_driver`. This is adopted from
-    // <https://stackoverflow.com/a/37499032>, thank you!
-    let driver_path = env::split_paths(&path)
-        // Filter the `PATH` for paths to `bevy_lint_driver`.
-        .filter_map(|folder| {
-            let driver_path = folder.join(&driver_file_name);
-
-            // If `bevy_lint_driver` exists in this `PATH` folder, return it.
-            driver_path.is_file().then_some(driver_path)
-        })
-        // Get the first occurrence of `bevy_lint_driver` in `PATH`.
-        .next()
-        .context("could not find `bevy_lint_driver` in the `PATH`")?;
-
-    // Get the absolute path the `bevy_lint_driver` and return it.
-    driver_path.canonicalize().with_context(|| {
-        format!(
-            "could not get the absolute path of {}",
-            driver_path.display(),
-        )
-    })
+    driver_file_name.into_os_string()
 }
 
 /// Locates the path to the Rust compiler.
