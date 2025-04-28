@@ -31,6 +31,18 @@ The `plugin_not_ending_in_plugin` lint has been removed in favor of the new `unc
 
 If you reference `plugin_not_ending_in_plugin` in your code, a new warning will be emitted suggesting you rename it to `unconventional_naming`.
 
+### [Created Github Action to install `bevy_lint`](https://github.com/TheBevyFlock/bevy_cli/pull/380) (Optional)
+
+If you were manually installing `bevy_lint` in CI by following the [installation instructions](https://thebevyflock.github.io/bevy_cli/bevy_lint/index.html#installation), you can now replace it with the new action:
+
+```yml
+- name: Install `bevy_lint`
+  uses: TheBevyFlock/bevy_cli/bevy_lint@lint-v0.3.0
+
+- name: Run `bevy_lint`
+  run: bevy_lint --workspace
+```
+
 ## v0.1.0 to v0.2.0
 
 ### [Bevy 0.15 Support](https://github.com/TheBevyFlock/bevy_cli/pull/191)
