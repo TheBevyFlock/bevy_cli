@@ -16,6 +16,7 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 - Lint `iter_current_update_events` to `suspicious` ([#314](https://github.com/TheBevyFlock/bevy_cli/pull/314))
 - Lint `unconventional_naming` to `style` ([#345](https://github.com/TheBevyFlock/bevy_cli/pull/345))
     - `plugin_not_ending_in_plugin` has been merged into this new lint.
+- A Github Action to automatically install the linter ([#380](https://github.com/TheBevyFlock/bevy_cli/pull/380))
 
 ### Changed
 
@@ -27,6 +28,7 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 - Moved lint group docs from `bevy_lint::groups` to their associated `bevy_lint::lints` submodules ([#328](https://github.com/TheBevyFlock/bevy_cli/pull/328))
 - Code generated from external macros are no longer linted ([#263](https://github.com/TheBevyFlock/bevy_cli/pull/263))
     - External macros are macros that are defined in a separate crate from the one being linted. The output of these macros is skipped for all lints, as it was previously impossible to fix the warnings without an `#[allow(...)]` attribute.
+- `missing_reflect` now emits machine-applicable suggestions if all fields in a type implement `PartialReflect` ([#389](https://github.com/TheBevyFlock/bevy_cli/pull/389))
 
 ### Removed
 
