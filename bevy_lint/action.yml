@@ -1,0 +1,31 @@
+name: Install `bevy_lint`
+author: BD103
+description: |
+  Installs the Bevy linter and its required toolchain.
+
+  This action currently uses Rustup to install the required toolchain components, and it uses
+  `cargo install` to install the linter itself. The linter will be installed to `~/.cargo/bin` and
+  will be available through the `PATH` by default.
+
+  Note that this currently will override the default Rustup toolchain to nightly. You can fix this
+  by calling `rustup default` after this action is run.
+runs:
+  using: composite
+  steps:
+    - name: Install Rust toolchain and components
+      uses: dtolnay/rust-toolchain@master
+      with:
+        # This must be kept in sync with `rust-toolchain.toml`.
+        toolchain: nightly-2025-04-03
+        components: rustc-dev, llvm-tools-preview
+
+    - name: Install `bevy_lint`
+      shell: bash
+      run: |
+        # The toolchain must be kept in sync with `rust-toolchain.toml`. The `--branch main` should
+        # be swapped with `--tag lint-vX.Y.Z` for releases.
+        rustup run nightly-2025-04-03 cargo install \
+          --git https://github.com/TheBevyFlock/bevy_cli.git \
+          --branch main \
+          --locked \
+          bevy_lint

@@ -55,14 +55,20 @@
 //! Code](../../index.html#toggling-lints-in-code).
 
 use crate::{declare_bevy_lint, declare_bevy_lint_pass};
-use clippy_utils::{def_path_res, diagnostics::span_lint_hir_and_then, sugg::DiagExt};
+use clippy_utils::{
+    def_path_res,
+    diagnostics::span_lint_hir_and_then,
+    get_trait_def_id,
+    sugg::DiagExt,
+    ty::{implements_trait, ty_from_hir_ty},
+};
 use rustc_errors::Applicability;
 use rustc_hir::{
     HirId, Item, ItemKind, Node, OwnerId, QPath, TyKind,
     def::{DefKind, Res},
 };
 use rustc_lint::{LateContext, LateLintPass};
-use rustc_middle::ty::TyCtxt;
+use rustc_middle::{span_bug, ty::TyCtxt};
 use rustc_span::Span;
 
 declare_bevy_lint! {
@@ -104,6 +110,13 @@ impl<'tcx> LateLintPass<'tcx> for MissingReflect {
                 .filter(|trait_type| !reflected.contains(trait_type))
                 .collect();
 
+        // This is an expensive function that is purposefully called outside of the `for` loop. Note
+        // that this will only return `None` if `PartialReflect` does not exist (e.g. `bevy_reflect`
+        // is not available.)
+        let Some(reflect_trait_def_id) = get_trait_def_id(cx.tcx, &crate::paths::PARTIAL_REFLECT)
+        else {
+            return;
+        };
         // Emit diagnostics for each of these types.
         for (checked_trait, trait_name, message_phrase) in [
             (events, "Event", "an event"),
@@ -117,6 +130,53 @@ impl<'tcx> LateLintPass<'tcx> for MissingReflect {
                     .in_external_macro(cx.tcx.sess.source_map())
                 {
                     continue;
+                }
+
+                // This lint is machine applicable unless any of the struct's fields do not
+                // implement `PartialReflect`.
+                let mut applicability = Applicability::MachineApplicable;
+
+                // Find the `Item` definition of the struct missing `#[derive(Reflect)]`. We can use
+                // `expect_owner()` because the HIR ID was originally created from a `LocalDefId`,
+                // and we can use `expect_item()` because `TraitType::from_local_crate()` only
+                // returns items.
+                let without_reflect_item = cx
+                    .tcx
+                    .hir_expect_item(without_reflect.hir_id.expect_owner().def_id);
+
+                // Extract a list of all fields within the structure definition.
+                let fields = match without_reflect_item.kind {
+                    ItemKind::Struct(_, data, _) => data.fields().to_vec(),
+                    ItemKind::Enum(_, enum_def, _) => enum_def
+                        .variants
+                        .iter()
+                        .flat_map(|variant| variant.data.fields())
+                        .copied()
+                        .collect(),
+                    // Unions are explicitly unsupported by `#[derive(Reflect)]`, so we don't even
+                    // both checking the fields and just set the applicability to "maybe incorrect".
+                    ItemKind::Union(..) => {
+                        applicability = Applicability::MaybeIncorrect;
+                        Vec::new()
+                    }
+                    // This shouldn't be possible, as only structs, enums, and unions can implement
+                    // traits, so panic if this branch is reached.
+                    _ => span_bug!(
+                        without_reflect.item_span,
+                        "found a type that implements `Event`, `Component`, or `Resource` but is not a struct, enum, or union",
+                    ),
+                };
+
+                for field in fields {
+                    let ty = ty_from_hir_ty(cx, field.ty);
+
+                    // Check if the field's type implements the `PartialReflect` trait. If it does
+                    // not, change the `Applicability` level to `MaybeIncorrect` because `Reflect`
+                    // cannot be automatically derived.
+                    if !implements_trait(cx, ty, reflect_trait_def_id, &[]) {
+                        applicability = Applicability::MaybeIncorrect;
+                        break;
+                    }
                 }
 
                 span_lint_hir_and_then(
@@ -136,13 +196,10 @@ impl<'tcx> LateLintPass<'tcx> for MissingReflect {
                             without_reflect.item_span,
                             "`Reflect` can be automatically derived",
                             "#[derive(Reflect)]",
-                            // This can usually be automatically applied by `rustfix` without
-                            // issues, unless one of the fields of the struct does not
-                            // implement `Reflect` (see #141).
                             // This suggestion may result in two consecutive
                             // `#[derive(...)]` attributes, but `rustfmt` merges them
                             // afterwards.
-                            Applicability::MaybeIncorrect,
+                            applicability,
                         );
                     },
                 );
