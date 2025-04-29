@@ -31,15 +31,15 @@ fn main() -> anyhow::Result<ExitCode> {
         // This lets us register custom lints.
         .env("RUSTC_WORKSPACE_WRAPPER", rustc_workspace_wrapper());
 
-    append_rustc_libdir(&mut command)?;
+    // Configure the proper paths so that `bevy_lint_driver` can find `librustc_driver.so`.
+    configure_rustc_libdir(&mut command)?;
 
     let status = command
         .status()
         .context("failed to spawn `cargo check`, is `cargo` installed?")?;
 
-    let code = if status.success() {
-        // Exit status of 0, success!
-        0
+    if status.success() {
+        Ok(ExitCode::SUCCESS)
     } else {
         // Print out `cargo`'s exit code on failure.
         eprintln!("Check failed: {status}.");
@@ -47,11 +47,10 @@ fn main() -> anyhow::Result<ExitCode> {
         // Extract the exit code. `ExitCode` only supports being created from a `u8`, so we truncate
         // the bits. Additionally, `ExitStatus::code()` can return `None` on Unix if it was
         // terminated by a signal. In those cases, we just default to 1.
-        status.code().unwrap_or(1) as u8
-    };
+        let code = status.code().unwrap_or(1) as u8;
 
-    // Return `cargo`'s exit code.
-    Ok(ExitCode::from(code))
+        Ok(ExitCode::from(code))
+    }
 }
 
 /// Prints `bevy_lint`'s name and version (as specified in `Cargo.toml`) to stdout.
@@ -129,7 +128,6 @@ fn rustc_libdir() -> anyhow::Result<PathBuf> {
         command
     };
 
-    // TODO: --target parameter
     let output = rustc
         .arg("--print=target-libdir")
         .stderr(Stdio::inherit())
@@ -166,7 +164,7 @@ fn rustc_libdir() -> anyhow::Result<PathBuf> {
 
 /// Configures a `bevy_lint_driver` [`Command`] with the correct environmental variables so that it
 /// can link to `librustc_driver.so`.
-fn append_rustc_libdir(command: &mut Command) -> anyhow::Result<()> {
+fn configure_rustc_libdir(command: &mut Command) -> anyhow::Result<()> {
     let libdir = rustc_libdir()?;
 
     let path_name = if cfg!(target_os = "windows") {
