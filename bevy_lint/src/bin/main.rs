@@ -20,9 +20,6 @@ fn main() -> anyhow::Result<ExitCode> {
         return Ok(ExitCode::SUCCESS);
     }
 
-    // Find the path to `bevy_lint_driver`.
-    let driver_path = rustc_workspace_wrapper();
-
     let mut command = Command::new("cargo");
 
     command
@@ -32,7 +29,7 @@ fn main() -> anyhow::Result<ExitCode> {
         .args(std::env::args().skip(1))
         // This instructs `rustc` to call `bevy_lint_driver` instead of its default routine.
         // This lets us register custom lints.
-        .env("RUSTC_WORKSPACE_WRAPPER", driver_path);
+        .env("RUSTC_WORKSPACE_WRAPPER", rustc_workspace_wrapper());
 
     append_rustc_libdir(&mut command)?;
 
@@ -181,13 +178,18 @@ fn append_rustc_libdir(command: &mut Command) -> anyhow::Result<()> {
         "LD_LIBRARY_PATH"
     };
 
-    let original_path = env::var_os(path_name)
-        .with_context(|| format!("could not fetch the `{path_name}` environmental variable"))?;
+    // If the path variable doesn't exist, this will unwrap to become an empty string.
+    let original_path = env::var_os(path_name).unwrap_or_default();
+
+    // We explicitly filter out empty paths to avoid creating a malformed list of paths when we
+    // join them back together. (Some examples include an extra `:` at the end of the string or
+    // multiple `:` in a row.)
+    let original_path =
+        env::split_paths(&original_path).filter(|path| !path.as_os_str().is_empty());
 
     // Prepend `libdir` to the beginning of `original_path`.
-    let prepended_path =
-        env::join_paths(iter::once(libdir).chain(env::split_paths(&original_path)))
-            .context("error constructing new path environmental variable")?;
+    let prepended_path = env::join_paths(iter::once(libdir).chain(original_path))
+        .context("error constructing new path environmental variable")?;
 
     command.env(path_name, prepended_path);
 
