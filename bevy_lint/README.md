@@ -30,7 +30,9 @@ For more info on how this works, see <https://linebender.org/blog/doc-include/>.
 
 `bevy_lint` depends on a pinned nightly version of Rust with the `rustc-dev` Rustup component. This is because `bevy_lint` uses [internal `rustc` crates](https://doc.rust-lang.org/nightly/nightly-rustc/) that can only be imported with the permanently-unstable [`rustc_private` feature](https://doc.rust-lang.org/nightly/unstable-book/language-features/rustc-private.html). You can refer to the [compatibility table](#compatibility) to see which version of the linter requires which toolchain.
 
-You can install the toolchain with:
+### Rustup
+
+If you use Rustup, you can install the required toolchain with:
 
 ```bash
 rustup toolchain install $TOOLCHAIN_VERSION \
@@ -53,6 +55,30 @@ rustup run $TOOLCHAIN_VERSION cargo install \
 ```
 
 Make sure to replace `$TOOLCHAIN_VERSION` and `$TAG` in the above command. The tag for a specific release can be found in the [releases tab](https://github.com/TheBevyFlock/bevy_cli/releases). For example, the tag for v0.1.0 is `lint-v0.1.0`.
+
+### Non-Rustup
+
+By default, `bevy_lint` assumes that you are using Rustup to manage your Rust toolchains. If you do not use Rustup, you must manually install the toolchain with the `rustc-dev` and `llvm-tools-preview` components using an alternative method[^nix-overlay].
+
+[^nix-overlay]: If you use Nix, for example, you would [use an overlay](https://nixos.wiki/wiki/Rust#Unofficial_overlays) to install the correct toolchain for you.
+
+After installing the toolchain, you must use it to compile `bevy_lint`. `cargo install` can be used for this, however there may be platform-specific alternatives:
+
+```bash
+# This must be the `cargo` bundled with the nightly toolchain you just installed.
+/path/to/toolchain/bin/cargo install \
+    --git https://github.com/TheBevyFlock/bevy_cli.git \
+    --tag $TAG \
+    --locked \
+    bevy_lint
+```
+
+Once `bevy_lint` is installed, you must set the `BEVY_LINT_RUSTC` [environmental variable](#environmental-variables) in order to use it. `BEVY_LINT_RUSTC` should be set to the absolute path of the `rustc` that you installed as part of the specific nightly toolchain.
+
+```bash
+BEVY_LINT_RUSTC=/path/to/toolchain/bin/rustc
+bevy_lint --workspace
+```
 
 ### Github Actions
 
