@@ -1,8 +1,6 @@
 use anyhow::{Context, ensure};
 use std::{
-    env,
-    ffi::OsString,
-    iter,
+    env, iter,
     path::{Path, PathBuf},
     process::{Command, ExitCode, Stdio},
 };
@@ -29,7 +27,7 @@ fn main() -> anyhow::Result<ExitCode> {
         .args(std::env::args().skip(1))
         // This instructs `rustc` to call `bevy_lint_driver` instead of its default routine.
         // This lets us register custom lints.
-        .env("RUSTC_WORKSPACE_WRAPPER", rustc_workspace_wrapper());
+        .env("RUSTC_WORKSPACE_WRAPPER", bevy_lint_driver()?);
 
     // Configure the proper paths so that `bevy_lint_driver` can find `librustc_driver.so`.
     configure_rustc_libdir(&mut command)?;
@@ -61,54 +59,60 @@ fn show_version() {
     println!("{NAME} v{VERSION}");
 }
 
-/// This returns the value that should be set for the `RUSTC_WORKSPACE_WRAPPER` environmental
-/// variable when running the linter.
+/// This function returns the absolute path to `bevy_lint_driver`, and its result is meant to be
+/// used to set `RUSTC_WORKSPACE_WRAPPER`.
 ///
-/// `RUSTC_WORKSPACE_WRAPPER` instructs Cargo to call `$RUSTC_WORKSPACE_WRAPPER rustc main.rs`
-/// instead of just `rustc main.rs`. The `rustc` wrapper for `bevy_lint` is `bevy_lint_driver`,
-/// which acts very similar to normal `rustc` with the exception that it registers custom lints.
-///
-/// This function does its best to return the path to `bevy_lint_driver`. If the linter was
-/// installed with `cargo install`, `bevy_lint` and `bevy_lint_driver` will be within the same
-/// folder (usually `~/.cargo/bin`). When this is the case, this function will return the absolute
-/// path to `bevy_lint_driver` in the form of an [`OsString`].
-///
-/// When `bevy_lint_driver` is not within the same folder as `bevy_lint`, this function will simply
-/// return the string `"bevy_lint_driver"`[^0] and hope that it is available in the `PATH`.
-///
-/// [^0]: On Windows this will be `"bevy_lint_driver.exe"`, but will have the same effect.
-fn rustc_workspace_wrapper() -> OsString {
-    // The file name of `bevy_lint_driver` with the correct executable extension.
-    let driver_file_name = Path::new("bevy_lint_driver").with_extension(env::consts::EXE_EXTENSION);
+/// By default this will look for `bevy_lint_driver` in the same folder as `bevy_lint`. If the
+/// `BEVY_LINT_DRIVER` environmental variable is set to a valid file path, its value will be
+/// returned instead.
+fn bevy_lint_driver() -> anyhow::Result<PathBuf> {
+    if let Some(driver_path) = env::var_os("BEVY_LINT_DRIVER") {
+        let driver_path = PathBuf::from(driver_path);
 
-    // The folder the current executable is within. This resolves all symbolic links, meaning the
-    // folder of the actual executable and not the link will be found. If the executable folder
-    // could not be found, this will be `None`.
-    let executable_folder = env::current_exe()
-        .and_then(|path| path.canonicalize())
-        .ok()
-        .and_then(|path| path.parent().map(Path::to_path_buf));
+        ensure!(
+            driver_path.is_file(),
+            "could not find `bevy_lint_driver` at {}, please ensure it is installed",
+            driver_path.display(),
+        );
 
-    if let Some(executable_folder) = executable_folder {
+        driver_path
+            .canonicalize()
+            .context("could not canonicalize path to `bevy_lint_driver`")
+    } else {
+        // The file name of `bevy_lint_driver` with the correct executable extension.
+        let driver_file_name =
+            Path::new("bevy_lint_driver").with_extension(env::consts::EXE_EXTENSION);
+
+        // The folder the current executable is within. This resolves all symbolic links, meaning
+        // the folder of the actual executable and not the link will be found.
+        let executable_folder = env::current_exe()
+            .context("could not find the path to the current executable")?
+            .canonicalize()
+            .context("could not canonicalize path to current executable")?
+            .parent()
+            .expect("file path must have a parent folder")
+            .to_path_buf();
+
         let driver_path = executable_folder.join(&driver_file_name);
 
-        // If `bevy_lint_driver` exists within the executable folder, we return that path.
-        if driver_path.is_file() {
-            // The driver path should be absolute so `rustc` does not get confused when we give it
-            // the path.
-            debug_assert!(
-                driver_path.is_absolute(),
-                "the executable folder was previously canonicalized, but the driver path {} is not absolute",
-                driver_path.display(),
-            );
+        ensure!(
+            driver_path.is_file(),
+            "could not find `bevy_lint_driver` at {}, please ensure it is installed",
+            driver_path.display(),
+        );
 
-            // There is a `bevy_lint_driver` within the same folder as the executable, return it
-            // and do not search the `PATH`.
-            return driver_path.into_os_string();
-        }
+        // The driver path should be absolute so `rustc` does not get confused when we give it
+        // the path.
+        debug_assert!(
+            driver_path.is_absolute(),
+            "the executable folder was previously canonicalized, but the driver path {} is not absolute",
+            driver_path.display(),
+        );
+
+        // There is a `bevy_lint_driver` within the same folder as the executable, return it
+        // and do not search the `PATH`.
+        Ok(driver_path)
     }
-
-    driver_file_name.into_os_string()
 }
 
 /// Prints the path to the Rust target library folder.
@@ -143,7 +147,7 @@ fn rustc_libdir() -> anyhow::Result<PathBuf> {
         // Rustup should only emit UTF-8, as it's a Rust program, so it should be safe to error
         // here when invalid UTF-8 is found.
         str::from_utf8(&output.stdout)
-            .context("the output of `rustc --print=target-libdir` is not valid UTF-8")?
+            .context("the output of `rustc --print=target-libdir` is not valid utf-8")?
             .trim_end(),
     );
 
