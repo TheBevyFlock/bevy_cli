@@ -241,6 +241,15 @@ The Rustup toolchain specifies which toolchain must be installed in order for `b
 
 The Bevy version is a range of Bevy versions that `bevy_lint` has been tested with and is guaranteed to work. Newer or older releases may not be linted correctly and may cause the linter to crash. (If this does happen for you, please consider [submitting a bug report](https://github.com/TheBevyFlock/bevy_cli/issues)!)
 
+## Environmental Variables
+
+You can configure how `bevy_lint` operates using several environmental variables. These may be useful if you do not use Rustup or installed `bevy_lint` in a non-standard way.
+
+- **`BEVY_LINT_RUSTC`**: The path to the correct nightly version of `rustc`.
+  - By default, `bevy_lint` will use Rustup to find the correct `rustc` for the specific nightly toolchain specified in [the compatibility table](#compatibility). If you do not use Rustup, you may set `BEVY_LINT_RUSTC` to the path of `rustc` instead. If you set the path to the wrong `rustc`, `bevy_lint` will fail with a linker error.
+- **`BEVY_LINT_DRIVER`**: The path to the `bevy_lint_driver` executable.
+  - By default, `bevy_lint` assumes `bevy_lint_driver` is within the same folder as itself. If this is not the case, you can set `BEVY_LINT_DRIVER` to correct path so that `bevy_lint` can find it.
+
 ## License
 
 The Bevy Linter is licensed under either of
