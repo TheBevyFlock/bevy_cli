@@ -26,6 +26,6 @@ runs:
         # be swapped with `--tag lint-vX.Y.Z` for releases.
         rustup run nightly-2025-04-03 cargo install \
           --git https://github.com/TheBevyFlock/bevy_cli.git \
-          --tag lint-v0.3.0 \
+          --branch main \
           --locked \
           bevy_lint
