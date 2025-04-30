@@ -8,16 +8,51 @@ To actually install the new version of the linter, please see [the docs] and [th
 [the releases page]: https://github.com/TheBevyFlock/bevy_cli/releases
 [submit an issue]: https://github.com/TheBevyFlock/bevy_cli/issues
 
+## v0.2.0 to v0.3.0
+
+### [Bevy 0.16 Support](https://github.com/TheBevyFlock/bevy_cli/pull/323)
+
+The linter now supports Bevy 0.16, but no longer supports Bevy 0.15. You may still be able to run the linter successfully on Bevy 0.15 projects, but no guarantee is made on stability or correctness.
+
+To migrate your code base to Bevy 0.16, please see the [release post][bevy 0.16 release post] and [migration guide][bevy 0.16 migration guide].
+
+[bevy 0.16 release post]: TODO
+[bevy 0.16 migration guide]: https://bevyengine.org/learn/migration-guides/0-15-to-0-16/
+
+### [Bumped Nightly Toolchain to `nightly-2025-04-03`](https://github.com/TheBevyFlock/bevy_cli/pull/278)
+
+The linter now requires the `nightly-2025-04-03` Rustup toolchain to be installed, instead of `nightly-2025-02-20`. The supported Rust language version is now 1.88.0 instead of the previous 1.87.0.
+
+For more information on how to install this toolchain and its required components, please see the [linter docs].
+
+### [Removed `plugin_not_ending_in_plugin`](https://github.com/TheBevyFlock/bevy_cli/pull/345)
+
+The `plugin_not_ending_in_plugin` lint has been removed in favor of the new `unconventional_naming` lint. `unconventional_naming` offers the same checks as `plugin_not_ending_in_plugin`, but now supports checking `SystemSet`s as well.
+
+If you reference `plugin_not_ending_in_plugin` in your code, a new warning will be emitted suggesting you rename it to `unconventional_naming`.
+
+### [Created Github Action to install `bevy_lint`](https://github.com/TheBevyFlock/bevy_cli/pull/380) (Optional)
+
+If you were manually installing `bevy_lint` in CI by following the [installation instructions](https://thebevyflock.github.io/bevy_cli/bevy_lint/index.html#installation), you can now replace it with the new action:
+
+```yml
+- name: Install `bevy_lint`
+  uses: TheBevyFlock/bevy_cli/bevy_lint@lint-v0.3.0
+
+- name: Run `bevy_lint`
+  run: bevy_lint --workspace
+```
+
 ## v0.1.0 to v0.2.0
 
 ### [Bevy 0.15 Support](https://github.com/TheBevyFlock/bevy_cli/pull/191)
 
 The linter now supports Bevy 0.15, but no longer supports Bevy 0.14. You may still be able to run the linter successfully on Bevy 0.14 projects, but no guarantee is made on stability or correctness.
 
-To migrate your code base to Bevy 0.15, please see the [release post] and [migration guide].
+To migrate your code base to Bevy 0.15, please see the [release post][bevy 0.15 release post] and [migration guide][bevy 0.15 migration guide].
 
-[release post]: https://bevyengine.org/news/bevy-0-15/
-[migration guide]: https://bevyengine.org/learn/migration-guides/0-14-to-0-15/
+[bevy 0.15 release post]: https://bevyengine.org/news/bevy-0-15/
+[bevy 0.15 migration guide]: https://bevyengine.org/learn/migration-guides/0-14-to-0-15/
 
 ### [Bumped Nightly Toolchain to `nightly-2025-02-20`](https://github.com/TheBevyFlock/bevy_cli/pull/278)
 
