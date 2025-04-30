@@ -36,22 +36,12 @@ jobs:
         uses: bevyengine/bevy/.github/actions/install-linux-deps@v0.15.1
 
       - name: Cache build artifacts
-        uses: Leafwing-Studios/cargo-cache@v2
+        uses: Swatinem/rust-cache@v2
         with:
-          sweep-cache: true
-
-      # We have a separate workspace where we execute the CLI in the E2E tests
-      # It has it's own `target` folder, hence we need to cache it separately
-      - name: Cache test workspace
-        uses: Leafwing-Studios/cargo-cache@v2
-        with:
-          sweep-cache: true
-          # The cache-group needs to be different to not collide with the cache for the test executing itself
-          cache-group: "test_workspace-${{ hashFiles(env.workflow_path) }}-${{ github.job }}-${{ strategy.job-index }}"
-          # cargo-cache doesn't support `working-directory` yet, we have to do it manually
-          # See https://github.com/Leafwing-Studios/cargo-cache/issues/44
-          cargo-target-dir: ./tests/bevy_cli_test/target
-          manifest-path: ./tests/bevy_cli_test/Cargo.toml
+          workspaces: |
+            . -> target
+            tests/bevy_cli_test -> target
+          # save-if: ${{ github.ref == 'refs/heads/main' }}
 
       - name: Run tests
         run: |
@@ -78,9 +68,9 @@ jobs:
           components: "${{ needs.extract-rust-version.outputs.components }}, clippy"
 
       - name: Cache build artifacts
-        uses: Leafwing-Studios/cargo-cache@v2
-        with:
-          sweep-cache: true
+        uses: Swatinem/rust-cache@v2
+        # with:
+        #   save-if: ${{ github.ref == 'refs/heads/main' }}
 
       - name: Run Clippy
         env:
@@ -120,9 +110,9 @@ jobs:
           components: ${{ needs.extract-rust-version.outputs.components }}
 
       - name: Cache build artifacts
-        uses: Leafwing-Studios/cargo-cache@v2
-        with:
-          sweep-cache: true
+        uses: Swatinem/rust-cache@v2
+        # with:
+        #   save-if: ${{ github.ref == 'refs/heads/main' }}
 
       - name: Build documentation
         run: cargo doc --workspace --all-features --document-private-items --no-deps
