@@ -1,3 +1,5 @@
+use args::RunWebArgs;
+
 #[cfg(feature = "web")]
 use crate::web::run::run_web;
 use crate::{bin_target::select_run_binary, config::CliConfig, external_cli::cargo};
@@ -7,9 +9,20 @@ pub use self::args::RunArgs;
 pub mod args;
 
 pub fn run(args: &mut RunArgs) -> anyhow::Result<()> {
-    let mut is_web = args.is_web();
-
     let metadata = cargo::metadata::metadata()?;
+
+    // Check if the profile, passed as an argument matches a default profile from the CLI.
+    // if it matches, set the flags accordingly.
+    if let Some(profile) = &args.cargo_args.compilation_args.profile {
+        if profile == "release" {
+            args.cargo_args.compilation_args.is_release = true;
+        } else if profile == "web-release" {
+            args.cargo_args.compilation_args.is_release = true;
+            args.subcommand = Some(args::RunSubcommands::Web(RunWebArgs::default()));
+        } else if profile == "web" {
+            args.subcommand = Some(args::RunSubcommands::Web(RunWebArgs::default()));
+        }
+    }
 
     let bin_target = select_run_binary(
         &metadata,
@@ -20,24 +33,16 @@ pub fn run(args: &mut RunArgs) -> anyhow::Result<()> {
         args.profile(),
     )?;
 
-    // Check if the profile, passed as an argument matches a default profile from the CLI.
-    // if it matches, set the flags accordingly.
-    if let Some(profile) = &args.cargo_args.compilation_args.profile {
-        if profile == "release" {
-            args.cargo_args.compilation_args.is_release = true;
-        } else if profile == "web-release" {
-            args.cargo_args.compilation_args.is_release = true;
-            is_web = true;
-        } else if profile == "web-dev" {
-            is_web = true;
-        }
-    }
-
-    let config = CliConfig::for_package(&metadata, bin_target.package, is_web, args.is_release())?;
+    let config = CliConfig::for_package(
+        &metadata,
+        bin_target.package,
+        args.is_web(),
+        args.is_release(),
+    )?;
     args.apply_config(&config);
 
     #[cfg(feature = "web")]
-    if is_web {
+    if args.is_web() {
         return run_web(args, &metadata, &bin_target);
     }
 

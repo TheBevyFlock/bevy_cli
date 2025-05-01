@@ -140,6 +140,17 @@ pub struct RunWebArgs {
     pub headers: Vec<String>,
 }
 
+impl Default for RunWebArgs {
+    fn default() -> Self {
+        Self {
+            port: 4000,
+            open: false,
+            create_packed_bundle: false,
+            headers: Vec::new(),
+        }
+    }
+}
+
 impl From<RunArgs> for BuildArgs {
     fn from(args: RunArgs) -> Self {
         BuildArgs {

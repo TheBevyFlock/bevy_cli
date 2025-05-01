@@ -101,7 +101,7 @@ pub enum BuildSubcommands {
     Web(BuildWebArgs),
 }
 
-#[derive(Debug, Args)]
+#[derive(Debug, Args, Default)]
 pub struct BuildWebArgs {
     // Bundle all web artifacts into a single folder.
     #[arg(short = 'b', long = "bundle", action = ArgAction::SetTrue, default_value_t = false)]
