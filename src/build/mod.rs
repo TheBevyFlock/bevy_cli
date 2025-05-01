@@ -1,4 +1,7 @@
-use args::{BuildArgs, BuildSubcommands, BuildWebArgs};
+use args::BuildArgs;
+
+#[cfg(feature = "web")]
+use args::{BuildSubcommands, BuildWebArgs};
 
 #[cfg(feature = "web")]
 use crate::web::build::build_web;
@@ -14,7 +17,9 @@ pub fn build(args: &mut BuildArgs) -> anyhow::Result<()> {
     if let Some(profile) = &args.cargo_args.compilation_args.profile {
         if profile == "release" {
             args.cargo_args.compilation_args.is_release = true;
-        } else if profile == "web-release" {
+        }
+        #[cfg(feature = "web")]
+        if profile == "web-release" {
             args.cargo_args.compilation_args.is_release = true;
             args.subcommand = Some(BuildSubcommands::Web(BuildWebArgs::default()));
         } else if profile == "web" {

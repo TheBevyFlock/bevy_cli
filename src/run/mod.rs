@@ -1,3 +1,4 @@
+#[cfg(feature = "web")]
 use args::RunWebArgs;
 
 #[cfg(feature = "web")]
@@ -16,7 +17,9 @@ pub fn run(args: &mut RunArgs) -> anyhow::Result<()> {
     if let Some(profile) = &args.cargo_args.compilation_args.profile {
         if profile == "release" {
             args.cargo_args.compilation_args.is_release = true;
-        } else if profile == "web-release" {
+        }
+        #[cfg(feature = "web")]
+        if profile == "web-release" {
             args.cargo_args.compilation_args.is_release = true;
             args.subcommand = Some(args::RunSubcommands::Web(RunWebArgs::default()));
         } else if profile == "web" {
