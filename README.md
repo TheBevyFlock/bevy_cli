@@ -2,9 +2,9 @@
 
 A prototype [Bevy] CLI tool intended to streamline common tasks when working on projects. Please see the [initial scope document] and [original issue] for history and motivation. The CLI's current features include:
 
-- Project generation from a template
-- [A custom, Bevy-specific linter](bevy_lint/README.md)
-- Out-of-the-box support for building and running your Bevy app in the browser
+- Creating a **new** Bevy app from a template
+- Checking your code quality with a Bevy-specific **linter**
+- Running your Bevy app in the **browser**
 
 If you need assistance or want to help, reach out to the [`bevy_cli` working group channel] in the [Bevy Discord].
 
@@ -22,13 +22,49 @@ At this point, the CLI is not published as a package yet and needs to be install
 cargo install --git https://github.com/TheBevyFlock/bevy_cli --locked bevy_cli
 ```
 
-## Logging
-
-The default logging level for the CLI is set to `info`. To change the log level set the `BEVY_LOG` environment variable.
+The **linter** currently needs to be installed separately with a specific nightly toolchain:
 
 ```sh
-export BEVY_LOG=trace
+# Install the toolchain
+rustup toolchain install nightly-2025-04-03 \
+    --component rustc-dev \
+    --component llvm-tools-preview
+
+# Install bevy_lint
+cargo +nightly-2025-04-03 install \
+    --git https://github.com/TheBevyFlock/bevy_cli.git \
+    --tag lint-v0.3.0 \
+    --locked \
+    bevy_lint
 ```
+
+## Quick Start
+
+With the following steps, you can create a new 2D app with Bevy and run it in your browser:
+
+1. Create a new Bevy app using the 2D template:
+
+    ```sh
+    bevy new -t=2d my_bevy_app
+    ```
+
+2. Navigate into the folder:
+
+   ```sh
+   cd my_bevy_app
+   ```
+
+3. Check the code quality with the linter:
+
+    ```sh
+    bevy lint
+    ```
+
+4. Run the app in the browser:
+
+    ```sh
+    bevy run web --open
+    ```
 
 ## Bevy web apps
 
