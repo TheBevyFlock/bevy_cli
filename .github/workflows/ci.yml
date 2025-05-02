@@ -70,7 +70,9 @@ jobs:
       - name: Cache build artifacts
         uses: Swatinem/rust-cache@v2
         with:
-          save-if: ${{ github.ref == 'refs/heads/main' }}
+          # All 3 matrix combinations share the same cache key, so we only save the cache for the
+          # combination that does the most work. In this case, that's `--all-features`.
+          save-if: ${{ github.ref == 'refs/heads/main' && matrix.features == '--all-features' }}
 
       - name: Run Clippy
         env:
