@@ -41,7 +41,7 @@ jobs:
           workspaces: |
             . -> target
             tests/bevy_cli_test -> target
-          # save-if: ${{ github.ref == 'refs/heads/main' }}
+          save-if: ${{ github.ref == 'refs/heads/main' }}
 
       - name: Run tests
         run: |
@@ -69,8 +69,8 @@ jobs:
 
       - name: Cache build artifacts
         uses: Swatinem/rust-cache@v2
-        # with:
-        #   save-if: ${{ github.ref == 'refs/heads/main' }}
+        with:
+          save-if: ${{ github.ref == 'refs/heads/main' }}
 
       - name: Run Clippy
         env:
@@ -111,8 +111,8 @@ jobs:
 
       - name: Cache build artifacts
         uses: Swatinem/rust-cache@v2
-        # with:
-        #   save-if: ${{ github.ref == 'refs/heads/main' }}
+        with:
+          save-if: ${{ github.ref == 'refs/heads/main' }}
 
       - name: Build documentation
         run: cargo doc --workspace --all-features --document-private-items --no-deps
