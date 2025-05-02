@@ -1,15 +1,7 @@
-use anyhow::{Context, anyhow, ensure};
+use anyhow::{anyhow, ensure, Context};
 use std::{env, path::PathBuf};
 
-#[cfg(feature = "rustup")]
-use toml_edit::DocumentMut;
-
-use crate::external_cli::{CommandExt, cargo::install::AutoInstall};
-
-#[cfg(feature = "rustup")]
-const RUST_TOOLCHAIN: &str = include_str!("../rust-toolchain.toml");
-
-const BEVY_LINT_TAG: &str = "lint-v0.3.0";
+use crate::external_cli::{cargo::install::AutoInstall, CommandExt};
 
 /// Runs `bevy_lint`, if it is installed, with the given arguments.
 ///
@@ -27,6 +19,7 @@ pub fn lint(args: Vec<String>) -> anyhow::Result<()> {
         );
         return Ok(());
     }
+
     #[cfg(feature = "rustup")]
     install_linter()?;
     Ok(())
@@ -66,7 +59,12 @@ fn find_bevy_lint() -> anyhow::Result<PathBuf> {
     Ok(bevy_lint_path)
 }
 
+#[cfg(feature = "rustup")]
 fn install_linter() -> anyhow::Result<()> {
+    use toml_edit::DocumentMut;
+    const RUST_TOOLCHAIN: &str = include_str!("../rust-toolchain.toml");
+    const BEVY_LINT_TAG: &str = "lint-v0.3.0";
+
     // TODO: pass AutoInstall args
     let auto_install = AutoInstall::Always;
 
