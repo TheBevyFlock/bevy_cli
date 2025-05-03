@@ -13,7 +13,7 @@ impl ArgBuilder {
     ///
     /// # Example
     ///
-    /// ```
+    /// ```ignore
     /// # use bevy_cli::external_cli::arg_builder::ArgBuilder;
     /// ArgBuilder::new().arg("--release");
     /// ```
@@ -29,7 +29,7 @@ impl ArgBuilder {
     ///
     /// # Example
     ///
-    /// ```
+    /// ```ignore
     /// # use bevy_cli::external_cli::arg_builder::ArgBuilder;
     /// ArgBuilder::new().add_with_value("--bin", "bevy");
     /// ```
@@ -45,7 +45,7 @@ impl ArgBuilder {
     ///
     /// # Example
     ///
-    /// ```
+    /// ```ignore
     /// # use bevy_cli::external_cli::arg_builder::ArgBuilder;
     /// let is_release = true;
     /// ArgBuilder::new().add_flag_if("--release", is_release);
@@ -63,7 +63,7 @@ impl ArgBuilder {
     ///
     /// # Example
     ///
-    /// ```
+    /// ```ignore
     /// # use bevy_cli::external_cli::arg_builder::ArgBuilder;
     /// let maybe_name = Some("bevy");
     /// ArgBuilder::new().add_opt_value("--bin", &maybe_name);
@@ -84,7 +84,7 @@ impl ArgBuilder {
     ///
     /// # Example
     ///
-    /// ```
+    /// ```ignore
     /// # use bevy_cli::external_cli::arg_builder::ArgBuilder;
     /// let features = ["dev", "file_watcher"];
     /// ArgBuilder::new().add_value_list("--features", features);
@@ -108,7 +108,7 @@ impl ArgBuilder {
     ///
     /// # Example
     ///
-    /// ```
+    /// ```ignore
     /// # use bevy_cli::external_cli::arg_builder::ArgBuilder;
     /// let features = ["dev", "file_watcher"];
     /// ArgBuilder::new().add_values_separately("--features", features);

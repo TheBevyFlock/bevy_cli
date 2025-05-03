@@ -54,6 +54,9 @@ pub struct Cli {
     /// Available subcommands for the Bevy CLI.
     #[command(subcommand)]
     pub subcommand: Subcommands,
+    /// Use verbose output.
+    ///
+    /// Logs commands that are executed and more information on the actions being performed.
     #[arg(long, short = 'v', global = true)]
     pub verbose: bool,
 }

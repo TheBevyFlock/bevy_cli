@@ -1,3 +1,5 @@
+//! Utilities to create a new Bevy project with `cargo-generate`
+
 use cargo_generate::{GenerateArgs, TemplatePath};
 use regex::Regex;
 use reqwest::blocking::Client;
