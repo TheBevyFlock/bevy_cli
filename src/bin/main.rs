@@ -1,3 +1,4 @@
+use ansi_term::Color::{Blue, Green, Purple, Red, Yellow};
 use anyhow::Result;
 use bevy_cli::{build::args::BuildArgs, run::RunArgs};
 use clap::{Args, CommandFactory, Parser, Subcommand};
@@ -132,15 +133,23 @@ where
         event: &tracing::Event<'_>,
     ) -> std::fmt::Result {
         let meta = event.metadata();
-        let level_str = match *meta.level() {
-            tracing::Level::ERROR => "error",
-            tracing::Level::WARN => "warning",
-            tracing::Level::INFO => "info",
-            tracing::Level::DEBUG => "debug",
-            tracing::Level::TRACE => "trace",
+
+        let (color, level) = match *meta.level() {
+            tracing::Level::ERROR => (Red, "error"),
+            tracing::Level::WARN => (Yellow, "warning"),
+            tracing::Level::INFO => (Green, "info"),
+            tracing::Level::DEBUG => (Blue, "debug"),
+            tracing::Level::TRACE => (Purple, "trace"),
         };
 
-        write!(writer, "{}: ", level_str)?;
+        // Apply color if desired
+        let level = if writer.has_ansi_escapes() {
+            color.bold().paint(level).to_string()
+        } else {
+            level.to_string()
+        };
+
+        write!(writer, "{level}: ",)?;
         ctx.format_fields(writer.by_ref(), event)?;
         writeln!(writer)
     }

@@ -72,6 +72,7 @@ toml_edit = { version = "0.22.22", default-features = false, features = [
 # Logging crates
 tracing = "0.1.41"
 tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
+ansi_term = "0.12.1"
 
 # Web dependencies
 
