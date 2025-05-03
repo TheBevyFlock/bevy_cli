@@ -71,7 +71,7 @@ impl BuildArgs {
             return;
         }
 
-        tracing::debug!("Using defaults from bevy_cli config:\n{config}");
+        tracing::debug!("using defaults from bevy_cli config:\n{config}");
         if self.cargo_args.compilation_args.target.is_none() {
             self.cargo_args.compilation_args.target = config.target().map(ToOwned::to_owned);
         }
