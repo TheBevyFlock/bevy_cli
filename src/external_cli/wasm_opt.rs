@@ -20,7 +20,7 @@ pub(crate) fn optimize_path(
         .artifact_directory
         .clone()
         .join(format!("{}_bg.wasm", bin_target.bin_name));
-    info!("Optimizing with wasm-opt...");
+    info!("optimizing with wasm-opt...");
 
     let start = Instant::now();
     let size_before = fs::metadata(&path)?.len();
@@ -39,7 +39,7 @@ pub(crate) fn optimize_path(
     let duration = start.elapsed();
 
     info!(
-        "Finished in {duration:.2?}. Size reduced by {:.0}%.",
+        "finished in {duration:.2?}. Size reduced by {:.0}%.",
         size_reduction * 100.
     );
 

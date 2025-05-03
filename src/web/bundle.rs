@@ -84,7 +84,7 @@ pub fn create_web_bundle(
     let index = if index_path.exists() {
         Index::File(index_path)
     } else {
-        info!("No custom `web` folder found, using defaults.");
+        info!("no custom `web` folder found, using defaults.");
         Index::Content(default_index(bin_target))
     };
 
@@ -119,7 +119,7 @@ pub fn create_web_bundle(
 
     // Build artifacts
     tracing::debug!(
-        "Copying build artifacts from file://{}",
+        "copying build artifacts from file://{}",
         linked.build_artifact_path.to_string_lossy()
     );
     fs::create_dir_all(base_path.join("build"))?;
@@ -137,7 +137,7 @@ pub fn create_web_bundle(
     // Assets
     if let Some(assets_path) = linked.assets_path {
         tracing::debug!(
-            "Copying assets from file://{}",
+            "copying assets from file://{}",
             assets_path.to_string_lossy()
         );
         fs_extra::dir::copy(
@@ -154,7 +154,7 @@ pub fn create_web_bundle(
     // Custom web assets
     if custom_web_folder.exists() {
         tracing::debug!(
-            "Copying custom web assets from file://{}",
+            "copying custom web assets from file://{}",
             custom_web_folder.to_string_lossy()
         );
         fs_extra::dir::copy(
@@ -170,7 +170,7 @@ pub fn create_web_bundle(
     }
 
     // Index (pre-processed)
-    tracing::debug!("Writing index.html");
+    tracing::debug!("writing index.html");
     fs::write(base_path.join("index.html"), &index)
         .context("failed to write processed index.html")?;
 

@@ -43,15 +43,15 @@ pub(crate) fn run_web(
     // Serving the app is blocking, so we open the page first
     if web_args.open {
         match webbrowser::open(&url) {
-            Ok(()) => info!("Your app is running at <{url}>!"),
+            Ok(()) => info!("your app is running at <{url}>!"),
             Err(error) => {
                 error!(
-                    "Failed to open the browser automatically, open the app at <{url}>. (Error: {error:?})"
+                    "failed to open the browser automatically, open the app at <{url}>. (Error: {error:?})"
                 );
             }
         }
     } else {
-        info!("Open your app at <{url}>!");
+        info!("open your app at <{url}>!");
     }
 
     serve(web_bundle, port, header_map)?;
