@@ -77,7 +77,7 @@ bevy new my-project -t 2d
 To use a specific template, provide the full GitHub URL:
 
 ```sh
-bevy new my-project -t https://github.com/bevyengine/bevy_github_ci_template.git
+bevy new my-project -t https://github.com/TheBevyFlock/bevy_new_2d.git
 ```
 
 ## Linter
