@@ -1,3 +1,4 @@
+//! Configuration used by the `bevy_cli`, defined in `Cargo.toml` under `package.metadata.bevy_cli`.
 use std::fmt::Display;
 
 use anyhow::{Context, bail};
@@ -6,6 +7,13 @@ use serde_json::{Map, Value};
 
 use crate::external_cli::cargo::metadata::{Metadata, Package};
 
+/// Configuration for the `bevy_cli`.
+///
+/// Allows customizing:
+/// - Target platform
+/// - Enabled features
+/// - Whether to enable default features
+/// - Additional Rust compiler flags
 #[derive(Default, Debug, Clone, PartialEq, Serialize)]
 pub struct CliConfig {
     /// The platform to target with the build.
