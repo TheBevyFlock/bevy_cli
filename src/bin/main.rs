@@ -1,7 +1,10 @@
 use anyhow::Result;
 use bevy_cli::{build::args::BuildArgs, run::RunArgs};
 use clap::{Args, CommandFactory, Parser, Subcommand};
-use tracing_subscriber::prelude::*;
+use tracing_subscriber::{
+    fmt::{self, FormatEvent, FormatFields, format::Writer},
+    prelude::*,
+};
 
 fn main() -> Result<()> {
     let cli = Cli::parse();
@@ -18,13 +21,10 @@ fn main() -> Result<()> {
         |filter| tracing_subscriber::EnvFilter::new(format!("bevy_cli={filter}")),
     );
 
-    let fmt_layer = tracing_subscriber::fmt::layer()
-        // remove timestamps
-        .without_time()
+    let fmt_layer = fmt::layer()
+        .event_format(CargoStyleFormatter)
         // enable colorized output if stderr is a terminal
         .with_ansi(std::io::IsTerminal::is_terminal(&std::io::stderr()))
-        // remove the module path from the log messages
-        .with_target(false)
         .with_filter(env);
 
     tracing_subscriber::registry().with(fmt_layer).init();
@@ -115,4 +115,33 @@ pub struct NewArgs {
     /// The git branch to use
     #[arg(short, long, default_value = "main")]
     pub branch: String,
+}
+
+/// Align the log formatting to match `cargo`'s style.
+pub struct CargoStyleFormatter;
+
+impl<S, N> FormatEvent<S, N> for CargoStyleFormatter
+where
+    S: tracing::Subscriber + for<'a> tracing_subscriber::registry::LookupSpan<'a>,
+    N: for<'a> FormatFields<'a> + 'static,
+{
+    fn format_event(
+        &self,
+        ctx: &fmt::FmtContext<'_, S, N>,
+        mut writer: Writer<'_>,
+        event: &tracing::Event<'_>,
+    ) -> std::fmt::Result {
+        let meta = event.metadata();
+        let level_str = match *meta.level() {
+            tracing::Level::ERROR => "error",
+            tracing::Level::WARN => "warning",
+            tracing::Level::INFO => "info",
+            tracing::Level::DEBUG => "debug",
+            tracing::Level::TRACE => "trace",
+        };
+
+        write!(writer, "{}: ", level_str)?;
+        ctx.format_fields(writer.by_ref(), event)?;
+        writeln!(writer)
+    }
 }
