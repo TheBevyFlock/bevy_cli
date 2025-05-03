@@ -42,7 +42,7 @@ cargo +nightly-2025-04-03 install \
 
 With the following steps, you can create a new 2D app with Bevy and run it in your browser:
 
-1. Create a new Bevy app using the 2D template:
+1. Create a new Bevy app using [the 2D template](https://github.com/TheBevyFlock/bevy_new_2d):
 
     ```sh
     bevy new -t=2d my_bevy_app
@@ -79,21 +79,21 @@ If the template is omitted, the [default minimal template](https://github.com/Th
 bevy new my-project
 ```
 
-To use a specific template, provide the full GitHub URL
-
-```sh
-bevy new my-project -t https://github.com/TheBevyFlock/bevy_new_2d
-```
-
-Additionally, any repo prefixed with `bevy_new_` from the [TheBevyFlock](https://github.com/TheBevyFlock) will be usable via its shortcut form i.e. `-t 2d` will use the template [bevy_new_2d](https://github.com/TheBevyFlock/bevy_new_2d).
+Other built-in templates from [TheBevyFlock](https://github.com/TheBevyFlock) will be usable via its shortcut form i.e. `-t 2d` will use the template [bevy_new_2d](https://github.com/TheBevyFlock/bevy_new_2d).
 
 ```sh
 bevy new my-project -t 2d
 ```
 
+To use a specific template, provide the full GitHub URL:
+
+```sh
+bevy new my-project -t https://github.com/bevyengine/bevy_github_ci_template.git
+```
+
 ## Linter
 
-The CLI has 1st-party support for `bevy_lint`, the static analysis tool that checks over your code (similar to Clippy!). It must be installed first using the [installation guide], but then you can run the linter with the `lint` subcommand:
+The CLI has 1st-party support for [`bevy_lint`], the static analysis tool that checks over your code (similar to Clippy!). It must be installed first using the [installation guide], but then you can run the linter with the `lint` subcommand:
 
 ```sh
 bevy lint
@@ -111,13 +111,14 @@ You can view a full list of supported options with:
 bevy lint -- --help
 ```
 
+[`bevy_lint`]: https://thebevyflock.github.io/bevy_cli/bevy_lint/index.html
 [installation guide]: https://thebevyflock.github.io/bevy_cli/bevy_lint/index.html#installation
 
 ## Web apps
 
 The CLI makes it easy to build and run web apps made with Bevy, using `bevy build web` and `bevy run web`.
 It takes care of compiling the app to Wasm, creating JavaScript bindings and serving it on a local web server to test it out.
-Necessary tools will also be installed automatically.
+If you are missing any required tools, the CLI will ask you to install them for you automatically.
 
 > [!NOTE]
 >
@@ -190,6 +191,11 @@ To avoid this problem, use the `--yes` flag to automatically confirm the prompts
 ```sh
 bevy build --yes web
 ```
+
+## Troubleshooting
+
+If you encounter issues or don't understand what the CLI is doing, try the `--verbose` flag.
+Every command that the CLI executes will be logged, making it easy to understand what's going on!
 
 ## License
 
