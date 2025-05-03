@@ -22,21 +22,10 @@ At this point, the CLI is not published as a package yet and needs to be install
 cargo install --git https://github.com/TheBevyFlock/bevy_cli --locked bevy_cli
 ```
 
-The **linter** currently needs to be installed separately with a specific nightly toolchain:
+The **linter** currently needs to be installed separately with a specific nightly toolchain.
+Please refer to the [linter documentation] to install it!
 
-```sh
-# Install the toolchain
-rustup toolchain install nightly-2025-04-03 \
-    --component rustc-dev \
-    --component llvm-tools-preview
-
-# Install bevy_lint
-cargo +nightly-2025-04-03 install \
-    --git https://github.com/TheBevyFlock/bevy_cli.git \
-    --tag lint-v0.3.0 \
-    --locked \
-    bevy_lint
-```
+[linter documentation]: https://thebevyflock.github.io/bevy_cli/bevy_lint/index.html#installation
 
 ## Quick Start
 
