@@ -1,9 +1,6 @@
 use args::BuildArgs;
 
 #[cfg(feature = "web")]
-use args::{BuildSubcommands, BuildWebArgs};
-
-#[cfg(feature = "web")]
 use crate::web::build::build_web;
 use crate::{bin_target::select_run_binary, config::CliConfig, external_cli::cargo};
 
@@ -11,21 +8,6 @@ pub mod args;
 
 pub fn build(args: &mut BuildArgs) -> anyhow::Result<()> {
     let metadata = cargo::metadata::metadata()?;
-
-    // Check if the profile, passed as an argument matches a default profile from the CLI.
-    // if it matches, set the flags accordingly.
-    if let Some(profile) = &args.cargo_args.compilation_args.profile {
-        if profile == "release" {
-            args.cargo_args.compilation_args.is_release = true;
-        }
-        #[cfg(feature = "web")]
-        if profile == "web-release" {
-            args.cargo_args.compilation_args.is_release = true;
-            args.subcommand = Some(BuildSubcommands::Web(BuildWebArgs::default()));
-        } else if profile == "web" {
-            args.subcommand = Some(BuildSubcommands::Web(BuildWebArgs::default()));
-        }
-    }
 
     let bin_target = select_run_binary(
         &metadata,
