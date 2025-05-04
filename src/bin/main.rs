@@ -1,7 +1,7 @@
 use ansi_term::Color::{Blue, Green, Purple, Red, Yellow};
 use anyhow::Result;
 use bevy_cli::{build::args::BuildArgs, run::RunArgs};
-use clap::{Args, CommandFactory, Parser, Subcommand};
+use clap::{Args, CommandFactory, Parser, Subcommand, ValueEnum};
 use tracing_subscriber::{
     fmt::{self, FormatEvent, FormatFields, format::Writer},
     prelude::*,
@@ -60,6 +60,10 @@ pub struct Cli {
     /// Logs commands that are executed and more information on the actions being performed.
     #[arg(long, short = 'v', global = true)]
     pub verbose: bool,
+
+    /// Whether to use colored output.
+    #[arg(long, global = true, name = "WHEN")]
+    pub color: Option<ColorWhen>,
 }
 
 /// Available subcommands for `bevy`.
@@ -156,4 +160,16 @@ where
         ctx.format_fields(writer.by_ref(), event)?;
         writeln!(writer)
     }
+}
+
+/// Control when colored output is used.
+#[derive(Default, ValueEnum, Clone, Copy)]
+pub enum ColorWhen {
+    /// Automatically detect if color support is available on the terminal.
+    #[default]
+    Auto,
+    /// Always display colors.
+    Always,
+    /// Never display colors.
+    Never,
 }
