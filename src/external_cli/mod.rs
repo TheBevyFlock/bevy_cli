@@ -283,6 +283,10 @@ impl Display for CommandExt {
             .collect::<Vec<_>>()
             .join(" ");
 
-        write!(f, "{program} {args}")
+        if args.is_empty() {
+            write!(f, "{program}")
+        } else {
+            write!(f, "{program} {args}")
+        }
     }
 }
