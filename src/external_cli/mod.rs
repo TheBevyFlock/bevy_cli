@@ -10,7 +10,7 @@ use cargo::install::AutoInstall;
 use semver::VersionReq;
 use tracing::{Level, debug, error, info, trace, warn};
 
-pub mod arg_builder;
+pub(crate) mod arg_builder;
 pub(crate) mod cargo;
 #[cfg(feature = "rustup")]
 pub(crate) mod rustup;
@@ -71,6 +71,7 @@ impl CommandExt {
     ///
     /// If the command fails and the target is missing,
     /// it can be installed automatically via `rustup`.
+    #[cfg(feature = "web")]
     pub fn maybe_require_target<S: AsRef<OsStr>>(&mut self, target: Option<S>) -> &mut Self {
         if let Some(target) = target {
             self.target = Some(target.as_ref().to_owned());
@@ -127,7 +128,7 @@ impl CommandExt {
 
         if self.package.is_some() || self.target.is_some() {
             tracing::warn!(
-                "Failed to run {}, trying to find automatic fix...",
+                "failed to run {}, trying to find automatic fix...",
                 self.inner.get_program().to_string_lossy()
             );
         }
@@ -213,10 +214,10 @@ impl CommandExt {
             .collect::<Vec<_>>()
             .join(",");
 
-        self.log(format!("Running: `{self}`").as_str());
+        self.log(format!("running: `{self}`").as_str());
 
         if !envs.is_empty() {
-            self.log(&format!("With env: {envs}"));
+            self.log(&format!("with env: {envs}"));
         }
     }
 
@@ -238,7 +239,7 @@ impl CommandExt {
 
         anyhow::ensure!(
             status.success(),
-            "Command `{self}` exited with status code {}",
+            "command `{self}` exited with status code {}",
             status
         );
 
@@ -263,7 +264,7 @@ impl CommandExt {
 
         anyhow::ensure!(
             output.status.success(),
-            "Command `{self}` exited with status code {}",
+            "command `{self}` exited with status code {}",
             output.status
         );
 

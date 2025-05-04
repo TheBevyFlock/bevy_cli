@@ -55,10 +55,10 @@ pub(crate) fn install_target_if_needed<T: AsRef<OsStr>>(
     if !auto_install.confirm(format!(
         "Compilation target `{target_str}` is missing, should I install it for you?",
     ))? {
-        anyhow::bail!("User does not want to install target `{target_str}`.");
+        anyhow::bail!("user does not want to install target `{target_str}`.");
     }
 
-    info!("Installing missing target: `{target_str}`");
+    info!("installing missing target: `{target_str}`");
 
     CommandExt::new(program())
         .arg("target")

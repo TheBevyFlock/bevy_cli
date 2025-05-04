@@ -1,3 +1,5 @@
+//! Provides functionalities to run a Bevy app targeting either native or web platforms.
+
 #[cfg(feature = "web")]
 use crate::web::run::run_web;
 use crate::{bin_target::select_run_binary, config::CliConfig, external_cli::cargo};
@@ -6,6 +8,11 @@ pub use self::args::RunArgs;
 
 pub mod args;
 
+/// Tries to run the project with the given [`RunArgs`].
+///
+/// # Errors
+///
+/// will error if the build process can not be completed
 pub fn run(args: &mut RunArgs) -> anyhow::Result<()> {
     let metadata = cargo::metadata::metadata()?;
 

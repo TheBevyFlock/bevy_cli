@@ -1,3 +1,5 @@
+//! Provides functionalities to build a Bevy app targeting either native or web platforms.
+
 use args::BuildArgs;
 
 #[cfg(feature = "web")]
@@ -6,6 +8,11 @@ use crate::{bin_target::select_run_binary, config::CliConfig, external_cli::carg
 
 pub mod args;
 
+/// Tries to build the project with the given [`BuildArgs`].
+///
+/// # Errors
+///
+/// will error if the build process can not be completed
 pub fn build(args: &mut BuildArgs) -> anyhow::Result<()> {
     let metadata = cargo::metadata::metadata()?;
 
