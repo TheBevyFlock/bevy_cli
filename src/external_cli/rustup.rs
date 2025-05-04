@@ -84,10 +84,10 @@ pub(crate) fn install_toolchain_if_needed(
         .context("failed to list installed toolchains with rustup list toolchain")?
         .stdout;
 
-    //using a `let` binding to create a longer lived value
+    // using a `let` binding to create a longer lived value
     let installed_toolchains = String::from_utf8_lossy(&rustup_list_toolchain);
 
-    // For more information on the standart toolchain names see: https://rust-lang.github.io/rustup/concepts/toolchains.html#toolchain-specification
+    // For more information on the standard toolchain names see: https://rust-lang.github.io/rustup/concepts/toolchains.html#toolchain-specification
     // in practice, this looks like this
     // ❯ rustup toolchain list
     // stable-aarch64-apple-darwin (active, default)
@@ -101,7 +101,7 @@ pub(crate) fn install_toolchain_if_needed(
     // check if the desired toolchain is installed
     if installed_toolchains
         .iter()
-        //ignore <host> part of the toolchain name
+        // ignore <host> part of the toolchain name
         .any(|installed_toolchain| installed_toolchain.starts_with(toolchain))
     {
         return Ok(());
