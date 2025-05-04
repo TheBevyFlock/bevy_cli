@@ -103,7 +103,7 @@ pub(crate) fn if_needed<Pr: AsRef<OsStr>>(
         cmd.arg("run").arg(toolchain).arg(super::program());
     }
 
-    match &package.url {
+    match &package.git {
         // Install from Git
         Some(git_url) => {
             cmd.arg("install").arg("--git").arg(git_url);

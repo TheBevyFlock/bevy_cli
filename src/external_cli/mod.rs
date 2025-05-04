@@ -28,7 +28,7 @@ pub(crate) struct Package {
     /// The toolchain that should be used to install this package
     pub(crate) required_toolchain: Option<String>,
     /// Git URL to install the specified package from
-    pub(crate) url: Option<String>,
+    pub(crate) git: Option<String>,
     /// Branch to use when installing from git
     pub(crate) branch: Option<String>,
     /// Tag to use when installing from git

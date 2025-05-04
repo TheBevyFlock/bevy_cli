@@ -51,7 +51,7 @@ pub fn lint(args: LintArgs) -> anyhow::Result<()> {
     let package = Package {
         name: PACKAGE.into(),
         required_toolchain: Some(channel.to_string()),
-        url: Some(GIT_URL.to_string()),
+        git: Some(GIT_URL.to_string()),
         tag: Some(BEVY_LINT_TAG.to_string()),
         ..Default::default()
     };
