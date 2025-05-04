@@ -94,7 +94,7 @@ features = [
 
 [package.metadata.bevy_cli.web]
 # Disable default features for web builds
-default_features = false
+default-features = false
 ```
 
 ### Usage in CI
