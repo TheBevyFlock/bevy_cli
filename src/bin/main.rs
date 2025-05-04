@@ -1,4 +1,6 @@
 use anyhow::Result;
+#[cfg(feature = "rustup")]
+use bevy_cli::lint::LintArgs;
 use bevy_cli::{build::args::BuildArgs, run::RunArgs};
 use clap::{Args, CommandFactory, Parser, Subcommand};
 use tracing_subscriber::prelude::*;
@@ -33,7 +35,8 @@ fn main() -> Result<()> {
         Subcommands::New(new) => {
             bevy_cli::template::generate_template(&new.name, &new.template, &new.branch)?;
         }
-        Subcommands::Lint { args } => bevy_cli::lint::lint(args)?,
+        #[cfg(feature = "rustup")]
+        Subcommands::Lint(args) => bevy_cli::lint::lint(args)?,
         Subcommands::Build(mut args) => bevy_cli::build::build(&mut args)?,
         Subcommands::Run(mut args) => bevy_cli::run::run(&mut args)?,
         Subcommands::Completions { shell } => {
@@ -75,11 +78,8 @@ pub enum Subcommands {
     /// <https://github.com/TheBevyFlock/bevy_cli> for installation instructions.
     ///
     /// To see the full list of options, run `bevy lint -- --help`.
-    Lint {
-        /// A list of arguments to be passed to `bevy_lint`.
-        #[arg(trailing_var_arg = true, allow_hyphen_values = true)]
-        args: Vec<String>,
-    },
+    #[cfg(feature = "rustup")]
+    Lint(LintArgs),
     /// Generate autocompletion for `bevy` CLI tool.
     ///
     /// You can add this or a variant of this to your shells `.profile` by just added

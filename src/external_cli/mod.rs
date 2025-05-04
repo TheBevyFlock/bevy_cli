@@ -19,12 +19,20 @@ pub(crate) mod wasm_bindgen;
 #[cfg(feature = "wasm-opt")]
 pub(crate) mod wasm_opt;
 
-#[derive(Debug)]
-struct Package {
+#[derive(Debug, Default)]
+pub(crate) struct Package {
     /// The name of the package.
-    name: OsString,
-    /// The version the package needs to match.
-    version: VersionReq,
+    pub(crate) name: OsString,
+    /// A specific [`VersionReq`]
+    pub(crate) version: Option<VersionReq>,
+    /// The toolchain that should be used to install this package
+    pub(crate) required_toolchain: Option<String>,
+    /// Git URL to install the specified package from
+    pub(crate) url: Option<String>,
+    /// Branch to use when installing from git
+    pub(crate) branch: Option<String>,
+    /// Tag to use when installing from git
+    pub(crate) tag: Option<String>,
 }
 
 pub struct CommandExt {
@@ -53,11 +61,9 @@ impl CommandExt {
     ///
     /// If the command fails and the package is missing,
     /// it can be installed automatically via `cargo install`.
-    pub fn require_package<S: AsRef<OsStr>>(&mut self, name: S, version: VersionReq) -> &mut Self {
-        self.package = Some(Package {
-            name: name.as_ref().to_owned(),
-            version,
-        });
+    #[cfg(any(feature = "rustup", feature = "web"))]
+    pub(crate) fn require_package(&mut self, package: Package) -> &mut Self {
+        self.package = Some(package);
         self
     }
 
@@ -81,12 +87,14 @@ impl CommandExt {
     /// Returns `true` if a new version was installed.
     fn install_package_if_needed(&self, auto_install: AutoInstall) -> anyhow::Result<bool> {
         if let Some(package) = &self.package {
-            cargo::install::if_needed(
-                self.inner.get_program(),
-                &package.name,
-                &package.version,
-                auto_install,
-            )
+            // If the package that needs to be installed if needed required a specific toolchain,
+            // check first that the toolchain is installed / install it before checking if the
+            // package needs to be installed.
+            #[cfg(feature = "rustup")]
+            if let Some(toolchain) = &package.required_toolchain {
+                rustup::install_toolchain_if_needed(toolchain, auto_install)?;
+            }
+            cargo::install::if_needed(self.inner.get_program(), package, auto_install)
         } else {
             Ok(false)
         }
@@ -121,13 +129,12 @@ impl CommandExt {
             tracing::warn!(
                 "Failed to run {}, trying to find automatic fix...",
                 self.inner.get_program().to_string_lossy()
-            )
+            );
         }
 
-        if self.install_package_if_needed(auto_install)? {
-            retry = true;
-        }
-        if self.install_target_if_needed(auto_install)? {
+        if self.install_package_if_needed(auto_install)?
+            || self.install_target_if_needed(auto_install)?
+        {
             retry = true;
         }
 
@@ -141,14 +148,9 @@ impl CommandExt {
         status: &Result<ExitStatus, Err>,
         auto_install: AutoInstall,
     ) -> anyhow::Result<bool> {
-        if let Ok(status) = status {
-            if status.success() {
-                Ok(false)
-            } else {
-                self.try_fix_before_retry(auto_install)
-            }
-        } else {
-            self.try_fix_before_retry(auto_install)
+        match status {
+            Ok(status) if status.success() => Ok(false),
+            _ => self.try_fix_before_retry(auto_install),
         }
     }
 
