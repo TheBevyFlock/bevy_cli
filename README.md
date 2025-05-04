@@ -2,9 +2,9 @@
 
 A prototype [Bevy] CLI tool intended to streamline common tasks when working on projects. Please see the [initial scope document] and [original issue] for history and motivation. The CLI's current features include:
 
-- Project generation from a template
-- [A custom, Bevy-specific linter](bevy_lint/README.md)
-- Out-of-the-box support for building and running your Bevy app in the browser
+- [**Scaffolding**](#scaffolding): Creating a new Bevy app from a template
+- [**Linter**](#linter): Checking your code quality with a Bevy-specific linter
+- [**Web apps**](#web-apps): Running your Bevy app in the browser
 
 If you need assistance or want to help, reach out to the [`bevy_cli` working group channel] in the [Bevy Discord].
 
@@ -22,19 +22,92 @@ At this point, the CLI is not published as a package yet and needs to be install
 cargo install --git https://github.com/TheBevyFlock/bevy_cli --locked bevy_cli
 ```
 
-## Logging
+The **linter** currently needs to be installed separately with a specific nightly toolchain.
+Please refer to the [linter documentation] to install it!
 
-The default logging level for the CLI is set to `info`. To change the log level set the `BEVY_LOG` environment variable.
+[linter documentation]: https://thebevyflock.github.io/bevy_cli/bevy_lint/index.html#installation
+
+## Quick Start
+
+With the following steps, you can create a new 2D app with Bevy and run it in your browser:
+
+1. Create a new Bevy app using [the 2D template](https://github.com/TheBevyFlock/bevy_new_2d):
+
+    ```sh
+    bevy new -t=2d my_bevy_app
+    ```
+
+2. Navigate into the folder:
+
+   ```sh
+   cd my_bevy_app
+   ```
+
+3. Check the code quality with the linter:
+
+    ```sh
+    bevy lint
+    ```
+
+4. Run the app in the browser:
+
+    ```sh
+    bevy run web --open
+    ```
+
+## Scaffolding
+
+The `bevy new` command lets you easily scaffold a new Bevy project using a custom template or a [minimal template provided by Bevy](https://github.com/TheBevyFlock/bevy_new_minimal).
+Templates are just GitHub repositories and can be specified with the `-t` flag.
+
+### Usage
+
+If the template is omitted, the [default minimal template](https://github.com/TheBevyFlock/bevy_new_minimal) will be chosen.
 
 ```sh
-export BEVY_LOG=trace
+bevy new my-project
 ```
 
-## Bevy web apps
+Other built-in templates from [TheBevyFlock](https://github.com/TheBevyFlock) will be usable via its shortcut form i.e. `-t 2d` will use the template [bevy_new_2d](https://github.com/TheBevyFlock/bevy_new_2d).
+
+```sh
+bevy new my-project -t 2d
+```
+
+To use a specific template, provide the full GitHub URL:
+
+```sh
+bevy new my-project -t https://github.com/TheBevyFlock/bevy_new_2d.git
+```
+
+## Linter
+
+The CLI has 1st-party support for [`bevy_lint`], the static analysis tool that checks over your code (similar to Clippy!). It must be installed first using the [installation guide], but then you can run the linter with the `lint` subcommand:
+
+```sh
+bevy lint
+```
+
+This command uses the same arguments as `cargo check`:
+
+```sh
+bevy lint --workspace --all-features
+```
+
+You can view a full list of supported options with:
+
+```sh
+bevy lint -- --help
+```
+
+[`bevy_lint`]: https://thebevyflock.github.io/bevy_cli/bevy_lint/index.html
+[installation guide]: https://thebevyflock.github.io/bevy_cli/bevy_lint/index.html#installation
+
+## Web apps
 
 The CLI makes it easy to build and run web apps made with Bevy, using `bevy build web` and `bevy run web`.
 It takes care of compiling the app to Wasm, creating JavaScript bindings and serving it on a local web server to test it out.
-Necessary tools will also be installed automatically.
+If you are missing any required tools, the CLI will ask you to install them for you automatically.
 
 > [!NOTE]
 >
@@ -108,52 +181,10 @@ To avoid this problem, use the `--yes` flag to automatically confirm the prompts
 bevy build --yes web
 ```
 
-## Bevy scaffolding
+## Troubleshooting
 
-The `bevy new` command lets you easily scaffold a new Bevy project using a custom template or a [minimal template provided by Bevy](https://github.com/TheBevyFlock/bevy_new_minimal).
-Templates are just GitHub repositories and can be specified with the `-t` flag.
-
-### Usage
-
-If the template is omitted, the [default minimal template](https://github.com/TheBevyFlock/bevy_new_minimal) will be chosen.
-
-```sh
-bevy new my-project
-```
-
-To use a specific template, provide the full GitHub URL
-
-```sh
-bevy new my-project -t https://github.com/TheBevyFlock/bevy_new_2d
-```
-
-Additionally, any repo prefixed with `bevy_new_` from the [TheBevyFlock](https://github.com/TheBevyFlock) will be usable via its shortcut form i.e. `-t 2d` will use the template [bevy_new_2d](https://github.com/TheBevyFlock/bevy_new_2d).
-
-```sh
-bevy new my-project -t 2d
-```
-
-## Linter
-
-The CLI has 1st-party support for `bevy_lint`, the static analysis tool that checks over your code (similar to Clippy!). It must be installed first using the [installation guide], but then you can run the linter with the `lint` subcommand:
-
-```sh
-bevy lint
-```
-
-This command uses the same arguments as `cargo check`:
-
-```sh
-bevy lint --workspace --all-features
-```
-
-You can view a full list of supported options with:
-
-```sh
-bevy lint -- --help
-```
-
-[installation guide]: https://thebevyflock.github.io/bevy_cli/bevy_lint/index.html#installation
+If you encounter issues or don't understand what the CLI is doing, try the `--verbose` flag.
+Every command that the CLI executes will be logged, making it easy to understand what's going on!
 
 ## License
 
