@@ -46,7 +46,7 @@ pub fn build_web(
 
     let cargo_args = args.cargo_args_builder();
 
-    info!("Compiling to WebAssembly...");
+    info!("compiling to WebAssembly...");
 
     cargo::build::command()
         // Wasm targets are not installed by default
@@ -55,7 +55,7 @@ pub fn build_web(
         .env("RUSTFLAGS", args.cargo_args.common_args.rustflags.clone())
         .ensure_status(args.auto_install())?;
 
-    info!("Bundling JavaScript bindings...");
+    info!("bundling JavaScript bindings...");
     wasm_bindgen::bundle(metadata, bin_target, args.auto_install())?;
 
     #[cfg(feature = "wasm-opt")]
@@ -69,10 +69,10 @@ pub fn build_web(
         bin_target,
         web_args.is_some_and(|web_args| web_args.create_packed_bundle),
     )
-    .context("Failed to create web bundle")?;
+    .context("failed to create web bundle")?;
 
     if let WebBundle::Packed(PackedBundle { path }) = &web_bundle {
-        info!("Created bundle at file://{}", path.display());
+        info!("created bundle at file://{}", path.display());
     }
 
     Ok(web_bundle)
