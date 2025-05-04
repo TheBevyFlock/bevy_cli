@@ -4,6 +4,7 @@ use std::fmt::Display;
 use anyhow::{Context, bail};
 use serde::Serialize;
 use serde_json::{Map, Value};
+use tracing::warn;
 
 use crate::external_cli::cargo::metadata::{Metadata, Package};
 
@@ -200,14 +201,23 @@ fn extract_features(cli_metadata: &Map<String, Value>) -> anyhow::Result<Vec<Str
 
 /// Try to extract whether default-features are enabled from a metadata map for the CLI.
 fn extract_default_features(cli_metadata: &Map<String, Value>) -> anyhow::Result<Option<bool>> {
-    let Some(default_features) = cli_metadata.get("default-features") else {
+    if let Some(default_features) = cli_metadata.get("default-features") {
+        match default_features {
+            Value::Bool(default_features) => Ok(Some(default_features).copied()),
+            Value::Null => Ok(None),
+            _ => bail!("default-features must be an array"),
+        }
+    } else if let Some(default_features) = cli_metadata.get("default_features") {
+        warn!(
+            "`default_features` has been renamed to `default-features` to align with Cargo's naming conventions."
+        );
+        match default_features {
+            Value::Bool(default_features) => Ok(Some(default_features).copied()),
+            Value::Null => Ok(None),
+            _ => bail!("default_features must be an array"),
+        }
+    } else {
         return Ok(None);
-    };
-
-    match default_features {
-        Value::Bool(default_features) => Ok(Some(default_features).copied()),
-        Value::Null => Ok(None),
-        _ => bail!("default-features must be an array"),
     }
 }
 
