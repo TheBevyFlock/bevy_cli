@@ -8,6 +8,7 @@ use crate::{
     },
 };
 
+/// Arguments for building a Bevy project.
 #[derive(Debug, Args)]
 pub struct BuildArgs {
     /// The subcommands available for the build command.
@@ -71,7 +72,7 @@ impl BuildArgs {
             return;
         }
 
-        tracing::debug!("Using defaults from bevy_cli config:\n{config}");
+        tracing::debug!("using defaults from bevy_cli config:\n{config}");
         if self.cargo_args.compilation_args.target.is_none() {
             self.cargo_args.compilation_args.target = config.target().map(ToOwned::to_owned);
         }
@@ -94,6 +95,7 @@ impl BuildArgs {
     }
 }
 
+/// The subcommands available for the build command.
 #[derive(Debug, Subcommand)]
 pub enum BuildSubcommands {
     /// Build your app for the browser.
@@ -101,6 +103,7 @@ pub enum BuildSubcommands {
     Web(BuildWebArgs),
 }
 
+/// Additional Arguments for building a Bevy web project.
 #[derive(Debug, Args)]
 pub struct BuildWebArgs {
     // Bundle all web artifacts into a single folder.

@@ -1,3 +1,5 @@
+//! Helper functions to run `bevy_lint`.
+
 use anyhow::{Context, anyhow, ensure};
 use std::{env, path::PathBuf};
 
