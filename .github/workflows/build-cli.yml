@@ -4,8 +4,6 @@
 name: Build CLI
 
 on:
-  # TODO: Remove me
-  pull_request:
   workflow_dispatch:
     inputs:
       upload-to-release:
