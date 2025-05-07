@@ -9,9 +9,9 @@ use rustc_interface::Config;
 use rustc_lint::Level;
 use rustc_session::utils::was_invoked_from_cargo;
 use serde::Deserialize;
-use toml::{Table, Value};
+use serde_json::Value;
 
-static LINTER_CONFIG: RwLock<Option<Table>> = RwLock::new(None);
+static LINTER_CONFIG: RwLock<Option<Value>> = RwLock::new(None);
 
 /// Loads the configuration from the crate and workspace-level `Cargo.toml`s.
 ///
@@ -31,12 +31,34 @@ pub fn load_config(compiler_config: &mut Config) {
         return;
     }
 
-    // Load the linter configuration for both the workspace and crate `Cargo.toml`s.
-    let workspace_config = load_cargo_manifest(compiler_config, true)
-        .and_then(|manifest| deserialize_linter_config(&manifest, true));
+    let local_cargo_manifest =
+        crate::utils::cargo::locate_manifest(&compiler_config.input, false).unwrap();
 
-    let crate_config = load_cargo_manifest(compiler_config, false)
-        .and_then(|manifest| deserialize_linter_config(&manifest, false));
+    // built resolved dependency graph in order to
+    // figure out the name of the current package
+    // this is needed because the only way to know what package
+    // we should read the metadata from, is by using the `resolve.root`
+    // with corresponds to the [`cargo_metadata::PackageId`] cargo metadata was run for.
+    let metadata = cargo_metadata::MetadataCommand::new()
+        .manifest_path(local_cargo_manifest)
+        .exec()
+        .unwrap();
+
+    let root_id = metadata
+        .resolve
+        .as_ref()
+        .and_then(|r| r.root.as_ref())
+        .expect("cannot find root package");
+
+    let current_package = metadata
+        .packages
+        .iter()
+        .find(|pkg| pkg.id == *root_id)
+        .expect("failed to get the current package");
+
+    let workspace_config = deserialize_linter_config(metadata.workspace_metadata);
+
+    let crate_config = deserialize_linter_config(current_package.metadata.clone());
 
     let config = match (workspace_config, crate_config) {
         // If only one of the configs are specified, just use that.
@@ -54,73 +76,34 @@ pub fn load_config(compiler_config: &mut Config) {
     *linter_config = Some(config);
 }
 
-/// Returns the contents of `Cargo.toml` associated with the crate being compiled.
+/// Returns the `Value` representing `metadata.bevy_lint` from the provided
+/// [`cargo_metadata::Metadata`] contents.
 ///
-/// This will return [`None`] if `Cargo.toml` cannot be located or read. If `workspace` is true,
-/// this will instead return the workspace `Cargo.toml`.
-fn load_cargo_manifest(compiler_config: &Config, workspace: bool) -> Option<String> {
-    crate::utils::cargo::locate_manifest(&compiler_config.input, workspace)
-        .and_then(std::fs::read_to_string)
-        .ok()
-}
-
-/// Returns the [`Table`] representing `[package.metadata.bevy_lint]` given the string contents of
-/// `Cargo.toml`.
-///
-/// This will return [`None`] if [`toml`] cannot deserialize the `manifest`, or if
-/// `[package.metadata.bevy_lint]` is not specified. If `workspace` is true, this will instead
-/// return the [`Table`] for `[workspace.metadata.bevy_lint]`.
-fn deserialize_linter_config(manifest: &str, workspace: bool) -> Option<Table> {
-    /// Represents `Cargo.toml` in the following format:
-    ///
-    /// ```toml
-    /// [package.metadata.bevy_lint]
-    /// lint_name = "level"
-    /// other_lint_name = { level = "level", foo = 8, bar = false }
-    ///
-    /// [workspace.metadata.bevy_lint]
-    /// yet_another_lint_name = "level"
-    /// ```
-    #[derive(Deserialize)]
-    struct Manifest {
-        package: Option<PackageOrWorkspace>,
-        workspace: Option<PackageOrWorkspace>,
-    }
-
-    #[derive(Deserialize)]
-    struct PackageOrWorkspace {
-        metadata: Option<Metadata>,
-    }
-
+/// This function will return [`None`] if the [`cargo_metadata::Metadata`] cannot be deserialized
+/// into the expected format, or if `metadata.bevy_lint` is not specified.
+fn deserialize_linter_config(metadata: Value) -> Option<Value> {
     #[derive(Deserialize)]
     struct Metadata {
-        bevy_lint: Option<Table>,
+        bevy_lint: Option<Value>,
     }
 
-    toml::from_str::<Manifest>(manifest)
-        .ok()
-        .and_then(|manifest| {
-            if workspace {
-                manifest.workspace
-            } else {
-                manifest.package
-            }
-        })
-        .and_then(|package_or_workspace| package_or_workspace.metadata)
-        .and_then(|metadata| metadata.bevy_lint)
+    serde_json::from_value::<Metadata>(metadata).ok()?.bevy_lint
 }
 
-/// Merges the [`Table`]s for the workspace and crate linter configs together.
+/// Merges the [`Value::Object`]s for the workspace and crate linter configs together.
 ///
 /// The crate `Cargo.toml` takes precedence, so its configuration will overwrite the workspace's
 /// configuration.
-fn merge_linter_configs(mut workspace_config: Table, crate_config: Table) -> Table {
-    for (lint_name, lint_config) in crate_config {
-        // `Map::insert()` overwrite an existing value with a new one, if one already existed.
-        workspace_config.insert(lint_name, lint_config);
+fn merge_linter_configs(mut workspace_config: Value, crate_config: Value) -> Value {
+    match (&mut workspace_config, crate_config) {
+        (Value::Object(workspace_obj), Value::Object(crate_obj)) => {
+            for (key, value) in crate_obj {
+                workspace_obj.insert(key, value);
+            }
+            workspace_config
+        }
+        _ => workspace_config,
     }
-
-    workspace_config
 }
 
 /// Informs the compiler of `Cargo.toml` lint level configuration.
@@ -135,13 +118,15 @@ fn merge_linter_configs(mut workspace_config: Table, crate_config: Table) -> Tab
 /// # Inserts `--allow bevy::insert_event_resource`.
 /// insert_event_resource = { level = "allow" }
 /// ```
-fn insert_lint_levels(compiler_config: &mut Config, linter_config: &Table) {
+fn insert_lint_levels(compiler_config: &mut Config, linter_config: &Value) {
+    let Value::Object(linter_config) = linter_config else {
+        return;
+    };
+
     for (lint_name, lint_config) in linter_config {
         let level = match lint_config {
-            // The format of `lint_name = "level"`.
             Value::String(s) => Level::from_str(s),
-            // The format of `lint_name = { level = "level" }`.
-            Value::Table(table) => table
+            Value::Object(obj) => obj
                 .get("level")
                 .and_then(Value::as_str)
                 .and_then(Level::from_str),
