@@ -1,11 +1,10 @@
 use std::{fs, time::Instant};
 
-use semver::VersionReq;
 use tracing::info;
 
 use crate::{
     bin_target::BinTarget,
-    external_cli::{CommandExt, cargo::install::AutoInstall},
+    external_cli::{CommandExt, Package, cargo::install::AutoInstall},
 };
 
 pub(crate) const PACKAGE: &str = "wasm-opt";
@@ -25,8 +24,13 @@ pub(crate) fn optimize_path(
     let start = Instant::now();
     let size_before = fs::metadata(&path)?.len();
 
+    let package = Package {
+        name: PACKAGE.into(),
+        ..Default::default()
+    };
+
     CommandExt::new(PROGRAM)
-        .require_package(PACKAGE, VersionReq::STAR)
+        .require_package(package)
         .arg("--strip-debug")
         .arg("-Os")
         .arg("-o")

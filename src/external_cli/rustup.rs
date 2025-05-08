@@ -69,3 +69,64 @@ pub(crate) fn install_target_if_needed<T: AsRef<OsStr>>(
 
     Ok(true)
 }
+
+/// Install a rust toolchain, if it is not already installed.
+///
+/// Returns `true` if the toolchain was missing and got installed.
+pub(crate) fn install_toolchain_if_needed(
+    toolchain: &str,
+    auto_install: AutoInstall,
+) -> anyhow::Result<()> {
+    let rustup_list_toolchain = CommandExt::new(program())
+        .arg("toolchain")
+        .arg("list")
+        .output(auto_install)
+        .context("failed to list installed toolchains with rustup list toolchain")?
+        .stdout;
+
+    // using a `let` binding to create a longer lived value
+    let installed_toolchains = String::from_utf8_lossy(&rustup_list_toolchain);
+
+    // For more information on the standard toolchain names see: https://rust-lang.github.io/rustup/concepts/toolchains.html#toolchain-specification
+    // in practice, this looks like this
+    // ❯ rustup toolchain list
+    // stable-aarch64-apple-darwin (active, default)
+    // nightly-2024-11-14-aarch64-apple-darwin
+    // nightly-2024-11-28-aarch64-apple-darwin
+    let installed_toolchains = installed_toolchains
+        .lines()
+        .map(str::trim)
+        .collect::<Vec<&str>>();
+
+    // check if the desired toolchain is installed
+    if installed_toolchains
+        .iter()
+        // ignore <host> part of the toolchain name
+        .any(|installed_toolchain| installed_toolchain.starts_with(toolchain))
+    {
+        return Ok(());
+    }
+
+    if !auto_install.confirm(format!(
+        "rust toolchain `{toolchain}` is missing, should I install it for you?",
+    ))? {
+        anyhow::bail!("User does not want to install rust toolchain `{toolchain}`.");
+    }
+
+    info!("Installing missing rust toolchain: `{toolchain}`");
+
+    CommandExt::new("rustup")
+        .arg("toolchain")
+        .arg("install")
+        .arg(toolchain)
+        .args([
+            "--component",
+            "rustc-dev",
+            "--component",
+            "llvm-tools-preview",
+        ])
+        .ensure_status(auto_install)
+        .context(format!("failed to install toolchain `{toolchain}`"))?;
+
+    Ok(())
+}
