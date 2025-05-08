@@ -28,13 +28,14 @@ jobs:
       - name: Install Taplo
         run: |
           curl -fsSL https://github.com/tamasfe/taplo/releases/latest/download/taplo-linux-x86_64.gz \
-            | gzip -d - | install -m 755 /dev/stdin /usr/local/bin/taplo
+            | gzip --decompress - \
+            | install -m 755 /dev/stdin /usr/local/bin/taplo
 
       - name: Extract toolchain
         id: toolchain
         run: |
-          CHANNEL=$(taplo get -f='rust-toolchain.toml' 'toolchain.channel')
-          COMPONENTS=$(taplo get -f='rust-toolchain.toml' --separator=', ' 'toolchain.components')
+          CHANNEL=$(taplo get --file-path='rust-toolchain.toml' 'toolchain.channel')
+          COMPONENTS=$(taplo get --file-path='rust-toolchain.toml' --separator=', ' 'toolchain.components')
 
-          echo channel=$CHANNEL >> $GITHUB_OUTPUT
-          echo components=$COMPONENTS >> $GITHUB_OUTPUT
+          echo "channel=${CHANNEL}" >> "${GITHUB_OUTPUT}"
+          echo "components=${COMPONENTS}" >> "${GITHUB_OUTPUT}"
