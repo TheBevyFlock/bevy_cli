@@ -7,10 +7,10 @@ on:
   workflow_dispatch:
     inputs:
       upload-to-release:
-        description: |
-          Whether to upload the built artifacts to a draft release. When true, the artifacts will
-          be uploaded to a release with the tag `cli-vX.Y.Z`. (Where the version is determined from
-          `Cargo.toml`.)
+        # Whether to upload the built artifacts to a draft release. When true, the artifacts will
+        # be uploaded to a release with the tag `cli-vX.Y.Z`. (Where the version is determined from
+        # `Cargo.toml`.)
+        description: Upload to release tagged with `cli-vX.Y.Z`
         required: true
         type: boolean
 
