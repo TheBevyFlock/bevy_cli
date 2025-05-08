@@ -7,7 +7,10 @@ on:
   workflow_dispatch:
 
 env:
-  CARGO_TERM_COLOR: always
+  # Only include the debug info necessary for backtraces (file names and line numbers). Any extra
+  # debug info provided by `debuginfo=1` or `debuginfo=2` require an interactive debugger like
+  # `lldb` or `gdb`.
+  RUSTFLAGS: -C debuginfo=line-tables-only
 
 jobs:
   extract-rust-version:

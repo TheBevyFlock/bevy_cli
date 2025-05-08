@@ -4,6 +4,7 @@ use std::fmt::Display;
 use anyhow::{Context, bail};
 use serde::Serialize;
 use serde_json::{Map, Value};
+use tracing::warn;
 
 use crate::external_cli::cargo::metadata::{Metadata, Package};
 
@@ -15,6 +16,7 @@ use crate::external_cli::cargo::metadata::{Metadata, Package};
 /// - Whether to enable default features
 /// - Additional Rust compiler flags
 #[derive(Default, Debug, Clone, PartialEq, Serialize)]
+#[serde(rename_all = "kebab-case")]
 pub struct CliConfig {
     /// The platform to target with the build.
     target: Option<String>,
@@ -197,16 +199,25 @@ fn extract_features(cli_metadata: &Map<String, Value>) -> anyhow::Result<Vec<Str
     }
 }
 
-/// Try to extract whether default_features are enabled from a metadata map for the CLI.
+/// Try to extract whether default-features are enabled from a metadata map for the CLI.
 fn extract_default_features(cli_metadata: &Map<String, Value>) -> anyhow::Result<Option<bool>> {
-    let Some(default_features) = cli_metadata.get("default_features") else {
+    if let Some(default_features) = cli_metadata.get("default-features") {
+        match default_features {
+            Value::Bool(default_features) => Ok(Some(default_features).copied()),
+            Value::Null => Ok(None),
+            _ => bail!("default-features must be an array"),
+        }
+    } else if let Some(default_features) = cli_metadata.get("default_features") {
+        warn!(
+            "`default_features` has been renamed to `default-features` to align with Cargo's naming conventions."
+        );
+        match default_features {
+            Value::Bool(default_features) => Ok(Some(default_features).copied()),
+            Value::Null => Ok(None),
+            _ => bail!("default_features must be an array"),
+        }
+    } else {
         return Ok(None);
-    };
-
-    match default_features {
-        Value::Bool(default_features) => Ok(Some(default_features).copied()),
-        Value::Null => Ok(None),
-        _ => bail!("default_features must be an array"),
     }
 }
 
@@ -269,7 +280,7 @@ mod tests {
                 },
                 "web": {
                     "features": ["web"],
-                    "default_features": false,
+                    "default-features": false,
                     "dev": {
                         "features": ["web-dev"],
                         "rustflags": ["--cfg","getrandom_backend=\"wasm_js\""]
@@ -308,7 +319,7 @@ mod tests {
                 },
                 "native": {
                     "features": ["native"],
-                    "default_features": false,
+                    "default-features": false,
                     "release": {
                         "features": ["native-release"],
                         "rustflags": ["-C debuginfo=1"]
@@ -316,7 +327,7 @@ mod tests {
                 },
                 "web": {
                     "features": ["web"],
-                    "default_features": false,
+                    "default-features": false,
                     "rustflags": ["--cfg","getrandom_backend=\"wasm_js\""]
                 }
             });
@@ -348,11 +359,11 @@ mod tests {
                         "bevy/bevy_dev_tools",
                         "bevy/bevy_ui_debug"
                     ],
-                    "default_features": true,
+                    "default-features": true,
                 },
                 "web": {
                     "features": ["web"],
-                    "default_features": false,
+                    "default-features": false,
                     "dev": {
                         "features": ["web-dev"],
                     }
@@ -394,11 +405,11 @@ mod tests {
                 "dev": {
                     "rustflags": ["-C opt-level=2"],
                     "features": ["dev"],
-                    "default_features": true,
+                    "default-features": true,
                 },
                 "web": {
                     "features": ["web"],
-                    "default_features": false,
+                    "default-features": false,
                     "rustflags": ["--cfg","getrandom_backend=\"wasm_js\""],
                     "dev": {
                         "rustflags": ["-C debuginfo=1"],
