@@ -47,7 +47,9 @@ impl RunArgs {
     /// Whether to run the app in the browser.
     #[cfg(feature = "web")]
     pub(crate) fn is_web(&self) -> bool {
-        matches!(self.subcommand, Some(super::args::RunSubcommands::Web(_)))
+        matches!(self.subcommand, Some(RunSubcommands::Web(_)))
+            || self.cargo_args.compilation_args.profile.as_deref() == Some("web-release")
+            || self.cargo_args.compilation_args.profile.as_deref() == Some("web")
     }
     #[cfg(not(feature = "web"))]
     pub(crate) fn is_web(&self) -> bool {
@@ -56,7 +58,9 @@ impl RunArgs {
 
     /// Whether to build with optimizations.
     pub(crate) fn is_release(&self) -> bool {
-        self.cargo_args.compilation_args.is_release
+        self.cargo_args.compilation_args.profile.as_deref() == Some("release")
+            || self.cargo_args.compilation_args.profile.as_deref() == Some("web-release")
+            || self.cargo_args.compilation_args.is_release
     }
 
     /// The profile used to compile the app.
@@ -138,6 +142,17 @@ pub struct RunWebArgs {
     /// Can be defined multiple times to add multiple headers.
     #[clap(short = 'H', long = "headers", value_name = "HEADERS")]
     pub headers: Vec<String>,
+}
+
+impl Default for RunWebArgs {
+    fn default() -> Self {
+        Self {
+            port: 4000,
+            open: false,
+            create_packed_bundle: false,
+            headers: Vec::new(),
+        }
+    }
 }
 
 impl From<RunArgs> for BuildArgs {
