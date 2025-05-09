@@ -4,12 +4,13 @@
 
 # CLI User Guide
 
-- [Installation]()
-- [Quick Start]()
-- [Scaffolding]()
-- [Linter]()
-- [Web Apps]()
-- [Troubleshooting]()
+- [About](cli/index.md)
+- [Installation](cli/install.md)
+- [Quick Start](cli/quick-start.md)
+- [Scaffolding](cli/scaffolding.md)
+- [Web Apps](cli/web.md)
+- [Linter](cli/linter.md)
+- [Troubleshooting](cli/troubleshooting.md)
 
 # Linter User Guide
 
