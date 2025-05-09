@@ -36,24 +36,36 @@ jobs:
         with:
           save-if: ${{ github.ref == 'refs/heads/main' }}
 
-      - name: Build with `rustdoc`
+      - name: Install `mdbook`
+        uses: taiki-e/install-action@v2
+        with:
+          tool: mdbook
+
+      - name: Build `mdbook` docs
+        run: mdbook build
+        working-directory: docs
+
+      - name: Build API docs
         # This alias calls `cargo rustdoc` with additional arguments, as specified by
         # `.cargo/config.toml`.
-        run: cargo doc-lints
-
-      - name: Finalize documentation
         run: |
-          # Redirect root `index.html` to `bevy_lint/index.html`.
-          echo '<meta http-equiv="refresh" content="0; url=bevy_lint/index.html">' > target/doc/index.html
+          cargo doc --package bevy_cli --lib --no-deps
+          cargo doc-lints
 
+      - name: Merge docs
+        run: |
           # Sometimes Github Pages fails to bundle and publish `rustdoc` websites due to the weird
           # permissions of this file. Remove it, just in case.
           rm --force target/doc/.lock
 
+          # Move the outputs of `rustdoc` into the `api` folder.
+          mkdir docs/book/api
+          mv target/doc/* docs/book/api
+
       - name: Upload pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: target/doc
+          path: docs/book
 
   deploy:
     name: Deploy docs
