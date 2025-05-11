@@ -21,6 +21,7 @@ The server will provide a default `index.html` serving as entrypoint for your ap
 It features a loading screen and some other utilities.
 If you want to customize it, simply create a `web/index.html` file to override the default behavior.
 Other files in the `web` folder will also be included in your application.
+You can view the [default `index.html` here](web/index_template.md).
 
 ## Creating web bundles
 
