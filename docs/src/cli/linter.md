@@ -18,5 +18,5 @@ You can view a full list of supported options with:
 bevy lint -- --help
 ```
 
-[`bevy_lint`]: https://thebevyflock.github.io/bevy_cli/bevy_lint/index.html
-[installation guide]: https://thebevyflock.github.io/bevy_cli/bevy_lint/index.html#installation
+[`bevy_lint`]: https://thebevyflock.github.io/bevy_cli/api/bevy_lint/index.html
+[installation guide]: https://thebevyflock.github.io/bevy_cli/api/bevy_lint/index.html#installation
