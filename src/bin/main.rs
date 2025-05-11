@@ -1,13 +1,13 @@
 use ansi_term::Color::{Blue, Green, Purple, Red, Yellow};
-use anyhow::Result;
 use bevy_cli::{build::args::BuildArgs, run::RunArgs};
 use clap::{Args, CommandFactory, Parser, Subcommand};
+use tracing::debug;
 use tracing_subscriber::{
     fmt::{self, FormatEvent, FormatFields, format::Writer},
     prelude::*,
 };
 
-fn main() -> Result<()> {
+fn main() {
     let cli = Cli::parse();
 
     // Set default log level to info for the `bevy_cli` crate if `BEVY_LOG` is not set.
@@ -29,20 +29,21 @@ fn main() -> Result<()> {
         .with_filter(env);
 
     tracing_subscriber::registry().with(fmt_layer).init();
-
-    match cli.subcommand {
+    if let Err(error) = match cli.subcommand {
         Subcommands::New(new) => {
-            bevy_cli::template::generate_template(&new.name, &new.template, &new.branch)?;
+            bevy_cli::template::generate_template(&new.name, &new.template, &new.branch).map(|_| ())
         }
-        Subcommands::Lint { args } => bevy_cli::lint::lint(args)?,
-        Subcommands::Build(mut args) => bevy_cli::build::build(&mut args)?,
-        Subcommands::Run(mut args) => bevy_cli::run::run(&mut args)?,
+        Subcommands::Lint { args } => bevy_cli::lint::lint(args),
+        Subcommands::Build(mut args) => bevy_cli::build::build(&mut args),
+        Subcommands::Run(mut args) => bevy_cli::run::run(&mut args),
         Subcommands::Completions { shell } => {
             clap_complete::generate(shell, &mut Cli::command(), "bevy", &mut std::io::stdout());
+            Ok(())
         }
+    } {
+        debug!("error: {error}");
+        std::process::exit(1);
     }
-
-    Ok(())
 }
 
 /// Command-line interface for the Bevy Game Engine
