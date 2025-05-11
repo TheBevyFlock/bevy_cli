@@ -38,6 +38,8 @@ impl BuildArgs {
     #[cfg(feature = "web")]
     pub(crate) fn is_web(&self) -> bool {
         matches!(self.subcommand, Some(BuildSubcommands::Web(_)))
+            || self.cargo_args.compilation_args.profile.as_deref() == Some("web-release")
+            || self.cargo_args.compilation_args.profile.as_deref() == Some("web")
     }
     #[cfg(not(feature = "web"))]
     pub(crate) fn is_web(&self) -> bool {
@@ -46,7 +48,9 @@ impl BuildArgs {
 
     /// Whether to build with optimizations.
     pub(crate) fn is_release(&self) -> bool {
-        self.cargo_args.compilation_args.is_release
+        self.cargo_args.compilation_args.profile.as_deref() == Some("release")
+            || self.cargo_args.compilation_args.profile.as_deref() == Some("web-release")
+            || self.cargo_args.compilation_args.is_release
     }
 
     /// The profile used to compile the app.
@@ -104,7 +108,7 @@ pub enum BuildSubcommands {
 }
 
 /// Additional Arguments for building a Bevy web project.
-#[derive(Debug, Args)]
+#[derive(Debug, Args, Default)]
 pub struct BuildWebArgs {
     // Bundle all web artifacts into a single folder.
     #[arg(short = 'b', long = "bundle", action = ArgAction::SetTrue, default_value_t = false)]
