@@ -114,6 +114,7 @@ impl RunArgs {
             .clone()
             .or(config.rustflags());
 
+        #[cfg(feature = "web")]
         if let Some(RunSubcommands::Web(web_args)) = self.subcommand.as_mut() {
             if web_args.use_wasm_opt.is_none() {
                 web_args.use_wasm_opt = config.wasm_opt();

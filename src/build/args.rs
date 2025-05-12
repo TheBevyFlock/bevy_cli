@@ -71,6 +71,7 @@ impl BuildArgs {
     /// Whether to use `wasm-opt`.
     ///
     /// Defaults to `true` for release builds.
+    #[cfg(feature = "web")]
     pub(crate) fn use_wasm_opt(&self) -> bool {
         if let Some(BuildSubcommands::Web(web_args)) = &self.subcommand {
             web_args.use_wasm_opt.map_or(self.is_release(), |v| v)
@@ -108,6 +109,7 @@ impl BuildArgs {
             .clone()
             .or(config.rustflags());
 
+        #[cfg(feature = "web")]
         if let Some(BuildSubcommands::Web(web_args)) = self.subcommand.as_mut() {
             if web_args.use_wasm_opt.is_none() {
                 web_args.use_wasm_opt = config.wasm_opt();

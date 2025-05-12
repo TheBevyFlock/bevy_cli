@@ -75,6 +75,7 @@ impl CliConfig {
     }
 
     /// Whether to use `wasm-opt`.
+    #[cfg(feature = "web")]
     pub fn wasm_opt(&self) -> Option<bool> {
         self.wasm_opt
     }
