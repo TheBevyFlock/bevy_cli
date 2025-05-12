@@ -8,6 +8,7 @@ pub struct LintArgs {
     #[arg(long = "yes", default_value_t = false)]
     pub confirm_prompts: bool,
 
+    /// Arguments to forward to `cargo check`.
     #[arg(trailing_var_arg = true, allow_hyphen_values = true)]
     pub cargo_check_args: Vec<String>,
 }
