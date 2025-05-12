@@ -15,7 +15,7 @@ name = "bevy"
 path = "src/bin/main.rs"
 
 [features]
-default = ["rustup", "web"]
+default = ["rustup", "web", "wasm-opt"]
 
 # To optimize the Wasm binaries
 wasm-opt = ["web"]
