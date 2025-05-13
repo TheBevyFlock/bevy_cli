@@ -1,0 +1,13 @@
+[book]
+title = "Bevy CLI and Linter"
+description = "The official documentation for the Bevy CLI and linter"
+src = "src"
+language = "en"
+
+[rust]
+edition = "2024"
+
+[output.html]
+git-repository-url = "https://github.com/TheBevyFlock/bevy_cli"
+edit-url-template = "https://github.com/TheBevyFlock/bevy_cli/edit/main/docs/{path}?mode=edit"
+site-url = "/bevy_cli/"
