@@ -16,12 +16,14 @@ fn main() {
     let env = tracing_subscriber::EnvFilter::try_from_env("BEVY_LOG").map_or_else(
         |_| {
             if cli.verbose {
-                tracing_subscriber::EnvFilter::new("bevy_cli=debug")
+                tracing_subscriber::EnvFilter::new("bevy_cli=debug,bevy_cli_bin=debug")
             } else {
-                tracing_subscriber::EnvFilter::new("bevy_cli=info")
+                tracing_subscriber::EnvFilter::new("bevy_cli=info,bevy_cli_bin=info")
             }
         },
-        |filter| tracing_subscriber::EnvFilter::new(format!("bevy_cli={filter}")),
+        |filter| {
+            tracing_subscriber::EnvFilter::new(format!("bevy_cli={filter},bevy_cli_bin={filter}"))
+        },
     );
 
     let fmt_layer = fmt::layer()
@@ -31,6 +33,7 @@ fn main() {
         .with_filter(env);
 
     tracing_subscriber::registry().with(fmt_layer).init();
+
     if let Err(error) = match cli.subcommand {
         Subcommands::New(new) => {
             bevy_cli::template::generate_template(&new.name, &new.template, &new.branch).map(|_| ())
@@ -44,7 +47,9 @@ fn main() {
             Ok(())
         }
     } {
-        debug!("error: {error}");
+        // the binary of the `bevy_cli` is called `bevy` but to not also set
+        // the tracing level for `bevy` the crate, choose a custom target name.
+        debug!(target:"bevy_cli_bin", "error: {error}");
         std::process::exit(1);
     }
 }
