@@ -6,7 +6,10 @@ use crate::{
     bin_target::BinTarget,
     build::args::BuildArgs,
     external_cli::cargo::metadata::Metadata,
-    run::{RunArgs, args::RunSubcommands},
+    run::{
+        RunArgs,
+        args::{RunSubcommands, RunWebArgs},
+    },
 };
 
 use super::{build::build_web, serve::serve};
@@ -19,8 +22,9 @@ pub(crate) fn run_web(
     metadata: &Metadata,
     bin_target: &BinTarget,
 ) -> anyhow::Result<()> {
-    let Some(RunSubcommands::Web(web_args)) = &args.subcommand else {
-        anyhow::bail!("tried to run on the web without corresponding args");
+    let web_args = match &args.subcommand {
+        Some(RunSubcommands::Web(web_args)) => web_args,
+        None => &RunWebArgs::default(),
     };
 
     let header_map = parse_headers(&web_args.headers)?;

@@ -5,13 +5,16 @@ on:
     branches: [main]
   workflow_dispatch:
 
-env:
-  CARGO_TERM_COLOR: always
-
 # Only allow one deployment to run at a time, however do not cancel runs in progress.
 concurrency:
   group: pages
   cancel-in-progress: false
+
+env:
+  # Only include the debug info necessary for backtraces (file names and line numbers). Any extra
+  # debug info provided by `debuginfo=1` or `debuginfo=2` require an interactive debugger like
+  # `lldb` or `gdb`.
+  RUSTFLAGS: -C debuginfo=line-tables-only
 
 jobs:
   extract-rust-version:
@@ -37,24 +40,36 @@ jobs:
         with:
           save-if: ${{ github.ref == 'refs/heads/main' }}
 
-      - name: Build with `rustdoc`
+      - name: Install `mdbook`
+        uses: taiki-e/install-action@v2
+        with:
+          tool: mdbook
+
+      - name: Build `mdbook` docs
+        run: mdbook build
+        working-directory: docs
+
+      - name: Build API docs
         # This alias calls `cargo rustdoc` with additional arguments, as specified by
         # `.cargo/config.toml`.
-        run: cargo doc-lints
-
-      - name: Finalize documentation
         run: |
-          # Redirect root `index.html` to `bevy_lint/index.html`.
-          echo '<meta http-equiv="refresh" content="0; url=bevy_lint/index.html">' > target/doc/index.html
+          cargo doc --package bevy_cli --lib --no-deps
+          cargo doc-lints
 
+      - name: Merge docs
+        run: |
           # Sometimes Github Pages fails to bundle and publish `rustdoc` websites due to the weird
           # permissions of this file. Remove it, just in case.
           rm --force target/doc/.lock
 
+          # Move the outputs of `rustdoc` into the `api` folder.
+          mkdir docs/book/api
+          mv target/doc/* docs/book/api
+
       - name: Upload pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: target/doc
+          path: docs/book
 
   deploy:
     name: Deploy docs

@@ -18,9 +18,6 @@ path = "src/bin/main.rs"
 [features]
 default = ["rustup", "web"]
 
-# To optimize the Wasm binaries
-wasm-opt = ["web"]
-
 # Run your Bevy app in the browser
 web = [
     "dep:webbrowser",

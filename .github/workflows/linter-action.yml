@@ -9,9 +9,6 @@ on:
       - bevy_lint/action.yml
   workflow_dispatch:
 
-env:
-  CARGO_TERM_COLOR: always
-
 jobs:
   install-linter:
     name: Install `bevy_lint`
