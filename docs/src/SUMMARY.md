@@ -9,7 +9,7 @@
 - [Quick Start](cli/quick-start.md)
 - [Scaffolding](cli/scaffolding.md)
 - [Web Apps](cli/web.md)
-    - [Default `index.html`](cli/web/default_index_html.md)
+    - [Default `index.html`](cli/web/default-index-html.md)
 - [Linter](cli/linter.md)
 - [Troubleshooting](cli/troubleshooting.md)
 
