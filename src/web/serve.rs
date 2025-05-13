@@ -97,7 +97,7 @@ pub(crate) async fn serve(
 
             match index {
                 Index::File(path) => {
-                    router = router.route_service("/", ServeDir::new(path));
+                    router = router.route_service("/", ServeFile::new(path));
                 }
                 Index::Content(content) => {
                     // Try to inject the auto reload script in the document body
