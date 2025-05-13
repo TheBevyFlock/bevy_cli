@@ -1,5 +1,7 @@
 # Installation
 
+<!-- Please keep this section synchronized with the `README.md`. -->
+
 At this point, the CLI is not published on <https://crates.io> and needs to be installed via Git:
 
 ```sh
