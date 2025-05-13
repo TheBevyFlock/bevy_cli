@@ -1,8 +1,6 @@
+use crate::external_cli::wasm_opt;
 use anyhow::Context as _;
 use tracing::info;
-
-#[cfg(feature = "wasm-opt")]
-use crate::external_cli::wasm_opt;
 
 use crate::{
     bin_target::BinTarget,
@@ -58,8 +56,7 @@ pub fn build_web(
     info!("bundling JavaScript bindings...");
     wasm_bindgen::bundle(metadata, bin_target, args.auto_install())?;
 
-    #[cfg(feature = "wasm-opt")]
-    if args.is_release() {
+    if args.use_wasm_opt() {
         wasm_opt::optimize_path(bin_target, args.auto_install())?;
     }
 
