@@ -15,10 +15,15 @@
 
 # Linter User Guide
 
-- [Installation]()
-- [Usage]()
-- [Compatibility]()
-- [Github Actions]()
+- [About](linter/index.md)
+- [Installation](linter/install.md)
+- [Usage](linter/usage.md)
+    - [Toggling Lints in `Cargo.toml`](linter/usage/toggling-lints-cargo-toml.md)
+    - [Detecting `bevy_lint`](linter/usage/detecting-bevy-lint.md)
+    - [Registering `bevy` as a Tool](linter/usage/register-bevy-tool.md)
+    - [Toggling Lints in Code](linter/usage/toggling-lints-code.md)
+- [Compatibility](linter/compatibility.md)
+- [Github Actions](linter/github-actions.md)
 
 ---
 

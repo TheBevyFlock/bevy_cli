@@ -3,7 +3,7 @@
 This is the combined documentation for the **Bevy CLI** and **linter** projects, tools designed to improve the experience developing apps using the [Bevy game engine]. To get started, take a look about the about pages for one of the tools:
 
 - [**Bevy CLI**](cli/index.md)
-- [**Bevy Linter**](https://thebevyflock.github.io/bevy_cli/api/bevy_lint/)
+- [**Bevy Linter**](linter/index.md)
 
 [Bevy game engine]: https://bevyengine.org
 
