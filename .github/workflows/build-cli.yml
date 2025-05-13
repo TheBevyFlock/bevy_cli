@@ -112,7 +112,7 @@ jobs:
   upload-to-release:
     name: Upload artifacts to release
     needs: [extract-cli-version, build-cli]
-    if: ${{ inputs.upload-to-release == 'true' }}
+    if: ${{ inputs.upload-to-release }}
     runs-on: ubuntu-latest
     permissions:
       # Allow uploading assets to releases.
