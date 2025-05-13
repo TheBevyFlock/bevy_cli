@@ -60,7 +60,9 @@ jobs:
       # - `extension`: The executable extension for this platform.
       matrix:
         include:
-          - os: ubuntu-latest
+          # We use an older version of Ubuntu so the CLI dynamically links to an older `glibc`
+          # version, increasing compatibility.
+          - os: ubuntu-22.04
             target: x86_64-unknown-linux-gnu
             extension: ''
           - os: windows-latest
