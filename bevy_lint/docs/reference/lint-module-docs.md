@@ -61,5 +61,5 @@ If you wish to elaborate further on how to fix the lint or supply further exampl
 here. If this is a Cargo lint, switch out the Rust code block with a TOML one for `Cargo.toml`.
 ````
 
-[which can be found here]: https://thebevyflock.github.io/bevy_cli/bevy_lint/lints/index.html
+[which can be found here]: https://thebevyflock.github.io/bevy_cli/api/bevy_lint/lints/index.html
 [`src/lints/missing_reflect.rs`]: ../../src/lints/missing_reflect.rs

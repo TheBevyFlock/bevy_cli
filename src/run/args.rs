@@ -113,6 +113,13 @@ impl RunArgs {
             .rustflags
             .clone()
             .or(config.rustflags());
+
+        #[cfg(feature = "web")]
+        if let Some(RunSubcommands::Web(web_args)) = self.subcommand.as_mut() {
+            if web_args.use_wasm_opt.is_none() {
+                web_args.use_wasm_opt = config.wasm_opt();
+            }
+        }
     }
 }
 
@@ -142,6 +149,10 @@ pub struct RunWebArgs {
     /// Can be defined multiple times to add multiple headers.
     #[clap(short = 'H', long = "headers", value_name = "HEADERS")]
     pub headers: Vec<String>,
+
+    // Use `wasm-opt` to optimize the wasm binary
+    #[arg(long = "wasm-opt")]
+    pub use_wasm_opt: Option<bool>,
 }
 
 impl Default for RunWebArgs {
@@ -151,6 +162,7 @@ impl Default for RunWebArgs {
             open: false,
             create_packed_bundle: false,
             headers: Vec::new(),
+            use_wasm_opt: None,
         }
     }
 }
@@ -186,6 +198,7 @@ impl From<RunArgs> for BuildArgs {
                 #[cfg(feature = "web")]
                 RunSubcommands::Web(web_args) => BuildSubcommands::Web(BuildWebArgs {
                     create_packed_bundle: web_args.create_packed_bundle,
+                    use_wasm_opt: web_args.use_wasm_opt,
                 }),
             }),
         }

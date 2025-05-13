@@ -26,6 +26,8 @@ pub struct CliConfig {
     default_features: Option<bool>,
     /// Additional flags for `rustc`
     rustflags: Vec<String>,
+    /// Use `wasm-opt` to optimize wasm binaries.
+    wasm_opt: Option<bool>,
 }
 
 impl CliConfig {
@@ -37,12 +39,14 @@ impl CliConfig {
             features,
             default_features,
             rustflags,
+            wasm_opt,
         } = self;
 
         target.is_none()
             && features.is_empty()
             && default_features.is_none()
             && rustflags.is_empty()
+            && wasm_opt.is_none()
     }
 
     /// The platform to target with the build.
@@ -68,6 +72,12 @@ impl CliConfig {
             return None;
         }
         Some(self.rustflags.clone().join(" "))
+    }
+
+    /// Whether to use `wasm-opt`.
+    #[cfg(feature = "web")]
+    pub fn wasm_opt(&self) -> Option<bool> {
+        self.wasm_opt
     }
 
     /// Determine the Bevy CLI config as defined in the given package.
@@ -146,6 +156,7 @@ impl CliConfig {
             features: extract_features(metadata)?,
             default_features: extract_default_features(metadata)?,
             rustflags: extract_rustflags(metadata)?,
+            wasm_opt: extract_use_wasm_opt(metadata)?,
         })
     }
 
@@ -156,6 +167,8 @@ impl CliConfig {
     pub fn overwrite(mut self, with: &Self) -> Self {
         self.target = with.target.clone().or(self.target);
         self.default_features = with.default_features.or(self.default_features);
+
+        self.wasm_opt = with.wasm_opt.or(self.wasm_opt);
 
         // Features and Rustflags are additive
         self.features.extend(with.features.iter().cloned());
@@ -205,7 +218,7 @@ fn extract_default_features(cli_metadata: &Map<String, Value>) -> anyhow::Result
         match default_features {
             Value::Bool(default_features) => Ok(Some(default_features).copied()),
             Value::Null => Ok(None),
-            _ => bail!("default-features must be an array"),
+            _ => bail!("default-features must be a boolean"),
         }
     } else if let Some(default_features) = cli_metadata.get("default_features") {
         warn!(
@@ -214,7 +227,7 @@ fn extract_default_features(cli_metadata: &Map<String, Value>) -> anyhow::Result
         match default_features {
             Value::Bool(default_features) => Ok(Some(default_features).copied()),
             Value::Null => Ok(None),
-            _ => bail!("default_features must be an array"),
+            _ => bail!("default_features must be a boolean"),
         }
     } else {
         return Ok(None);
@@ -239,6 +252,18 @@ fn extract_rustflags(cli_metadata: &Map<String, Value>) -> anyhow::Result<Vec<St
         Value::String(rustflag) => Ok(vec![rustflag.clone()]),
         Value::Null => Ok(Vec::new()),
         _ => bail!("rustflags must be an array or string"),
+    }
+}
+
+fn extract_use_wasm_opt(cli_metadata: &Map<String, Value>) -> anyhow::Result<Option<bool>> {
+    if let Some(use_wasm_opt) = cli_metadata.get("wasm-opt") {
+        match use_wasm_opt {
+            Value::Bool(use_wasm_opt) => Ok(Some(use_wasm_opt).copied()),
+            Value::Null => Ok(None),
+            _ => bail!("wasm-opt must be a boolean"),
+        }
+    } else {
+        Ok(None)
     }
 }
 
@@ -303,7 +328,8 @@ mod tests {
                         "-C opt-level=2".to_string(),
                         "--cfg".to_string(),
                         "getrandom_backend=\"wasm_js\"".to_string()
-                    ]
+                    ],
+                    wasm_opt: None
                 }
             );
             Ok(())
@@ -343,7 +369,8 @@ mod tests {
                         "native-release".to_owned()
                     ],
                     default_features: Some(false),
-                    rustflags: vec!["-C opt-level=2".to_string(), "-C debuginfo=1".to_string()]
+                    rustflags: vec!["-C opt-level=2".to_string(), "-C debuginfo=1".to_string()],
+                    wasm_opt: None
                 }
             );
             Ok(())
@@ -381,7 +408,8 @@ mod tests {
                         "bevy/bevy_ui_debug".to_owned()
                     ],
                     default_features: Some(true),
-                    rustflags: Vec::new()
+                    rustflags: Vec::new(),
+                    wasm_opt: None
                 }
             );
             Ok(())
@@ -424,7 +452,8 @@ mod tests {
                     target: None,
                     features: vec!["base".to_owned(),],
                     default_features: None,
-                    rustflags: Vec::new()
+                    rustflags: Vec::new(),
+                    wasm_opt: None
                 }
             );
             Ok(())
