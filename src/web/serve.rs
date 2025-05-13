@@ -63,6 +63,7 @@ pub(crate) async fn serve(
             js_file_name,
             index,
             assets_path,
+            web_assets,
         }) => {
             router = router
                 .route_service(
@@ -117,6 +118,11 @@ pub(crate) async fn serve(
                         }),
                     );
                 }
+            }
+
+            // Try to serve anything else from the custom web assets, if provided
+            if let Some(web_assets) = web_assets {
+                router = router.fallback_service(ServeDir::new(web_assets));
             }
         }
     }
