@@ -6,17 +6,16 @@
 
 </div>
 
-- [**Documentation**]
+- [**Documentation**](https://thebevyflock.github.io/bevy_cli/linter/index.html)
 - [**All Lints**]
 - [**Repository**](https://github.com/TheBevyFlock/bevy_cli)
 - [**Issue Tracker**](https://github.com/TheBevyFlock/bevy_cli/issues?q=is%3Aopen+is%3Aissue+label%3AA-Linter)
 
 <!--
-These links get overridden when this file is rendered by `rustdoc`.
-For more info on how this works, see <https://linebender.org/blog/doc-include/>.
+This link gets overridden when this file is rendered by `rustdoc`. For more info on how this works,
+see <https://linebender.org/blog/doc-include/>.
 -->
-[**Documentation**]: https://thebevyflock.github.io/bevy_cli/bevy_lint/
-[**All Lints**]: https://thebevyflock.github.io/bevy_cli/bevy_lint/lints/index.html
+[**All Lints**]: https://thebevyflock.github.io/bevy_cli/api/bevy_lint/lints/index.html
 
 <div class="rustdoc-alert rustdoc-alert-warning">
 
@@ -54,7 +53,7 @@ rustup run $TOOLCHAIN_VERSION cargo install \
 
 Make sure to replace `$TOOLCHAIN_VERSION` and `$TAG` in the above command. The tag for a specific release can be found in the [releases tab](https://github.com/TheBevyFlock/bevy_cli/releases). For example, the tag for v0.1.0 is `lint-v0.1.0`.
 
-## Usage
+## Getting Started
 
 `bevy_lint` has the same API as the `cargo check` command:
 
@@ -76,172 +75,6 @@ bevy lint --help
 
 </div>
 
-### Toggling Lints in `Cargo.toml`
-
-You can set the default level for lints in a `Cargo.toml` using the `[package.metadata.bevy_lint]` table:
-
-```toml
-[package.metadata.bevy_lint]
-# Make the `missing_reflect` lint a warning.
-missing_reflect = "warn"
-# Make the `panicking_methods` lint an error that cannot be `#[allow(...)]`d.
-panicking_methods = { level = "forbid" }
-```
-
-You can configure lints for an entire workspace by using `[workspace.metadata.bevy_lint]` in the root `Cargo.toml` instead:
-
-```toml
-[workspace.metadata.bevy_lint]
-# Enable the entire `pedantic` lint group, and make them all warnings.
-pedantic = "warn"
-```
-
-Crate lint configuration is merged with workspace lint configuration, with crate lint configuration taking priority.
-
-Note that unlike with [Cargo's `[lints]` table](https://doc.rust-lang.org/cargo/reference/manifest.html#the-lints-section), the `priority` field is not supported. Furthermore, if you wish to use `#[allow(...)]` and related attributes inside your code for Bevy-specific lints, please see [Toggling Lints in Code](#toggling-lints-in-code).
-
-### Detecting `bevy_lint`
-
-The linter passes `--cfg bevy_lint` when it checks your code, allowing you to detect it:
-
-```rust,ignore
-// Conditionally include this function only when `bevy_lint` is used.
-#[cfg(bevy_lint)]
-fn foo() {
-    // ...
-}
-
-// Conditionally add an attribute only when `bevy_lint` is used.
-#[cfg_attr(bevy_lint, ...)]
-struct Foo;
-```
-
-If you use this, you may also need to register `bevy_lint` as a valid `cfg` flag in your `Cargo.toml`:
-
-```toml
-[lints.rust]
-unexpected_cfg = { level = "warn", check-cfg = ["cfg(bevy_lint)"] }
-```
-
-### Registering `bevy` as a Tool
-
-When you run `bevy_lint` on a project, `rustc` knows an exact list of all `bevy::` lints registered. With this it can detect that `bevy::missing_reflect` is valid and `bevy::uh_oh` isn't, and emit a corresponding warning.
-
-When you run normal `cargo check`, however, it does not know about _any_ `bevy::` lints. In order to avoid erroring on _all_ usages of `bevy::`, but to still provide good diagnostics on typos, the `#![register_tool(...)]` attribute was introduced.
-
-```rust,ignore
-// Note that this is nightly-only. We'll get to that in a second!
-#![register_tool(bevy)]
-```
-
-Using `#![register_tool(bevy)]` tells the compiler that `bevy` is a valid name in attributes, even if it does not know what `bevy` is.[^rustfmt-skip] When `cargo check` now runs over a project with `#[warn(bevy::lint_name)]`, it will simply skip it instead of emitting an error. (But running `bevy_lint` will still detect and check this attribute as normal.)
-
-[^rustfmt-skip]: If you've ever used `#[rustfmt::skip]` in your code, this is how `rustc` avoids erroring on it. However unlike the `bevy` namespace, `rustfmt` is registered automatically without a need for `#![register_tool(rustfmt)]` due to it being an official tool.
-
-If you wish to refer to a `bevy` lint at all in your code (usually to [toggle it](#toggling-lints-in-code)), you must add `#![register_tool(bevy)]` to each crate root. Unfortunately, `#![register_tool(...)]` is [currently unstable](https://doc.rust-lang.org/nightly/unstable-book/language-features/register-tool.html), meaning you need to add `#![feature(register_tool)]` to your code as well. This isn't an issue if you [detect when `bevy_lint` is enabled](#detecting-bevy_lint), since it is guaranteed to check your code using nightly Rust.
-
-```rust,ignore
-// When `bevy_lint` is used, enable the `register_tool` feature and register `bevy` as a tool.
-#![cfg_attr(bevy_lint, feature(register_tool), register_tool(bevy))]
-```
-
-<div class="rustdoc-alert rustdoc-alert-tip">
-
-> **Tip**
->
-> If your project already uses nightly Rust, you can forego the `#[cfg_attr(bevy_lint, ...)]` attributes and write `#![feature(register_tool)]` and `#![register_tool(bevy)]` directly! Cool!
-
-</div>
-
-### Toggling Lints in Code
-
-It is possible to set lint levels on a case-by-case basis inside your code, but it requires a few more steps than [setting the levels for the entire crate in `Cargo.toml`](#toggling-lints-in-cargotoml). First, you must [register `bevy` as a tool](#registering-bevy-as-a-tool). Not doing so will cause `#[allow(bevy::lint_name)]` and related attributes to fail to compile.
-
-Once `bevy` is registered, you can toggle lints throughout your code, as long as they too are behind `#[cfg_attr(bevy_lint, ...)]`:
-
-```rust,ignore
-#![cfg_attr(bevy_lint, feature(register_tool), register_tool(bevy))]
-
-// Enable the `pedantic` lint group, which is off by default.
-#![cfg_attr(bevy_lint, warn(bevy::pedantic))]
-
-// Deny panicking Bevy methods in this system when a non-panicking alternatives exist.
-#[cfg_attr(bevy_lint, deny(bevy::panicking_methods))]
-fn my_critical_system(world: &mut World) {
-    // ...
-}
-```
-
-There are several other ways to toggle lints, although some have varying levels of support:
-
-|Method|Support|Additional Information|
-|-|-|-|
-|`[package.metadata.bevy_lint]` in `Cargo.toml`|✅|See [Toggling Lints in `Cargo.toml`](#toggling-lints-in-cargotoml).|
-|`[workspace.metadata.bevy_lint]` in `Cargo.toml`|✅|See [Toggling Lints in `Cargo.toml`](#toggling-lints-in-cargotoml).|
-|`#[allow(...)]` and related|✅|Must be behind `#[cfg_attr(bevy_lint, ...)]` on stable Rust.|
-|`[lints.bevy]` in `Cargo.toml`|⚠️|Nightly only because `#[register_tool(bevy)]` must always be enabled. Prints a warning each time `cargo` is run.|
-|`[workspace.lints.bevy]` in `Cargo.toml`|⚠️|Same as `[lints.bevy]`.|
-|`RUSTFLAGS="-A bevy::lint"`|❌|`RUSTFLAGS` applies to dependencies, but they do not have `#[register_tool(bevy)]`.|
-
-## Compatibility
-
-|`bevy_lint` Version|Rust Version|Rustup Toolchain|Bevy Version|
-|-|-|-|-|
-|0.4.0-dev|1.88.0|`nightly-2025-04-03`|0.16|
-|0.3.0|1.88.0|`nightly-2025-04-03`|0.16|
-|0.2.0|1.87.0|`nightly-2025-02-20`|0.15|
-|0.1.0|1.84.0|`nightly-2024-11-14`|0.14|
-
-The Rust version in the above table specifies what [version of the Rust language](https://github.com/rust-lang/rust/releases) can be compiled with `bevy_lint`. Code written for a later version of Rust may not compile. (This is not usually an issue, though, because `bevy_lint`'s Rust version is kept 1 to 2 releases ahead of stable Rust.)
-
-The Rustup toolchain specifies which toolchain must be installed in order for `bevy_lint` to be installed and used. Please see [the installation section](#installation) for more info.
-
-The Bevy version is a range of Bevy versions that `bevy_lint` has been tested with and is guaranteed to work. Newer or older releases may not be linted correctly and may cause the linter to crash. (If this does happen for you, please consider [submitting a bug report](https://github.com/TheBevyFlock/bevy_cli/issues)!)
-
-## Github Actions
-
-`bevy_lint` provides an action to conveniently install the linter in CI:
-
-```yml
-# Replace `lint-vX.Y.Z` with the tag of the version installed, such as `lint-v0.3.0`.
-- name: Install `bevy_lint`
-  uses: TheBevyFlock/bevy_cli/bevy_lint@lint-vX.Y.Z
-
-- name: Run `bevy_lint`
-  run: bevy_lint --workspace
-```
-
-You may install the unstable, bleeding-edge version from the `main` branch:
-
-```yml
-- name: Install `bevy_lint`
-  uses: TheBevyFlock/bevy_cli/bevy_lint@main
-```
-
-Note that this action overrides the default toolchain and configures it to be the nightly version specified in the [compatibility table](#compatibility). If you previously installed another Rustup toolchain, you may wish to reconfigure it to be the default:
-
-```yml
-# Sets the default toolchain to be stable Rust.
-- name: Install stable Rust
-  uses: dtolnay/rust-toolchain@stable
-
-# Overrides the default toolchain to be nightly Rust.
-- name: Install `bevy_lint`
-  uses: TheBevyFlock/bevy_cli/bevy_lint@lint-vX.Y.Z
-
-# Resets the default toolchain back to stable Rust.
-- name: Configure the default Rust toolchain
-  run: rustup default stable
-```
-
-<div class="rustdoc-alert rustdoc-alert-important">
-
-> **Important**
->
-> The action is only available for versions v0.3.0 and onward. v0.2.0 and v0.1.0 will not work, however you may emulate it by manually running the [installation commands](#installation) in your workflow.
-
-</div>
-
 ## License
 
 The Bevy Linter is licensed under either of
@@ -253,6 +86,6 @@ at your option.
 
 ## Contributing
 
-Please see [`CONTRIBUTING.md`](https://github.com/TheBevyFlock/bevy_cli/blob/main/CONTRIBUTING.md) for the CLI for more information! There is also a linter-specific contributing guide in the [`docs` folder](https://github.com/TheBevyFlock/bevy_cli/tree/main/bevy_lint/docs).
+Please see [`CONTRIBUTING.md`](https://github.com/TheBevyFlock/bevy_cli/blob/main/CONTRIBUTING.md) for the CLI for more information! The linter contributing guide can be found [on the website](https://thebevyflock.github.io/bevy_cli/contribute/linter/index.html).
 
 Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in the work by you, as defined in the Apache-2.0 license, shall be dual licensed as above, without any additional terms or conditions.
