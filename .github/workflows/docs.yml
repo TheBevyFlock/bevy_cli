@@ -53,7 +53,7 @@ jobs:
         # `.cargo/config.toml`.
         run: |
           cargo doc --package bevy_cli --lib --no-deps
-          cargo doc-lints
+          cargo doc-lints -Z unstable-options --enable-index-page
 
       - name: Merge docs
         run: |
