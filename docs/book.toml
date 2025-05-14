@@ -43,3 +43,17 @@ site-url = "/bevy_cli/"
 "/bevy_lint/lints/suspicious/insert_event_resource/index.html" = "/api/bevy_lint/lints/suspicious/insert_event_resource/index.html"
 "/bevy_lint/lints/suspicious/insert_unit_bundle/index.html" = "/api/bevy_lint/lints/suspicious/insert_unit_bundle/index.html"
 "/bevy_lint/lints/suspicious/iter_current_update_events/index.html" = "/api/bevy_lint/lints/suspicious/iter_current_update_events/index.html"
+
+# `mdbook-linkcheck` <https://github.com/Michael-F-Bryan/mdbook-linkcheck> is a backend that
+# verifies links are correct.
+[output.linkcheck]
+# You don't need `linkcheck` installed in order to build the website.
+optional = true
+# The API docs are built by `rustdoc` and merged separately, so `linkcheck` doesn't know they
+# exist.
+exclude = ["/api/bevy_lint"]
+# When enabled, this will send requests to websites to verify the pages exist. This is slow and
+# places a burden on those websites when checked constantly, so this should only be enabled
+# manually.
+follow-web-links = false
+user-agent = "mdbook-lintcheck/0.7.7 (https://github.com/TheBevyFlock/bevy_cli)"
