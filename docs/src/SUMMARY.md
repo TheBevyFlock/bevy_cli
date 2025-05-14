@@ -12,6 +12,7 @@
     - [Default `index.html`](cli/web/default_index_html.md)
 - [Linter](cli/linter.md)
 - [Configuration](cli/configuration.md)
+- [bevy_cli Metadata Reference](cli/metadata-reference.md)
 - [Troubleshooting](cli/troubleshooting.md)
 
 # Linter User Guide
