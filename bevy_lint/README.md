@@ -67,13 +67,7 @@ If you have the [Bevy CLI](https://github.com/TheBevyFlock/bevy_cli) installed, 
 bevy lint --help
 ```
 
-<div class="rustdoc-alert rustdoc-alert-note">
-
-> **Note**
->
-> `bevy_lint` checks your code with the nightly toolchain it was installed with, meaning you _do_ have access to unstable features when it is called. This is best used when [detecting `bevy_lint`](#detecting-bevy_lint).
-
-</div>
+For more information on how to use the website, please see the [full documentation](https://thebevyflock.github.io/bevy_cli/linter/index.html).
 
 ## License
 
