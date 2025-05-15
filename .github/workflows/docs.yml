@@ -18,6 +18,7 @@ env:
 
 jobs:
   extract-rust-version:
+    name: Extract Rust version
     uses: ./.github/workflows/extract-rust-version.yml
 
   build-lint-docs:

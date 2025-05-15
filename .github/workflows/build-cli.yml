@@ -1,0 +1,136 @@
+# Builds the CLI in release mode for Linux, Windows, and MacOS. This workflow may be manually
+# triggered, and supports automatically uploading the compiled executables to a release.
+
+name: Build CLI
+
+on:
+  workflow_dispatch:
+    inputs:
+      upload-to-release:
+        # Whether to upload the built artifacts to a draft release. When true, the artifacts will
+        # be uploaded to a release with the tag `cli-vX.Y.Z`. (Where the version is determined from
+        # `Cargo.toml`.)
+        description: Upload to release tagged with `cli-vX.Y.Z`
+        required: true
+        type: boolean
+
+jobs:
+  extract-rust-version:
+    name: Extract Rust version
+    uses: ./.github/workflows/extract-rust-version.yml
+
+  extract-cli-version:
+    name: Extract CLI version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Taplo
+        run: |
+          curl -fsSL https://github.com/tamasfe/taplo/releases/latest/download/taplo-linux-x86_64.gz \
+            | gzip --decompress - \
+            | install -m 755 /dev/stdin /usr/local/bin/taplo
+
+      - name: Extract CLI version
+        id: version
+        shell: bash
+        run: |
+          VERSION=$(taplo get --file-path='Cargo.toml' 'package.version')
+          echo "version=${VERSION}" >> "${GITHUB_OUTPUT}"
+
+  build-cli:
+    name: Build CLI
+    permissions:
+      # Generate and publish attestations for the built executable.
+      attestations: write
+      # Checkout the repository.
+      contents: read
+      # Permission to create JWTs for publishing attestations.
+      id-token: write
+    needs: [extract-rust-version, extract-cli-version]
+    strategy:
+      # Each combination has three fields:
+      # - `os`: The operating system, used as the input for `runs-on` in Github Actions. A list of
+      #   options is available at <https://github.com/actions/runner-images>.
+      # - `target`: The Rust target tuple the executable is built for. A list of options is
+      #   available at <https://doc.rust-lang.org/rustc/platform-support.html>.
+      # - `extension`: The executable extension for this platform.
+      matrix:
+        include:
+          # We use an older version of Ubuntu so the CLI dynamically links to an older `glibc`
+          # version, increasing compatibility.
+          - os: ubuntu-22.04
+            target: x86_64-unknown-linux-gnu
+            extension: ''
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            extension: .exe
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            extension: ''
+    env:
+      # The name of the built executable.
+      EXECUTABLE_NAME: bevy-${{ matrix.target }}-v${{ needs.extract-cli-version.outputs.version }}${{ matrix.extension }}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ needs.extract-rust-version.outputs.channel }}
+          components: ${{ needs.extract-rust-version.outputs.components }}
+
+      - name: Build CLI
+        run: cargo build --package bevy_cli --release --all-features --locked
+
+      - name: Rename executable
+        shell: bash
+        run: mv target/release/bevy${{ matrix.extension }} target/release/${{ env.EXECUTABLE_NAME }}
+        # `mv` is not available in Powershell on Windows, so force it to use the Bash version.
+
+      # Attestations let users verify the binary they downloaded is the same that was built in CI
+      # with `gh attestation verify path/to/bevy --repo TheBevyFlock/bevy_cli`. A list of
+      # attestations can be found at <https://github.com/TheBevyFlock/bevy_cli/attestations>.
+      - name: Attest executable
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-name: bevy-cli-${{ matrix.target }}-v${{ needs.extract-cli-version.outputs.version }}
+          subject-path: target/release/${{ env.EXECUTABLE_NAME }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bevy-cli-${{ matrix.target }}-v${{ needs.extract-cli-version.outputs.version }}
+          path: target/release/${{ env.EXECUTABLE_NAME }}
+          if-no-files-found: error
+
+  upload-to-release:
+    name: Upload artifacts to release
+    needs: [extract-cli-version, build-cli]
+    if: ${{ inputs.upload-to-release }}
+    runs-on: ubuntu-latest
+    permissions:
+      # Allow uploading assets to releases.
+      contents: write
+    steps:
+      # Each artifact will be downloaded to its own folder prefixed with `bevy-cli-`.
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./
+          pattern: bevy-cli-*
+          merge-multiple: false
+
+      # The tag is assumed to be `cli-VERSION`. We pass `--clobber` to overwrite existing release
+      # files if there is a name collision so that this action can be run multiple times if need
+      # be.
+      - name: Upload artifacts to release
+        run: gh release upload cli-v${{ needs.extract-cli-version.outputs.version }} bevy-cli-*/* --clobber
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
