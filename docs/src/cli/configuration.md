@@ -29,8 +29,9 @@ For both these targets a release and dev [`profile`] exists that will automatica
 Configuration is merged in the following order (from general to specific):
 
 1. Base config: `[package.metadata.bevy_cli]`
-2. Target config: `[package.metadata.bevy_cli.{native|web}]`
-3. Target + Profile config: `[package.metadata.bevy_cli.{native|web}.{dev|release}]`
+2. Profile config `[package.metadata.bevy_cli.{dev|release)]`
+3. Target config: `[package.metadata.bevy_cli.{native|web}]`
+4. Target + Profile config: `[package.metadata.bevy_cli.{native|web}.{dev|release}]`
 
 ## Example
 
