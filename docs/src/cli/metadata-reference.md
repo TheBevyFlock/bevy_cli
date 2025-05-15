@@ -11,7 +11,7 @@ The following fields exist and can be configured:
 
 - Type: array of strings
 - Default: none
-- Note: Which features to use [features](https://doc.rust-lang.org/cargo/reference/features.html?highlight=features#the-features-section)
+- Note: Which [features](https://doc.rust-lang.org/cargo/reference/features.html?highlight=features#the-features-section) to use.
 
 ## `default-features`
 
