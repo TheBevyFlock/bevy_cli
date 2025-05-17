@@ -2,10 +2,10 @@
 
 Thank you for your interest in contributing to `bevy_lint`! Please feel free to take a peek at any of the articles in the table of context. These docs follow [the Diátaxis documentation system](https://diataxis.fr/)[^divio], meaning pages are organized based on how they're meant to be read.
 
-- [**Tutorial**](https://diataxis.fr/tutorials/): Practice by doing something.
-- [**How-to Guides**](https://diataxis.fr/how-to-guides/): Learn how to solve a specific problem.
-- [**Reference**](https://diataxis.fr/reference/): Refer to technical knowledge while working.
-- [**Explanation**](https://diataxis.fr/explanation/): Learn the reasons behind certain decisions.
+- [**Tutorial**](tutorial.md): Practice by doing something.
+- [**How-to Guides**](how-to.md): Learn how to solve a specific problem.
+- [**Reference**](reference.md): Refer to technical knowledge while working.
+- [**Explanation**](explanation.md): Learn the reasons behind certain decisions.
 
 [^divio]: You may also know Diátaxis as the [Divio documentation system](https://docs.divio.com/documentation-system/). Diátaxis was developed while the author was working at Divio.
 
