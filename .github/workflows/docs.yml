@@ -3,7 +3,17 @@ name: Docs
 on:
   push:
     branches: [main]
+  # Only run when the `mdbook` docs are modified. The docs will be built, but will not be published
+  # to Github Pages.
+  pull_request:
+    paths:
+      - docs
   workflow_dispatch:
+    inputs:
+      publish-website:
+        description: Publish the built website to Github Pages
+        required: true
+        type: boolean
 
 # Only allow one deployment to run at a time, however do not cancel runs in progress.
 concurrency:
@@ -45,6 +55,12 @@ jobs:
         with:
           tool: mdbook
 
+      # We cannot use `cargo-binstall` for this because the precompiled binary uses too old of an
+      # `mdbook` version, and it does't recognize the Rust 2024 edition. The installed binary will
+      # be cached, however.
+      - name: Install `mdbook-lintcheck`
+        run: cargo install mdbook-lintcheck
+
       - name: Build `mdbook` docs
         run: mdbook build
         working-directory: docs
@@ -54,7 +70,7 @@ jobs:
         # `.cargo/config.toml`.
         run: |
           cargo doc --package bevy_cli --lib --no-deps
-          cargo doc-lints
+          cargo doc-lints -Z unstable-options --enable-index-page
 
       - name: Merge docs
         run: |
@@ -73,6 +89,9 @@ jobs:
 
   deploy:
     name: Deploy docs
+    # Only deploy docs if they are pushed to the `main` branch or the workflow dispatch toggles
+    # `publish-website`.
+    if: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && inputs.publish-website) }}
     runs-on: ubuntu-latest
     needs: build-lint-docs
     environment:

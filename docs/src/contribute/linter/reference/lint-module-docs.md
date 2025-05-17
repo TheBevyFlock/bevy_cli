@@ -1,6 +1,6 @@
 # Lint Module Docs
 
-All lints, [which can be found here], place their documentation in their module. For example, `missing_reflect`'s docs are in [`src/lints/missing_reflect.rs`]. These docs must adhere to the following format:
+All lints, [which can be found here](../../../api/bevy_lint/lints/index.html), place their documentation in their module. For example, `missing_reflect`'s docs are in `src/lints/missing_reflect.rs`. These docs must adhere to the following format:
 
 ````markdown
 A single sentence description of what this lint checks for.
@@ -60,6 +60,3 @@ fn foo() {
 If you wish to elaborate further on how to fix the lint or supply further examples, you may do so
 here. If this is a Cargo lint, switch out the Rust code block with a TOML one for `Cargo.toml`.
 ````
-
-[which can be found here]: https://thebevyflock.github.io/bevy_cli/api/bevy_lint/lints/index.html
-[`src/lints/missing_reflect.rs`]: ../../src/lints/missing_reflect.rs

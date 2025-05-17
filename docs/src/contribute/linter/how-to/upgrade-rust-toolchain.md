@@ -1,4 +1,4 @@
-# How to Bump to a Newer Version of Rust
+# Upgrade the Rust Toolchain
 
 `bevy_lint` matches nightly Rust versions with `clippy_utils`. A new version of `clippy_utils` is released with each version of Rust, which `bevy_lint` should keep up to date with.
 
@@ -10,10 +10,10 @@
     > nightly-2025-01-09
     > ```
 
-2. Change the `channel` field in [`rust-toolchain.toml`](../../../rust-toolchain.toml) to the version specified by `clippy_utils`.
-3. Update the [compatibility table in `README.md`](../../README.md#compatibility) for the latest `-dev` version.
-4. Increase the version of `clippy_utils` in [`Cargo.toml`](../../Cargo.toml) to the latest version.
-5. Change the two occurrences of the toolchain in [`action.yml`](../../action.yml) to the new version.
+2. Change the `channel` field in `rust-toolchain.toml` to the version specified by `clippy_utils`.
+3. Update the [compatibility table](../../../linter/compatibility.md) for the latest `-dev` version.
+4. Increase the version of `clippy_utils` in `Cargo.toml` to the latest version.
+5. Change the two occurrences of the toolchain in `action.yml` to the new version.
 
 Once you've finished upgrading the Rust toolchain and `clippy_utils`, there are a few extra steps that can verify `bevy_lint` still functions the same.
 
@@ -34,4 +34,4 @@ Once you've finished upgrading the Rust toolchain and `clippy_utils`, there are 
     cargo test
     ```
 
-5. After opening the pull request, verify that the [`linter-action.yml`](../../../.github/workflows/linter-action.yml) workflow passes in CI.
+5. After opening the pull request, verify that the `linter-action.yml` workflow passes in CI.
