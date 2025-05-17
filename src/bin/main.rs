@@ -51,9 +51,9 @@ fn main() -> ExitCode {
     } {
         if cli.verbose {
             // `anyhow::Error`'s `Debug` implementation prints backtraces, while `Display` does not.
-            error!(target:"bevy_cli_bin", "error: {error:?}");
+            error!(target:"bevy_cli_bin", "{error:?}");
         } else {
-            error!(target:"bevy_cli_bin", "error: {error}");
+            error!(target:"bevy_cli_bin", "{error}");
         }
         return ExitCode::FAILURE;
     }
