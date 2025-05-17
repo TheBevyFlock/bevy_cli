@@ -1,15 +1,17 @@
+use std::process::ExitCode;
+
 use ansi_term::Color::{Blue, Green, Purple, Red, Yellow};
 #[cfg(feature = "rustup")]
 use bevy_cli::lint::LintArgs;
 use bevy_cli::{build::args::BuildArgs, run::RunArgs};
 use clap::{Args, CommandFactory, Parser, Subcommand};
-use tracing::debug;
+use tracing::error;
 use tracing_subscriber::{
     fmt::{self, FormatEvent, FormatFields, format::Writer},
     prelude::*,
 };
 
-fn main() {
+fn main() -> ExitCode {
     let cli = Cli::parse();
 
     // Set default log level to info for the `bevy_cli` crate if `BEVY_LOG` is not set.
@@ -47,11 +49,16 @@ fn main() {
             Ok(())
         }
     } {
-        // the binary of the `bevy_cli` is called `bevy` but to not also set
-        // the tracing level for `bevy` the crate, choose a custom target name.
-        debug!(target:"bevy_cli_bin", "error: {error}");
-        std::process::exit(1);
+        if cli.verbose {
+            // `anyhow::Error`'s `Debug` implementation prints backtraces, while `Display` does not.
+            error!(target:"bevy_cli_bin", "error: {error:?}");
+        } else {
+            error!(target:"bevy_cli_bin", "error: {error}");
+        }
+        return ExitCode::FAILURE;
     }
+
+    ExitCode::SUCCESS
 }
 
 /// Command-line interface for the Bevy Game Engine
