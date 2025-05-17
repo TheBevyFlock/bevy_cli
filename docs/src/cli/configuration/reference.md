@@ -1,4 +1,4 @@
-# bevy_cli Metadata Reference
+# Configuration Reference
 
 The following fields exist and can be configured:
 
