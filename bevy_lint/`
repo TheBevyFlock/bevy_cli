@@ -42,11 +42,19 @@ impl<'tcx> LateLintPass<'tcx> for CameraModificationInFixedUpdate {
             // TODO: handle tuples
             if let ExprKind::Path(QPath::Resolved(_, path)) = systems.kind {
                 if let Res::Def(_, def_id) = path.res {
-                    // TODO: check if there can be multiple
-                    for query_ty in cx.tcx.fn_sig(def_id).skip_binder().inputs().skip_binder() {}
+                    let foo = cx
+                        .tcx
+                        .fn_sig(def_id)
+                        .skip_binder()
+                        .inputs()
+                        .skip_binder()
+                        .first()
+                        .unwrap();
                     if let rustc_middle::ty::Adt(_, args) = foo.kind() {
                         for arg in args.iter() {
-                            dbg!(arg);
+                            if let stable_mir::ty::GenericArgKind::Type(inner_ty) = arg.unpack() {
+                                // inner_ty is A, B, C etc.
+                            }
                         }
                     }
                 }

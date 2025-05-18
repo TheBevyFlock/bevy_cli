@@ -4,6 +4,9 @@
 
 use bevy::prelude::*;
 
+#[derive(Component)]
+struct Hp;
+
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
@@ -29,8 +32,8 @@ fn move_camera_2(mut query: Query<&mut Transform, With<Camera>>) {
     }
 }
 
-fn move_camera_3(mut query: Query<&mut Transform, With<Camera>>) {
-    for mut transform in &mut query {
+fn move_camera_3(mut query: Query<(&mut Transform, &Hp), With<Camera>>) {
+    for (mut transform, _) in &mut query {
         transform.translation.x += 1.0;
     }
 }
