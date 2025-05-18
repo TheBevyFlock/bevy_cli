@@ -80,12 +80,12 @@ jobs:
 
           # Move the outputs of `rustdoc` into the `api` folder.
           mkdir docs/book/api
-          mv target/doc/* docs/book/api
+          mv target/doc/* docs/book/html/api
 
       - name: Upload pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: docs/book
+          path: docs/book/html
 
   deploy:
     name: Deploy docs
