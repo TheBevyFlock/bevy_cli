@@ -2,7 +2,7 @@
 
 ## CLI
 
-The CLI supports automatically installing the linter if you do not have it installed already. Make sure you [have the CLI first](../cli/install.md), then simply run the `lint` subcommand:
+The CLI supports automatically installing the latest released version of the linter if you do not have it installed already. Make sure you [have the CLI first](../cli/install.md), then simply run the `lint` subcommand:
 
 ```sh
 bevy lint

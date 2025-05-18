@@ -42,7 +42,7 @@ cargo install --git https://github.com/TheBevyFlock/bevy_cli --tag cli-vX.Y.Z --
 
 > **Here be dragons! 🐉**
 >
-> You may run into bugs when using the unstable version of the compiler. You've been warned, and have fun! :)
+> You may run into bugs when using the unstable version of the CLI. You've been warned, and have fun! :)
 
 If you want to try out the newest unstable features, you may install the CLI from the [`main`](https://github.com/TheBevyFlock/bevy_cli/tree/main) branch:
 
