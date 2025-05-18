@@ -31,6 +31,8 @@
 
 # CLI Contributor's Guide
 
+- [How to Release the CLI](contribute/cli/release.md)
+
 # Linter Contributor's Guide
 
 - [About](contribute/linter/index.md)
