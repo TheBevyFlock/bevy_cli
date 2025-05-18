@@ -28,7 +28,7 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 - Bumped nightly toolchain to `nightly-2025-04-03` ([#373](https://github.com/TheBevyFlock/bevy_cli/pull/373))
     - The linter now supports Rust 1.88.0.
 - Moved lints into submodules for their corresponding lint groups ([#321](https://github.com/TheBevyFlock/bevy_cli/pull/321))
-    - This makes it easier to see what lint group a lint is under in [the documentation](https://thebevyflock.github.io/bevy_cli/bevy_lint/). For example, in v0.2.0 if you wanted to view the `insert_unit_bundle` lint you would go to `bevy_lint::lints::insert_unit_bundle`, but in v0.3.0 you would go to `bevy_lint::lints::suspicious::insert_unit_bundle`. This signals that `insert_unit_bundle` is a `suspicious` lint.
+    - This makes it easier to see what lint group a lint is under in [the documentation](https://thebevyflock.github.io/bevy_cli/api/bevy_lint/). For example, in v0.2.0 if you wanted to view the `insert_unit_bundle` lint you would go to `bevy_lint::lints::insert_unit_bundle`, but in v0.3.0 you would go to `bevy_lint::lints::suspicious::insert_unit_bundle`. This signals that `insert_unit_bundle` is a `suspicious` lint.
 - Moved lint group docs from `bevy_lint::groups` to their associated `bevy_lint::lints` submodules ([#328](https://github.com/TheBevyFlock/bevy_cli/pull/328))
 - Code generated from external macros are no longer linted ([#263](https://github.com/TheBevyFlock/bevy_cli/pull/263))
     - External macros are macros that are defined in a separate crate from the one being linted. The output of these macros is skipped for all lints, as it was previously impossible to fix the warnings without an `#[allow(...)]` attribute.

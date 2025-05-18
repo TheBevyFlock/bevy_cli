@@ -1,4 +1,4 @@
-# How to Parse Method Calls
+# Parse Method Calls
 
 A method call is a kind of expression, and can come in both receiver and qualified form:
 
@@ -18,7 +18,7 @@ impl<'tcx> LateLintPass<'tcx> for MyLintPass {
 }
 ```
 
-Once you have an [`Expr`], you can parse method calls with the [`MethodCall`] utility:
+Once you have an [`Expr`], you can parse method calls with the `MethodCall` utility:
 
 ```rust
 use crate::utils::hir_parse::MethodCall;
@@ -33,11 +33,14 @@ fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &'tcx Expr<'tcx>) {
 
 `MethodCall::try_from()` returns an `Option`, and will only be `Some` if the expression was actually a method call. Take a look at `MethodCall`'s fields to see what properties are available.
 
-> [!CAUTION]
->
-> Although [`ExprKind::MethodCall`] does exist, it does not support qualified method syntax. You should avoid it if possible.
->
-> [`ExprKind::MethodCall`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir/hir/enum.ExprKind.html#variant.MethodCall
+<div class="warning">
+
+**Caution**
+
+Although [`ExprKind::MethodCall`] does exist, it does not support qualified method syntax. You should avoid it if possible.
+
+[`ExprKind::MethodCall`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir/hir/enum.ExprKind.html#variant.MethodCall
+
+</div>
 
 [`Expr`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir/hir/struct.Expr.html
-[`MethodCall`]: ../../src/utils/hir_parse.rs

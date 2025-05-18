@@ -1,25 +1,17 @@
-# Contributor's Guide
+# About
 
-Thanks for your interest in contributing to `bevy_lint`! Please feel free to skim through the following table of contents:
+Thank you for your interest in contributing to `bevy_lint`! Please feel free to take a peek at any of the articles in the table of context. These docs follow [the Diátaxis documentation system](https://diataxis.fr/)[^divio], meaning pages are organized based on how they're meant to be read.
 
-- [Tutorials](tutorials/)
-- [How-to](how-to/)
-    - [Setting up your Editor](how-to/editor.md)
-    - [How to Work with Types](how-to/types.md)
-    - [How to Parse Method Calls](how-to/methods.md)
-    - [How to Release `bevy_lint`](how-to/release.md)
-    - [Bump to a Newer Version of Rust](how-to/bump-rust.md)
-- [Reference](reference/)
-    - [Lint Module Docs](reference/lint-module-docs.md)
-    - [Macro-Generated Code](reference/macros.md)
-    - [Coding Conventions and Best Practices](reference/conventions.md)
-- [Explanations](explanations/)
+- [**Tutorial**](tutorial.md): Practice by doing something.
+- [**How-to Guides**](how-to.md): Learn how to solve a specific problem.
+- [**Reference**](reference.md): Refer to technical knowledge while working.
+- [**Explanation**](explanation.md): Learn the reasons behind certain decisions.
 
-These docs follow [Divio's Documentation System](https://docs.divio.com/documentation-system/).
+[^divio]: You may also know Diátaxis as the [Divio documentation system](https://docs.divio.com/documentation-system/). Diátaxis was developed while the author was working at Divio.
 
-> [!IMPORTANT]
+> **Important**
 >
-> This is the documentation for _contributing_ to `bevy_lint`. If you want to learn how to _use_ `bevy_lint` instead, please view the live documentation [here](https://thebevyflock.github.io/bevy_cli/api/bevy_lint/) or see the main [`README.md`](../README.md).
+> This is the documentation for _contributing_ to `bevy_lint`. If you want to learn how to _use_ `bevy_lint` instead, please take a look at the [user guide](../../linter/index.md).
 
 ## Additional Resources
 
@@ -63,7 +55,6 @@ These docs follow [Divio's Documentation System](https://docs.divio.com/document
     - [`rustc_middle`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/index.html)
         - ⭐️ [`TyCtxt`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/context/struct.TyCtxt.html)
         - ⭐️ [`Ty`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/struct.Ty.html) (Not to be confused with HIR `Ty`)
-        - [`Map`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/hir/map/struct.Map.html) (HIR)
 - [Clippy Development](https://doc.rust-lang.org/stable/clippy/development/index.html)
     - ⭐️ [Lint passes](https://doc.rust-lang.org/stable/clippy/development/lint_passes.html)
     - ⭐️ [Emitting a lint](https://doc.rust-lang.org/stable/clippy/development/emitting_lints.html)

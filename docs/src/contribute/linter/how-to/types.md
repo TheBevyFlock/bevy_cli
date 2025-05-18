@@ -1,6 +1,6 @@
-# How to Work with Types
+# Work with Types
 
-> [!NOTE]
+> **Note**
 >
 > This document assumes you are working with [`ty::Ty`], not [`rustc_hir::Ty`], unless explicitly stated otherwise.
 >
@@ -77,9 +77,9 @@ if match_type(cx, ty, &APP) {
 }
 ```
 
-All path constants are defined in [`paths.rs`](../../src/paths.rs). If you add a new constant, place it there.
+All path constants are defined in `paths.rs`. If you add a new constant, place it there.
 
-> [!IMPORTANT]
+> **Important**
 >
 > `bevy_app::app` is a [private module], but we still have to refer to it by name because [`struct App`] is within `bevy_app/src/app.rs`. Do not be tricked by re-exported types, such as `bevy::prelude::App`!
 >
