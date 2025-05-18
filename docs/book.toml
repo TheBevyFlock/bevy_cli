@@ -56,4 +56,4 @@ exclude = ["/api/bevy_lint"]
 # places a burden on those websites when checked constantly, so this should only be enabled
 # manually.
 follow-web-links = false
-user-agent = "mdbook-lintcheck/0.7.7 (https://github.com/TheBevyFlock/bevy_cli)"
+user-agent = "mdbook-linkcheck/0.7.7 (https://github.com/TheBevyFlock/bevy_cli)"
