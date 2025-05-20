@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 /// Configuration for the `bevy_cli`.
-/// 
+///
 /// [`PartialCliConfig`]s are intended to be deserialized from `[package.metadata.bevy_cli]` and
 /// merged into this struct.
 #[derive(Merge, PartialEq, Serialize, Debug)]
@@ -98,7 +98,7 @@ impl CliConfig {
     }
 
     /// The rustflags enabled in the config.
-    /// 
+    ///
     /// This is automatically formatted so that it may be passed to the `RUSTFLAGS` environmental
     /// variable.
     pub fn rustflags(&self) -> Option<String> {
