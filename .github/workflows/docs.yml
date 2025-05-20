@@ -79,7 +79,7 @@ jobs:
           rm --force target/doc/.lock
 
           # Move the outputs of `rustdoc` into the `api` folder.
-          mkdir docs/book/api
+          mkdir -p docs/book/html/api
           mv target/doc/* docs/book/html/api
 
       - name: Upload pages artifact
