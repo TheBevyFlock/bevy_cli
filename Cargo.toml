@@ -66,6 +66,8 @@ toml_edit = { version = "0.22.22", default-features = false, features = [
     "parse",
     "serde",
 ] }
+# Merging CLI configuration
+mergeme = "0.2.0"
 
 # Logging crates
 tracing = "0.1.41"

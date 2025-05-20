@@ -401,6 +401,7 @@ dependencies = [
  "dialoguer",
  "fs_extra",
  "http",
+ "mergeme",
  "regex",
  "reqwest",
  "semver",
@@ -2779,6 +2780,26 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fd3f7eed9d3848f8b98834af67102b720745c4ec028fcd0aa0239277e7de374f"
 dependencies = [
  "libc",
+]
+
+[[package]]
+name = "mergeme"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "20db7ce47a7915de27ab0ec2a7f6b9b4c6ce6a754ab9d663a38c77b1b49fe08c"
+dependencies = [
+ "mergeme_derive",
+]
+
+[[package]]
+name = "mergeme_derive"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "56c81c9dc10255e9445455f0bc5bf1fdab1d5610e568253bc32b6de4a09d90c4"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]
