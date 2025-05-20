@@ -12,7 +12,7 @@
     - [Default `index.html`](cli/web/default-index-html.md)
 - [Linter](cli/linter.md)
 - [Configuration](cli/configuration.md)
-- [Configuration Reference](cli/configuration/reference.md)
+    - [Configuration Reference](cli/configuration/reference.md)
 - [Troubleshooting](cli/troubleshooting.md)
 
 # Linter User Guide
