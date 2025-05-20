@@ -11,7 +11,7 @@ use ui_test::{CommandBuilder, status_emitter};
 mod test_utils;
 /// This [`Config`] will run the `bevy_lint` command for all paths that end in `Cargo.toml`
 /// # Example:
-/// ```bash
+/// ```sh
 /// bevy_lint" "--quiet" "--target-dir"
 /// "../target/ui/0/tests/ui-cargo/duplicate_bevy_dependencies/fail" "--manifest-path"
 /// "tests/ui-cargo/duplicate_bevy_dependencies/fail/Cargo.toml"```
