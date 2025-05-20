@@ -16,7 +16,7 @@ The linter now supports Bevy 0.16, but no longer supports Bevy 0.15. You may sti
 
 To migrate your code base to Bevy 0.16, please see the [release post][bevy 0.16 release post] and [migration guide][bevy 0.16 migration guide].
 
-[bevy 0.16 release post]: TODO
+[bevy 0.16 release post]: https://bevyengine.org/news/bevy-0-16/
 [bevy 0.16 migration guide]: https://bevyengine.org/learn/migration-guides/0-15-to-0-16/
 
 ### [Bumped Nightly Toolchain to `nightly-2025-04-03`](https://github.com/TheBevyFlock/bevy_cli/pull/278)
