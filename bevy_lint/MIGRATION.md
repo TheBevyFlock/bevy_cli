@@ -1,6 +1,6 @@
 # Migration Guide
 
-Occasionally, changes are made to `bevy_lint` that may break existing projects, or majorly changes how it is intended to be used. This document provides a guide recommending how to upgrade your existing project to a newer version of the linter.
+Occasionally changes are made to the **Bevy Linter** that may break existing projects, or majorly change how it is intended to be used. This document provides a guide recommending how to upgrade your existing project to a newer version of the linter.
 
 To actually install the new version of the linter, please see [the docs] and [the releases page]. Note that some changes listed here are optional (and will be explicitly marked as such). If you ever run into issues while upgrading, please feel free to [submit an issue].
 
@@ -16,7 +16,7 @@ The linter now supports Bevy 0.16, but no longer supports Bevy 0.15. You may sti
 
 To migrate your code base to Bevy 0.16, please see the [release post][bevy 0.16 release post] and [migration guide][bevy 0.16 migration guide].
 
-[bevy 0.16 release post]: TODO
+[bevy 0.16 release post]: https://bevyengine.org/news/bevy-0-16/
 [bevy 0.16 migration guide]: https://bevyengine.org/learn/migration-guides/0-15-to-0-16/
 
 ### [Bumped Nightly Toolchain to `nightly-2025-04-03`](https://github.com/TheBevyFlock/bevy_cli/pull/278)
