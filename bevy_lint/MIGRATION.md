@@ -1,6 +1,6 @@
 # Migration Guide
 
-Occasionally, changes are made to `bevy_lint` that may break existing projects, or majorly changes how it is intended to be used. This document provides a guide recommending how to upgrade your existing project to a newer version of the linter.
+Occasionally changes are made to the **Bevy Linter** that may break existing projects, or majorly change how it is intended to be used. This document provides a guide recommending how to upgrade your existing project to a newer version of the linter.
 
 To actually install the new version of the linter, please see [the docs] and [the releases page]. Note that some changes listed here are optional (and will be explicitly marked as such). If you ever run into issues while upgrading, please feel free to [submit an issue].
 

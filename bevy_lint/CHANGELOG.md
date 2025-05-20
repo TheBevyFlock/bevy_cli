@@ -1,6 +1,6 @@
 # Changelog
 
-All notable user-facing changes to this project will be documented in this file.
+All notable user-facing changes to the **Bevy Linter** will be documented in this file.
 
 The format is based on [Keep a Changelog], and this project adheres to [Semantic Versioning].
 
@@ -74,7 +74,7 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 
 ## [v0.1.0] - 2024-11-17
 
-**All Changes**: [`17834eb...lint-v0.1.0`](https://github.com/TheBevyFlock/bevy_cli/compare/17834eb...lint-v0.1.0)
+**All Changes**: [`lint-v0.1.0`](https://github.com/TheBevyFlock/bevy_cli/commits/lint-v0.1.0)
 
 ### Added
 

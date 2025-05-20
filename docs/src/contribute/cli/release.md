@@ -2,10 +2,14 @@
 
 ## Kick-off Pull Request
 
-1. Remove the `-dev` suffix from the version in `Cargo.toml`.
+1. Review the changelog (`CHANGELOG.md`) and ensure that all notable changes have been documented.
+2. Replace `[Unreleased]` heading with the version with the format `[vX.Y.Z] - YYYY-MM-DD`.
+3. Update the `**All Changes**` link to compare from `main` to the new tag `cli-vX.Y.Z`. (E.g. `cli-v0.1.0...main` to `cli-v0.1.0...cli-v0.2.0`.)
+4. Review the migration guide (`MIGRATION.md`) and ensure all breaking / significant changes from the previous version are documented.
+5. Remove the `-dev` suffix from the version in `Cargo.toml`.
     - Please ensure that `Cargo.lock` also updates!
-2. Commit your changes and open a pull request.
-3. Merge the PR once a core Bevy maintainer approves it with no outstanding issues from other contributors.
+6. Commit your changes and open a pull request.
+7. Merge the PR once a core Bevy maintainer approves it with no outstanding issues from other contributors.
     - This starts the release process, enacting a freeze on all other changes until the release has finished. While maintainers need to be aware of this so they do not merge PRs during this time, the release process should take less than an hour, so it's unlikely to ever be an issue.
 
 ## Release on Github
@@ -18,7 +22,12 @@
 ````markdown
 <!-- One-sentence summary of changes. What awesome features can we spotlight? What critical bugs were fixed? -->
 
-You can find the live documentation for this release [here](https://thebevyflock.github.io/bevy_cli/).
+You can find the live documentation for this release [here](https://thebevyflock.github.io/bevy_cli/cli/index.html). You may also be interested in [the changelog] and [the migration guide].
+
+<!-- Make sure to update the tags in these links to point to the correct version. -->
+
+[the changelog]: https://github.com/TheBevyFlock/bevy_cli/blob/cli-vX.Y.Z/CHANGELOG.md
+[the migration guide]: https://github.com/TheBevyFlock/bevy_cli/blob/cli-vX.Y.Z/MIGRATION.md
 
 > [!WARNING]
 >
@@ -48,6 +57,16 @@ cargo install --git https://github.com/TheBevyFlock/bevy_cli --tag cli-vX.Y.Z --
 
 ## Post-Release
 
-1. Bump the version in `Cargo.toml` to the next `-dev` version, and ensure `Cargo.lock` also updates.
-2. Commit your changes and open a pull request.
-3. Merge the PR once it has been approved, unblocking the feature freeze.
+1. Add a new unreleased section to the top of the changelog (`CHANGELOG.md`) from the following template:
+
+```markdown
+## [Unreleased]
+
+<!-- Update `cli-vX.Y.Z` in the link to point to the latest release tag. -->
+
+**All Changes**: [`cli-vX.Y.Z...main`](https://github.com/TheBevyFlock/bevy_cli/compare/cli-vX.Y.Z...main)
+```
+
+2. Bump the version in `Cargo.toml` to the next `-dev` version, and ensure `Cargo.lock` also updates.
+3. Commit your changes and open a pull request.
+4. Merge the PR once it has been approved, unblocking the feature freeze.
