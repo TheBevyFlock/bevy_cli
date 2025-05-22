@@ -1,4 +1,4 @@
-# Bevy CLI
+# Bevy CLI (Alpha)
 
 The CLI is a prototype tool intended to streamline common tasks when working on projects. Please see the [initial scope document] and [original issue] for history and motivation. The CLI's current features include:
 

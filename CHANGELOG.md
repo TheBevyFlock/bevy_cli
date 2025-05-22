@@ -9,9 +9,9 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 
 <!-- TODO: Fix date -->
 
-## v0.1.0 - 2025-05-DD
+## v0.1.0-alpha - 2025-05-DD
 
-**All Changes**: [`cli-v0.1.0`](https://github.com/TheBevyFlock/bevy_cli/commits/cli-v0.1.0)
+**All Changes**: [`cli-v0.1.0-alpha`](https://github.com/TheBevyFlock/bevy_cli/commits/cli-v0.1.0-alpha)
 
 ### Added
 
