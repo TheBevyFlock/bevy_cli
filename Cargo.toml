@@ -3,8 +3,10 @@ members = ["bevy_lint"]
 
 [package]
 name = "bevy_cli"
-version = "0.1.0-alpha"
+version = "0.1.0-alpha.1"
 edition = "2024"
+description = "A prototype Bevy CLI tool"
+documentation = "https://thebevyflock.github.io/bevy_cli/cli/index.html"
 repository = "https://github.com/TheBevyFlock/bevy_cli"
 license = "MIT OR Apache-2.0"
 # When no binary is specific, run the main CLI by default.
