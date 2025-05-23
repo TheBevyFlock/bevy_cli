@@ -25,9 +25,8 @@ pub fn run(args: &mut RunArgs) -> anyhow::Result<()> {
         args.profile(),
     )?;
 
-    let config = CliConfig::for_package(
-        &metadata,
-        bin_target.package,
+    let config = CliConfig::from_metadata(
+        &bin_target.package.metadata,
         args.is_web(),
         args.is_release(),
     )?;
