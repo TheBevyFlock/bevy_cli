@@ -60,7 +60,7 @@ cargo install --git https://github.com/TheBevyFlock/bevy_cli --tag cli-vX.Y.Z --
 1. Add a new unreleased section to the top of the changelog (`CHANGELOG.md`) from the following template:
 
 ```markdown
-## [Unreleased]
+## Unreleased
 
 <!-- Update `cli-vX.Y.Z` in the link to point to the latest release tag. -->
 
