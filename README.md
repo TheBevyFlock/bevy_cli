@@ -1,4 +1,4 @@
-# Bevy CLI
+# Bevy CLI (Alpha)
 
 A prototype [Bevy] CLI tool intended to streamline common tasks when working on projects. Please see the [initial scope document] and [original issue] for history and motivation.
 
@@ -32,7 +32,7 @@ You can manually download the precompiled binaries from the [release page](https
 
 ### Build from Source
 
-You may compile the CLI from scratch using `cargo install`. To install the latest release, make sure to specify the version you wish in the tag (ex. `--tag cli-v0.1.0`).
+You may compile the CLI from scratch using `cargo install`. To install the latest release, make sure to specify the version you wish in the tag (ex. `--tag cli-v0.1.0-alpha.1`).
 
 ```sh
 cargo install --git https://github.com/TheBevyFlock/bevy_cli --tag cli-vX.Y.Z --locked bevy_cli

@@ -3,7 +3,7 @@
 ## Kick-off Pull Request
 
 1. Review the changelog (`CHANGELOG.md`) and ensure that all notable changes have been documented.
-2. Replace `[Unreleased]` heading with the version with the format `[vX.Y.Z] - YYYY-MM-DD`.
+2. Replace `Unreleased` heading with the version with the format `vX.Y.Z - YYYY-MM-DD`.
 3. Update the `**All Changes**` link to compare from `main` to the new tag `cli-vX.Y.Z`. (E.g. `cli-v0.1.0...main` to `cli-v0.1.0...cli-v0.2.0`.)
 4. Review the migration guide (`MIGRATION.md`) and ensure all breaking / significant changes from the previous version are documented.
 5. Remove the `-dev` suffix from the version in `Cargo.toml`.
