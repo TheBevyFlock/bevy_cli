@@ -67,6 +67,7 @@ fn main() -> ExitCode {
 /// such as generating new projects from templates.
 #[derive(Parser)]
 #[command(name = "bevy", version, about, next_line_help(false))]
+#[command(after_help = AFTER_HELP)]
 pub struct Cli {
     /// Available subcommands for the Bevy CLI.
     #[command(subcommand)]
@@ -78,6 +79,14 @@ pub struct Cli {
     pub verbose: bool,
 }
 
+/// Adds a list of useful links after the normal help text.
+#[rustfmt::skip]
+const AFTER_HELP: &str = color_print::cstr!("\
+<s><u>Resources:</></>
+  <s>Bevy Website:</>        https://bevyengine.org/
+  <s>Bevy Repository:</>     https://github.com/bevyengine/bevy/
+");
+
 /// Available subcommands for `bevy`.
 #[derive(Subcommand)]
 pub enum Subcommands {
@@ -88,6 +97,7 @@ pub enum Subcommands {
     Build(BuildArgs),
     /// Run your Bevy app.
     #[command(visible_alias = "r")]
+    #[command(after_help = RUN_AFTER_HELP)]
     Run(RunArgs),
     /// Check the current project using Bevy-specific lints.
     ///
@@ -96,16 +106,32 @@ pub enum Subcommands {
     ///
     /// To see the full list of options, run `bevy lint -- --help`.
     #[cfg(feature = "rustup")]
+    #[command(after_help = LINT_AFTER_HELP)]
     Lint(LintArgs),
     /// Generate autocompletion for `bevy` CLI tool.
     ///
-    /// You can add this or a variant of this to your shells `.profile` by just added
+    /// You can add this or a variant of this to your shells `.profile`
     ///
     /// ```
-    /// source <(bevy completion zsh)
+    /// source <(bevy completions zsh)
     /// ```
     Completions { shell: clap_complete::Shell },
 }
+
+#[rustfmt::skip]
+pub const RUN_AFTER_HELP: &str = color_print::cstr!("\
+<s><u>Examples:</></>
+  bevy run
+  bevy run web
+  bevy run --example <<example>> web
+");
+
+#[rustfmt::skip]
+pub const LINT_AFTER_HELP: &str = color_print::cstr!("\
+<s><u>Examples:</></>
+  bevy lint
+  bevy lint --all-features --all-targets
+");
 
 /// Arguments for creating a new Bevy project.
 ///
