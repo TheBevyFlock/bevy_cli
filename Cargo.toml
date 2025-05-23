@@ -101,5 +101,9 @@ assert_cmd = "2.0.16"
 tempfile = "3"
 
 [package.metadata.binstall]
-pkg-url = "{ repo }/releases/download/cli-v{ version }/bevy-{ target }-v{ version }{ archive-suffix }"
+# HACK: We currently hard-code the latest version in the URL. The `{ version }` template uses the
+# version from the `main` branch's `Cargo.toml`, which is usually `X.Y.Z.-dev`, leading to the
+# binary not being found. See <https://github.com/cargo-bins/cargo-binstall/issues/2165> for more
+# information.
+pkg-url = "{ repo }/releases/download/cli-v{ version }/bevy-{ target }-v0.1.0-alpha.1{ archive-suffix }"
 pkg-fmt = "bin"
