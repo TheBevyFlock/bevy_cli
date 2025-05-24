@@ -1,4 +1,4 @@
-# Builds the CLI in release mode for Linux, Windows, and MacOS. This workflow may be manually
+# Builds the CLI in release mode for Linux, Windows, and macOS. This workflow may be manually
 # triggered, and supports automatically uploading the compiled executables to a release.
 
 name: Build CLI
