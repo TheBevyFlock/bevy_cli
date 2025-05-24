@@ -13,7 +13,7 @@ cargo install --git https://github.com/TheBevyFlock/bevy_cli --tag cli-vX.Y.Z --
 <details>
     <summary><strong>Precompiled Binaries</strong></summary>
 
-The CLI is precompiled for Linux, Windows, and MacOS. You may install the latest precompiled binary using [`cargo-binstall`](https://github.com/cargo-bins/cargo-binstall):
+The CLI is precompiled for Linux, Windows, and macOS. You may install the latest precompiled binary using [`cargo-binstall`](https://github.com/cargo-bins/cargo-binstall):
 
 ```sh
 cargo binstall --git https://github.com/TheBevyFlock/bevy_cli --version vX.Y.Z --locked bevy_cli
