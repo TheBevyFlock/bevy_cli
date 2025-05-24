@@ -83,8 +83,9 @@ pub struct Cli {
 #[rustfmt::skip]
 const AFTER_HELP: &str = color_print::cstr!("\
 <s><u>Resources:</></>
-  <s>Bevy Website:</>        https://bevyengine.org/
-  <s>Bevy Repository:</>     https://github.com/bevyengine/bevy/
+  <s>Bevy Website:</>       https://bevyengine.org/
+  <s>Bevy Repository:</>    https://github.com/bevyengine/bevy/
+  <s>CLI Documentation:</>  https://thebevyflock.github.io/bevy_cli/
 ");
 
 /// Available subcommands for `bevy`.
