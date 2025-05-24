@@ -1,10 +1,10 @@
-use std::process::ExitCode;
+use std::{fmt::Write, process::ExitCode};
 
 use ansi_term::Color::{Blue, Green, Purple, Red, Yellow};
 #[cfg(feature = "rustup")]
 use bevy_cli::lint::LintArgs;
 use bevy_cli::{build::args::BuildArgs, run::RunArgs};
-use clap::{Args, CommandFactory, Parser, Subcommand};
+use clap::{Args, CommandFactory, Parser, Subcommand, builder::styling::Style};
 use tracing::error;
 use tracing_subscriber::{
     fmt::{self, FormatEvent, FormatFields, format::Writer},
@@ -67,7 +67,7 @@ fn main() -> ExitCode {
 /// such as generating new projects from templates.
 #[derive(Parser)]
 #[command(name = "bevy", version, about, next_line_help(false))]
-#[command(after_help = AFTER_HELP)]
+#[command(after_help = after_help())]
 pub struct Cli {
     /// Available subcommands for the Bevy CLI.
     #[command(subcommand)]
@@ -79,14 +79,28 @@ pub struct Cli {
     pub verbose: bool,
 }
 
-/// Adds a list of useful links after the normal help text.
-#[rustfmt::skip]
-const AFTER_HELP: &str = color_print::cstr!("\
-<s><u>Resources:</></>
-  <s>Bevy Website:</>       https://bevyengine.org/
-  <s>Bevy Repository:</>    https://github.com/bevyengine/bevy/
-  <s>CLI Documentation:</>  https://thebevyflock.github.io/bevy_cli/
-");
+fn after_help() -> String {
+    let mut message = String::new();
+
+    let header = Style::new().bold().underline();
+    let bold = Style::new().bold();
+
+    _ = writeln!(message, "{header}Resources:{header:#}");
+    _ = writeln!(
+        message,
+        "  {bold}Bevy Website{bold:#}       https://bevyengine.org"
+    );
+    _ = writeln!(
+        message,
+        "  {bold}Bevy Repository{bold:#}    https://github.com/bevyengine/bevy"
+    );
+    _ = writeln!(
+        message,
+        "  {bold}CLI Documentation{bold:#}  https://thebevyflock.github.io/bevy_cli"
+    );
+
+    message
+}
 
 /// Available subcommands for `bevy`.
 #[derive(Subcommand)]
@@ -98,7 +112,7 @@ pub enum Subcommands {
     Build(BuildArgs),
     /// Run your Bevy app.
     #[command(visible_alias = "r")]
-    #[command(after_help = RUN_AFTER_HELP)]
+    #[command(after_help = run_after_help())]
     Run(RunArgs),
     /// Check the current project using Bevy-specific lints.
     ///
@@ -107,7 +121,7 @@ pub enum Subcommands {
     ///
     /// To see the full list of options, run `bevy lint -- --help`.
     #[cfg(feature = "rustup")]
-    #[command(after_help = LINT_AFTER_HELP)]
+    #[command(after_help = lint_after_help())]
     Lint(LintArgs),
     /// Generate autocompletion for `bevy` CLI tool.
     ///
@@ -119,20 +133,30 @@ pub enum Subcommands {
     Completions { shell: clap_complete::Shell },
 }
 
-#[rustfmt::skip]
-pub const RUN_AFTER_HELP: &str = color_print::cstr!("\
-<s><u>Examples:</></>
-  bevy run
-  bevy run web
-  bevy run --example <<example>> web
-");
+fn run_after_help() -> String {
+    let mut message = String::new();
 
-#[rustfmt::skip]
-pub const LINT_AFTER_HELP: &str = color_print::cstr!("\
-<s><u>Examples:</></>
-  bevy lint
-  bevy lint --all-features --all-targets
-");
+    let header = Style::new().bold().underline();
+
+    _ = writeln!(message, "{header}Examples:{header:#}");
+    _ = writeln!(message, "  bevy run");
+    _ = writeln!(message, "  bevy run web");
+    _ = writeln!(message, "  bevy run --example <<example>> web");
+
+    message
+}
+
+fn lint_after_help() -> String {
+    let mut message = String::new();
+
+    let header = Style::new().bold().underline();
+
+    _ = writeln!(message, "{header}Examples:{header:#}");
+    _ = writeln!(message, "  bevy lint");
+    _ = writeln!(message, "  bevy lint --all-features --all-targets");
+
+    message
+}
 
 /// Arguments for creating a new Bevy project.
 ///
