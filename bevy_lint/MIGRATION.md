@@ -1,10 +1,10 @@
 # Migration Guide
 
-Occasionally, changes are made to `bevy_lint` that may break existing projects, or majorly changes how it is intended to be used. This document provides a guide recommending how to upgrade your existing project to a newer version of the linter.
+Occasionally changes are made to the **Bevy Linter** that may break existing projects, or majorly change how it is intended to be used. This document provides a guide recommending how to upgrade your existing project to a newer version of the linter.
 
 To actually install the new version of the linter, please see [the docs] and [the releases page]. Note that some changes listed here are optional (and will be explicitly marked as such). If you ever run into issues while upgrading, please feel free to [submit an issue].
 
-[the docs]: https://thebevyflock.github.io/bevy_cli/bevy_lint/index.html
+[the docs]: https://thebevyflock.github.io/bevy_cli/linter/index.html
 [the releases page]: https://github.com/TheBevyFlock/bevy_cli/releases
 [submit an issue]: https://github.com/TheBevyFlock/bevy_cli/issues
 
@@ -16,7 +16,7 @@ The linter now supports Bevy 0.16, but no longer supports Bevy 0.15. You may sti
 
 To migrate your code base to Bevy 0.16, please see the [release post][bevy 0.16 release post] and [migration guide][bevy 0.16 migration guide].
 
-[bevy 0.16 release post]: TODO
+[bevy 0.16 release post]: https://bevyengine.org/news/bevy-0-16/
 [bevy 0.16 migration guide]: https://bevyengine.org/learn/migration-guides/0-15-to-0-16/
 
 ### [Bumped Nightly Toolchain to `nightly-2025-04-03`](https://github.com/TheBevyFlock/bevy_cli/pull/278)
@@ -33,7 +33,7 @@ If you reference `plugin_not_ending_in_plugin` in your code, a new warning will 
 
 ### [Created Github Action to install `bevy_lint`](https://github.com/TheBevyFlock/bevy_cli/pull/380) (Optional)
 
-If you were manually installing `bevy_lint` in CI by following the [installation instructions](https://thebevyflock.github.io/bevy_cli/bevy_lint/index.html#installation), you can now replace it with the new action:
+If you were manually installing `bevy_lint` in CI by following the [installation instructions](https://thebevyflock.github.io/bevy_cli/linter/install.html), you can now replace it with the new action:
 
 ```yml
 - name: Install `bevy_lint`
@@ -60,7 +60,7 @@ The linter now requires the `nightly-2025-02-20` Rustup toolchain to be installe
 
 For more information on how to install this toolchain and its required components, please see the [linter docs].
 
-[linter docs]: https://thebevyflock.github.io/bevy_cli/bevy_lint/index.html
+[linter docs]: https://thebevyflock.github.io/bevy_cli/linter/index.html
 
 [^rust-2024]: As a nice side-effect, `bevy_lint` now officially supports [Rust 2024](https://blog.rust-lang.org/2025/02/20/Rust-1.85.0.html).
 
@@ -90,7 +90,7 @@ Until [#279] is fixed, it is recommended to remove references of this lint from 
 
 [`Has<T>`]: https://docs.rs/bevy/0.15.3/bevy/ecs/prelude/struct.Has.html
 [`AnyOf<T>`]: https://docs.rs/bevy/0.15.3/bevy/ecs/prelude/struct.AnyOf.html
-[`nursery`]: https://thebevyflock.github.io/bevy_cli/bevy_lint/groups/static.NURSERY.html
+[`nursery`]: https://thebevyflock.github.io/bevy_cli/api/bevy_lint/lints/nursery/index.html
 [#279]: https://github.com/TheBevyFlock/bevy_cli/issues/279
 
 ### [Lint Configuration in `Cargo.toml`](https://github.com/TheBevyFlock/bevy_cli/pull/251) (Optional)

@@ -14,6 +14,7 @@ env:
 
 jobs:
   extract-rust-version:
+    name: Extract Rust version
     uses: ./.github/workflows/extract-rust-version.yml
 
   test:
@@ -100,8 +101,8 @@ jobs:
       - name: Run rustfmt
         run: cargo fmt --all --check
 
-  docs:
-    name: Build docs
+  rustdoc:
+    name: Build with `rustdoc`
     needs: extract-rust-version
     runs-on: ubuntu-latest
     steps:

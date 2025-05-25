@@ -1,8 +1,6 @@
+use crate::external_cli::wasm_opt;
 use anyhow::Context as _;
 use tracing::info;
-
-#[cfg(feature = "wasm-opt")]
-use crate::external_cli::wasm_opt;
 
 use crate::{
     bin_target::BinTarget,
@@ -33,9 +31,10 @@ pub fn build_web(
     metadata: &Metadata,
     bin_target: &BinTarget,
 ) -> anyhow::Result<WebBundle> {
-    let Some(BuildSubcommands::Web(web_args)) = &args.subcommand else {
-        anyhow::bail!("tried to build for the web without matching arguments");
-    };
+    let web_args = args
+        .subcommand
+        .as_ref()
+        .map(|BuildSubcommands::Web(web_args)| web_args);
 
     let mut profile_args = configure_default_web_profiles(metadata)?;
     // `--config` args are resolved from left to right,
@@ -57,8 +56,7 @@ pub fn build_web(
     info!("bundling JavaScript bindings...");
     wasm_bindgen::bundle(metadata, bin_target, args.auto_install())?;
 
-    #[cfg(feature = "wasm-opt")]
-    if args.is_release() {
+    if args.use_wasm_opt() {
         wasm_opt::optimize_path(bin_target, args.auto_install())?;
     }
 
@@ -66,7 +64,7 @@ pub fn build_web(
         metadata,
         args.profile(),
         bin_target,
-        web_args.create_packed_bundle,
+        web_args.is_some_and(|web_args| web_args.create_packed_bundle),
     )
     .context("failed to create web bundle")?;
 

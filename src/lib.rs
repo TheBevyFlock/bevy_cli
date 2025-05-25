@@ -1,4 +1,4 @@
-//! The library backend for the Bevy CLI.
+//! The library backend for the prototype Bevy CLI.
 
 pub(crate) mod bin_target;
 pub mod build;

@@ -1,25 +1,31 @@
+use std::process::ExitCode;
+
 use ansi_term::Color::{Blue, Green, Purple, Red, Yellow};
-use anyhow::Result;
+#[cfg(feature = "rustup")]
+use bevy_cli::lint::LintArgs;
 use bevy_cli::{build::args::BuildArgs, run::RunArgs};
 use clap::{Args, CommandFactory, Parser, Subcommand};
+use tracing::error;
 use tracing_subscriber::{
     fmt::{self, FormatEvent, FormatFields, format::Writer},
     prelude::*,
 };
 
-fn main() -> Result<()> {
+fn main() -> ExitCode {
     let cli = Cli::parse();
 
     // Set default log level to info for the `bevy_cli` crate if `BEVY_LOG` is not set.
     let env = tracing_subscriber::EnvFilter::try_from_env("BEVY_LOG").map_or_else(
         |_| {
             if cli.verbose {
-                tracing_subscriber::EnvFilter::new("bevy_cli=debug")
+                tracing_subscriber::EnvFilter::new("bevy_cli=debug,bevy_cli_bin=debug")
             } else {
-                tracing_subscriber::EnvFilter::new("bevy_cli=info")
+                tracing_subscriber::EnvFilter::new("bevy_cli=info,bevy_cli_bin=info")
             }
         },
-        |filter| tracing_subscriber::EnvFilter::new(format!("bevy_cli={filter}")),
+        |filter| {
+            tracing_subscriber::EnvFilter::new(format!("bevy_cli={filter},bevy_cli_bin={filter}"))
+        },
     );
 
     let fmt_layer = fmt::layer()
@@ -30,19 +36,29 @@ fn main() -> Result<()> {
 
     tracing_subscriber::registry().with(fmt_layer).init();
 
-    match cli.subcommand {
+    if let Err(error) = match cli.subcommand {
         Subcommands::New(new) => {
-            bevy_cli::template::generate_template(&new.name, &new.template, &new.branch)?;
+            bevy_cli::template::generate_template(&new.name, &new.template, &new.branch).map(|_| ())
         }
-        Subcommands::Lint { args } => bevy_cli::lint::lint(args)?,
-        Subcommands::Build(mut args) => bevy_cli::build::build(&mut args)?,
-        Subcommands::Run(mut args) => bevy_cli::run::run(&mut args)?,
+        #[cfg(feature = "rustup")]
+        Subcommands::Lint(args) => bevy_cli::lint::lint(args),
+        Subcommands::Build(mut args) => bevy_cli::build::build(&mut args),
+        Subcommands::Run(mut args) => bevy_cli::run::run(&mut args),
         Subcommands::Completions { shell } => {
             clap_complete::generate(shell, &mut Cli::command(), "bevy", &mut std::io::stdout());
+            Ok(())
         }
+    } {
+        if cli.verbose {
+            // `anyhow::Error`'s `Debug` implementation prints backtraces, while `Display` does not.
+            error!(target:"bevy_cli_bin", "{error:?}");
+        } else {
+            error!(target:"bevy_cli_bin", "{error}");
+        }
+        return ExitCode::FAILURE;
     }
 
-    Ok(())
+    ExitCode::SUCCESS
 }
 
 /// Command-line interface for the Bevy Game Engine
@@ -79,11 +95,8 @@ pub enum Subcommands {
     /// <https://github.com/TheBevyFlock/bevy_cli> for installation instructions.
     ///
     /// To see the full list of options, run `bevy lint -- --help`.
-    Lint {
-        /// A list of arguments to be passed to `bevy_lint`.
-        #[arg(trailing_var_arg = true, allow_hyphen_values = true)]
-        args: Vec<String>,
-    },
+    #[cfg(feature = "rustup")]
+    Lint(LintArgs),
     /// Generate autocompletion for `bevy` CLI tool.
     ///
     /// You can add this or a variant of this to your shells `.profile` by just added

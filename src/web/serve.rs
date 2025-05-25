@@ -63,6 +63,7 @@ pub(crate) async fn serve(
             js_file_name,
             index,
             assets_path,
+            web_assets,
         }) => {
             router = router
                 .route_service(
@@ -96,7 +97,7 @@ pub(crate) async fn serve(
 
             match index {
                 Index::File(path) => {
-                    router = router.route_service("/", ServeDir::new(path));
+                    router = router.route_service("/", ServeFile::new(path));
                 }
                 Index::Content(content) => {
                     // Try to inject the auto reload script in the document body
@@ -117,6 +118,11 @@ pub(crate) async fn serve(
                         }),
                     );
                 }
+            }
+
+            // Try to serve anything else from the custom web assets, if provided
+            if let Some(web_assets) = web_assets {
+                router = router.fallback_service(ServeDir::new(web_assets));
             }
         }
     }

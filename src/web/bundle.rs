@@ -39,6 +39,8 @@ pub struct LinkedBundle {
     pub js_file_name: OsString,
     /// The path to the Bevy assets folder, if it exists.
     pub assets_path: Option<PathBuf>,
+    /// The path to the custom `web` folder, if provided by the user.
+    pub web_assets: Option<PathBuf>,
     /// The index file to serve.
     pub index: Index,
 }
@@ -94,11 +96,10 @@ pub fn create_web_bundle(
         build_artifact_path: bin_target.artifact_directory.clone(),
         wasm_file_name,
         js_file_name,
-        assets_path: if assets_path.exists() {
-            Some(assets_path.to_owned())
-        } else {
-            None
-        },
+        assets_path: assets_path.exists().then(|| assets_path.to_owned()),
+        web_assets: custom_web_folder
+            .exists()
+            .then(|| custom_web_folder.to_owned()),
         index: Index::Content(index.clone()),
     };
 
