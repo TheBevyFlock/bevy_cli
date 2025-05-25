@@ -27,7 +27,7 @@ bevy lint --yes
 
 You can install the toolchain with:
 
-```bash
+```sh
 rustup toolchain install $TOOLCHAIN_VERSION \
     --component rustc-dev \
     --component llvm-tools-preview
@@ -39,7 +39,7 @@ For example, you would replace `$TOOLCHAIN_VERSION` with `nightly-2024-11-14` if
 
 Once you have the toolchain installed, you can compile and install `bevy_lint` through `cargo`:
 
-```bash
+```sh
 rustup run $TOOLCHAIN_VERSION cargo install \
     --git https://github.com/TheBevyFlock/bevy_cli.git \
     --tag $TAG \

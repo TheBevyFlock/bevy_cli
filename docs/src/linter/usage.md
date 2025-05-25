@@ -2,13 +2,13 @@
 
 `bevy_lint` has the same API as the `cargo check` command:
 
-```bash
+```sh
 bevy_lint --help
 ```
 
 If you have the prototype [Bevy CLI](../cli/index.md) installed, the linter is also available through the `lint` subcommand:
 
-```bash
+```sh
 bevy lint --help
 ```
 

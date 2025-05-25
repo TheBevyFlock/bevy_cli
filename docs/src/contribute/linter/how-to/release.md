@@ -41,7 +41,7 @@ This release uses the <!-- `nightly-YYYY-MM-DD` --> toolchain, based on Rust <!-
 
 <!-- Update `nightly-YYYY-MM-DD` and `lint-vX.Y.Z` in the following code block. -->
 
-```bash
+```sh
 rustup toolchain install nightly-YYYY-MM-DD \
     --component rustc-dev \
     --component llvm-tools-preview
