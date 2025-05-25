@@ -18,7 +18,7 @@ fn main() {
         // .add_systems(FixedUpdate, move_camera)
         // .add_systems(FixedUpdate, move_camera_2)
         .add_systems(FixedUpdate, move_camera_3)
-        //~^ ERROR: Camera modification in FixedUpdate shedule
+        //~^ ERROR: Camera modification in FixedUpdate schedule
         //~| HELP: Put System in Update instead
         .run();
 }

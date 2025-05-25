@@ -9,7 +9,7 @@ use crate::{declare_bevy_lint, declare_bevy_lint_pass, utils::hir_parse::MethodC
 declare_bevy_lint! {
     pub CAMERA_MODIFICATION_IN_FIXED_UPDATE,
     super::Nursery,
-    "Camera modification in FixedUpdate shedule",
+    "Camera modification in FixedUpdate schedule",
 }
 
 declare_bevy_lint_pass! {
@@ -113,12 +113,12 @@ impl<'tcx> LateLintPass<'tcx> for CameraModificationInFixedUpdate {
                     // Get the generic argument of the Filter
                     && let TyKind::Adt(_, with_args) = query_filter.kind()
                     // There can only be exactly one argument
-                    && let Some(filter_commponent_arg) = with_args.iter().next()
+                    && let Some(filter_component_arg) = with_args.iter().next()
                     // Get the type of the component the filter should filter for
-                    && let GenericArgKind::Type(filter_commponent_ty) =
-                        filter_commponent_arg.unpack()
+                    && let GenericArgKind::Type(filter_component_ty) =
+                        filter_component_arg.unpack()
                     // Check if Filter is of type `Camera`
-                    && match_type(cx, filter_commponent_ty, &crate::paths::CAMERA)
+                    && match_type(cx, filter_component_ty, &crate::paths::CAMERA)
                     // At this point we know, that the query_data is related to the Camera
                     // So we check if at least one query_data is borrowed mutably
                     && query_data_args.iter().any(|mutability|match mutability {

@@ -1,4 +1,4 @@
-error: Camera modification in FixedUpdate shedule
+error: Camera modification in FixedUpdate schedule
   --> tests/ui/camera_modification_in_fixed_update/main.rs:20:35
    |
 20 |         .add_systems(FixedUpdate, move_camera_3)
