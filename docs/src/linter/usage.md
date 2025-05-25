@@ -6,7 +6,7 @@
 bevy_lint --help
 ```
 
-If you have the [Bevy CLI](https://github.com/TheBevyFlock/bevy_cli) installed, the linter is also available through the `lint` subcommand:
+If you have the prototype [Bevy CLI](../cli/index.md) installed, the linter is also available through the `lint` subcommand:
 
 ```sh
 bevy lint --help

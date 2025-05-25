@@ -14,6 +14,8 @@
 - [Configuration](cli/configuration.md)
     - [Configuration Reference](cli/configuration/reference.md)
 - [Troubleshooting](cli/troubleshooting.md)
+- [Changelog](cli/changelog.md)
+- [Migration Guide](cli/migration.md)
 
 # Linter User Guide
 
@@ -27,10 +29,14 @@
 - [Compatibility](linter/compatibility.md)
 - [Github Actions](linter/github-actions.md)
 - [Troubleshooting](linter/troubleshooting.md)
+- [Changelog](linter/changelog.md)
+- [Migration Guide](linter/migration.md)
 
 ---
 
 # CLI Contributor's Guide
+
+- [How to Release the CLI](contribute/cli/release.md)
 
 # Linter Contributor's Guide
 

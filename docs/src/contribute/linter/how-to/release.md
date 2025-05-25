@@ -2,11 +2,11 @@
 
 ## Kick-off Pull Request
 
-1. Review the changelog (`CHANGELOG.md`) and ensure that all notable changes have been documented.
-2. Replace `[Unreleased]` heading with the version with the format `[vX.Y.Z] - YYYY-MM-DD`.
+1. Review the changelog (`bevy_lint/CHANGELOG.md`) and ensure that all notable changes have been documented.
+2. Replace `Unreleased` heading with the version with the format `vX.Y.Z - YYYY-MM-DD`.
 3. Update the `**All Changes**` link to compare from `main` to the new tag `lint-vX.Y.Z`. (E.g. `lint-v0.1.0...main` to `lint-v0.1.0...lint-v0.2.0`.)
-4. Review the migration guide (`MIGRATION.md`) and ensure all breaking / significant changes from the previous version are documented.
-5. Remove the `-dev` suffix from the version in `Cargo.toml` and the compatibility table in `README.md`.
+4. Review the migration guide (`bevy_lint/MIGRATION.md`) and ensure all breaking / significant changes from the previous version are documented.
+5. Remove the `-dev` suffix from the version in `Cargo.toml` and the compatibility table in `bevy_lint/README.md`.
     - Please ensure that `Cargo.lock` also updates!
 6. Replace `--branch main` in `action.yml` with `--tag lint-vX.Y.Z`.
     - The `linter-action.yml` workflow may fail as the tag does not exist yet. This is fine!
@@ -61,7 +61,7 @@ rustup run nightly-YYYY-MM-DD cargo install \
 
 ## Post-Release
 
-1. Add a new unreleased section to the top of the changelog (`CHANGELOG.md`) from the following template:
+1. Add a new unreleased section to the top of the changelog (`bevy_lint/CHANGELOG.md`) from the following template:
 
 ```markdown
 ## [Unreleased]

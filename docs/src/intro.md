@@ -1,8 +1,8 @@
 # Introduction
 
-This is the combined documentation for the **Bevy CLI** and **linter** projects, tools designed to improve the experience developing apps using the [Bevy game engine]. To get started, take a look about the about pages for one of the tools:
+This is the combined documentation for the prototype **Bevy CLI** and **Bevy Linter** projects, tools designed to improve the experience developing apps using the [Bevy game engine]. To get started, take a look about the about pages for one of the tools:
 
-- [**Bevy CLI**](cli/index.md)
+- [**Bevy CLI (Alpha)**](cli/index.md)
 - [**Bevy Linter**](linter/index.md)
 
 [Bevy game engine]: https://bevyengine.org
