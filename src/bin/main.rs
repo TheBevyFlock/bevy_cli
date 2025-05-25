@@ -146,6 +146,7 @@ fn run_after_help() -> String {
     message
 }
 
+#[cfg(feature = "rustup")]
 fn lint_after_help() -> String {
     let mut message = String::new();
 
