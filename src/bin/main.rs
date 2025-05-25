@@ -1,10 +1,10 @@
-use std::process::ExitCode;
+use std::{fmt::Write, process::ExitCode};
 
 use ansi_term::Color::{Blue, Green, Purple, Red, Yellow};
 #[cfg(feature = "rustup")]
 use bevy_cli::lint::LintArgs;
 use bevy_cli::{build::args::BuildArgs, run::RunArgs};
-use clap::{Args, CommandFactory, Parser, Subcommand};
+use clap::{Args, CommandFactory, Parser, Subcommand, builder::styling::Style};
 use tracing::error;
 use tracing_subscriber::{
     fmt::{self, FormatEvent, FormatFields, format::Writer},
@@ -67,6 +67,7 @@ fn main() -> ExitCode {
 /// such as generating new projects from templates.
 #[derive(Parser)]
 #[command(name = "bevy", version, about, next_line_help(false))]
+#[command(after_help = after_help())]
 pub struct Cli {
     /// Available subcommands for the Bevy CLI.
     #[command(subcommand)]
@@ -76,6 +77,29 @@ pub struct Cli {
     /// Logs commands that are executed and more information on the actions being performed.
     #[arg(long, short = 'v', global = true)]
     pub verbose: bool,
+}
+
+fn after_help() -> String {
+    let mut message = String::new();
+
+    let header = Style::new().bold().underline();
+    let bold = Style::new().bold();
+
+    _ = writeln!(message, "{header}Resources:{header:#}");
+    _ = writeln!(
+        message,
+        "  {bold}Bevy Website{bold:#}       https://bevyengine.org"
+    );
+    _ = writeln!(
+        message,
+        "  {bold}Bevy Repository{bold:#}    https://github.com/bevyengine/bevy"
+    );
+    _ = writeln!(
+        message,
+        "  {bold}CLI Documentation{bold:#}  https://thebevyflock.github.io/bevy_cli"
+    );
+
+    message
 }
 
 /// Available subcommands for `bevy`.
@@ -88,6 +112,7 @@ pub enum Subcommands {
     Build(BuildArgs),
     /// Run your Bevy app.
     #[command(visible_alias = "r")]
+    #[command(after_help = run_after_help())]
     Run(RunArgs),
     /// Check the current project using Bevy-specific lints.
     ///
@@ -96,15 +121,42 @@ pub enum Subcommands {
     ///
     /// To see the full list of options, run `bevy lint -- --help`.
     #[cfg(feature = "rustup")]
+    #[command(after_help = lint_after_help())]
     Lint(LintArgs),
     /// Generate autocompletion for `bevy` CLI tool.
     ///
-    /// You can add this or a variant of this to your shells `.profile` by just added
+    /// You can add this or a variant of this to your shells `.profile`
     ///
     /// ```
-    /// source <(bevy completion zsh)
+    /// source <(bevy completions zsh)
     /// ```
     Completions { shell: clap_complete::Shell },
+}
+
+fn run_after_help() -> String {
+    let mut message = String::new();
+
+    let header = Style::new().bold().underline();
+
+    _ = writeln!(message, "{header}Examples:{header:#}");
+    _ = writeln!(message, "  bevy run");
+    _ = writeln!(message, "  bevy run web");
+    _ = writeln!(message, "  bevy run --example <<example>> web");
+
+    message
+}
+
+#[cfg(feature = "rustup")]
+fn lint_after_help() -> String {
+    let mut message = String::new();
+
+    let header = Style::new().bold().underline();
+
+    _ = writeln!(message, "{header}Examples:{header:#}");
+    _ = writeln!(message, "  bevy lint");
+    _ = writeln!(message, "  bevy lint --all-features --all-targets");
+
+    message
 }
 
 /// Arguments for creating a new Bevy project.
