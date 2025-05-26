@@ -2,7 +2,7 @@
 use std::fmt::Display;
 
 use mergeme::Merge;
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize};
 use serde_json::Value;
 
 /// Configuration for the `bevy_cli`.
@@ -31,8 +31,12 @@ pub struct CliConfig {
 
     /// Additional flags for `rustc`
     ///
+    /// When [`PartialCliConfig`] is being deserialized, it accepts either a [`Vec<String>`] or a
+    /// single [`String`] for this field.
+    ///
     /// Rust flags are additive when merged.
     #[strategy(merge)]
+    #[partial(serde(deserialize_with = "deserialize_rustflags"))]
     rustflags: Vec<String>,
 
     /// Use `wasm-opt` to optimize wasm binaries.
@@ -147,6 +151,32 @@ impl Display for CliConfig {
                 .unwrap_or(String::new())
         )
     }
+}
+
+/// A custom deserializer for the `rustflags` variable that supports either a single string or a
+/// sequence of strings.
+fn deserialize_rustflags<'de, D>(deserializer: D) -> Result<Option<Vec<String>>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    // An untagged enum lets us match either a `String` or a `Vec<String>` just based on the data,
+    // and will only fail if neither can be extracted. Check out `serde`'s docs on how untagged
+    // enums work: <https://serde.rs/enum-representations.html#untagged>.
+    #[derive(Deserialize)]
+    #[serde(untagged)]
+    enum Rustflags {
+        String(String),
+        Vec(Vec<String>),
+    }
+
+    // Deserialize the value into an `Option<Rustflags>`.
+    let rustflags = <Option<Rustflags> as Deserialize>::deserialize(deserializer)?;
+
+    // Convert the `Rustflags` into a `Vec<String>` if it exists.
+    Ok(rustflags.map(|x| match x {
+        Rustflags::String(s) => vec![s],
+        Rustflags::Vec(v) => v,
+    }))
 }
 
 #[cfg(test)]
