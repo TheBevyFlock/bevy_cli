@@ -1,17 +1,17 @@
 # Changelog
 
-All notable user-facing changes to this project will be documented in this file.
+All notable user-facing changes to the **Bevy Linter** will be documented in this file.
 
 The format is based on [Keep a Changelog], and this project adheres to [Semantic Versioning].
 
 [Keep a Changelog]: https://keepachangelog.com/en/1.1.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
 
-## [Unreleased]
+## Unreleased
 
 **All Changes**: [`lint-v0.3.0...main`](https://github.com/TheBevyFlock/bevy_cli/compare/lint-v0.3.0...main)
 
-## [v0.3.0] - 2025-04-30
+## v0.3.0 - 2025-04-30
 
 **All Changes**: [`lint-v0.2.0...lint-v0.3.0`](https://github.com/TheBevyFlock/bevy_cli/compare/lint-v0.2.0...lint-v0.3.0)
 
@@ -45,7 +45,7 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
     - The goal of the lint is to encourage the `AppExit` to be handled, although returning it from `main()` is just one solution. This fix prevents the lint from yelling at you if you choose to handle it a different way, or simply choose to discard it with `let _ = app.run();`.
 - Fixed the Rust version in the compatibility table for v0.2.0 ([#363](https://github.com/TheBevyFlock/bevy_cli/pull/363))
 
-## [v0.2.0] - 2025-03-19
+## v0.2.0 - 2025-03-19
 
 **All Changes**: [`lint-v0.1.0...lint-v0.2.0`](https://github.com/TheBevyFlock/bevy_cli/compare/lint-v0.1.0...lint-v0.2.0)
 
@@ -72,9 +72,9 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 - `rustc_driver.dll` not found on Windows ([#281](https://github.com/TheBevyFlock/bevy_cli/pull/281))
     - `bevy_lint` should now work on Windows, as it was previously broken by this bug.
 
-## [v0.1.0] - 2024-11-17
+## v0.1.0 - 2024-11-17
 
-**All Changes**: [`17834eb...lint-v0.1.0`](https://github.com/TheBevyFlock/bevy_cli/compare/17834eb...lint-v0.1.0)
+**All Changes**: [`lint-v0.1.0`](https://github.com/TheBevyFlock/bevy_cli/commits/lint-v0.1.0)
 
 ### Added
 

@@ -31,7 +31,7 @@ see <https://linebender.org/blog/doc-include/>.
 
 You can install the toolchain with:
 
-```bash
+```sh
 rustup toolchain install $TOOLCHAIN_VERSION \
     --component rustc-dev \
     --component llvm-tools-preview
@@ -43,7 +43,7 @@ For example, you would replace `$TOOLCHAIN_VERSION` with `nightly-2024-11-14` if
 
 Once you have the toolchain installed, you can compile and install `bevy_lint` through `cargo`:
 
-```bash
+```sh
 rustup run $TOOLCHAIN_VERSION cargo install \
     --git https://github.com/TheBevyFlock/bevy_cli.git \
     --tag $TAG \
@@ -57,13 +57,13 @@ Make sure to replace `$TOOLCHAIN_VERSION` and `$TAG` in the above command. The t
 
 `bevy_lint` has the same API as the `cargo check` command:
 
-```bash
+```sh
 bevy_lint --help
 ```
 
-If you have the [Bevy CLI](https://github.com/TheBevyFlock/bevy_cli) installed, the linter is also available through the `lint` subcommand:
+If you have the [prototype Bevy CLI](https://thebevyflock.github.io/bevy_cli/cli/index.html) installed, the linter is also available through the `lint` subcommand:
 
-```bash
+```sh
 bevy lint --help
 ```
 

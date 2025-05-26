@@ -1,6 +1,6 @@
 [book]
-title = "Bevy CLI and Linter"
-description = "The official documentation for the Bevy CLI and linter"
+title = "Bevy CLI and Bevy Linter"
+description = "The documentation for the prototype Bevy CLI and Bevy Linter"
 src = "src"
 language = "en"
 
