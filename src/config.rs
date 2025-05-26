@@ -12,7 +12,7 @@ use serde_json::Value;
 #[derive(Merge, PartialEq, Serialize, Debug)]
 #[partial(
     PartialCliConfig,
-    derive(Deserialize),
+    derive(Deserialize, Debug),
     serde(rename_all = "kebab-case")
 )]
 #[serde(rename_all = "kebab-case")]
