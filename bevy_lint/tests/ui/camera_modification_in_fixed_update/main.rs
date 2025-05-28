@@ -1,7 +1,6 @@
 #![feature(register_tool)]
 #![register_tool(bevy)]
 #![deny(bevy::camera_modification_in_fixed_update)]
-#![allow(dead_code)]
 
 use bevy::prelude::*;
 
@@ -15,11 +14,29 @@ fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
         .add_systems(Startup, spawn_camera)
-        // .add_systems(FixedUpdate, move_camera)
-        // .add_systems(FixedUpdate, move_camera_2)
-        .add_systems(FixedUpdate, move_camera_3)
+        // This should not raise an error since its in `Startup`
+        .add_systems(Startup, move_camera)
+        .add_systems(FixedUpdate, move_camera)
         //~^ ERROR: Camera modification in FixedUpdate schedule
         //~| HELP: Put System in Update instead
+        .add_systems(FixedUpdate, move_camera_tuple_data)
+        //~^ ERROR: Camera modification in FixedUpdate schedule
+        //~| HELP: Put System in Update instead
+        // This should not raise an error since its in not mutably borrowing any data
+        .add_systems(FixedUpdate, dont_mut_camera)
+        //~| ERROR: Camera modification in FixedUpdate schedule
+        //~v HELP: Put System in Update instead
+        .add_systems(FixedUpdate, (move_camera, move_camera_tuple_data))
+        //~^ ERROR: Camera modification in FixedUpdate schedule
+        //~| HELP: Put System in Update instead
+        .add_systems(FixedUpdate, multiple_queries)
+        //~^ ERROR: Camera modification in FixedUpdate schedule
+        //~| HELP: Put System in Update instead
+        .add_systems(FixedUpdate, multiple_none_mut_queries)
+        .add_systems(FixedUpdate, multiple_query_filters)
+        //~^ ERROR: Camera modification in FixedUpdate schedule
+        //~| HELP: Put System in Update instead
+        .add_systems(FixedUpdate, multiple_none_mut_query_filters)
         .run();
 }
 
@@ -27,26 +44,35 @@ fn spawn_camera(mut commands: Commands) {
     commands.spawn((Name::new("Camera"), Camera::default()));
 }
 
-fn move_camera(mut query: Query<&mut Transform, With<Camera>>) {
-    for mut transform in &mut query {
-        transform.translation.x += 1.0;
-    }
-}
+fn move_camera(mut _query: Query<&mut Transform, With<Camera>>) {}
 
-fn move_camera_2(mut query: Query<&mut Transform, With<Camera>>) {
-    for mut transform in &mut query {
-        transform.translation.x += 1.0;
-    }
-}
+fn dont_mut_camera(_query: Query<&Transform, With<Camera>>) {}
 
-fn move_camera_3(
-    mut query: Query<(&mut Transform, &Hp, Entity), With<Camera>>,
-    mut commands: Commands,
+fn move_camera_tuple_data(
+    mut _query: Query<(&mut Transform, &Hp, Entity), With<Camera>>,
+    mut _commands: Commands,
     _time: Res<Time>,
 ) {
-    commands.spawn(Name::new("Camera3"));
+}
 
-    for (mut transform, _, _) in &mut query {
-        transform.translation.x += 1.0;
-    }
+fn multiple_queries(
+    mut _query: Query<(&mut Transform, Entity), With<Camera>>,
+    mut _query2: Query<(&mut Hp, Entity), With<Player>>,
+) {
+}
+
+fn multiple_none_mut_queries(
+    _query: Query<(&Transform, Entity), With<Camera>>,
+    mut _query2: Query<(&mut Hp, Entity), With<Player>>,
+) {
+}
+
+fn multiple_query_filters(
+    mut _query: Query<(&mut Transform, Entity), (With<Camera>, Without<Player>)>,
+) {
+}
+
+fn multiple_none_mut_query_filters(
+    _query: Query<(&Transform, Entity), (With<Camera>, Without<Player>)>,
+) {
 }
