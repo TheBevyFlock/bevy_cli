@@ -3,6 +3,10 @@
 //!
 //! # Motivation
 //!
+//! Modifying camera components in the `FixedUpdate` schedule can cause jittery or inconsistent
+//! visuals because `FixedUpdate` runs at a fixed timestep mainly for physics and deterministic
+//! logic. The camera should be updated in the last variable timestep before `FixedUpdate` which is
+//! the `Update` schedule.
 //!
 //! # Known Issues
 //!
