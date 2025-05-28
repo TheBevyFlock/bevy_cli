@@ -1,3 +1,43 @@
+//! Checks for systems added to the `FixedUpdate` schedule that mutably query entities with a
+//! `Camera` component.
+//!
+//! # Motivation
+//!
+//!
+//! # Known Issues
+//!
+//! - The lint only detects systems that explicitly use the `With<Camera>` query filter.
+//!
+//! # Example
+//!
+//! ```rust
+//! use bevy::prelude::*;
+//!
+//! fn move_camera(mut query: Query<&mut Transform, With<Camera>>) {
+//!     // ...
+//! }
+//!
+//! fn main() {
+//!     App::new()
+//!         .add_systems(FixedUpdate, move_camera);
+//! }
+//! ```
+//!
+//! Use instead:
+//!
+//! ```rust
+//! use bevy::prelude::*;
+//!
+//! fn move_camera(mut query: Query<&mut Transform, With<Camera>>) {
+//!     // ...
+//! }
+//!
+//! fn main() {
+//!     App::new()
+//!         .add_systems(Update, move_camera);
+//! }
+//! ```
+
 use clippy_utils::{diagnostics::span_lint_and_help, sym, ty::match_type};
 use rustc_hir::{ExprKind, QPath, def::Res};
 use rustc_lint::{LateContext, LateLintPass};
