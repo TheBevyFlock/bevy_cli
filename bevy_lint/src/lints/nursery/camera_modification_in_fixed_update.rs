@@ -65,6 +65,10 @@ declare_bevy_lint_pass! {
 
 impl<'tcx> LateLintPass<'tcx> for CameraModificationInFixedUpdate {
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &'tcx rustc_hir::Expr<'tcx>) {
+        if expr.span.in_external_macro(cx.tcx.sess.source_map()) {
+            return;
+        }
+
         let Some(MethodCall {
             method_path, args, ..
         }) = MethodCall::try_from(cx, expr)
