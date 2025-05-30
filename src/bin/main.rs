@@ -66,7 +66,7 @@ fn main() -> ExitCode {
 /// This CLI provides tools for Bevy project management,
 /// such as generating new projects from templates.
 #[derive(Parser)]
-#[command(name = "bevy", version, about, next_line_help(false))]
+#[command(name = "bevy", version, about, next_line_help(false), styles = clap_cargo::style::CLAP_STYLING)]
 pub struct Cli {
     /// Available subcommands for the Bevy CLI.
     #[command(subcommand)]
