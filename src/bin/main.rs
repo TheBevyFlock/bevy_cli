@@ -91,9 +91,6 @@ pub enum Subcommands {
     Run(RunArgs),
     /// Check the current project using Bevy-specific lints.
     ///
-    /// This command requires `bevy_lint` to be installed, and will fail if it is not. Please see
-    /// <https://github.com/TheBevyFlock/bevy_cli> for installation instructions.
-    ///
     /// To see the full list of options, run `bevy lint -- --help`.
     #[cfg(feature = "rustup")]
     Lint(LintArgs),
