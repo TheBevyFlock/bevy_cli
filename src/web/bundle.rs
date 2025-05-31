@@ -127,14 +127,14 @@ pub fn create_web_bundle(
         linked.build_artifact_path.join(&linked.wasm_file_name),
         base_path
             .join("build")
-            .join(&linked.wasm_file_name.to_string_lossy().as_ref()),
+            .join(linked.wasm_file_name.to_string_lossy().as_ref()),
     )
     .context("failed to copy WASM artifact")?;
     fs::copy(
         linked.build_artifact_path.join(&linked.js_file_name),
         base_path
             .join("build")
-            .join(&linked.js_file_name.to_string_lossy().as_ref()),
+            .join(linked.js_file_name.to_string_lossy().as_ref()),
     )
     .context("failed to copy JS artifact")?;
 
