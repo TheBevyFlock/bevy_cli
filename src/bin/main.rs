@@ -99,8 +99,10 @@ pub enum Subcommands {
     /// You can add this or a variant of this to your shells `.profile` by just added
     ///
     /// ```
-    /// source <(bevy completion zsh)
+    /// source <(bevy completions zsh)
     /// ```
+    ///
+    /// replace 'zsh' with your shell name
     Completions { shell: clap_complete::Shell },
 }
 
