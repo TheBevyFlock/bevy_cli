@@ -5,9 +5,8 @@ use std::{
 };
 
 use anyhow::Context;
+use cargo_metadata::Metadata;
 use tracing::info;
-
-use crate::external_cli::cargo::metadata::Metadata;
 
 use crate::bin_target::BinTarget;
 
@@ -126,12 +125,16 @@ pub fn create_web_bundle(
     fs::create_dir_all(base_path.join("build"))?;
     fs::copy(
         linked.build_artifact_path.join(&linked.wasm_file_name),
-        base_path.join("build").join(&linked.wasm_file_name),
+        base_path
+            .join("build")
+            .join(&linked.wasm_file_name.to_string_lossy().as_ref()),
     )
     .context("failed to copy WASM artifact")?;
     fs::copy(
         linked.build_artifact_path.join(&linked.js_file_name),
-        base_path.join("build").join(&linked.js_file_name),
+        base_path
+            .join("build")
+            .join(&linked.js_file_name.to_string_lossy().as_ref()),
     )
     .context("failed to copy JS artifact")?;
 
@@ -175,7 +178,9 @@ pub fn create_web_bundle(
     fs::write(base_path.join("index.html"), &index)
         .context("failed to write processed index.html")?;
 
-    Ok(WebBundle::Packed(PackedBundle { path: base_path }))
+    Ok(WebBundle::Packed(PackedBundle {
+        path: base_path.into(),
+    }))
 }
 
 /// Apply pre-processing to the provided `index.html`.
