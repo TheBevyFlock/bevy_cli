@@ -57,6 +57,16 @@ impl CommandExt {
         }
     }
 
+    /// Create a new [`CommandExt`] from the given command
+    pub fn from_command(cmd: Command) -> Self {
+        Self {
+            package: None,
+            target: None,
+            inner: cmd,
+            log_level: Level::DEBUG,
+        }
+    }
+
     /// Define the package that allows installation of the program.
     ///
     /// If the command fails and the package is missing,

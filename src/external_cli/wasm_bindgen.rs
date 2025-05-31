@@ -1,12 +1,9 @@
+use cargo_metadata::Metadata;
 use semver::{Comparator, Version, VersionReq};
 
 use crate::bin_target::BinTarget;
 
-use super::{
-    CommandExt, Package,
-    arg_builder::ArgBuilder,
-    cargo::{install::AutoInstall, metadata::Metadata},
-};
+use super::{CommandExt, Package, arg_builder::ArgBuilder, cargo::install::AutoInstall};
 
 pub(crate) const PACKAGE: &str = "wasm-bindgen-cli";
 pub(crate) const PROGRAM: &str = "wasm-bindgen";
@@ -31,7 +28,7 @@ pub(crate) fn bundle(
     } = metadata
         .packages
         .iter()
-        .find(|package| package.name == "wasm-bindgen")
+        .find(|package| package.name.as_str() == "wasm-bindgen")
         .map(|package| package.version.clone())
         .ok_or_else(|| anyhow::anyhow!("Failed to find wasm-bindgen"))?;
 

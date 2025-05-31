@@ -1,9 +1,8 @@
 use std::{collections::HashMap, fs};
 
 use anyhow::Context as _;
+use cargo_metadata::Metadata;
 use toml_edit::DocumentMut;
-
-use crate::external_cli::cargo::metadata::Metadata;
 
 /// Create `--config` args to configure the default profiles to use when compiling for the web.
 pub(crate) fn configure_default_web_profiles(metadata: &Metadata) -> anyhow::Result<Vec<String>> {

@@ -1,11 +1,11 @@
 use anyhow::Context as _;
+use cargo_metadata::Metadata;
 use http::{HeaderMap, HeaderValue};
 use tracing::{error, info};
 
 use crate::{
     bin_target::BinTarget,
     build::args::BuildArgs,
-    external_cli::cargo::metadata::Metadata,
     run::{
         RunArgs,
         args::{RunSubcommands, RunWebArgs},
