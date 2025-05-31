@@ -34,7 +34,6 @@ impl TestArgs {
     }
 
     /// Determine if the app is being built for the web.
-    #[cfg(feature = "web")]
     pub(crate) fn is_web(&self) -> bool {
         matches!(self.subcommand, Some(TestSubcommands::Web))
             || self.cargo_args.compilation_args.profile.as_deref() == Some("web-release")
@@ -97,6 +96,5 @@ impl TestArgs {
 #[derive(Debug, Subcommand)]
 pub enum TestSubcommands {
     /// Test your app for the browser.
-    #[cfg(feature = "web")]
     Web,
 }
