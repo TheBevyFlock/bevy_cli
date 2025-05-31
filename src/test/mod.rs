@@ -2,12 +2,9 @@
 
 use args::TestArgs;
 
-//#[cfg(feature = "web")]
-// use crate::web::build::test_web;
-use crate::{
-    bin_target::select_run_binary, config::CliConfig, external_cli::cargo,
-    web::profiles::configure_default_web_profiles,
-};
+#[cfg(feature = "web")]
+use crate::web::profiles::configure_default_web_profiles;
+use crate::{bin_target::select_run_binary, config::CliConfig, external_cli::cargo};
 
 pub mod args;
 
