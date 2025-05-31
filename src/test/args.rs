@@ -14,9 +14,17 @@ pub struct TestArgs {
     /// The subcommands available for the test command.
     #[clap(subcommand)]
     pub subcommand: Option<TestSubcommands>,
+    /// If specified, only run tests containing this string in their names
+    pub test_name: Option<String>,
     /// Arguments to forward to `cargo test`.
     #[clap(flatten)]
     pub cargo_args: CargoTestArgs,
+
+    /// Arguments to pass to the tests.
+    ///
+    /// Specified after `--`.
+    #[clap(last = true, name = "ARGS")]
+    pub forward_args: Vec<String>,
 }
 
 impl TestArgs {

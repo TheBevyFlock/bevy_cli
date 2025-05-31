@@ -44,17 +44,10 @@ pub fn test(args: &mut TestArgs) -> anyhow::Result<()> {
         // so the default configuration needs to come before the user args
         profile_args.append(&mut args.cargo_args.common_args.config);
         args.cargo_args.common_args.config = profile_args;
-
-        let cargo_args = args.cargo_args_builder();
-        cargo::test::command()
-            .args(cargo_args)
-            .env("RUSTFLAGS", args.cargo_args.common_args.rustflags.clone())
-            .ensure_status(TestArgs::auto_install())?;
-        return Ok(());
     }
-
     let cargo_args = args.cargo_args_builder();
-    cargo::test::command()
+
+    cargo::test::command(args.test_name.as_deref())
         .args(cargo_args)
         .env("RUSTFLAGS", args.cargo_args.common_args.rustflags.clone())
         .ensure_status(TestArgs::auto_install())?;

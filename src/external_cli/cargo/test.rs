@@ -5,9 +5,12 @@ use crate::external_cli::{CommandExt, arg_builder::ArgBuilder};
 use super::{CargoCommonArgs, CargoCompilationArgs, CargoFeatureArgs, CargoManifestArgs, program};
 
 /// Create a command to run `cargo test`.
-pub(crate) fn command() -> CommandExt {
+pub(crate) fn command(test_name: Option<&str>) -> CommandExt {
     let mut command = CommandExt::new(program());
     command.arg("test");
+    if let Some(test_name) = test_name {
+        command.arg(test_name);
+    }
     command
 }
 
