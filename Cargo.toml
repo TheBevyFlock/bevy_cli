@@ -66,6 +66,9 @@ regex = "1.10.6"
 # Understanding package versions
 semver = { version = "1.0.23", features = ["serde"] }
 
+# `cargo metadata` command helpers and types
+cargo_metadata = "0.20.0"
+
 # Parsing the Cargo manifest
 toml_edit = { version = "0.22.22", default-features = false, features = [
     "parse",
