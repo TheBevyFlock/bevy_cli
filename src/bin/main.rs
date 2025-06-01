@@ -67,7 +67,7 @@ fn main() -> ExitCode {
 /// This CLI provides tools for Bevy project management,
 /// such as generating new projects from templates.
 #[derive(Parser)]
-#[command(name = "bevy", version, about, next_line_help(false))]
+#[command(name = "bevy", version, about, next_line_help(false), styles = clap_cargo::style::CLAP_STYLING)]
 pub struct Cli {
     /// Available subcommands for the Bevy CLI.
     #[command(subcommand)]
@@ -94,9 +94,6 @@ pub enum Subcommands {
     #[command(visible_alias = "t")]
     Test(TestArgs),
     /// Check the current project using Bevy-specific lints.
-    ///
-    /// This command requires `bevy_lint` to be installed, and will fail if it is not. Please see
-    /// <https://github.com/TheBevyFlock/bevy_cli> for installation instructions.
     ///
     /// To see the full list of options, run `bevy lint -- --help`.
     #[cfg(feature = "rustup")]
