@@ -6,10 +6,7 @@ use tracing::info;
 use crate::{
     bin_target::BinTarget,
     build::args::{BuildArgs, BuildSubcommands},
-    external_cli::{
-        cargo::{self},
-        wasm_bindgen,
-    },
+    external_cli::{cargo, wasm_bindgen},
     web::{
         bundle::{PackedBundle, create_web_bundle},
         profiles::configure_default_web_profiles,
