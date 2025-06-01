@@ -46,16 +46,6 @@ impl TestArgs {
             || self.cargo_args.compilation_args.is_release
     }
 
-    /// The profile used to test the app.
-    pub(crate) fn profile(&self) -> &str {
-        self.cargo_args.compilation_args.profile(self.is_web())
-    }
-
-    /// The targeted platform.
-    pub(crate) fn target(&self) -> Option<String> {
-        self.cargo_args.compilation_args.target(self.is_web())
-    }
-
     /// Generate arguments to forward to `cargo test`.
     pub(crate) fn cargo_args_builder(&self) -> ArgBuilder {
         self.cargo_args.args_builder(self.is_web())
