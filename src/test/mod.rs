@@ -4,7 +4,7 @@ use args::TestArgs;
 
 #[cfg(feature = "web")]
 use crate::web::profiles::configure_default_web_profiles;
-use crate::{bin_target::select_run_binary, config::CliConfig, external_cli::cargo};
+use crate::{config::CliConfig, external_cli::cargo};
 
 pub mod args;
 
@@ -16,21 +16,21 @@ pub mod args;
 pub fn test(args: &mut TestArgs) -> anyhow::Result<()> {
     let metadata = cargo::metadata::metadata()?;
 
-    let bin_target = select_run_binary(
-        &metadata,
-        args.cargo_args.package_args.package.as_deref(),
-        args.cargo_args.target_args.bin.as_deref(),
-        args.cargo_args.target_args.example.as_deref(),
-        args.target().as_deref(),
-        args.profile(),
-    )?;
+    // The package specified with the `-p` argument or if none is present take the
+    // current root_package
+    let package = if let Some(package) = &args.cargo_args.package_args.package {
+        metadata
+            .packages
+            .iter()
+            .find(|p| p.name.as_str() == package)
+    } else {
+        metadata.root_package()
+    };
 
-    let config = CliConfig::for_package(
-        &metadata,
-        bin_target.package,
-        args.is_web(),
-        args.is_release(),
-    )?;
+    let mut config = CliConfig::default();
+    if let Some(package) = package {
+        config = CliConfig::for_package(&metadata, package, args.is_web(), args.is_release())?;
+    }
 
     args.apply_config(&config);
 
