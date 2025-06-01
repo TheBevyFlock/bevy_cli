@@ -60,12 +60,12 @@
 //! leafwing-input-manager = "0.16"
 //! ```
 
-use std::{collections::BTreeMap, ops::Range, path::Path, str::FromStr, sync::Arc};
+use std::{collections::BTreeMap, ops::Range, path::Path, sync::Arc};
 
 use crate::declare_bevy_lint;
 use cargo_metadata::{
     Metadata, Resolve,
-    semver::{Version, VersionReq},
+    semver::{Prerelease, Version, VersionReq},
 };
 use clippy_utils::{
     diagnostics::{span_lint, span_lint_and_then},
@@ -138,9 +138,9 @@ pub fn check(cx: &LateContext<'_>, metadata: &Metadata, bevy_symbol: Symbol) {
             None => {
                 if let Some(resolve) = &metadata.resolve {
                     minimal_lint(cx, &bevy_dependents, resolve);
-                };
+                }
             }
-        };
+        }
     }
 }
 
@@ -244,14 +244,62 @@ fn minimal_lint(
 /// but [`Version::from_str`] can only parse exact  versions and not ranges.
 fn get_version_from_toml(table: &toml::Value) -> anyhow::Result<Version> {
     match table {
-        toml::Value::String(version) => Version::from_str(version).map_err(anyhow::Error::from),
+        toml::Value::String(version) => Ok(parse_version(version)),
         toml::Value::Table(table) => table
             .get("version")
             .and_then(toml::Value::as_str)
             .ok_or_else(|| anyhow::anyhow!("The 'version' field is required."))
-            .and_then(|version| Version::from_str(version).map_err(anyhow::Error::from)),
+            .map(parse_version),
         _ => Err(anyhow::anyhow!(
             "Unexpected TOML format: expected a toml-string '<crate> = <version>' or a toml-table with '<crate> = {{ version = <version> }} '"
         )),
+    }
+}
+
+/// Parse a Version that does not contain any ranges.
+/// In contrast to `cargo_metadata::semver::Version::from_str` this also supports versions in the
+/// format of `1.1` by just setting the patch level to 0.
+fn parse_version(version: &str) -> Version {
+    // split at '-' in order to not include the pre release version in the patch if one is present.
+    let mut iter = version.split('-');
+    // At least a version is always present
+    let mut semver = iter.next().unwrap().split('.');
+    let pre = iter.next();
+
+    let major = semver
+        .next()
+        .and_then(|v| v.parse::<u64>().ok())
+        .unwrap_or(0);
+    let minor = semver
+        .next()
+        .and_then(|v| v.parse::<u64>().ok())
+        .unwrap_or(0);
+    let patch = semver
+        .next()
+        .and_then(|v| v.parse::<u64>().ok())
+        .unwrap_or(0);
+
+    let mut version = Version::new(major, minor, patch);
+
+    if let Some(pre) = pre {
+        version.pre = Prerelease::new(pre).unwrap();
+    }
+    version
+}
+
+#[cfg(test)]
+mod tests {
+    use cargo_metadata::semver::{Prerelease, Version};
+
+    use super::parse_version;
+
+    #[test]
+    fn parse_version_req() {
+        assert_eq!(Version::new(0, 16, 0), parse_version("0.16"));
+        assert_eq!(Version::new(0, 16, 1), parse_version("0.16.1"));
+        assert_eq!(Version::new(1, 16, 10), parse_version("1.16.10"));
+        let mut version_with_pre = Version::new(0, 16, 0);
+        version_with_pre.pre = Prerelease::new("rc.1").unwrap();
+        assert_eq!(version_with_pre, parse_version("0.16.0-rc.1"));
     }
 }
