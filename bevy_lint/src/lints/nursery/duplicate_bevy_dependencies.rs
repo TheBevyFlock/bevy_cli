@@ -151,15 +151,21 @@ fn lint_with_target_version(
     bevy_cargo: &Spanned<toml::Value>,
     bevy_dependents: &BTreeMap<&str, VersionReq>,
 ) {
+    let bevy_cargo_toml_span = toml_span(bevy_cargo.span(), file);
+
     // Semver only supports checking if a given `VersionReq` matches a `Version` and not if two
     // `VersionReq` can successfully resolve to one `Version`. Therefore we try to parse the
     // `Version` from the `bevy` dependency in the `Cargo.toml` file. This only works if a
     // single version  of `bevy` is specified and not a range.
     let Ok(target_version) = get_version_from_toml(bevy_cargo.as_ref()) else {
+        span_lint(
+            cx,
+            DUPLICATE_BEVY_DEPENDENCIES,
+            bevy_cargo_toml_span,
+            "Specified version format is not supported. Use a fixed version or disable this lint.",
+        );
         return;
     };
-
-    let bevy_cargo_toml_span = toml_span(bevy_cargo.span(), file);
 
     let mismatching_dependencies = bevy_dependents
         .iter()
@@ -244,12 +250,12 @@ fn minimal_lint(
 /// but [`Version::from_str`] can only parse exact  versions and not ranges.
 fn get_version_from_toml(table: &toml::Value) -> anyhow::Result<Version> {
     match table {
-        toml::Value::String(version) => Ok(parse_version(version)),
+        toml::Value::String(version) => parse_version(version),
         toml::Value::Table(table) => table
             .get("version")
             .and_then(toml::Value::as_str)
             .ok_or_else(|| anyhow::anyhow!("The 'version' field is required."))
-            .map(parse_version),
+            .map(parse_version)?,
         _ => Err(anyhow::anyhow!(
             "Unexpected TOML format: expected a toml-string '<crate> = <version>' or a toml-table with '<crate> = {{ version = <version> }} '"
         )),
@@ -259,23 +265,40 @@ fn get_version_from_toml(table: &toml::Value) -> anyhow::Result<Version> {
 /// Parse a Version that does not contain any ranges.
 /// In contrast to `cargo_metadata::semver::Version::from_str` this also supports versions in the
 /// format of `1.1` by just setting the patch level to 0.
-fn parse_version(version: &str) -> Version {
+fn parse_version(version: &str) -> anyhow::Result<Version> {
     // split at '-' in order to not include the pre release version in the patch if one is present.
     let mut iter = version.split('-');
-    // At least a version is always present
-    let mut semver = iter.next().unwrap().split('.');
+
+    // create a copy so we can validate that each part of the semver
+    // is a number without consuming the iterator.
+    let semver_parts = iter
+        .next()
+        .ok_or(anyhow::anyhow!("A version string is required"))?
+        .split('.')
+        .collect::<Vec<&str>>();
+
+    // check if each part of the semver only contains numbers.
+    if !semver_parts
+        .iter()
+        .all(|part| part.chars().all(|c| c.is_ascii_digit()))
+    {
+        return Err(anyhow::anyhow!("Version ranges are not yet supported"));
+    }
+
     let pre = iter.next();
 
-    let major = semver
-        .next()
+    let major = semver_parts
+        .first()
         .and_then(|v| v.parse::<u64>().ok())
         .unwrap_or(0);
-    let minor = semver
-        .next()
+
+    let minor = semver_parts
+        .get(1)
         .and_then(|v| v.parse::<u64>().ok())
         .unwrap_or(0);
-    let patch = semver
-        .next()
+
+    let patch = semver_parts
+        .get(2)
         .and_then(|v| v.parse::<u64>().ok())
         .unwrap_or(0);
 
@@ -284,7 +307,7 @@ fn parse_version(version: &str) -> Version {
     if let Some(pre) = pre {
         version.pre = Prerelease::new(pre).unwrap();
     }
-    version
+    Ok(version)
 }
 
 #[cfg(test)]
@@ -295,11 +318,13 @@ mod tests {
 
     #[test]
     fn parse_version_req() {
-        assert_eq!(Version::new(0, 16, 0), parse_version("0.16"));
-        assert_eq!(Version::new(0, 16, 1), parse_version("0.16.1"));
-        assert_eq!(Version::new(1, 16, 10), parse_version("1.16.10"));
+        assert_eq!(Version::new(0, 16, 0), parse_version("0.16").unwrap());
+        assert_eq!(Version::new(0, 16, 1), parse_version("0.16.1").unwrap());
+        assert_eq!(Version::new(1, 16, 10), parse_version("1.16.10").unwrap());
         let mut version_with_pre = Version::new(0, 16, 0);
         version_with_pre.pre = Prerelease::new("rc.1").unwrap();
-        assert_eq!(version_with_pre, parse_version("0.16.0-rc.1"));
+        assert_eq!(version_with_pre, parse_version("0.16.0-rc.1").unwrap());
+        // This should fail since we specified a version range
+        assert!(parse_version("0.*").is_err());
     }
 }

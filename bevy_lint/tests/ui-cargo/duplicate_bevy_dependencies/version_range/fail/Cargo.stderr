@@ -1,0 +1,14 @@
+error: Specified version format is not supported. Use a fixed version or disable this lint.
+  --> Cargo.toml:11:8
+   |
+11 | bevy = "^0.16"
+   |        ^^^^^^^
+   |
+note: the lint level is defined here
+  --> src/main.rs:3:9
+   |
+3  | #![deny(bevy::duplicate_bevy_dependencies)]
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: could not compile `multiple-bevy-versions` (bin "multiple-bevy-versions") due to 1 previous error
+Check failed: exit status: 101.
