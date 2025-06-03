@@ -158,9 +158,7 @@ fn lint_with_target_version(
     // `Version` from the `bevy` dependency in the `Cargo.toml` file. This only works if a
     // single version  of `bevy` is specified and not a range.
     let Ok(target_version) = get_version_from_toml(bevy_cargo.as_ref()) else {
-        span_lint(
-            cx,
-            DUPLICATE_BEVY_DEPENDENCIES,
+        cx.tcx.dcx().span_warn(
             bevy_cargo_toml_span,
             "Specified version format is not supported. Use a fixed version or disable this lint.",
         );
