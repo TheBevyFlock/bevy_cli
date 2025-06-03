@@ -1,14 +1,12 @@
 use crate::external_cli::wasm_opt;
 use anyhow::Context as _;
+use cargo_metadata::Metadata;
 use tracing::info;
 
 use crate::{
     bin_target::BinTarget,
     build::args::{BuildArgs, BuildSubcommands},
-    external_cli::{
-        cargo::{self, metadata::Metadata},
-        wasm_bindgen,
-    },
+    external_cli::{cargo, wasm_bindgen},
     web::{
         bundle::{PackedBundle, create_web_bundle},
         profiles::configure_default_web_profiles,

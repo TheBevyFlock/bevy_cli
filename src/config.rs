@@ -2,11 +2,10 @@
 use std::fmt::Display;
 
 use anyhow::{Context, bail};
+use cargo_metadata::{Metadata, Package};
 use serde::Serialize;
 use serde_json::{Map, Value};
 use tracing::warn;
-
-use crate::external_cli::cargo::metadata::{Metadata, Package};
 
 /// Configuration for the `bevy_cli`.
 ///
