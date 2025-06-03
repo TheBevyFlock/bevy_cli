@@ -1,10 +1,11 @@
-use std::process::ExitCode;
+use std::{fmt::Write, process::ExitCode};
 
 use ansi_term::Color::{Blue, Green, Purple, Red, Yellow};
 #[cfg(feature = "rustup")]
 use bevy_cli::lint::LintArgs;
 use bevy_cli::{build::args::BuildArgs, run::RunArgs};
-use clap::{Args, CommandFactory, Parser, Subcommand};
+use clap::{Args, CommandFactory, Parser, Subcommand, builder::styling::Style};
+use clap_cargo::style;
 use tracing::error;
 use tracing_subscriber::{
     fmt::{self, FormatEvent, FormatFields, format::Writer},
@@ -66,7 +67,7 @@ fn main() -> ExitCode {
 /// This CLI provides tools for Bevy project management,
 /// such as generating new projects from templates.
 #[derive(Parser)]
-#[command(name = "bevy", version, about, next_line_help(false), styles = clap_cargo::style::CLAP_STYLING)]
+#[command(name = "bevy", version, about, next_line_help(false), after_help = after_help(), styles = style::CLAP_STYLING)]
 pub struct Cli {
     /// Available subcommands for the Bevy CLI.
     #[command(subcommand)]
@@ -76,6 +77,29 @@ pub struct Cli {
     /// Logs commands that are executed and more information on the actions being performed.
     #[arg(long, short = 'v', global = true)]
     pub verbose: bool,
+}
+
+fn after_help() -> String {
+    let mut message = String::new();
+
+    let header = Style::new().bold().underline();
+    let bold = Style::new().bold();
+
+    _ = writeln!(message, "{header}Resources:{header:#}");
+    _ = writeln!(
+        message,
+        "  {bold}Bevy Website{bold:#}       https://bevyengine.org"
+    );
+    _ = writeln!(
+        message,
+        "  {bold}Bevy Repository{bold:#}    https://github.com/bevyengine/bevy"
+    );
+    _ = writeln!(
+        message,
+        "  {bold}CLI Documentation{bold:#}  https://thebevyflock.github.io/bevy_cli"
+    );
+
+    message
 }
 
 /// Available subcommands for `bevy`.
@@ -88,20 +112,76 @@ pub enum Subcommands {
     Build(BuildArgs),
     /// Run your Bevy app.
     #[command(visible_alias = "r")]
+    #[command(after_help = run_after_help())]
     Run(RunArgs),
     /// Check the current project using Bevy-specific lints.
     ///
     /// To see the full list of options, run `bevy lint -- --help`.
     #[cfg(feature = "rustup")]
+    #[command(after_help = lint_after_help())]
     Lint(LintArgs),
-    /// Generate autocompletion for `bevy` CLI tool.
+    /// Prints the auto-completion script for a specific shell.
     ///
-    /// You can add this or a variant of this to your shells `.profile` by just added
-    ///
-    /// `source <(bevy completions zsh)`
-    ///
-    /// replace 'zsh' with your shell name
+    /// The result of this command is intended to be passed to the `source` command, such as
+    /// `source <(bevy completions $SHELL_NAME)`. (Please see the examples for more details.) You
+    /// likely want to run this whenever your shell is started by adding the command to `.profile`,
+    /// `.bashrc`, or another startup script.
+    #[command(after_help = completions_after_help())]
     Completions { shell: clap_complete::Shell },
+}
+
+fn run_after_help() -> String {
+    let mut message = String::new();
+
+    let header = style::HEADER;
+    let literal = style::LITERAL;
+    let placeholder = style::PLACEHOLDER;
+
+    _ = writeln!(message, "{header}Examples:{header:#}");
+    _ = writeln!(message, "  {literal}bevy run{literal:#}");
+    _ = writeln!(message, "  {literal}bevy run web{literal:#}");
+    _ = writeln!(
+        message,
+        "  {literal}bevy run --example{literal:#} {placeholder}<NAME>{placeholder:#} {literal}web{literal:#}",
+    );
+
+    message
+}
+
+#[cfg(feature = "rustup")]
+fn lint_after_help() -> String {
+    let mut message = String::new();
+
+    let header = style::HEADER;
+    let literal = style::LITERAL;
+
+    _ = writeln!(message, "{header}Examples:{header:#}");
+    _ = writeln!(message, "  {literal}bevy lint{literal:#}");
+    _ = writeln!(
+        message,
+        "  {literal}bevy lint --all-features --all-targets{literal:#}"
+    );
+
+    message
+}
+
+fn completions_after_help() -> String {
+    let mut message = String::new();
+
+    let header = style::HEADER;
+    let literal = style::LITERAL;
+
+    _ = writeln!(message, "{header}Examples:{header:#}");
+    _ = writeln!(
+        message,
+        "  {literal}source <(bevy completions bash){literal:#}"
+    );
+    _ = writeln!(
+        message,
+        "  {literal}source <(bevy completions zsh){literal:#}"
+    );
+
+    message
 }
 
 /// Arguments for creating a new Bevy project.
