@@ -50,6 +50,9 @@ cargo-generate = "0.23"
 # Better CLI user input
 dialoguer = { version = "0.11.0", default-features = false }
 
+# Cargo like styling for clap
+clap-cargo = "0.15.2"
+
 # API interaction
 serde = { features = ["derive"], version = "1.0.210" }
 serde_json = "1.0.128"
@@ -62,6 +65,9 @@ regex = "1.10.6"
 
 # Understanding package versions
 semver = { version = "1.0.23", features = ["serde"] }
+
+# `cargo metadata` command helpers and types
+cargo_metadata = "0.20.0"
 
 # Parsing the Cargo manifest
 toml_edit = { version = "0.22.22", default-features = false, features = [
@@ -101,5 +107,9 @@ assert_cmd = "2.0.16"
 tempfile = "3"
 
 [package.metadata.binstall]
-pkg-url = "{ repo }/releases/download/cli-v{ version }/bevy-{ target }-v{ version }{ archive-suffix }"
+# HACK: We currently hard-code the latest version in the URL. The `{ version }` template uses the
+# version from the `main` branch's `Cargo.toml`, which is usually `X.Y.Z-dev`, leading to the
+# binary not being found. See <https://github.com/cargo-bins/cargo-binstall/issues/2165> for more
+# information.
+pkg-url = "{ repo }/releases/download/cli-v0.1.0-alpha.1/bevy-{ target }-v0.1.0-alpha.1{ archive-suffix }"
 pkg-fmt = "bin"

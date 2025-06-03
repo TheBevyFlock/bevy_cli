@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use crate::external_cli::cargo::metadata::{Metadata, Package};
+use cargo_metadata::{Metadata, Package, TargetKind};
 
 #[derive(Debug, Clone)]
 pub struct BinTarget<'p> {
@@ -40,7 +40,8 @@ pub(crate) fn select_run_binary<'p>(
             .iter()
             .find(|package| {
                 // Only consider packages in the current workspace and with the correct name
-                metadata.workspace_members.contains(&package.id) && package.name == *package_name
+                metadata.workspace_members.contains(&package.id)
+                    && package.name.as_str() == package_name
             })
             .ok_or_else(|| anyhow::anyhow!("Failed to find package {package_name}"))?;
         vec![package]
@@ -60,13 +61,17 @@ pub(crate) fn select_run_binary<'p>(
         let bins: Vec<_> = packages
             .iter()
             .flat_map(|package| {
-                package.bin_targets().filter_map(move |target| {
-                    if target.name == *bin_name {
-                        Some((target, package))
-                    } else {
-                        None
-                    }
-                })
+                package
+                    .targets
+                    .iter()
+                    .filter(|target| target.kind.contains(&TargetKind::Bin))
+                    .filter_map(move |target| {
+                        if target.name == *bin_name {
+                            Some((target, package))
+                        } else {
+                            None
+                        }
+                    })
             })
             .collect();
 
@@ -82,13 +87,17 @@ pub(crate) fn select_run_binary<'p>(
         let examples: Vec<_> = packages
             .iter()
             .flat_map(|package| {
-                package.example_targets().filter_map(move |target| {
-                    if target.name == *example_name {
-                        Some((target, package))
-                    } else {
-                        None
-                    }
-                })
+                package
+                    .targets
+                    .iter()
+                    .filter(|target| target.kind.contains(&TargetKind::Example))
+                    .filter_map(move |target| {
+                        if target.name == *example_name {
+                            Some((target, package))
+                        } else {
+                            None
+                        }
+                    })
             })
             .collect();
 
@@ -106,7 +115,13 @@ pub(crate) fn select_run_binary<'p>(
         // If there is only one binary, pick that one
         let bins: Vec<_> = packages
             .iter()
-            .flat_map(|package| package.bin_targets().map(move |target| (target, package)))
+            .flat_map(|package| {
+                package
+                    .targets
+                    .iter()
+                    .filter(|target| target.kind.contains(&TargetKind::Bin))
+                    .map(move |target| (target, package))
+            })
             .collect();
 
         if bins.is_empty() {

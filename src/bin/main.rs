@@ -66,8 +66,7 @@ fn main() -> ExitCode {
 /// This CLI provides tools for Bevy project management,
 /// such as generating new projects from templates.
 #[derive(Parser)]
-#[command(name = "bevy", version, about, next_line_help(false))]
-#[command(after_help = after_help())]
+#[command(name = "bevy", version, about, next_line_help(false), after_help = after_help(), styles = clap_cargo::style::CLAP_STYLING)]
 pub struct Cli {
     /// Available subcommands for the Bevy CLI.
     #[command(subcommand)]
@@ -116,20 +115,17 @@ pub enum Subcommands {
     Run(RunArgs),
     /// Check the current project using Bevy-specific lints.
     ///
-    /// This command requires `bevy_lint` to be installed, and will fail if it is not. Please see
-    /// <https://github.com/TheBevyFlock/bevy_cli> for installation instructions.
-    ///
     /// To see the full list of options, run `bevy lint -- --help`.
     #[cfg(feature = "rustup")]
     #[command(after_help = lint_after_help())]
     Lint(LintArgs),
-    /// Generate autocompletion for `bevy` CLI tool.
+    /// Generate autocompletion for the Bevy CLI.
     ///
-    /// You can add this or a variant of this to your shells `.profile`
+    /// You can setup autocomplete in your shell's `.profile` by adding:
+    /// 
+    /// `source <(bevy completions zsh)`
     ///
-    /// ```
-    /// source <(bevy completions zsh)
-    /// ```
+    /// You will likely need to replace `zsh` with the name of the shell you use.
     Completions { shell: clap_complete::Shell },
 }
 
