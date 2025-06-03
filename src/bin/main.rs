@@ -119,13 +119,13 @@ pub enum Subcommands {
     #[cfg(feature = "rustup")]
     #[command(after_help = lint_after_help())]
     Lint(LintArgs),
-    /// Generate autocompletion for the Bevy CLI.
-    ///
-    /// You can setup autocomplete in your shell's `.profile` by adding:
+    /// Prints the auto-completion script for a specific shell.
     /// 
-    /// `source <(bevy completions zsh)`
-    ///
-    /// You will likely need to replace `zsh` with the name of the shell you use.
+    /// The result of this command is intended to be passed to the `source` command, such as
+    /// `source <(bevy completions $SHELL_NAME)`. (Please see the examples for more details.) You
+    /// likely want to run this whenever your shell is started by adding the command to `.profile`,
+    /// `.bashrc`, or another startup script.
+    #[command(after_help = completions_after_help())]
     Completions { shell: clap_complete::Shell },
 }
 
@@ -151,6 +151,18 @@ fn lint_after_help() -> String {
     _ = writeln!(message, "{header}Examples:{header:#}");
     _ = writeln!(message, "  bevy lint");
     _ = writeln!(message, "  bevy lint --all-features --all-targets");
+
+    message
+}
+
+fn completions_after_help() -> String {
+    let mut message = String::new();
+
+    let header = Style::new().bold().underline();
+
+    _ = writeln!(message, "{header}Examples:{header:#}");
+    _ = writeln!(message, "  source <(bevy completions bash)");
+    _ = writeln!(message, "  source <(bevy completions zsh)");
 
     message
 }
