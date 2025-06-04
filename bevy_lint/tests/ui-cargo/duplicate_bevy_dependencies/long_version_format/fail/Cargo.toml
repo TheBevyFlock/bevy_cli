@@ -1,12 +1,12 @@
 [package]
 name = "multiple-bevy-versions"
 publish = false
-edition = "2021"
+edition = "2024"
 
 # This tells Cargo that this crate has no intention of being a member of the root workspace. If
 # this was excluded, Cargo would raise an error.
 [workspace]
 
 [dependencies]
-bevy = { version = "0.14.2", default-features = false }
+bevy = { version = "0.16", default-features = false }
 leafwing-input-manager = "0.13"
