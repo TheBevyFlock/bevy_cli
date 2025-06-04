@@ -160,7 +160,7 @@ fn lint_with_target_version(
     let Ok(target_version) = get_version_from_toml(bevy_cargo.as_ref()) else {
         cx.tcx.dcx().span_warn(
             bevy_cargo_toml_span,
-            "Specified version format is not supported. Use a fixed version or disable this lint.",
+            "specified version format is not supported, use a fixed version or disable `bevy::duplicate_bevy_dependencies`",
         );
         return;
     };
