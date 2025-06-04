@@ -86,5 +86,6 @@ impl TestArgs {
 #[derive(Debug, Subcommand)]
 pub enum TestSubcommands {
     /// Test your app for the browser.
+    #[cfg(feature = "web")]
     Web,
 }

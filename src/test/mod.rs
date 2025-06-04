@@ -1,10 +1,9 @@
 //! Provides functionalities to test a Bevy app targeting either native or web platforms.
 
-use args::TestArgs;
-
 #[cfg(feature = "web")]
 use crate::web::profiles::configure_default_web_profiles;
 use crate::{config::CliConfig, external_cli::cargo};
+use args::TestArgs;
 
 pub mod args;
 
