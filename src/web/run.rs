@@ -42,7 +42,14 @@ pub(crate) fn run_web(
     let web_bundle = build_web(&mut build_args, metadata, bin_target)?;
 
     let port = web_args.port;
-    let url = format!("http://localhost:{port}");
+    let host = &web_args.host;
+    // Checking for IPv6, as the syntax for the SocketAddr FromStr representation is different
+    let address = if host.contains(':') {
+        format!("[{host}]:{port}")
+    } else {
+        format!("{host}:{port}")
+    };
+    let url = format!("http://{address}");
 
     // Serving the app is blocking, so we open the page first
     if web_args.open {
@@ -58,7 +65,7 @@ pub(crate) fn run_web(
         info!("open your app at <{url}>!");
     }
 
-    serve(web_bundle, port, header_map)?;
+    serve(web_bundle, &address, header_map)?;
 
     Ok(())
 }
