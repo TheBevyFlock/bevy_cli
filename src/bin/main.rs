@@ -3,7 +3,7 @@ use std::{fmt::Write, process::ExitCode};
 use ansi_term::Color::{Blue, Green, Purple, Red, Yellow};
 #[cfg(feature = "rustup")]
 use bevy_cli::lint::LintArgs;
-use bevy_cli::{build::args::BuildArgs, run::RunArgs};
+use bevy_cli::{build::args::BuildArgs, run::RunArgs, test::args::TestArgs};
 use clap::{Args, CommandFactory, Parser, Subcommand, builder::styling::Style};
 use clap_cargo::style;
 use tracing::error;
@@ -45,6 +45,7 @@ fn main() -> ExitCode {
         Subcommands::Lint(args) => bevy_cli::lint::lint(args),
         Subcommands::Build(mut args) => bevy_cli::build::build(&mut args),
         Subcommands::Run(mut args) => bevy_cli::run::run(&mut args),
+        Subcommands::Test(mut args) => bevy_cli::test::test(&mut args),
         Subcommands::Completions { shell } => {
             clap_complete::generate(shell, &mut Cli::command(), "bevy", &mut std::io::stdout());
             Ok(())
@@ -114,6 +115,9 @@ pub enum Subcommands {
     #[command(visible_alias = "r")]
     #[command(after_help = run_after_help())]
     Run(RunArgs),
+    /// Test your Bevy app
+    #[command(visible_alias = "t")]
+    Test(TestArgs),
     /// Check the current project using Bevy-specific lints.
     ///
     /// To see the full list of options, run `bevy lint -- --help`.

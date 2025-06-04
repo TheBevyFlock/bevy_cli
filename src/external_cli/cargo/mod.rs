@@ -8,6 +8,7 @@ pub(crate) mod build;
 pub(crate) mod install;
 pub(crate) mod metadata;
 pub(crate) mod run;
+pub(crate) mod test;
 
 fn program() -> OsString {
     env::var_os("BEVY_CLI_CARGO").unwrap_or("cargo".into())
