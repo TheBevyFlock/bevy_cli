@@ -134,6 +134,10 @@ pub struct RunWebArgs {
     #[arg(short, long, default_value_t = 4000)]
     pub port: u16,
 
+    /// The host address to run the web server on
+    #[arg(long, default_value_t = String::from("127.0.0.1"))]
+    pub host: String,
+
     /// Open the app in the browser.
     #[arg(short = 'o', long = "open", action = ArgAction::SetTrue, default_value_t = false)]
     pub open: bool,
@@ -157,6 +161,7 @@ impl Default for RunWebArgs {
     fn default() -> Self {
         Self {
             port: 4000,
+            host: String::from("127.0.0.1"),
             open: false,
             create_packed_bundle: false,
             headers: Vec::new(),

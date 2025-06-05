@@ -36,10 +36,9 @@ async fn handle_socket(mut socket: WebSocket) {
 #[tokio::main]
 pub(crate) async fn serve(
     web_bundle: WebBundle,
-    port: u16,
+    addr: SocketAddr,
     header_map: HeaderMap,
 ) -> anyhow::Result<()> {
-    let addr = SocketAddr::from(([127, 0, 0, 1], port));
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
 
     // PERF: Leaking necessary to satisfy lifetime bounds
