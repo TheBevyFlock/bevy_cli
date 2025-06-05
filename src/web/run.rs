@@ -47,7 +47,7 @@ pub(crate) fn run_web(
     let web_bundle = build_web(&mut build_args, metadata, bin_target)?;
 
     let port = web_args.port;
-    let host = IpAddr::from_str(&web_args.host).expect("Failed to parse host address");
+    let host = IpAddr::from_str(&web_args.host).context("failed to parse host address")?;
     let address = SocketAddr::new(host, port);
     let url = format!("http://{address}");
 
