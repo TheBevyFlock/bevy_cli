@@ -36,13 +36,9 @@ async fn handle_socket(mut socket: WebSocket) {
 #[tokio::main]
 pub(crate) async fn serve(
     web_bundle: WebBundle,
-    address: &str,
+    addr: SocketAddr,
     header_map: HeaderMap,
 ) -> anyhow::Result<()> {
-    // Using the parse method here allows us to support both IPv4 and IPv6
-    let addr: SocketAddr = address
-        .parse()
-        .expect("Failed to build socket from host and port");
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
 
     // PERF: Leaking necessary to satisfy lifetime bounds
