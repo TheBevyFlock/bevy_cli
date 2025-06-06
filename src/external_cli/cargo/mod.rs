@@ -25,20 +25,16 @@ pub struct CargoFeatureArgs {
     pub is_all_features: bool,
 
     /// Do not activate the `default` feature
-    #[clap(long = "no-default-features")]
-    pub is_no_default_features: Option<bool>,
+    #[clap(long = "no-default-features", action = ArgAction::SetTrue, default_value_t = false)]
+    pub is_no_default_features: bool,
 }
 
 impl CargoFeatureArgs {
-    pub(crate) fn is_no_default_features(&self) -> bool {
-        self.is_no_default_features.unwrap_or(false)
-    }
-
     pub(crate) fn args_builder(&self) -> ArgBuilder {
         ArgBuilder::new()
             .add_value_list("--features", self.features.clone())
             .add_flag_if("--all-features", self.is_all_features)
-            .add_flag_if("--no-default-features", self.is_no_default_features())
+            .add_flag_if("--no-default-features", self.is_no_default_features)
     }
 }
 
