@@ -10,8 +10,9 @@
     - Please ensure that `Cargo.lock` also updates!
 6. Replace `--branch main` in `action.yml` with `--tag lint-vX.Y.Z`.
     - The `linter-action.yml` workflow may fail as the tag does not exist yet. This is fine!
-7. Commit all of these changes and open a pull request.
-8. Merge the PR once a core Bevy maintainer approves it with no outstanding issues from other contributors.
+7. Update the toolchain install, `bevy_lint` install, and `bevy_lint` uninstall commands in both `README.md` and the [install page](../../../linter/install.md) to use the latest version and toolchain.
+8. Commit all of these changes and open a pull request.
+9. Merge the PR once a core Bevy maintainer approves it with no outstanding issues from other contributors.
     - This starts the release process, enacting a freeze on all other changes until the release has finished. While maintainers need to be aware of this so they do not merge PRs during this time, the release process should take less than an hour, so it's unlikely to ever be an issue.
 
 ## Release on Github

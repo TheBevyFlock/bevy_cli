@@ -8,6 +8,18 @@ To actually install the new version of the CLI, please see [the docs] and [the r
 [the releases page]: https://github.com/TheBevyFlock/bevy_cli/releases
 [submit an issue]: https://github.com/TheBevyFlock/bevy_cli/issues
 
-> **Note**
->
-> This document is empty for now, and will be until v0.2.0 of the CLI is released with actual breaking changes. Check back later :)
+## v0.1.0-alpha.1 to v0.1.0-alpha.2 (Unreleased)
+
+### Make `--no-default-features` a Toggle
+
+The `--no-default-features` flag for `bevy build` and `bevy run` is now a toggle instead of an option. If you previously were using `--no-default-features true`, replace it with just `--no-default-features`. If you were using `--no-default-features false`, remove it.
+
+```sh
+# v0.1.0-alpha.1
+bevy build --no-default-features true
+bevy run --no-default-features false
+
+# v0.1.0-alpha.2
+bevy build --no-default-features
+bevy run
+```
