@@ -32,7 +32,7 @@ cargo install --git https://github.com/TheBevyFlock/bevy_cli --tag cli-v0.1.0-al
 The CLI is precompiled for Linux, Windows, and macOS. You may install the latest precompiled binary using [`cargo-binstall`](https://github.com/cargo-bins/cargo-binstall):
 
 ```sh
-cargo binstall --git https://github.com/TheBevyFlock/bevy_cli --version v0.1.0-alpha.1 --locked bevy_cli
+cargo binstall --git https://github.com/TheBevyFlock/bevy_cli --version 0.1.0-alpha.1 --locked bevy_cli
 ```
 
 You can manually download the precompiled binaries from the [release page](https://github.com/TheBevyFlock/bevy_cli/releases).
