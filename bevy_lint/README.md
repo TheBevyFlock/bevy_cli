@@ -27,31 +27,31 @@ see <https://linebender.org/blog/doc-include/>.
 
 ## Installation
 
-`bevy_lint` depends on a pinned nightly version of Rust with the `rustc-dev` Rustup component. This is because `bevy_lint` uses [internal `rustc` crates](https://doc.rust-lang.org/nightly/nightly-rustc/) that can only be imported with the permanently-unstable [`rustc_private` feature](https://doc.rust-lang.org/nightly/unstable-book/language-features/rustc-private.html). You can refer to the [compatibility table](#compatibility) to see which version of the linter requires which toolchain.
+`bevy_lint` depends on a pinned nightly version of Rust with the `rustc-dev` Rustup component. This is because `bevy_lint` uses [internal `rustc` crates](https://doc.rust-lang.org/nightly/nightly-rustc/) that can only be imported with the permanently-unstable [`rustc_private` feature](https://doc.rust-lang.org/nightly/unstable-book/language-features/rustc-private.html). You can refer to the [compatibility table](https://thebevyflock.github.io/bevy_cli/linter/compatibility.html) to see which version of the linter requires which toolchain.
 
-You can install the toolchain with:
+You can install the toolchain required for the latest release with:
 
 ```sh
-rustup toolchain install $TOOLCHAIN_VERSION \
+rustup toolchain install nightly-2025-04-03 \
     --component rustc-dev \
     --component llvm-tools-preview
 ```
 
-For example, you would replace `$TOOLCHAIN_VERSION` with `nightly-2024-11-14` if you were installing `bevy_lint` v0.1.0, based on the [compatibility table](#compatibility). Please be aware that you must keep this toolchain installed for `bevy_lint` to function[^keep-toolchain-installed].
+If you are installing a different version of the linter, you may need to install a different nightly toolchain as specified by the [compatibility table](https://thebevyflock.github.io/bevy_cli/linter/compatibility.html). Please be aware that you must keep this toolchain installed for `bevy_lint` to function[^keep-toolchain-installed].
 
 [^keep-toolchain-installed]: `bevy_lint` imports internal `rustc` libraries in order to hook into the compiler process. These crates are stored in a [dynamic library](https://en.wikipedia.org/wiki/Dynamic_linker) that is installed with the `rustc-dev` component and loaded by `bevy_lint` at runtime. Uninstalling the nightly toolchain would remove this dynamic library, causing `bevy_lint` to fail.
 
 Once you have the toolchain installed, you can compile and install `bevy_lint` through `cargo`:
 
 ```sh
-rustup run $TOOLCHAIN_VERSION cargo install \
+rustup run nightly-2025-04-03 cargo install \
     --git https://github.com/TheBevyFlock/bevy_cli.git \
-    --tag $TAG \
+    --tag lint-v0.3.0 \
     --locked \
     bevy_lint
 ```
 
-Make sure to replace `$TOOLCHAIN_VERSION` and `$TAG` in the above command. The tag for a specific release can be found in the [releases tab](https://github.com/TheBevyFlock/bevy_cli/releases). For example, the tag for v0.1.0 is `lint-v0.1.0`.
+If you're installing a different version of the linter, you may need to switch the toolchain and tag in the above command.
 
 ## Getting Started
 
