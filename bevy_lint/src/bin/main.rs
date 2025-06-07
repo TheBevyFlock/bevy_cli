@@ -78,15 +78,12 @@ fn show_version() {
 fn driver_path() -> anyhow::Result<PathBuf> {
     // The `bevy_lint` lives in the same folder as `bevy_lint_driver`, so we can easily find it
     // using the path of the current executable.
-    #[cfg_attr(not(target_os = "windows"), expect(unused_mut))]
-    let mut driver_path = env::current_exe()
+    let driver_path = env::current_exe()
         .context("Failed to retrieve the path to the current executable.")?
         .parent()
         .ok_or(anyhow!("Path to file must have a parent."))?
-        .join("bevy_lint_driver");
-
-    #[cfg(target_os = "windows")]
-    driver_path.set_extension("exe");
+        .join("bevy_lint_driver")
+        .with_extension(env::consts::EXE_EXTENSION);
 
     ensure!(
         driver_path.exists(),
@@ -94,8 +91,6 @@ fn driver_path() -> anyhow::Result<PathBuf> {
         driver_path.display(),
     );
 
-    // Convert the local path to the absolute path. We don't want `rustc` getting
-    // confused! `canonicalize()` requires for the path to exist, so we do it after the nice error
-    // message.
+    // Convert the local path to the absolute path. We don't want `rustc` getting confused!
     driver_path.canonicalize().map_err(anyhow::Error::from)
 }
