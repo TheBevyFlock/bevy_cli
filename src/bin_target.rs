@@ -33,25 +33,23 @@ pub(crate) fn select_run_binary<'p>(
     compile_target: Option<&str>,
     compile_profile: &str,
 ) -> anyhow::Result<BinTarget<'p>> {
+    let workspace_packages = metadata.workspace_packages();
+
     // Determine which packages the binary could be in
     let packages = if let Some(package_name) = package_name {
-        let package = metadata
-            .packages
+        let package = workspace_packages
             .iter()
-            .find(|package| {
-                // Only consider packages in the current workspace and with the correct name
-                metadata.workspace_members.contains(&package.id)
-                    && package.name.as_str() == package_name
-            })
+            .find(|package| package.name.as_str() == package_name)
             .ok_or_else(|| anyhow::anyhow!("Failed to find package {package_name}"))?;
-        vec![package]
+        vec![*package]
     } else {
-        metadata
-            .packages
-            .iter()
-            // Only consider packages in the current workspace
-            .filter(|package| metadata.workspace_members.contains(&package.id))
-            .collect()
+        let default_packages = metadata.workspace_default_packages();
+
+        if default_packages.is_empty() {
+            workspace_packages
+        } else {
+            default_packages
+        }
     };
 
     let mut is_example = false;
