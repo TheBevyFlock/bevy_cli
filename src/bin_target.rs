@@ -135,11 +135,14 @@ pub(crate) fn select_run_binary<'p>(
 
             if default_runs.is_empty() {
                 anyhow::bail!(
-                    "There are multiple binaries available, try specifying one with --bin or define `default_run` in the Cargo.toml"
+                    "There are multiple binaries available, try one of the following:
+- add `--bin` or `--package` after `bevy run` to which binary or package to run,
+- define `default-run` in the Cargo.toml to define the default binary that should be executed in a package,
+- define `default-members` in the Cargo.toml of your workspace to define the default package to pick the binary from."
                 );
             } else if default_runs.len() > 1 {
                 anyhow::bail!(
-                    "Found multiple `default_run` definitions, I don't know which one to pick!"
+                    "Found multiple `default-run` definitions, I don't know which one to pick!"
                 );
             }
 
@@ -147,7 +150,7 @@ pub(crate) fn select_run_binary<'p>(
             *bins
                 .iter()
                 .find(|(bin, _)| bin.name == *default_run)
-                .ok_or_else(|| anyhow::anyhow!("Didn't find `default_run` binary {default_run}"))?
+                .ok_or_else(|| anyhow::anyhow!("Didn't find `default-run` binary {default_run}"))?
         }
     };
 
