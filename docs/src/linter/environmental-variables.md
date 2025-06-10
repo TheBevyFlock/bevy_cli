@@ -1,6 +1,6 @@
 # Environmental Variables
 
-You can configure `bevy_lint`'s behavior using environmental variables. While the default behavior is usually good enough for most users, these variables may be useful if you have a non-standard setup.
+You can configure `bevy_lint`'s behavior using environmental variables. While the default behavior is usually desired, these variables may be useful if you have a non-standard environment.
 
 ## `BEVY_LINT_SYSROOT`
 
