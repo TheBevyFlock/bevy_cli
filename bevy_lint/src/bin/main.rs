@@ -1,6 +1,4 @@
-//! TODO: Use lowercase error messages.
-
-use anyhow::{Context, anyhow, ensure};
+use anyhow::{Context, ensure};
 use std::{
     env, iter,
     path::PathBuf,
@@ -96,7 +94,7 @@ fn main() -> anyhow::Result<ExitCode> {
         // custom lints.
         .env("RUSTC_WORKSPACE_WRAPPER", driver_path)
         .status()
-        .context("Failed to spawn `cargo check`.")?;
+        .context("failed to spawn `cargo check`")?;
 
     let code = if status.success() {
         // Exit status of 0, success!
@@ -135,15 +133,15 @@ fn driver_path() -> anyhow::Result<PathBuf> {
     // The `bevy_lint` lives in the same folder as `bevy_lint_driver`, so we can easily find it
     // using the path of the current executable.
     let driver_path = env::current_exe()
-        .context("Failed to retrieve the path to the current executable.")?
+        .context("failed to retrieve the path to the current executable")?
         .parent()
-        .ok_or(anyhow!("Path to file must have a parent."))?
+        .expect("path to file must have a parent")
         .join("bevy_lint_driver")
         .with_extension(env::consts::EXE_EXTENSION);
 
     ensure!(
         driver_path.is_file(),
-        "Could not find `bevy_lint_driver` at {}, please ensure it is installed!",
+        "could not find `bevy_lint_driver` at {}, please ensure it is installed alongside `bevy_lint`",
         driver_path.display(),
     );
 
