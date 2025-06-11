@@ -142,7 +142,7 @@ fn driver_path() -> anyhow::Result<PathBuf> {
         .with_extension(env::consts::EXE_EXTENSION);
 
     ensure!(
-        driver_path.exists(),
+        driver_path.is_file(),
         "Could not find `bevy_lint_driver` at {}, please ensure it is installed!",
         driver_path.display(),
     );
@@ -160,9 +160,8 @@ fn custom_sysroot() -> anyhow::Result<Option<PathBuf>> {
     // If the user specified `BEVY_LINT_SYSROOT`, verify it exists.
     if let Some(ref path) = sysroot {
         ensure!(
-            // TODO: Use `is_dir()` instead.
-            path.exists(),
-            "the path specified by `BEVY_LINT_SYSROOT`, {}, does not exist",
+            path.is_dir(),
+            "the path specified by `BEVY_LINT_SYSROOT`, {}, is not a folder",
             path.display(),
         );
     }
