@@ -73,8 +73,6 @@ Finally, you will need to set the [`BEVY_LINT_SYSROOT` environmental variable](e
 export BEVY_LINT_SYSROOT=/absolute/path/to/sysroot
 ```
 
-If you're using Nix, you would set `BEVY_LINT_SYSROOT` using [`environment.variables` or one of its siblings](https://nixos.wiki/wiki/Environment_variables).
-
 ## Uninstall
 
 If you wish to uninstall the linter at any time, you may use Cargo to do so:
