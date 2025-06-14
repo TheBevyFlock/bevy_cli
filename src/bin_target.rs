@@ -21,8 +21,8 @@ pub struct BinTarget<'p> {
 /// The `--package` arg narrows down the search space to the given package,
 /// while the `--bin` and `--example` args determine the binary target within the selected packages.
 ///
-/// If the search couldn't be narrowed down to a single binary,
-/// the `default_run` option is taken into account.
+/// From the `Cargo.toml`, the `default-members` workspace option
+/// and the `default-run` package option are taken into account.
 ///
 /// The path to the compiled binary is determined via the compilation target and profile.
 pub(crate) fn select_run_binary<'p>(
@@ -35,7 +35,10 @@ pub(crate) fn select_run_binary<'p>(
 ) -> anyhow::Result<BinTarget<'p>> {
     let workspace_packages = metadata.workspace_packages();
 
-    // Determine which packages the binary could be in
+    // Narrow down the packages that the binary could be contained in:
+    // - If `--package=name` is specified, look for that specific package
+    // - If `default-members` is defined in the workspace, consider only these packages
+    // - Otherwise, consider all packages in the current workspace
     let packages = if let Some(package_name) = package_name {
         let package = workspace_packages
             .iter()
@@ -54,6 +57,11 @@ pub(crate) fn select_run_binary<'p>(
 
     let mut is_example = false;
 
+    // Find the binary in the specified packages:
+    // - If `--bin=name` is specified, look for that specific binary
+    // - If `--example=name` is specified, look for that specific example
+    // - If only one binary is available, take that one
+    // - Otherwise, take the `default-run` binary, if specified
     let (target, package) = if let Some(bin_name) = bin_name {
         // The user specified a concrete binary
         let bins: Vec<_> = packages
@@ -136,7 +144,7 @@ pub(crate) fn select_run_binary<'p>(
             if default_runs.is_empty() {
                 anyhow::bail!(
                     "There are multiple binaries available, try one of the following:
-- add `--bin` or `--package` after `bevy run` to which binary or package to run,
+- add `--bin` or `--package` after `bevy run` to specify which binary or package to run,
 - define `default-run` in the Cargo.toml to define the default binary that should be executed in a package,
 - define `default-members` in the Cargo.toml of your workspace to define the default package to pick the binary from."
                 );
