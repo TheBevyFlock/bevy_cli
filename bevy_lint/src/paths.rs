@@ -26,6 +26,8 @@ pub const EVENT: [&str; 4] = ["bevy_ecs", "event", "base", "Event"];
 pub const EVENTS: [&str; 4] = ["bevy_ecs", "event", "collections", "Events"];
 /// <https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_ecs/src/world/entity_ref.rs#L3687>
 pub const FILTERED_ENTITY_MUT: [&str; 4] = ["bevy_ecs", "world", "entity_ref", "FilteredEntityMut"];
+/// <https://github.com/bevyengine/bevy/blob/v0.16.0/crates/bevy_app/src/main_schedule.rs#L132>
+pub const FIXED_UPDATE: [&str; 3] = ["bevy_app", "main_schedule", "FixedUpdate"];
 /// <https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_ecs/src/change_detection.rs#L920>
 pub const MUT: [&str; 3] = ["bevy_ecs", "change_detection", "Mut"];
 /// <https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_ecs/src/change_detection.rs#L1020>
@@ -48,5 +50,7 @@ pub const RES_MUT: [&str; 3] = ["bevy_ecs", "change_detection", "ResMut"];
 pub const RESOURCE: [&str; 3] = ["bevy_ecs", "resource", "Resource"];
 /// <https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_ecs/src/schedule/set.rs>
 pub const SYSTEM_SET: [&str; 4] = ["bevy_ecs", "schedule", "set", "SystemSet"];
+/// <https://github.com/bevyengine/bevy/blob/v0.16.0/crates/bevy_app/src/main_schedule.rs#L172>
+pub const UPDATE: [&str; 3] = ["bevy_app", "main_schedule", "Update"];
 /// <https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_ecs/src/world/mod.rs#L94>
 pub const WORLD: [&str; 3] = ["bevy_ecs", "world", "World"];
