@@ -67,12 +67,8 @@ impl TestArgs {
             .feature_args
             .features
             .extend(config.features().iter().cloned());
-        self.cargo_args.feature_args.is_no_default_features = Some(
-            self.cargo_args
-                .feature_args
-                .is_no_default_features
-                .unwrap_or(!config.default_features()),
-        );
+        self.cargo_args.feature_args.is_no_default_features =
+            self.cargo_args.feature_args.is_no_default_features || !config.default_features();
         self.cargo_args.common_args.rustflags = self
             .cargo_args
             .common_args
