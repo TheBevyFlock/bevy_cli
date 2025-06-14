@@ -1,5 +1,4 @@
 //! Provides functionalities to test a Bevy app targeting either native or web platforms.
-
 #[cfg(feature = "web")]
 use crate::web::profiles::configure_default_web_profiles;
 use crate::{config::CliConfig, external_cli::cargo};
@@ -41,6 +40,7 @@ pub fn test(args: &mut TestArgs) -> anyhow::Result<()> {
         profile_args.append(&mut args.cargo_args.common_args.config);
         args.cargo_args.common_args.config = profile_args;
     }
+
     let cargo_args = args.cargo_args_builder();
 
     cargo::test::command(args.test_name.as_deref())
