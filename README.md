@@ -20,10 +20,10 @@ If you need assistance or want to help, reach out to the [`bevy_cli` working gro
 
 As the CLI is currently an unofficial tool, it is not yet published to <https://crates.io>. It is available [on Github](https://github.com/TheBevyFlock/bevy_cli), however.
 
-You may compile the CLI from scratch using `cargo install`. To install the latest release, make sure to specify the version you wish in the tag (ex. `--tag cli-v0.1.0-alpha.1`).
+You may compile the latest version of the CLI from scratch using `cargo install`:
 
 ```sh
-cargo install --git https://github.com/TheBevyFlock/bevy_cli --tag cli-vX.Y.Z --locked bevy_cli
+cargo install --git https://github.com/TheBevyFlock/bevy_cli --tag cli-v0.1.0-alpha.1 --locked bevy_cli
 ```
 
 <details>
@@ -32,7 +32,7 @@ cargo install --git https://github.com/TheBevyFlock/bevy_cli --tag cli-vX.Y.Z --
 The CLI is precompiled for Linux, Windows, and macOS. You may install the latest precompiled binary using [`cargo-binstall`](https://github.com/cargo-bins/cargo-binstall):
 
 ```sh
-cargo binstall --git https://github.com/TheBevyFlock/bevy_cli --version vX.Y.Z --locked bevy_cli
+cargo binstall --git https://github.com/TheBevyFlock/bevy_cli --version 0.1.0-alpha.1 --locked bevy_cli
 ```
 
 You can manually download the precompiled binaries from the [release page](https://github.com/TheBevyFlock/bevy_cli/releases).

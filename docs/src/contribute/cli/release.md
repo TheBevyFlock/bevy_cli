@@ -9,8 +9,9 @@
 5. Remove the `-dev` suffix from the version in `Cargo.toml`.
     - Please ensure that `Cargo.lock` also updates!
 6. Update both instances of hard-coded version in the URL under `[package.metadata.binstall]` in `Cargo.toml` to be the new version.
-7. Commit your changes and open a pull request.
-8. Merge the PR once a core Bevy maintainer approves it with no outstanding issues from other contributors.
+7. Update the `cargo install` and `cargo binstall` commands in the `README.md` and the [install page](../../cli/install.md) to use the latest version.
+8. Commit your changes and open a pull request.
+9. Merge the PR once a core Bevy maintainer approves it with no outstanding issues from other contributors.
     - This starts the release process, enacting a freeze on all other changes until the release has finished. While maintainers need to be aware of this so they do not merge PRs during this time, the release process should take less than an hour, so it's unlikely to ever be an issue.
 
 ## Release on Github
