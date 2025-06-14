@@ -8,7 +8,7 @@ The CLI supports automatically installing the latest released version of the lin
 bevy lint
 ```
 
-The CLI will prompt you if you wish to install the linter. Type `y` and press enter to accept:
+The CLI will prompt you if you wish to install the linter. Note that it will assume you are using Rustup, and if that isn't the case you should [install the linter manually instead](#manual-without-rustup). Type `y` and press enter to accept:
 
 ```
 warning: failed to run bevy_lint, trying to find automatic fix...
@@ -21,11 +21,9 @@ If you want to auto-confirm the prompt, you may pass `--yes` to the command. Not
 bevy lint --yes
 ```
 
-## Manual
+## Manual with Rustup
 
-`bevy_lint` depends on a pinned nightly version of Rust with the `rustc-dev` Rustup component. This is because `bevy_lint` uses [internal `rustc` crates](https://doc.rust-lang.org/nightly/nightly-rustc/) that can only be imported with the permanently-unstable [`rustc_private` feature](https://doc.rust-lang.org/nightly/unstable-book/language-features/rustc-private.html). You can refer to the [compatibility table](compatibility.md) to see which version of the linter requires which toolchain.
-
-You can install the toolchain required for the latest release with:
+`bevy_lint` requires a specific nightly Rust toolchain with the `rustc-dev` and `llvm-tools-preview` components. You can install the toolchain required for the latest release with:
 
 ```sh
 rustup toolchain install nightly-2025-04-03 \
@@ -35,9 +33,9 @@ rustup toolchain install nightly-2025-04-03 \
 
 If you are installing a different version of the linter, you may need to install a different nightly toolchain as specified by the [compatibility table](compatibility.md). Please be aware that you must keep this toolchain installed for `bevy_lint` to function[^keep-toolchain-installed].
 
-[^keep-toolchain-installed]: `bevy_lint` imports internal `rustc` libraries in order to hook into the compiler process. These crates are stored in a [dynamic library](https://en.wikipedia.org/wiki/Dynamic_linker) that is installed with the `rustc-dev` component and loaded by `bevy_lint` at runtime. Uninstalling the nightly toolchain would remove this dynamic library, causing `bevy_lint` to fail.
+[^keep-toolchain-installed]: `bevy_lint` imports internal `rustc` libraries in order to hook into the compiler process. These crates are stored in a [dynamic library](https://en.wikipedia.org/wiki/Dynamic_linker) that is loaded by `bevy_lint` at runtime. Uninstalling the nightly toolchain would remove this dynamic library, causing `bevy_lint` to fail.
 
-Once you have the toolchain installed, you can compile and install `bevy_lint` through `cargo`:
+Once you have the toolchain installed, you can compile and install `bevy_lint` through Cargo:
 
 ```sh
 rustup run nightly-2025-04-03 cargo install \
@@ -49,17 +47,46 @@ rustup run nightly-2025-04-03 cargo install \
 
 If you're installing a different version of the linter, you may need to switch the toolchain and tag in the above command.
 
+## Manual without Rustup
+
+It is possible to use the linter without Rustup, however it requires some extra steps. First, you'll need to install the required nightly Rust toolchain (check the [compatibility table](compatibility.md)) through some other means. If you're using Nix, for example, you would use a [Rust overlay](https://nixos.wiki/wiki/Rust#Unofficial_overlays) to do this. Make sure to also install the `rustc-dev` and `llvm-tools-preview` components for the toolchain.
+
+Once you've installed the toolchain and components, use that toolchain's `cargo` to build the linter:
+
+```sh
+my-toolchain/bin/cargo install \
+    --git https://github.com/TheBevyFlock/bevy_cli.git \
+    --tag lint-v0.3.0 \
+    --locked \
+    bevy_lint
+```
+
+Next, you'll need to note down the absolute path the toolchain was installed at. You can easily find it by running:
+
+```sh
+my-toolchain/bin/rustc --print sysroot
+```
+
+Finally, you will need to set the [`BEVY_LINT_SYSROOT` environmental variable](environmental-variables.md#bevy_lint_sysroot) any time you run `bevy_lint`. The easiest way to do this on Unix-based systems is to set it in a startup script like `.bashrc` or `.profile`:
+
+```sh
+export BEVY_LINT_SYSROOT=/absolute/path/to/sysroot
+```
+
 ## Uninstall
 
-If you wish to uninstall the linter at any time, you may use Cargo and Rustup to do so:
+If you wish to uninstall the linter at any time, you may use Cargo to do so:
 
 ```sh
 cargo uninstall bevy_lint
+```
+
+You may also wish to uninstall the Rustup toolchain. The following command will uninstall the toolchain required by the latest version of the linter, but you may need to specify a different toolchain from the [compatibility table](compatibility.md):
+
+```sh
 rustup toolchain uninstall nightly-2025-04-03
 ```
 
-If you're uninstalling an older version of the linter, such as when you are [upgrading](#upgrade), you may need to uninstall a different toolchain version than the one in the above command. Check out the [compatibility table](compatibility.md) to see which version uses which toolchain.
-
 ## Upgrade
 
-To upgrade to a newer version of the linter, first [uninstall it](#uninstall) then follow the [CLI](#cli) or [manual](#manual) installation instructions.
+To upgrade to a newer version of the linter, first [uninstall it](#uninstall) then follow the [CLI](#cli) or [manual](#manual-with-rustup) installation instructions.
