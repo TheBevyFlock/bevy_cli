@@ -32,6 +32,15 @@ pub fn run(args: &mut RunArgs) -> anyhow::Result<()> {
         args.is_release(),
     )?;
     args.apply_config(&config);
+    // Re-run the bin target selection, as the config can affect e.g. the path to the artifact
+    let bin_target = select_run_binary(
+        &metadata,
+        args.cargo_args.package_args.package.as_deref(),
+        args.cargo_args.target_args.bin.as_deref(),
+        args.cargo_args.target_args.example.as_deref(),
+        args.target().as_deref(),
+        args.profile(),
+    )?;
 
     #[cfg(feature = "web")]
     if args.is_web() {
