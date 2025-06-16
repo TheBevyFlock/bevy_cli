@@ -82,21 +82,22 @@ pub struct Cli {
 fn after_help() -> String {
     let mut message = String::new();
 
-    let header = Style::new().bold().underline();
-    let bold = Style::new().bold();
+    let header = style::HEADER;
+    let literal = style::LITERAL;
+    let underline = Style::new().underline();
 
     _ = writeln!(message, "{header}Resources:{header:#}");
     _ = writeln!(
         message,
-        "  {bold}Bevy Website{bold:#}       https://bevyengine.org"
+        "  {literal}Bevy Website{literal:#}       {underline}https://bevyengine.org{underline:#}"
     );
     _ = writeln!(
         message,
-        "  {bold}Bevy Repository{bold:#}    https://github.com/bevyengine/bevy"
+        "  {literal}Bevy Repository{literal:#}    {underline}https://github.com/bevyengine/bevy{underline:#}"
     );
     _ = writeln!(
         message,
-        "  {bold}CLI Documentation{bold:#}  https://thebevyflock.github.io/bevy_cli"
+        "  {literal}CLI Documentation{literal:#}  {underline}https://thebevyflock.github.io/bevy_cli{underline:#}"
     );
 
     message
