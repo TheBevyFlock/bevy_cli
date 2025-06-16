@@ -22,6 +22,14 @@ struct Repository {
 ///
 /// [TheBevyFlock/bevy_new_minimal]: https://github.com/TheBevyFlock/bevy_new_miminal
 pub fn generate_template(name: &str, template: &str, branch: &str) -> anyhow::Result<PathBuf> {
+    // Validate that the package name starts with an alphabetic character
+    if let Some(first_char) = name.chars().next() {
+        anyhow::ensure!(
+            first_char.is_alphabetic(),
+            "invalid character `{first_char}` in package name: {name}"
+        );
+    }
+
     cargo_generate::generate(GenerateArgs {
         template_path: template_path(template, branch)?,
         name: Some(name.to_string()),
