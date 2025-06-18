@@ -131,9 +131,7 @@ pub fn create_web_bundle(
         wasm_file_name,
         js_file_name,
         assets_path: assets_path.exists().then(|| assets_path.to_owned()),
-        web_assets: web_assets_folder
-            .exists()
-            .then(|| web_assets_folder.to_owned()),
+        web_assets,
         index: Index::Content(index.clone()),
     };
 
@@ -191,7 +189,7 @@ pub fn create_web_bundle(
     }
 
     // Custom web assets
-    if let Some(web_assets) = web_assets {
+    if let Some(web_assets) = &linked.web_assets {
         tracing::debug!(
             "copying custom web assets from file://{}",
             web_assets.to_string_lossy()
