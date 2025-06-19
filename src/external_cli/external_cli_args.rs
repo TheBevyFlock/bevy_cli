@@ -39,21 +39,21 @@ mod tests {
     #[test]
     fn should_parse_true() {
         let args = vec!["true".to_string()];
-        let parsed = ExternalCliArgs::from_raw_args(args).unwrap();
+        let parsed = ExternalCliArgs::from_raw_args(args);
         assert!(matches!(parsed, ExternalCliArgs::Enabled(true)));
     }
 
     #[test]
     fn should_parse_false() {
         let args = vec!["false".to_string()];
-        let parsed = ExternalCliArgs::from_raw_args(args).unwrap();
+        let parsed = ExternalCliArgs::from_raw_args(args);
         assert!(matches!(parsed, ExternalCliArgs::Enabled(false)));
     }
 
     #[test]
     fn should_parse_args() {
         let args = vec!["arg1".to_string(), "arg2".to_string()];
-        let parsed = ExternalCliArgs::from_raw_args(args).unwrap();
+        let parsed = ExternalCliArgs::from_raw_args(args);
         assert!(matches!(
             parsed,
             ExternalCliArgs::Args(ref args) if args == &["arg1".to_string(), "arg2".to_string()]

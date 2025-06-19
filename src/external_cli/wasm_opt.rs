@@ -5,7 +5,8 @@ use tracing::info;
 use crate::{
     bin_target::BinTarget,
     external_cli::{
-        CommandExt, Package, cargo::install::AutoInstall, external_cli_args::ExternalCliArgs,
+        CommandExt, Package, arg_builder::ArgBuilder, cargo::install::AutoInstall,
+        external_cli_args::ExternalCliArgs,
     },
 };
 
@@ -18,27 +19,28 @@ pub(crate) fn optimize_path(
     auto_install: AutoInstall,
     external_args: &ExternalCliArgs,
 ) -> anyhow::Result<()> {
-    let args = match external_args {
+    let path = bin_target
+        .artifact_directory
+        .clone()
+        .join(format!("{}_bg.wasm", bin_target.bin_name));
+
+    let wasm_opt_args = ArgBuilder::new()
+        .add_with_value("--output", &path)
+        .arg(&path);
+
+    let wasm_opt_args = match external_args {
         ExternalCliArgs::Enabled(enabled) => {
             if *enabled {
                 // Use default args
-                vec![
-                    "--strip-debug".to_string(),
-                    "-Os".to_string(),
-                    "-o".to_string(),
-                ]
+                wasm_opt_args.args(["--strip-debug", "-Os"])
             } else {
                 // Skip optimization if not enabled
                 return Ok(());
             }
         }
-        ExternalCliArgs::Args(args) => args.clone(),
+        // Add the custom args provided by the user
+        ExternalCliArgs::Args(args) => wasm_opt_args.args(args.clone()),
     };
-
-    let path = bin_target
-        .artifact_directory
-        .clone()
-        .join(format!("{}_bg.wasm", bin_target.bin_name));
     info!("optimizing with wasm-opt...");
 
     let start = Instant::now();
@@ -51,9 +53,7 @@ pub(crate) fn optimize_path(
 
     CommandExt::new(PROGRAM)
         .require_package(package)
-        .args(args)
-        .arg(&path)
-        .arg(&path)
+        .args(wasm_opt_args)
         .ensure_status(auto_install)?;
 
     let size_after = fs::metadata(path)?.len();
