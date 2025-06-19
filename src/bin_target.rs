@@ -16,7 +16,7 @@ pub struct BinTarget<'p> {
     pub bin_name: String,
 }
 
-impl<'p> BinTarget<'p> {
+impl BinTarget<'_> {
     pub fn update_artifact_directory(
         &mut self,
         target_directory: impl Into<PathBuf>,
