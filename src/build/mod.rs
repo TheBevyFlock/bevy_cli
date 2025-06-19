@@ -16,7 +16,7 @@ pub mod args;
 pub fn build(args: &mut BuildArgs) -> anyhow::Result<()> {
     let metadata = cargo::metadata::metadata()?;
 
-    let bin_target = select_run_binary(
+    let mut bin_target = select_run_binary(
         &metadata,
         args.cargo_args.package_args.package.as_deref(),
         args.cargo_args.target_args.bin.as_deref(),
@@ -33,15 +33,13 @@ pub fn build(args: &mut BuildArgs) -> anyhow::Result<()> {
     )?;
 
     args.apply_config(&config);
-    // Re-run the bin target selection, as the config can affect e.g. the path to the artifact
-    let bin_target = select_run_binary(
-        &metadata,
-        args.cargo_args.package_args.package.as_deref(),
-        args.cargo_args.target_args.bin.as_deref(),
-        args.cargo_args.target_args.example.as_deref(),
+    // Update the artifact directory based on the config, e.g. in case the `target` changed
+    bin_target.update_artifact_directory(
+        &metadata.target_directory,
         args.target().as_deref(),
         args.profile(),
-    )?;
+        args.cargo_args.target_args.example.is_some(),
+    );
 
     #[cfg(feature = "web")]
     if args.is_web() {

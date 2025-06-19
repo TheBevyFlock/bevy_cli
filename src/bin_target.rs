@@ -16,6 +16,23 @@ pub struct BinTarget<'p> {
     pub bin_name: String,
 }
 
+impl<'p> BinTarget<'p> {
+    pub fn update_artifact_directory(
+        &mut self,
+        target_directory: impl Into<PathBuf>,
+        compile_target: Option<&str>,
+        compile_profile: &str,
+        is_example: bool,
+    ) {
+        self.artifact_directory = get_artifact_directory(
+            target_directory,
+            compile_target,
+            compile_profile,
+            is_example,
+        );
+    }
+}
+
 /// Determine which binary target should be run.
 ///
 /// The `--package` arg narrows down the search space to the given package,
