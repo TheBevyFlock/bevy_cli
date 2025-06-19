@@ -4,7 +4,9 @@ use tracing::info;
 
 use crate::{
     bin_target::BinTarget,
-    external_cli::{CommandExt, Package, cargo::install::AutoInstall},
+    external_cli::{
+        CommandExt, Package, cargo::install::AutoInstall, external_cli_args::ExternalCliArgs,
+    },
 };
 
 pub(crate) const PACKAGE: &str = "wasm-opt";
@@ -14,7 +16,25 @@ pub(crate) const PROGRAM: &str = "wasm-opt";
 pub(crate) fn optimize_path(
     bin_target: &BinTarget,
     auto_install: AutoInstall,
+    external_args: &ExternalCliArgs,
 ) -> anyhow::Result<()> {
+    let args = match external_args {
+        ExternalCliArgs::Enabled(enabled) => {
+            if *enabled {
+                // Use default args
+                vec![
+                    "--strip-debug".to_string(),
+                    "-Os".to_string(),
+                    "-o".to_string(),
+                ]
+            } else {
+                // Skip optimization if not enabled
+                return Ok(());
+            }
+        }
+        ExternalCliArgs::Args(args) => args.clone(),
+    };
+
     let path = bin_target
         .artifact_directory
         .clone()
@@ -31,9 +51,7 @@ pub(crate) fn optimize_path(
 
     CommandExt::new(PROGRAM)
         .require_package(package)
-        .arg("--strip-debug")
-        .arg("-Os")
-        .arg("-o")
+        .args(args)
         .arg(&path)
         .arg(&path)
         .ensure_status(auto_install)?;

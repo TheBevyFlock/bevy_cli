@@ -13,21 +13,21 @@ impl ExternalCliArgs {
     /// Parse the arguments from a list.
     ///
     /// `true` and `false` are treated special, to enable or disable the command.
-    pub fn from_raw_args(args: Vec<String>) -> Option<Self> {
+    pub fn from_raw_args(args: Vec<String>) -> Self {
         let mut cur_args = Vec::<String>::new();
 
         for arg in args {
             match arg.to_lowercase().as_str() {
-                "true" => return Some(Self::Enabled(true)),
-                "false" => return Some(Self::Enabled(false)),
+                "true" => return Self::Enabled(true),
+                "false" => return Self::Enabled(false),
                 _ => cur_args.push(arg),
             }
         }
 
         if cur_args.is_empty() {
-            None
+            Self::Enabled(false)
         } else {
-            Some(Self::Args(cur_args))
+            Self::Args(cur_args)
         }
     }
 }
