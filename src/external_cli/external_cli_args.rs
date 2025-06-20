@@ -1,7 +1,9 @@
+use serde::Serialize;
+
 /// Configure the arguments for an external CLI command.
 ///
 /// Can either be disabled, enabled with default arguments, or enabled with custom arguments.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub enum ExternalCliArgs {
     /// Disable the external command if `false`, use default args if `true`.
     Enabled(bool),
@@ -28,6 +30,14 @@ impl ExternalCliArgs {
             Self::Enabled(false)
         } else {
             Self::Args(cur_args)
+        }
+    }
+
+    pub fn to_raw(&self) -> Vec<String> {
+        match self {
+            Self::Enabled(true) => vec!["true".to_string()],
+            Self::Enabled(false) => vec!["false".to_string()],
+            Self::Args(args) => args.clone(),
         }
     }
 }

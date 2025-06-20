@@ -7,6 +7,8 @@ use serde::Serialize;
 use serde_json::{Map, Value};
 use tracing::warn;
 
+use crate::external_cli::external_cli_args::ExternalCliArgs;
+
 /// Configuration for the `bevy_cli`.
 ///
 /// Allows customizing:
@@ -26,7 +28,7 @@ pub struct CliConfig {
     /// Additional flags for `rustc`
     rustflags: Vec<String>,
     /// Use `wasm-opt` to optimize wasm binaries.
-    wasm_opt: Option<bool>,
+    wasm_opt: Option<ExternalCliArgs>,
 }
 
 impl CliConfig {
@@ -73,10 +75,10 @@ impl CliConfig {
         Some(self.rustflags.clone().join(" "))
     }
 
-    /// Whether to use `wasm-opt`.
+    /// The `wasm-opt` configuration, if enabled.
     #[cfg(feature = "web")]
-    pub fn wasm_opt(&self) -> Option<bool> {
-        self.wasm_opt
+    pub fn wasm_opt(&self) -> &Option<ExternalCliArgs> {
+        &self.wasm_opt
     }
 
     /// Determine the Bevy CLI config as defined in the given package.
@@ -155,7 +157,7 @@ impl CliConfig {
             features: extract_features(metadata)?,
             default_features: extract_default_features(metadata)?,
             rustflags: extract_rustflags(metadata)?,
-            wasm_opt: extract_use_wasm_opt(metadata)?,
+            wasm_opt: extract_wasm_opt(metadata)?,
         })
     }
 
@@ -167,7 +169,7 @@ impl CliConfig {
         self.target = with.target.clone().or(self.target);
         self.default_features = with.default_features.or(self.default_features);
 
-        self.wasm_opt = with.wasm_opt.or(self.wasm_opt);
+        self.wasm_opt = with.wasm_opt.clone().or(self.wasm_opt);
 
         // Features and Rustflags are additive
         self.features.extend(with.features.iter().cloned());
@@ -254,12 +256,26 @@ fn extract_rustflags(cli_metadata: &Map<String, Value>) -> anyhow::Result<Vec<St
     }
 }
 
-fn extract_use_wasm_opt(cli_metadata: &Map<String, Value>) -> anyhow::Result<Option<bool>> {
-    if let Some(use_wasm_opt) = cli_metadata.get("wasm-opt") {
-        match use_wasm_opt {
-            Value::Bool(use_wasm_opt) => Ok(Some(use_wasm_opt).copied()),
+fn extract_wasm_opt(cli_metadata: &Map<String, Value>) -> anyhow::Result<Option<ExternalCliArgs>> {
+    if let Some(wasm_opt) = cli_metadata.get("wasm-opt") {
+        match wasm_opt {
+            Value::Bool(enabled) => Ok(Some(ExternalCliArgs::Enabled(*enabled))),
+            Value::Array(arr) => {
+                let args = arr
+                    .iter()
+                    .map(|value| {
+                        value
+                            .as_str()
+                            .map(std::string::ToString::to_string)
+                            .ok_or_else(|| {
+                                anyhow::anyhow!("each wasm-opt argument must be a string")
+                            })
+                    })
+                    .collect::<Result<Vec<String>, _>>()?;
+                Ok(Some(ExternalCliArgs::Args(args)))
+            }
             Value::Null => Ok(None),
-            _ => bail!("wasm-opt must be a boolean"),
+            _ => bail!("wasm-opt must be a boolean or an array of arguments to pass to wasm-opt"),
         }
     } else {
         Ok(None)
@@ -526,6 +542,56 @@ mod tests {
                 .into(),
             );
             assert!(extract_features(&cli_metadata).is_err());
+        }
+    }
+
+    mod extract_wasm_opt {
+        use super::*;
+
+        #[test]
+        fn should_return_none_if_no_wasm_opt_specified() -> anyhow::Result<()> {
+            let cli_metadata = Map::new();
+            assert_eq!(extract_wasm_opt(&cli_metadata)?, None);
+            Ok(())
+        }
+
+        #[test]
+        fn should_return_enabled_if_wasm_opt_is_true() -> anyhow::Result<()> {
+            let mut cli_metadata = Map::new();
+            cli_metadata.insert("wasm-opt".to_owned(), true.into());
+            assert_eq!(
+                extract_wasm_opt(&cli_metadata)?,
+                Some(ExternalCliArgs::Enabled(true))
+            );
+            Ok(())
+        }
+
+        #[test]
+        fn should_return_disabled_if_wasm_opt_is_false() -> anyhow::Result<()> {
+            let mut cli_metadata = Map::new();
+            cli_metadata.insert("wasm-opt".to_owned(), false.into());
+            assert_eq!(
+                extract_wasm_opt(&cli_metadata)?,
+                Some(ExternalCliArgs::Enabled(false))
+            );
+            Ok(())
+        }
+
+        #[test]
+        fn should_return_args_if_wasm_opt_is_array() -> anyhow::Result<()> {
+            let mut cli_metadata = Map::new();
+            cli_metadata.insert(
+                "wasm-opt".to_owned(),
+                vec!["-Oz".to_owned(), "--enable-bulk-memory".to_owned()].into(),
+            );
+            assert_eq!(
+                extract_wasm_opt(&cli_metadata)?,
+                Some(ExternalCliArgs::Args(vec![
+                    "-Oz".to_owned(),
+                    "--enable-bulk-memory".to_owned()
+                ]))
+            );
+            Ok(())
         }
     }
 }

@@ -112,12 +112,8 @@ impl BuildArgs {
         #[cfg(feature = "web")]
         if let Some(BuildSubcommands::Web(web_args)) = self.subcommand.as_mut() {
             if web_args.wasm_opt.is_empty() {
-                if let Some(enabled) = config.wasm_opt() {
-                    if enabled {
-                        web_args.wasm_opt.push("true".to_string());
-                    } else {
-                        web_args.wasm_opt.push("false".to_string());
-                    };
+                if let Some(args) = config.wasm_opt() {
+                    web_args.wasm_opt = args.to_raw();
                 }
             }
         }
