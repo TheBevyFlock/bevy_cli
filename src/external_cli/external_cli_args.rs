@@ -46,6 +46,7 @@ impl ExternalCliArgs {
 }
 
 #[cfg(test)]
+#[cfg(feature = "web")]
 mod tests {
     use super::*;
 
