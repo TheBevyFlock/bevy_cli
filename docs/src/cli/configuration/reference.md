@@ -27,6 +27,6 @@ The following fields exist and can be configured:
 
 ## `wasm-opt`
 
-- Type: boolean
-- Default: true for release web builds
-- Note: Whether or not to use [`wasm-opt`](https://github.com/WebAssembly/binaryen?tab=readme-ov-file#wasm-opt) to optimize the web binary.
+- Type: boolean or array of strings
+- Default: true for web release builds, false for web dev builds and native builds
+- Note: Whether or not to use [`wasm-opt`](https://github.com/WebAssembly/binaryen?tab=readme-ov-file#wasm-opt) to optimize the web binary. The specific flags to be used can be passed as array of strings or `true` can be passed to use default options.
