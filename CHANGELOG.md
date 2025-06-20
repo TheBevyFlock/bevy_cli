@@ -13,7 +13,7 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 
 ### Changed
 
-- You can now customize the flags passed to `wasm-opt` in both CLI and `Cargo.toml`. Simply pass a list of flags you want to use, e.g. `--wasm-opt=-Oz,--enable-bulk-memory` in the CLI or `wasm-opt = ["-Oz", "--enable-bulk-memory"]` in the config.
+- You can now customize the flags passed to `wasm-opt` in both CLI and `Cargo.toml`. Simply pass a list of flags you want to use, e.g. `--wasm-opt=-Oz --wasm-opt=--enable-bulk-memory` in the CLI or `wasm-opt = ["-Oz", "--enable-bulk-memory"]` in the config.
 
 ## v0.1.0-alpha.1 - 2025-05-23
 

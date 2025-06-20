@@ -62,7 +62,7 @@ Examples with the CLI:
 
 - `--wasm-opt=false` to disable `wasm-opt` completely.
 - `--wasm-opt=true` to enable the default `wasm-opt` configuration.
-- `--wasm-opt=-Oz,--enable-bulk-memory` to run `wasm-opt` with the `-Oz` and `--enable-bulk-memory` flags.
+- `--wasm-opt=-Oz --wasm-opt=--enable-bulk-memory` to run `wasm-opt` with the `-Oz` and `--enable-bulk-memory` flags.
 
 The same can be accomplished with the following `Cargo.toml` configs:
 
