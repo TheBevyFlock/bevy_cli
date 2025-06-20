@@ -16,6 +16,7 @@ impl ExternalCliArgs {
     /// Parse the arguments from a list.
     ///
     /// `true` and `false` are treated special, to enable or disable the command.
+    #[cfg(feature = "web")]
     pub fn from_raw_args(args: Vec<String>) -> Self {
         let mut cur_args = Vec::<String>::new();
 
@@ -34,6 +35,7 @@ impl ExternalCliArgs {
         }
     }
 
+    #[cfg(feature = "web")]
     pub fn to_raw(&self) -> Vec<String> {
         match self {
             Self::Enabled(true) => vec!["true".to_string()],

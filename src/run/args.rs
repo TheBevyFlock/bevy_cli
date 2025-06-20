@@ -113,11 +113,12 @@ impl RunArgs {
             .or(config.rustflags());
 
         #[cfg(feature = "web")]
+        let is_release = self.is_release();
+
+        #[cfg(feature = "web")]
         if let Some(RunSubcommands::Web(web_args)) = self.subcommand.as_mut() {
             if web_args.wasm_opt.is_empty() {
-                if let Some(args) = config.wasm_opt() {
-                    web_args.wasm_opt = args.to_raw();
-                }
+                web_args.wasm_opt = config.wasm_opt(is_release).to_raw();
             }
         }
     }

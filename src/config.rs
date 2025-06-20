@@ -75,10 +75,17 @@ impl CliConfig {
         Some(self.rustflags.clone().join(" "))
     }
 
-    /// The `wasm-opt` configuration, if enabled.
+    /// The `wasm-opt` configuration.
     #[cfg(feature = "web")]
-    pub fn wasm_opt(&self) -> &Option<ExternalCliArgs> {
-        &self.wasm_opt
+    pub fn wasm_opt(&self, is_release: bool) -> ExternalCliArgs {
+        self.wasm_opt.clone().unwrap_or({
+            // Enable by default for release builds
+            if is_release {
+                ExternalCliArgs::Enabled(true)
+            } else {
+                ExternalCliArgs::Enabled(false)
+            }
+        })
     }
 
     /// Determine the Bevy CLI config as defined in the given package.
