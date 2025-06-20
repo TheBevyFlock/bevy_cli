@@ -4,6 +4,7 @@ use serde::Serialize;
 ///
 /// Can either be disabled, enabled with default arguments, or enabled with custom arguments.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[serde(untagged)]
 pub enum ExternalCliArgs {
     /// Disable the external command if `false`, use default args if `true`.
     Enabled(bool),
