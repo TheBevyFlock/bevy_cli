@@ -45,13 +45,13 @@ use rustc_span::{Span, Symbol};
 use std::ops::ControlFlow;
 
 declare_bevy_lint! {
-    pub MAIN_RETURN_WITHOUT_APPEXIT,
+    pub(crate) MAIN_RETURN_WITHOUT_APPEXIT,
     super::Pedantic,
     "an entrypoint that calls `App::run()` does not return `AppExit`",
 }
 
 declare_bevy_lint_pass! {
-    pub MainReturnWithoutAppExit => [MAIN_RETURN_WITHOUT_APPEXIT],
+    pub(crate) MainReturnWithoutAppExit => [MAIN_RETURN_WITHOUT_APPEXIT],
     @default = {
         run: Symbol = sym!(run),
     },

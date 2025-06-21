@@ -63,13 +63,13 @@ use rustc_middle::ty::Ty;
 use rustc_span::Symbol;
 
 declare_bevy_lint! {
-    pub PANICKING_METHODS,
+    pub(crate) PANICKING_METHODS,
     super::Restriction,
     "called a method that can panic when a non-panicking alternative exists",
 }
 
 declare_bevy_lint_pass! {
-    pub PanickingMethods => [PANICKING_METHODS],
+    pub(crate) PanickingMethods => [PANICKING_METHODS],
 }
 
 impl<'tcx> LateLintPass<'tcx> for PanickingMethods {

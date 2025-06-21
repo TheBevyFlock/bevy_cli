@@ -67,7 +67,7 @@ use rustc_middle::ty::{
 };
 
 declare_bevy_lint! {
-    pub ZST_QUERY,
+    pub(crate) ZST_QUERY,
     // This will eventually be a `RESTRICTION` lint, but due to
     // <https://github.com/TheBevyFlock/bevy_cli/issues/279> it is not yet ready for production.
     super::Nursery,
@@ -75,7 +75,7 @@ declare_bevy_lint! {
 }
 
 declare_bevy_lint_pass! {
-    pub ZstQuery => [ZST_QUERY],
+    pub(crate) ZstQuery => [ZST_QUERY],
 }
 
 impl<'tcx> LateLintPass<'tcx> for ZstQuery {

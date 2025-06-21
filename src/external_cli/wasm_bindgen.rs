@@ -53,9 +53,9 @@ pub(crate) fn bundle(
             ArgBuilder::new()
                 .arg("--no-typescript")
                 .add_with_value("--out-name", &bin_target.bin_name)
-                .add_with_value("--out-dir", bin_target.artifact_directory.to_string_lossy())
+                .add_with_value("--out-dir", bin_target.artifact_directory.as_os_str())
                 .add_with_value("--target", "web")
-                .arg(original_wasm.to_string_lossy()),
+                .arg(original_wasm.as_os_str()),
         )
         .ensure_status(auto_install)?;
 

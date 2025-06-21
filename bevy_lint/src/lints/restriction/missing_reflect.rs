@@ -72,7 +72,7 @@ use rustc_middle::{span_bug, ty::TyCtxt};
 use rustc_span::Span;
 
 declare_bevy_lint! {
-    pub MISSING_REFLECT,
+    pub(crate) MISSING_REFLECT,
     super::Restriction,
     "defined a component, resource, or event without a `Reflect` implementation",
     // We only override `check_crate()`.
@@ -80,7 +80,7 @@ declare_bevy_lint! {
 }
 
 declare_bevy_lint_pass! {
-    pub MissingReflect => [MISSING_REFLECT],
+    pub(crate) MissingReflect => [MISSING_REFLECT],
 }
 
 impl<'tcx> LateLintPass<'tcx> for MissingReflect {

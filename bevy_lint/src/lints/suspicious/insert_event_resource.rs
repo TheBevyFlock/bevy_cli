@@ -57,13 +57,13 @@ use rustc_span::Symbol;
 use std::borrow::Cow;
 
 declare_bevy_lint! {
-    pub INSERT_EVENT_RESOURCE,
+    pub(crate) INSERT_EVENT_RESOURCE,
     super::Suspicious,
     "called `App::insert_resource(Events<T>)` or `App::init_resource::<Events<T>>()` instead of `App::add_event::<T>()`",
 }
 
 declare_bevy_lint_pass! {
-    pub InsertEventResource => [INSERT_EVENT_RESOURCE],
+    pub(crate) InsertEventResource => [INSERT_EVENT_RESOURCE],
     @default = {
         insert_resource: Symbol = sym!(insert_resource),
         init_resource: Symbol = sym!(init_resource),
