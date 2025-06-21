@@ -58,6 +58,8 @@ If you haven't installed it, you will be asked to install it automatically.
 The optimization can be configured both via CLI args and `Cargo.toml`.
 You can either disable optimization with `false`, enable default values with `true` or provide a list of flags to pass to `wasm-opt` for full control.
 
+Setting it to `true` currently applies the `--strip-debug` and `-Os` flags.
+
 Examples with the CLI:
 
 - `--wasm-opt=false` to disable `wasm-opt` completely.
