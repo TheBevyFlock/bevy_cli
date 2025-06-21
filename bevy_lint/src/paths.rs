@@ -32,7 +32,6 @@ pub const FILTERED_ENTITY_MUT: [&str; 4] = ["bevy_ecs", "world", "entity_ref", "
 pub const FIXED_UPDATE: [&str; 3] = ["bevy_app", "main_schedule", "FixedUpdate"];
 /// <https://github.com/bevyengine/bevy/blob/v0.16.0/crates/bevy_ecs/src/query/filter.rs#L137>
 pub const WITH: [&str; 4] = ["bevy_ecs", "query", "filter", "With"];
-
 /// <https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_ecs/src/change_detection.rs#L920>
 pub const MUT: [&str; 3] = ["bevy_ecs", "change_detection", "Mut"];
 /// <https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_ecs/src/change_detection.rs#L1020>
