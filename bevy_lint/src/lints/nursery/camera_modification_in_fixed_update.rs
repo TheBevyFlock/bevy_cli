@@ -51,13 +51,13 @@ use rustc_span::Symbol;
 use crate::{declare_bevy_lint, declare_bevy_lint_pass, utils::hir_parse::MethodCall};
 
 declare_bevy_lint! {
-    pub CAMERA_MODIFICATION_IN_FIXED_UPDATE,
+    pub(crate) CAMERA_MODIFICATION_IN_FIXED_UPDATE,
     super::Nursery,
-    "Camera modification in FixedUpdate schedule",
+    "camera modified in the `FixedUpdate` schedule",
 }
 
 declare_bevy_lint_pass! {
-    pub CameraModificationInFixedUpdate => [CAMERA_MODIFICATION_IN_FIXED_UPDATE],
+    pub(crate) CameraModificationInFixedUpdate => [CAMERA_MODIFICATION_IN_FIXED_UPDATE],
     @default = {
         add_systems: Symbol = sym!(add_systems),
     },
