@@ -70,14 +70,21 @@ impl<'tcx> LateLintPass<'tcx> for CameraModificationInFixedUpdate {
         }
 
         let Some(MethodCall {
-            method_path, args, ..
+            method_path,
+            args,
+            receiver,
+            ..
         }) = MethodCall::try_from(cx, expr)
         else {
             return;
         };
 
+        let receiver_ty = cx.typeck_results().expr_ty(receiver).peel_refs();
+
         // Match calls to `App::add_systems(schedule, systems)`
-        if method_path.ident.name != self.add_systems {
+        if match_type(cx, receiver_ty, &crate::paths::APP)
+            && method_path.ident.name != self.add_systems
+        {
             return;
         }
 
