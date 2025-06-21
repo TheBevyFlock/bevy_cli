@@ -53,10 +53,7 @@ pub fn build_web(
 
     info!("bundling JavaScript bindings...");
     wasm_bindgen::bundle(metadata, bin_target, args.auto_install())?;
-
-    if args.use_wasm_opt() {
-        wasm_opt::optimize_path(bin_target, args.auto_install())?;
-    }
+    wasm_opt::optimize_path(bin_target, args.auto_install(), &args.wasm_opt_args())?;
 
     let web_bundle = create_web_bundle(
         metadata,

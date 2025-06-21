@@ -47,6 +47,41 @@ opt-level = "z"
 
 Alternatively, you can change the profile entirely, e.g. `bevy run --profile=foo web`.
 
+## Optimization
+
+In addition to the compilation profiles, you can also optimize the Wasm binary via [`wasm-opt`](https://docs.rs/wasm-opt/latest/wasm_opt/).
+This can significantly reduce the size of the binary, but also improves performance.
+
+`wasm-opt` is enabled by default for release builds.
+If you haven't installed it, you will be asked to install it automatically.
+
+The optimization can be configured both via CLI args and `Cargo.toml`.
+You can either disable optimization with `false`, enable default values with `true` or provide a list of flags to pass to `wasm-opt` for full control.
+
+Setting it to `true` currently applies the `--strip-debug` and `-Os` flags.
+
+Examples with the CLI:
+
+- `--wasm-opt=false` to disable `wasm-opt` completely.
+- `--wasm-opt=true` to enable the default `wasm-opt` configuration.
+- `--wasm-opt=-Oz --wasm-opt=--enable-bulk-memory` to run `wasm-opt` with the `-Oz` and `--enable-bulk-memory` flags.
+
+The same can be accomplished with the following `Cargo.toml` configs:
+
+```toml
+[package.metadata.bevy_cli.web.release]
+# Disable wasm-opt even for release builds
+wasm-opt = false
+
+[package.metadata.bevy_cli.web.dev]
+# Enable wasm-opt even for dev builds, using the default configuration
+wasm-opt = true
+
+[package.metadata.bevy_cli.web.release]
+# Enable wasm-opt with custom flags
+wasm-opt = ["-Oz", "--enable-bulk-memory"]
+```
+
 ## Feature configuration
 
 Often, you want to enable certain features only in development mode or only for native and not web builds.

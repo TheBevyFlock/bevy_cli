@@ -113,9 +113,12 @@ impl RunArgs {
             .or(config.rustflags());
 
         #[cfg(feature = "web")]
+        let is_release = self.is_release();
+
+        #[cfg(feature = "web")]
         if let Some(RunSubcommands::Web(web_args)) = self.subcommand.as_mut() {
-            if web_args.use_wasm_opt.is_none() {
-                web_args.use_wasm_opt = config.wasm_opt();
+            if web_args.wasm_opt.is_empty() {
+                web_args.wasm_opt = config.wasm_opt(is_release).to_raw();
             }
         }
     }
@@ -152,9 +155,13 @@ pub struct RunWebArgs {
     #[clap(short = 'H', long = "headers", value_name = "HEADERS")]
     pub headers: Vec<String>,
 
-    // Use `wasm-opt` to optimize the wasm binary
-    #[arg(long = "wasm-opt")]
-    pub use_wasm_opt: Option<bool>,
+    /// Use `wasm-opt` to optimize the wasm binary
+    ///
+    /// Defaults to `true` for release builds.
+    /// Can be set to `false` to skip optimization.
+    /// You can also specify custom arguments to use.
+    #[arg(long = "wasm-opt", allow_hyphen_values = true)]
+    pub wasm_opt: Vec<String>,
 }
 
 impl Default for RunWebArgs {
@@ -165,7 +172,7 @@ impl Default for RunWebArgs {
             open: false,
             create_packed_bundle: false,
             headers: Vec::new(),
-            use_wasm_opt: None,
+            wasm_opt: Vec::new(),
         }
     }
 }
@@ -201,7 +208,7 @@ impl From<RunArgs> for BuildArgs {
                 #[cfg(feature = "web")]
                 RunSubcommands::Web(web_args) => BuildSubcommands::Web(BuildWebArgs {
                     create_packed_bundle: web_args.create_packed_bundle,
-                    use_wasm_opt: web_args.use_wasm_opt,
+                    wasm_opt: web_args.wasm_opt,
                 }),
             }),
         }

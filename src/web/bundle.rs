@@ -91,12 +91,6 @@ pub fn create_web_bundle(
     .join(web_assets_folder);
     let workspace_web_assets = Path::new(&metadata.workspace_root).join(web_assets_folder);
 
-    tracing::debug!(
-        "package={:?}, workspace={:?}",
-        &package_web_assets,
-        &workspace_web_assets,
-    );
-
     // Search for custom web assets first in the package, then in the workspace
     let web_assets = if package_web_assets.exists() {
         info!("using custom package web assets.");
