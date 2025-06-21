@@ -8,6 +8,8 @@
 
 /// <https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_app/src/app.rs#L78>
 pub const APP: [&str; 3] = ["bevy_app", "app", "App"];
+/// <https://github.com/bevyengine/bevy/blob/v0.16.0/crates/bevy_render/src/camera/camera.rs#L346>
+pub const CAMERA: [&str; 4] = ["bevy_render", "camera", "camera", "Camera"];
 /// <https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_ecs/src/system/commands/command.rs#L48>
 pub const COMMANDS: [&str; 4] = ["bevy_ecs", "system", "commands", "Commands"];
 /// <https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_ecs/src/component.rs#L456>
@@ -26,6 +28,10 @@ pub const EVENT: [&str; 4] = ["bevy_ecs", "event", "base", "Event"];
 pub const EVENTS: [&str; 4] = ["bevy_ecs", "event", "collections", "Events"];
 /// <https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_ecs/src/world/entity_ref.rs#L3687>
 pub const FILTERED_ENTITY_MUT: [&str; 4] = ["bevy_ecs", "world", "entity_ref", "FilteredEntityMut"];
+/// <https://github.com/bevyengine/bevy/blob/v0.16.0/crates/bevy_app/src/main_schedule.rs#L132>
+pub const FIXED_UPDATE: [&str; 3] = ["bevy_app", "main_schedule", "FixedUpdate"];
+/// <https://github.com/bevyengine/bevy/blob/v0.16.0/crates/bevy_ecs/src/query/filter.rs#L137>
+pub const WITH: [&str; 4] = ["bevy_ecs", "query", "filter", "With"];
 /// <https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_ecs/src/change_detection.rs#L920>
 pub const MUT: [&str; 3] = ["bevy_ecs", "change_detection", "Mut"];
 /// <https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_ecs/src/change_detection.rs#L1020>

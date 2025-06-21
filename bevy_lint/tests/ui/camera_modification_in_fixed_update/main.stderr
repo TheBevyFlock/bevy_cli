@@ -1,0 +1,55 @@
+error: camera modified in the `FixedUpdate` schedule
+  --> tests/ui/camera_modification_in_fixed_update/main.rs:36:35
+   |
+36 |         .add_systems(FixedUpdate, multiple_query_filters)
+   |                                   ^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: insert the system in the `Update` schedule instead
+note: the lint level is defined here
+  --> tests/ui/camera_modification_in_fixed_update/main.rs:3:9
+   |
+3  | #![deny(bevy::camera_modification_in_fixed_update)]
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: camera modified in the `FixedUpdate` schedule
+  --> tests/ui/camera_modification_in_fixed_update/main.rs:32:35
+   |
+32 |         .add_systems(FixedUpdate, multiple_queries)
+   |                                   ^^^^^^^^^^^^^^^^
+   |
+   = help: insert the system in the `Update` schedule instead
+
+error: camera modified in the `FixedUpdate` schedule
+  --> tests/ui/camera_modification_in_fixed_update/main.rs:29:36
+   |
+29 |         .add_systems(FixedUpdate, (move_camera, move_camera_tuple_data))
+   |                                    ^^^^^^^^^^^
+   |
+   = help: insert the system in the `Update` schedule instead
+
+error: camera modified in the `FixedUpdate` schedule
+  --> tests/ui/camera_modification_in_fixed_update/main.rs:29:49
+   |
+29 |         .add_systems(FixedUpdate, (move_camera, move_camera_tuple_data))
+   |                                                 ^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: insert the system in the `Update` schedule instead
+
+error: camera modified in the `FixedUpdate` schedule
+  --> tests/ui/camera_modification_in_fixed_update/main.rs:22:35
+   |
+22 |         .add_systems(FixedUpdate, move_camera_tuple_data)
+   |                                   ^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: insert the system in the `Update` schedule instead
+
+error: camera modified in the `FixedUpdate` schedule
+  --> tests/ui/camera_modification_in_fixed_update/main.rs:19:35
+   |
+19 |         .add_systems(FixedUpdate, move_camera)
+   |                                   ^^^^^^^^^^^
+   |
+   = help: insert the system in the `Update` schedule instead
+
+error: aborting due to 6 previous errors
+
