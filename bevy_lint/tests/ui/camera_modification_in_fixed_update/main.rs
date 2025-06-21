@@ -18,24 +18,24 @@ fn main() {
         .add_systems(Startup, move_camera)
         .add_systems(FixedUpdate, move_camera)
         //~^ ERROR: camera modified in the `FixedUpdate` schedule
-        //~| HELP: Put System in Update instead
+        //~| HELP: insert the system in the `Update` schedule instead
         .add_systems(FixedUpdate, move_camera_tuple_data)
         //~^ ERROR: camera modified in the `FixedUpdate` schedule
-        //~| HELP: Put System in Update instead
+        //~| HELP: insert the system in the `Update` schedule instead
         // This should not raise an error since its in not mutably borrowing any data
         .add_systems(FixedUpdate, dont_mut_camera)
         //~| ERROR: camera modified in the `FixedUpdate` schedule
-        //~v HELP: Put System in Update instead
+        //~v HELP: insert the system in the `Update` schedule instead
         .add_systems(FixedUpdate, (move_camera, move_camera_tuple_data))
         //~^ ERROR: camera modified in the `FixedUpdate` schedule
-        //~| HELP: Put System in Update instead
+        //~| HELP: insert the system in the `Update` schedule instead
         .add_systems(FixedUpdate, multiple_queries)
         //~^ ERROR: camera modified in the `FixedUpdate` schedule
-        //~| HELP: Put System in Update instead
+        //~| HELP: insert the system in the `Update` schedule instead
         .add_systems(FixedUpdate, multiple_none_mut_queries)
         .add_systems(FixedUpdate, multiple_query_filters)
         //~^ ERROR: camera modified in the `FixedUpdate` schedule
-        //~| HELP: Put System in Update instead
+        //~| HELP: insert the system in the `Update` schedule instead
         .add_systems(FixedUpdate, multiple_none_mut_query_filters)
         .run();
 }

@@ -185,7 +185,7 @@ impl<'tcx> LateLintPass<'tcx> for CameraModificationInFixedUpdate {
                                 path.span,
                                 CAMERA_MODIFICATION_IN_FIXED_UPDATE.desc,
                                 None,
-                                "Put System in Update instead",
+                                "insert the system in the `Update` schedule instead",
                             );
                         }
                     }

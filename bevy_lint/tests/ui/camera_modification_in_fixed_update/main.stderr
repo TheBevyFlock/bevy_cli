@@ -4,7 +4,7 @@ error: camera modified in the `FixedUpdate` schedule
 36 |         .add_systems(FixedUpdate, multiple_query_filters)
    |                                   ^^^^^^^^^^^^^^^^^^^^^^
    |
-   = help: Put System in Update instead
+   = help: insert the system in the `Update` schedule instead
 note: the lint level is defined here
   --> tests/ui/camera_modification_in_fixed_update/main.rs:3:9
    |
@@ -17,7 +17,7 @@ error: camera modified in the `FixedUpdate` schedule
 32 |         .add_systems(FixedUpdate, multiple_queries)
    |                                   ^^^^^^^^^^^^^^^^
    |
-   = help: Put System in Update instead
+   = help: insert the system in the `Update` schedule instead
 
 error: camera modified in the `FixedUpdate` schedule
   --> tests/ui/camera_modification_in_fixed_update/main.rs:29:36
@@ -25,7 +25,7 @@ error: camera modified in the `FixedUpdate` schedule
 29 |         .add_systems(FixedUpdate, (move_camera, move_camera_tuple_data))
    |                                    ^^^^^^^^^^^
    |
-   = help: Put System in Update instead
+   = help: insert the system in the `Update` schedule instead
 
 error: camera modified in the `FixedUpdate` schedule
   --> tests/ui/camera_modification_in_fixed_update/main.rs:29:49
@@ -33,7 +33,7 @@ error: camera modified in the `FixedUpdate` schedule
 29 |         .add_systems(FixedUpdate, (move_camera, move_camera_tuple_data))
    |                                                 ^^^^^^^^^^^^^^^^^^^^^^
    |
-   = help: Put System in Update instead
+   = help: insert the system in the `Update` schedule instead
 
 error: camera modified in the `FixedUpdate` schedule
   --> tests/ui/camera_modification_in_fixed_update/main.rs:22:35
@@ -41,7 +41,7 @@ error: camera modified in the `FixedUpdate` schedule
 22 |         .add_systems(FixedUpdate, move_camera_tuple_data)
    |                                   ^^^^^^^^^^^^^^^^^^^^^^
    |
-   = help: Put System in Update instead
+   = help: insert the system in the `Update` schedule instead
 
 error: camera modified in the `FixedUpdate` schedule
   --> tests/ui/camera_modification_in_fixed_update/main.rs:19:35
@@ -49,7 +49,7 @@ error: camera modified in the `FixedUpdate` schedule
 19 |         .add_systems(FixedUpdate, move_camera)
    |                                   ^^^^^^^^^^^
    |
-   = help: Put System in Update instead
+   = help: insert the system in the `Update` schedule instead
 
 error: aborting due to 6 previous errors
 
