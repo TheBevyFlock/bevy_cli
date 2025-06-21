@@ -88,21 +88,16 @@ impl<'tcx> LateLintPass<'tcx> for CameraModificationInFixedUpdate {
             return;
         }
 
-        // First argument must be the `ScheduleLabel`
-        let Some(first_arg) = args.first() else {
+        let [schedule, systems] = args else {
             return;
         };
 
-        let schedule_ty = cx.typeck_results().expr_ty(first_arg).peel_refs();
+        let schedule_ty = cx.typeck_results().expr_ty(schedule).peel_refs();
 
         // Skip if the schedule is not `FixedUpdate`
         if !match_type(cx, schedule_ty, &crate::paths::FIXED_UPDATE) {
             return;
         }
-
-        let Some(systems) = args.get(1) else {
-            return;
-        };
 
         // Collect all added system expressions
         let system_exprs = if let ExprKind::Tup(inner) = systems.kind {
