@@ -74,6 +74,26 @@ pub fn create_web_bundle(
     packed: bool,
 ) -> anyhow::Result<WebBundle> {
     let assets_path = Path::new("assets");
+
+    let package_assets = Path::new(
+        bin_target
+            .package
+            .manifest_path
+            .parent()
+            .context("failed to find package root")?,
+    )
+    .join(assets_path);
+
+    let assets_path = if package_assets.exists() {
+        info!("using package assets.");
+        Some(package_assets)
+    } else if assets_path.exists() {
+        info!("using workspace assets.");
+        Some(assets_path.into())
+    } else {
+        None
+    };
+
     // The "_bg" suffix is needed to reference the bindings created by wasm_bindgen,
     // instead of the artifact created directly by cargo.
     let wasm_file_name = OsString::from(format!("{}_bg.wasm", bin_target.bin_name));
@@ -124,7 +144,7 @@ pub fn create_web_bundle(
         build_artifact_path: bin_target.artifact_directory.clone(),
         wasm_file_name,
         js_file_name,
-        assets_path: assets_path.exists().then(|| assets_path.to_owned()),
+        assets_path,
         web_assets,
         index: Index::Content(index.clone()),
     };
