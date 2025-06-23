@@ -73,16 +73,15 @@ pub fn create_web_bundle(
     bin_target: &BinTarget,
     packed: bool,
 ) -> anyhow::Result<WebBundle> {
+    let package_root = bin_target
+        .package
+        .manifest_path
+        .parent()
+        .context("failed to find package root")?;
+
     let assets_path = Path::new("assets");
 
-    let package_assets = Path::new(
-        bin_target
-            .package
-            .manifest_path
-            .parent()
-            .context("failed to find package root")?,
-    )
-    .join(assets_path);
+    let package_assets = Path::new(package_root).join(assets_path);
 
     let assets_path = if package_assets.exists() {
         info!("using package assets.");
@@ -101,14 +100,7 @@ pub fn create_web_bundle(
 
     let web_assets_folder = Path::new("web");
 
-    let package_web_assets = Path::new(
-        bin_target
-            .package
-            .manifest_path
-            .parent()
-            .context("failed to find package root")?,
-    )
-    .join(web_assets_folder);
+    let package_web_assets = Path::new(package_root).join(web_assets_folder);
     let workspace_web_assets = Path::new(&metadata.workspace_root).join(web_assets_folder);
 
     // Search for custom web assets first in the package, then in the workspace
