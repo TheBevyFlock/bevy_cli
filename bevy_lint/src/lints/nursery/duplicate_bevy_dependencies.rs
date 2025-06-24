@@ -69,7 +69,7 @@ use cargo_metadata::{
 };
 use clippy_utils::{
     diagnostics::{span_lint, span_lint_and_then},
-    find_crates,
+    paths::find_crates,
 };
 use rustc_hir::def_id::LOCAL_CRATE;
 use rustc_lint::LateContext;
