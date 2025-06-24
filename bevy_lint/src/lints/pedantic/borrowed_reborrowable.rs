@@ -107,8 +107,9 @@ use clippy_utils::{
 use rustc_errors::Applicability;
 use rustc_hir::{Body, FnDecl, MutTy, Mutability, intravisit::FnKind};
 use rustc_lint::{LateContext, LateLintPass};
-use rustc_middle::ty::{Interner, Ty, TyKind, TypeVisitable, TypeVisitor};
+use rustc_middle::ty::{Ty, TyKind, TypeVisitable, TypeVisitor};
 use rustc_span::{Span, def_id::LocalDefId, symbol::kw};
+use rustc_type_ir::Interner;
 
 declare_bevy_lint! {
     pub(crate) BORROWED_REBORROWABLE,
