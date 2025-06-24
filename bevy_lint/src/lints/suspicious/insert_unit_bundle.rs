@@ -50,7 +50,7 @@
 //! # bevy::ecs::system::assert_is_system(spawn);
 //! ```
 
-use clippy_utils::{diagnostics::span_lint_hir_and_then, sym, ty::match_type};
+use clippy_utils::{diagnostics::span_lint_hir_and_then, ty::match_type};
 use rustc_errors::Applicability;
 use rustc_hir::{Expr, ExprKind};
 use rustc_lint::{LateContext, LateLintPass};
@@ -68,7 +68,7 @@ declare_bevy_lint! {
 declare_bevy_lint_pass! {
     pub(crate) InsertUnitBundle => [INSERT_UNIT_BUNDLE],
     @default = {
-        spawn: Symbol = sym!(spawn),
+        spawn: Symbol = Symbol::intern("spawn"),
     },
 }
 

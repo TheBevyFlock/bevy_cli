@@ -35,7 +35,7 @@
 
 use crate::{declare_bevy_lint, declare_bevy_lint_pass, utils::hir_parse::MethodCall};
 use clippy_utils::{
-    diagnostics::span_lint_hir_and_then, is_entrypoint_fn, is_expr_used_or_unified, sym,
+    diagnostics::span_lint_hir_and_then, is_entrypoint_fn, is_expr_used_or_unified,
     ty::match_type, visitors::for_each_expr,
 };
 use rustc_errors::Applicability;
@@ -53,7 +53,7 @@ declare_bevy_lint! {
 declare_bevy_lint_pass! {
     pub(crate) MainReturnWithoutAppExit => [MAIN_RETURN_WITHOUT_APPEXIT],
     @default = {
-        run: Symbol = sym!(run),
+        run: Symbol = Symbol::intern("run"),
     },
 }
 

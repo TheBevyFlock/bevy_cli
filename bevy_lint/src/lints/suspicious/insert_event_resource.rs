@@ -46,7 +46,6 @@ use crate::{
 use clippy_utils::{
     diagnostics::span_lint_and_sugg,
     source::{snippet, snippet_with_applicability},
-    sym,
     ty::{match_type, ty_from_hir_ty},
 };
 use rustc_errors::Applicability;
@@ -65,8 +64,8 @@ declare_bevy_lint! {
 declare_bevy_lint_pass! {
     pub(crate) InsertEventResource => [INSERT_EVENT_RESOURCE],
     @default = {
-        insert_resource: Symbol = sym!(insert_resource),
-        init_resource: Symbol = sym!(init_resource),
+        insert_resource: Symbol = Symbol::intern("insert_resource"),
+        init_resource: Symbol = Symbol::intern("init_resource"),
     },
 }
 
