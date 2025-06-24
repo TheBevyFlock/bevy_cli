@@ -56,7 +56,7 @@ use crate::{
 };
 use clippy_utils::{
     diagnostics::span_lint_and_help,
-    ty::{is_normalizable, match_type, ty_from_hir_ty},
+    ty::{match_type, ty_from_hir_ty},
 };
 use rustc_abi::Size;
 use rustc_hir::AmbigArg;
@@ -155,11 +155,6 @@ impl QueryKind {
 /// - `Some(false)` if the type is most likely not a ZST
 /// - `None` if we cannot determine the size (e.g., type is not normalizable)
 fn is_zero_sized<'tcx>(cx: &LateContext<'tcx>, ty: Ty<'tcx>) -> Option<bool> {
-    // `cx.layout_of()` panics if the type is not normalizable.
-    if !is_normalizable(cx, cx.param_env, ty) {
-        return None;
-    }
-
     // Note: we don't use `approx_ty_size` from `clippy_utils` here
     // because it will return `0` as the default value if the type is not
     // normalizable, which will put us at risk of emitting more false positives.
