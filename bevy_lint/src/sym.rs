@@ -1,16 +1,70 @@
 //! Pre-interned [`Symbol`]s available in `const` contexts.
 //!
 //! [`Symbol`]s are [interned strings](https://en.wikipedia.org/wiki/String_interning) that are
-//! cheap to store and compare. This module contains a list of pre-interned symbol constants that
-//! are used in the linter. The only exception to this is the [`EXTRA_SYMBOLS`] constant, which
-//! contains a complete ordered list of all symbols to be pre-interned.
+//! cheap to store and compare (they're secretly [`u32`]s!). This module contains a list of pre-
+//! interned symbol constants that are used in the linter.
+//!
+//! # Symbol Offsets
+//!
+//! The linter allocates symbols in the following layout:
+//!
+//! <table>
+//!     <thead>
+//!         <tr>
+//!             <th>Index</th>
+//!             <th>Note</th>
+//!         </tr>
+//!     </thead>
+//!     <tbody>
+//!         <tr>
+//!             <td>0</td>
+//!             <td rowspan="4">Symbols in <code>rustc_span::sym</code></td>
+//!         </tr>
+//!         <tr>
+//!             <td>1</td>
+//!         </tr>
+//!         <tr>
+//!             <td>2</td>
+//!         </tr>
+//!         <tr>
+//!             <td>...</td>
+//!         </tr>
+//!         <tr>
+//!             <td><code>PREDEFINED_SYMBOLS_COUNT</code></td>
+//!             <td rowspan="2">Symbols in <code>clippy_utils::sym</code></td>
+//!         </tr>
+//!         <tr>
+//!             <td>...</td>
+//!         </tr>
+//!         <tr>
+//!             <td><code>SYMBOL_OFFSET</code></td>
+//!             <td rowspan="2">Symbols in <code>bevy_lint::sym</code></td>
+//!         </tr>
+//!         <tr>
+//!             <td>...</td>
+//!         </tr>
+//!     </tbody>
+//! </table>
+//!
+//! Note that the order here is important. [`clippy_utils`] expects its symbols to start at
+//! [`PREDEFINED_SYMBOLS_COUNT`], which is why it's before Bevy's symbols.
 
 #![allow(
     non_upper_case_globals,
     reason = "Symbol constants are named as-is so it is easy to see what strings they represent."
 )]
 
+use clippy_utils::sym::EXTRA_SYMBOLS as CLIPPY_SYMBOLS;
 use rustc_span::{Symbol, symbol::PREDEFINED_SYMBOLS_COUNT};
+
+/// These are symbols that we use but are already interned by either the compiler or Clippy.
+pub use rustc_span::sym::{bevy_ecs, plugin, reflect};
+
+/// The starting offset used for the first Bevy-specific symbol.
+///
+/// This is used instead of [`PREDEFINED_SYMBOLS_COUNT`] because this takes into account Clippy's
+/// pre-interned symbols as well.
+const SYMBOL_OFFSET: u32 = PREDEFINED_SYMBOLS_COUNT + CLIPPY_SYMBOLS.len() as u32;
 
 /// A helper used by [`declare_bevy_symbols!`] to extract its input.
 ///
@@ -27,7 +81,7 @@ macro_rules! extract_value {
     };
 }
 
-/// Generates the [`Symbol`] constants and [`EXTRA_SYMBOLS`] from a list of name-value pairs.
+/// Generates the [`Symbol`] constants and [`BEVY_SYMBOLS`] from a list of name-value pairs.
 ///
 /// # Example
 ///
@@ -45,7 +99,7 @@ macro_rules! declare_bevy_symbols {
     } => {
         /// A list of strings that are pre-interned at the beginning of linting through
         /// [`Config::extra_symbols`](rustc_interface::interface::Config::extra_symbols).
-        pub const EXTRA_SYMBOLS: &[&str] = &[
+        const BEVY_SYMBOLS: &[&str] = &[
             $(
                 extract_value!($name $(: $value)?)
             ),*
@@ -53,18 +107,19 @@ macro_rules! declare_bevy_symbols {
 
         $(
             #[doc = concat!("A pre-interned [`Symbol`] for the string \"", extract_value!($name $(: $value)?), "\".")]
-            pub const $name: Symbol = Symbol::new(PREDEFINED_SYMBOLS_COUNT + ${index()});
+            pub const $name: Symbol = Symbol::new(SYMBOL_OFFSET + ${index()});
         )*
     };
 }
 
+// Before adding a new symbol here, check that it doesn't exist yet in `rustc_span::sym` or
+// `clippy_utils::sym`. Having duplicate symbols will cause the compiler to ICE! Also please keep
+// this list alphabetically sorted :)
 declare_bevy_symbols! {
-    // Keep this list alphabetically sorted :)
     app,
     App,
     base,
     bevy_app,
-    bevy_ecs,
     bevy_ptr,
     bevy_reflect,
     bevy,
@@ -91,12 +146,10 @@ declare_bevy_symbols! {
     MutUntyped,
     NonSendMut,
     PartialReflect,
-    plugin,
     Plugin,
     PtrMut,
     query,
     Query,
-    reflect,
     Reflect,
     ResMut,
     resource,
@@ -110,4 +163,17 @@ declare_bevy_symbols! {
     SystemSet,
     world,
     World,
+}
+
+/// Returns a list of strings that should be supplied to
+/// [`Config::extra_symbols`](rustc_interface::interface::Config::extra_symbols).
+pub fn extra_symbols() -> Vec<&'static str> {
+    let mut symbols = Vec::with_capacity(CLIPPY_SYMBOLS.len() + BEVY_SYMBOLS.len());
+
+    // The Clippy symbols must be before the Bevy symbols, as `clippy_utils` depends on its
+    // predefined symbols having specific values.
+    symbols.extend_from_slice(CLIPPY_SYMBOLS);
+    symbols.extend_from_slice(BEVY_SYMBOLS);
+
+    symbols
 }

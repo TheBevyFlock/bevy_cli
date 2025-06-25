@@ -89,7 +89,7 @@ impl Callbacks for BevyLintCallback {
         // Give the compiler a list of extra `Symbol`s to intern ahead of time. This helps us avoid
         // calling `Symbol::intern()` while linting. See the `sym` module for a more detailed
         // explanation.
-        config.extra_symbols = crate::sym::EXTRA_SYMBOLS.to_vec();
+        config.extra_symbols = crate::sym::extra_symbols();
     }
 }
 
