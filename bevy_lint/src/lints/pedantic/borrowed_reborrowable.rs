@@ -101,8 +101,8 @@ use std::ops::ControlFlow;
 use crate::{declare_bevy_lint, declare_bevy_lint_pass};
 use clippy_utils::{
     diagnostics::span_lint_and_sugg,
+    paths::PathLookup,
     source::{snippet, snippet_opt},
-    ty::match_type,
 };
 use rustc_errors::Applicability;
 use rustc_hir::{Body, FnDecl, MutTy, Mutability, intravisit::FnKind};
@@ -255,7 +255,7 @@ impl Reborrowable {
     fn try_from_ty<'tcx>(cx: &LateContext<'tcx>, ty: Ty<'tcx>) -> Option<Self> {
         use crate::paths::*;
 
-        const PATH_MAP: &[(&[&str], Reborrowable)] = &[
+        static PATH_MAP: &[(&PathLookup, Reborrowable)] = &[
             (&COMMANDS, Reborrowable::Commands),
             (&DEFERRED, Reborrowable::Deferred),
             (&DEFERRED_WORLD, Reborrowable::DeferredWorld),
@@ -271,7 +271,7 @@ impl Reborrowable {
         ];
 
         for &(path, reborrowable) in PATH_MAP {
-            if match_type(cx, ty, path) {
+            if path.matches_ty(cx, ty) {
                 return Some(reborrowable);
             }
         }

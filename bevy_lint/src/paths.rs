@@ -8,7 +8,7 @@ use clippy_utils::paths::{PathLookup, PathNS};
 use crate::sym;
 
 /// Returns a new [`PathLookup`] in the [type namespace](PathNS::Type) for a given path.
-/// 
+///
 /// `type_path!()` takes a `::`-separated list of identifiers. Each identifier should correspond to
 /// a [`Symbol`](rustc_span::Symbol) in [`crate::sym`]. For example,
 /// `type_path!(bevy_app::app::App)` creates a [`PathLookup`] in the [`PathNS::Type`] namespace
@@ -40,7 +40,8 @@ pub static EVENT: PathLookup = type_path!(bevy_ecs::event::base::Event);
 /// <https://github.com/bevyengine/bevy/blob/v0.16.0/crates/bevy_ecs/src/event/collections.rs#L94>
 pub static EVENTS: PathLookup = type_path!(bevy_ecs::event::collections::Events);
 /// <https://github.com/bevyengine/bevy/blob/v0.16.0/crates/bevy_ecs/src/world/entity_ref.rs#L3687>
-pub static FILTERED_ENTITY_MUT: PathLookup = type_path!(bevy_ecs::world::entity_ref::FilteredEntityMut);
+pub static FILTERED_ENTITY_MUT: PathLookup =
+    type_path!(bevy_ecs::world::entity_ref::FilteredEntityMut);
 /// <https://github.com/bevyengine/bevy/blob/v0.16.0/crates/bevy_ecs/src/change_detection.rs#L1059>
 pub static MUT_UNTYPED: PathLookup = type_path!(bevy_ecs::change_detection::MutUntyped);
 /// <https://github.com/bevyengine/bevy/blob/v0.16.0/crates/bevy_ecs/src/change_detection.rs#L959>

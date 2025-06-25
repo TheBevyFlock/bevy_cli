@@ -38,10 +38,9 @@
 //! }
 //! ```
 
-use clippy_utils::{diagnostics::span_lint_and_help, ty::match_type};
+use clippy_utils::diagnostics::span_lint_and_help;
 use rustc_hir::Expr;
 use rustc_lint::{LateContext, LateLintPass};
-use rustc_span::Symbol;
 
 use crate::{declare_bevy_lint, declare_bevy_lint_pass, sym, utils::hir_parse::MethodCall};
 
@@ -83,7 +82,7 @@ impl<'tcx> LateLintPass<'tcx> for IterCurrentUpdateEvents {
                 .expr_ty_adjusted(method_call.receiver)
                 .peel_refs();
 
-            if !match_type(cx, src_ty, &crate::paths::EVENTS) {
+            if !crate::paths::EVENTS.matches_ty(cx, src_ty) {
                 return;
             }
 

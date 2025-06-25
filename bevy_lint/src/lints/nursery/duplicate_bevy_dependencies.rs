@@ -73,7 +73,7 @@ use clippy_utils::{
 };
 use rustc_hir::def_id::LOCAL_CRATE;
 use rustc_lint::LateContext;
-use rustc_span::{BytePos, Pos, SourceFile, Span, Symbol, SyntaxContext};
+use rustc_span::{BytePos, Pos, SourceFile, Span, SyntaxContext};
 use serde::Deserialize;
 use toml::Spanned;
 

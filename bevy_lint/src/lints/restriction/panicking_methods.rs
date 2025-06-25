@@ -55,7 +55,6 @@ use crate::{
 use clippy_utils::{
     diagnostics::span_lint_and_help,
     source::{snippet, snippet_opt},
-    ty::match_type,
 };
 use rustc_hir::Expr;
 use rustc_lint::{LateContext, LateLintPass};
@@ -215,9 +214,9 @@ enum PanickingType {
 impl PanickingType {
     /// Returns the corresponding variant for the given [`Ty`], if it is supported by this lint.
     fn try_from_ty<'tcx>(cx: &LateContext<'tcx>, ty: Ty<'tcx>) -> Option<Self> {
-        if match_type(cx, ty, &crate::paths::QUERY) {
+        if crate::paths::QUERY.matches_ty(cx, ty) {
             Some(Self::Query)
-        } else if match_type(cx, ty, &crate::paths::WORLD) {
+        } else if crate::paths::WORLD.matches_ty(cx, ty) {
             Some(Self::World)
         } else {
             None

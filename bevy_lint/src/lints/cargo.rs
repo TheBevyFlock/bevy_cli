@@ -5,7 +5,6 @@ use crate::declare_bevy_lint_pass;
 use cargo_metadata::MetadataCommand;
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_session::{config::Input, utils::was_invoked_from_cargo};
-use rustc_span::Symbol;
 
 declare_bevy_lint_pass! {
     pub(crate) Cargo => [DUPLICATE_BEVY_DEPENDENCIES],

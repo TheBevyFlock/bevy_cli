@@ -54,10 +54,7 @@ use crate::{
     declare_bevy_lint, declare_bevy_lint_pass,
     utils::hir_parse::{detuple, generic_type_at},
 };
-use clippy_utils::{
-    diagnostics::span_lint_and_help,
-    ty::{match_type, ty_from_hir_ty},
-};
+use clippy_utils::{diagnostics::span_lint_and_help, ty::ty_from_hir_ty};
 use rustc_abi::Size;
 use rustc_hir::AmbigArg;
 use rustc_lint::{LateContext, LateLintPass};
@@ -123,7 +120,7 @@ enum QueryKind {
 
 impl QueryKind {
     fn try_from_ty<'tcx>(cx: &LateContext<'tcx>, ty: Ty<'tcx>) -> Option<Self> {
-        if match_type(cx, ty, &crate::paths::QUERY) {
+        if crate::paths::QUERY.matches_ty(cx, ty) {
             Some(Self::Query)
         } else {
             None
