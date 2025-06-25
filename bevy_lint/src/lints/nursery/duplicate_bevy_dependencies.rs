@@ -62,7 +62,7 @@
 
 use std::{collections::BTreeMap, ops::Range, path::Path, sync::Arc};
 
-use crate::declare_bevy_lint;
+use crate::{declare_bevy_lint, sym};
 use cargo_metadata::{
     Metadata, Resolve,
     semver::{Prerelease, Version, VersionReq},
@@ -98,9 +98,9 @@ fn toml_span(range: Range<usize>, file: &SourceFile) -> Span {
     )
 }
 
-pub(crate) fn check(cx: &LateContext<'_>, metadata: &Metadata, bevy_symbol: Symbol) {
+pub(crate) fn check(cx: &LateContext<'_>, metadata: &Metadata) {
     // no reason to continue the check if there is only one instance of `bevy` required
-    if find_crates(cx.tcx, bevy_symbol).len() == 1 {
+    if find_crates(cx.tcx, sym::bevy).len() == 1 {
         return;
     }
 

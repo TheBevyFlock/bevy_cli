@@ -40,8 +40,7 @@
 //! ```
 
 use crate::{
-    declare_bevy_lint, declare_bevy_lint_pass,
-    utils::hir_parse::{MethodCall, generic_args_snippet, span_args},
+    declare_bevy_lint, declare_bevy_lint_pass, sym, utils::hir_parse::{generic_args_snippet, span_args, MethodCall}
 };
 use clippy_utils::{
     diagnostics::span_lint_and_sugg,
@@ -63,10 +62,6 @@ declare_bevy_lint! {
 
 declare_bevy_lint_pass! {
     pub(crate) InsertEventResource => [INSERT_EVENT_RESOURCE],
-    @default = {
-        insert_resource: Symbol = Symbol::intern("insert_resource"),
-        init_resource: Symbol = Symbol::intern("init_resource"),
-    },
 }
 
 const HELP_MESSAGE: &str = "inserting an `Events` resource does not fully setup that event";
@@ -95,10 +90,10 @@ impl<'tcx> LateLintPass<'tcx> for InsertEventResource {
             // If the method is `App::insert_resource()` or `App::init_resource()`, check it with
             // its corresponding function.
             match method_call.method_path.ident.name {
-                symbol if symbol == self.insert_resource => {
+                symbol if symbol == sym::insert_resource => {
                     check_insert_resource(cx, &method_call);
                 }
-                symbol if symbol == self.init_resource => {
+                symbol if symbol == sym::init_resource => {
                     check_init_resource(cx, &method_call);
                 }
                 _ => {}

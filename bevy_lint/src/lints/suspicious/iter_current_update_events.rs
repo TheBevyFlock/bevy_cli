@@ -43,7 +43,7 @@ use rustc_hir::Expr;
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_span::Symbol;
 
-use crate::{declare_bevy_lint, declare_bevy_lint_pass, utils::hir_parse::MethodCall};
+use crate::{declare_bevy_lint, declare_bevy_lint_pass, sym, utils::hir_parse::MethodCall};
 
 declare_bevy_lint! {
     pub(crate) ITER_CURRENT_UPDATE_EVENTS,
@@ -53,10 +53,6 @@ declare_bevy_lint! {
 
 declare_bevy_lint_pass! {
     pub(crate) IterCurrentUpdateEvents => [ITER_CURRENT_UPDATE_EVENTS],
-
-    @default = {
-        iter_current_update_events: Symbol = Symbol::intern("iter_current_update_events"),
-    },
 }
 
 impl<'tcx> LateLintPass<'tcx> for IterCurrentUpdateEvents {
@@ -91,7 +87,7 @@ impl<'tcx> LateLintPass<'tcx> for IterCurrentUpdateEvents {
                 return;
             }
 
-            if method_call.method_path.ident.name == self.iter_current_update_events {
+            if method_call.method_path.ident.name == sym::iter_current_update_events {
                 span_lint_and_help(
                     cx,
                     ITER_CURRENT_UPDATE_EVENTS,

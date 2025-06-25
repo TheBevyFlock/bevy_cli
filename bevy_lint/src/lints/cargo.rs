@@ -9,9 +9,6 @@ use rustc_span::Symbol;
 
 declare_bevy_lint_pass! {
     pub(crate) Cargo => [DUPLICATE_BEVY_DEPENDENCIES],
-    @default = {
-        bevy: Symbol = Symbol::intern("bevy"),
-    },
 }
 
 impl LateLintPass<'_> for Cargo {
@@ -34,7 +31,7 @@ impl LateLintPass<'_> for Cargo {
             .exec()
         {
             Ok(metadata) => {
-                super::nursery::duplicate_bevy_dependencies::check(cx, &metadata, self.bevy);
+                super::nursery::duplicate_bevy_dependencies::check(cx, &metadata);
             }
             Err(e) => {
                 cx.tcx

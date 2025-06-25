@@ -57,7 +57,7 @@ use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::{Ty, TyKind};
 use rustc_span::Symbol;
 
-use crate::{declare_bevy_lint, declare_bevy_lint_pass, utils::hir_parse::MethodCall};
+use crate::{declare_bevy_lint, declare_bevy_lint_pass, sym, utils::hir_parse::MethodCall};
 
 declare_bevy_lint! {
     pub(crate) INSERT_UNIT_BUNDLE,
@@ -67,9 +67,6 @@ declare_bevy_lint! {
 
 declare_bevy_lint_pass! {
     pub(crate) InsertUnitBundle => [INSERT_UNIT_BUNDLE],
-    @default = {
-        spawn: Symbol = Symbol::intern("spawn"),
-    },
 }
 
 impl<'tcx> LateLintPass<'tcx> for InsertUnitBundle {
@@ -92,7 +89,7 @@ impl<'tcx> LateLintPass<'tcx> for InsertUnitBundle {
         // we skip it.
         if !(span.in_external_macro(cx.tcx.sess.source_map())
             || match_type(cx, src_ty, &crate::paths::COMMANDS)
-                && method_path.ident.name == self.spawn)
+                && method_path.ident.name == sym::spawn)
         {
             return;
         }

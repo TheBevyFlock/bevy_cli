@@ -33,7 +33,7 @@
 //! }
 //! ```
 
-use crate::{declare_bevy_lint, declare_bevy_lint_pass, utils::hir_parse::MethodCall};
+use crate::{declare_bevy_lint, declare_bevy_lint_pass, sym, utils::hir_parse::MethodCall};
 use clippy_utils::{
     diagnostics::span_lint_hir_and_then, is_entrypoint_fn, is_expr_used_or_unified,
     ty::match_type, visitors::for_each_expr,
@@ -52,9 +52,6 @@ declare_bevy_lint! {
 
 declare_bevy_lint_pass! {
     pub(crate) MainReturnWithoutAppExit => [MAIN_RETURN_WITHOUT_APPEXIT],
-    @default = {
-        run: Symbol = Symbol::intern("run"),
-    },
 }
 
 impl<'tcx> LateLintPass<'tcx> for MainReturnWithoutAppExit {
@@ -89,7 +86,7 @@ impl<'tcx> LateLintPass<'tcx> for MainReturnWithoutAppExit {
                     receiver,
                     ..
                 }) = MethodCall::try_from(cx, expr)
-                    && method_path.ident.name == self.run
+                    && method_path.ident.name == sym::run
                     && !expr.span.in_external_macro(cx.tcx.sess.source_map())
                 {
                     // Get the type of `src` for `src.run()`. We peel away all references because

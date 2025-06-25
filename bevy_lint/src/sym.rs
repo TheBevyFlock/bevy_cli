@@ -5,6 +5,11 @@
 //! are used in the linter. The only exception to this is the [`EXTRA_SYMBOLS`] constant, which
 //! contains a complete ordered list of all symbols to be pre-interned.
 
+#![allow(
+    non_upper_case_globals,
+    reason = "Symbol constants are named as-is so it is easy to see what strings they represent."
+)]
+
 use rustc_span::{Symbol, symbol::PREDEFINED_SYMBOLS_COUNT};
 
 /// A helper used by [`declare_bevy_symbols!`] to extract its input.
@@ -53,4 +58,11 @@ macro_rules! declare_bevy_symbols {
     };
 }
 
-declare_bevy_symbols! {}
+declare_bevy_symbols! {
+    bevy,
+    init_resource,
+    insert_resource,
+    iter_current_update_events,
+    spawn,
+    run,
+}
