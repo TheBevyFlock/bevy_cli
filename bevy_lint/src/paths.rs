@@ -1,52 +1,67 @@
-//! A collection of hardcoded types and functions that the linter uses.
+//! A collection of hardcoded type and function paths that the linter uses.
 //!
 //! Since Bevy is a 3rd-party crate, we cannot easily add diagnostic items to it. In lieu of this,
 //! we hardcode the paths to the items we need here, for easy referencing.
-//!
-//! Also see: [`match_type()`](clippy_utils::ty::match_type),
-//! [`match_def_path()`](clippy_utils::match_def_path).
 
-/// <https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_app/src/app.rs#L78>
-pub const APP: [&str; 3] = ["bevy_app", "app", "App"];
-/// <https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_ecs/src/system/commands/command.rs#L48>
-pub const COMMANDS: [&str; 4] = ["bevy_ecs", "system", "commands", "Commands"];
-/// <https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_ecs/src/component.rs#L456>
-pub const COMPONENT: [&str; 3] = ["bevy_ecs", "component", "Component"];
-/// <https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_ecs/src/system/system_param.rs#L1378>
-pub const DEFERRED: [&str; 4] = ["bevy_ecs", "system", "system_param", "Deferred"];
-/// <https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_ecs/src/world/deferred_world.rs#L23>
-pub const DEFERRED_WORLD: [&str; 4] = ["bevy_ecs", "world", "deferred_world", "DeferredWorld"];
-/// <https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_ecs/src/system/commands/mod.rs#L1167>
-pub const ENTITY_COMMANDS: [&str; 4] = ["bevy_ecs", "system", "commands", "EntityCommands"];
-/// <https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_ecs/src/world/entity_ref.rs#L448>
-pub const ENTITY_MUT: [&str; 4] = ["bevy_ecs", "world", "entity_ref", "EntityMut"];
-/// <https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_ecs/src/event/base.rs#L48>
-pub const EVENT: [&str; 4] = ["bevy_ecs", "event", "base", "Event"];
-/// <https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_ecs/src/event/collections.rs#L94>
-pub const EVENTS: [&str; 4] = ["bevy_ecs", "event", "collections", "Events"];
-/// <https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_ecs/src/world/entity_ref.rs#L3687>
-pub const FILTERED_ENTITY_MUT: [&str; 4] = ["bevy_ecs", "world", "entity_ref", "FilteredEntityMut"];
-/// <https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_ecs/src/change_detection.rs#L920>
-pub const MUT: [&str; 3] = ["bevy_ecs", "change_detection", "Mut"];
-/// <https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_ecs/src/change_detection.rs#L1020>
-pub const MUT_UNTYPED: [&str; 3] = ["bevy_ecs", "change_detection", "MutUntyped"];
-/// <https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_ecs/src/change_detection.rs#L734>
-pub const NON_SEND_MUT: [&str; 3] = ["bevy_ecs", "change_detection", "NonSendMut"];
+use clippy_utils::paths::{PathLookup, PathNS};
+
+use crate::sym;
+
+/// Returns a new [`PathLookup`] in the [type namespace](PathNS::Type) for a given path.
+/// 
+/// `type_path!()` takes a `::`-separated list of identifiers. Each identifier should correspond to
+/// a [`Symbol`](rustc_span::Symbol) in [`crate::sym`]. For example,
+/// `type_path!(bevy_app::app::App)` creates a [`PathLookup`] in the [`PathNS::Type`] namespace
+/// with the path `[sym::bevy_app, sym::app, sym::App]`.
+macro_rules! type_path {
+    ($first:ident $(:: $remaining:ident)*) => {
+        PathLookup::new(PathNS::Type, &[sym::$first, $(sym::$remaining),*])
+    };
+}
+
+// Keep the following list alphabetically sorted :)
+
+/// <https://github.com/bevyengine/bevy/blob/v0.16.0/crates/bevy_app/src/app.rs#L78>
+pub static APP: PathLookup = type_path!(bevy_app::app::App);
+/// <https://github.com/bevyengine/bevy/blob/v0.16.0/crates/bevy_ecs/src/system/commands/mod.rs#L101>
+pub static COMMANDS: PathLookup = type_path!(bevy_ecs::system::commands::Commands);
+/// <https://github.com/bevyengine/bevy/blob/v0.16.0/crates/bevy_ecs/src/component.rs#L485>
+pub static COMPONENT: PathLookup = type_path!(bevy_ecs::component::Component);
+/// <https://github.com/bevyengine/bevy/blob/v0.16.0/crates/bevy_ecs/src/world/deferred_world.rs#L23>
+pub static DEFERRED_WORLD: PathLookup = type_path!(bevy_ecs::world::deferred_world::DeferredWorld);
+/// <https://github.com/bevyengine/bevy/blob/v0.16.0/crates/bevy_ecs/src/system/system_param.rs#L1415>
+pub static DEFERRED: PathLookup = type_path!(bevy_ecs::system::system_param::Deferred);
+/// <https://github.com/bevyengine/bevy/blob/v0.16.0/crates/bevy_ecs/src/system/commands/mod.rs#L1233>
+pub static ENTITY_COMMANDS: PathLookup = type_path!(bevy_ecs::system::commands::EntityCommands);
+/// <https://github.com/bevyengine/bevy/blob/v0.16.0/crates/bevy_ecs/src/world/entity_ref.rs#L448>
+pub static ENTITY_MUT: PathLookup = type_path!(bevy_ecs::world::entity_ref::EntityMut);
+/// <https://github.com/bevyengine/bevy/blob/v0.16.0/crates/bevy_ecs/src/event/base.rs#L48>
+pub static EVENT: PathLookup = type_path!(bevy_ecs::event::base::Event);
+/// <https://github.com/bevyengine/bevy/blob/v0.16.0/crates/bevy_ecs/src/event/collections.rs#L94>
+pub static EVENTS: PathLookup = type_path!(bevy_ecs::event::collections::Events);
+/// <https://github.com/bevyengine/bevy/blob/v0.16.0/crates/bevy_ecs/src/world/entity_ref.rs#L3687>
+pub static FILTERED_ENTITY_MUT: PathLookup = type_path!(bevy_ecs::world::entity_ref::FilteredEntityMut);
+/// <https://github.com/bevyengine/bevy/blob/v0.16.0/crates/bevy_ecs/src/change_detection.rs#L1059>
+pub static MUT_UNTYPED: PathLookup = type_path!(bevy_ecs::change_detection::MutUntyped);
+/// <https://github.com/bevyengine/bevy/blob/v0.16.0/crates/bevy_ecs/src/change_detection.rs#L959>
+pub static MUT: PathLookup = type_path!(bevy_ecs::change_detection::Mut);
+/// <https://github.com/bevyengine/bevy/blob/v0.16.0/crates/bevy_ecs/src/change_detection.rs#L773>
+pub static NON_SEND_MUT: PathLookup = type_path!(bevy_ecs::change_detection::NonSendMut);
 /// <https://github.com/bevyengine/bevy/blob/v0.16.0/crates/bevy_reflect/src/reflect.rs#L84>
-pub const PARTIAL_REFLECT: [&str; 3] = ["bevy_reflect", "reflect", "PartialReflect"];
-/// <https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_app/src/plugin.rs#L57>
-pub const PLUGIN: [&str; 3] = ["bevy_app", "plugin", "Plugin"];
-/// <https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_ptr/src/lib.rs#L178>
-pub const PTR_MUT: [&str; 2] = ["bevy_ptr", "PtrMut"];
-/// <https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_ecs/src/system/query.rs#L379>
-pub const QUERY: [&str; 4] = ["bevy_ecs", "system", "query", "Query"];
-/// <https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_reflect/src/reflect.rs#L413>
-pub const REFLECT: [&str; 3] = ["bevy_reflect", "reflect", "Reflect"];
-/// <https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_ecs/src/change_detection.rs#L675>
-pub const RES_MUT: [&str; 3] = ["bevy_ecs", "change_detection", "ResMut"];
-/// <https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_ecs/src/resource.rs#L75>
-pub const RESOURCE: [&str; 3] = ["bevy_ecs", "resource", "Resource"];
-/// <https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_ecs/src/schedule/set.rs>
-pub const SYSTEM_SET: [&str; 4] = ["bevy_ecs", "schedule", "set", "SystemSet"];
-/// <https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_ecs/src/world/mod.rs#L94>
-pub const WORLD: [&str; 3] = ["bevy_ecs", "world", "World"];
+pub static PARTIAL_REFLECT: PathLookup = type_path!(bevy_reflect::reflect::PartialReflect);
+/// <https://github.com/bevyengine/bevy/blob/v0.16.0/crates/bevy_app/src/plugin.rs#L57>
+pub static PLUGIN: PathLookup = type_path!(bevy_app::plugin::Plugin);
+/// <https://github.com/bevyengine/bevy/blob/v0.16.0/crates/bevy_ptr/src/lib.rs#L178>
+pub static PTR_MUT: PathLookup = type_path!(bevy_ptr::PtrMut);
+/// <https://github.com/bevyengine/bevy/blob/v0.16.0/crates/bevy_ecs/src/system/query.rs#L482>
+pub static QUERY: PathLookup = type_path!(bevy_ecs::system::query::Query);
+/// <https://github.com/bevyengine/bevy/blob/v0.16.0/crates/bevy_reflect/src/reflect.rs#L413>
+pub static REFLECT: PathLookup = type_path!(bevy_reflect::reflect::Reflect);
+/// <https://github.com/bevyengine/bevy/blob/v0.16.0/crates/bevy_ecs/src/change_detection.rs#L714>
+pub static RES_MUT: PathLookup = type_path!(bevy_ecs::change_detection::ResMut);
+/// <https://github.com/bevyengine/bevy/blob/v0.16.0/crates/bevy_ecs/src/resource.rs#L75>
+pub static RESOURCE: PathLookup = type_path!(bevy_ecs::resource::Resource);
+/// <https://github.com/bevyengine/bevy/blob/v0.16.0/crates/bevy_ecs/src/schedule/set.rs#L35>
+pub static SYSTEM_SET: PathLookup = type_path!(bevy_ecs::schedule::set::SystemSet);
+/// <https://github.com/bevyengine/bevy/blob/v0.16.0/crates/bevy_ecs/src/world/mod.rs#L94>
+pub static WORLD: PathLookup = type_path!(bevy_ecs::world::World);
