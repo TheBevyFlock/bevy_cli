@@ -3,26 +3,25 @@
 //!
 //! # Motivation
 //!
-//! Modifying camera components in the `FixedUpdate` schedule can cause jittery or inconsistent
-//! visuals because `FixedUpdate` runs at a fixed timestep mainly for physics and deterministic
-//! logic. The camera should be updated in the last variable timestep before `FixedUpdate` which is
-//! the `Update` schedule.
+//! Modifying the camera in `FixedUpdate` can cause jittery, inconsistent, or laggy visuals because
+//! `FixedUpdate` may not run every render frame, especially on games with a high FPS.
 //!
 //! # Known Issues
 //!
-//! - The lint only detects systems that explicitly use the `With<Camera>` query filter.
+//! This lint only detects systems that explicitly use the `With<Camera>` query filter.
 //!
 //! # Example
 //!
 //! ```rust
-//! use bevy::prelude::*;
-//!
+//! # use bevy::prelude::*;
+//! #
 //! fn move_camera(mut query: Query<&mut Transform, With<Camera>>) {
 //!     // ...
 //! }
 //!
 //! fn main() {
 //!     App::new()
+//!         // Uh oh! This could cause issues because the camera may not move every frame!
 //!         .add_systems(FixedUpdate, move_camera);
 //! }
 //! ```
@@ -30,16 +29,46 @@
 //! Use instead:
 //!
 //! ```rust
-//! use bevy::prelude::*;
-//!
+//! # use bevy::prelude::*;
+//! #
 //! fn move_camera(mut query: Query<&mut Transform, With<Camera>>) {
 //!     // ...
 //! }
 //!
 //! fn main() {
 //!     App::new()
+//!         // Much better. This will run every frame.
 //!         .add_systems(Update, move_camera);
 //! }
+//! ```
+//!
+//! Any system that modifies the camera in a user-visible way should be run every render frame. The
+//! `Update` schedule is a good choice for this, but it notably runs _after_ `FixedUpdate`. You can
+//! use the `RunFixedMainLoop` schedule with the `RunFixedMainLoopSystem::BeforeFixedMainLoop`
+//! system set to run a system before `FixedUpdate`:
+//!
+//! ```
+//! # use bevy::prelude::*;
+//! #
+//! fn rotate_camera(mut query: Query<&mut Transform, With<Camera>>) {
+//!     // ...
+//! }
+//!
+//! fn main() {
+//!     App::new()
+//!         // In 3D games it is common for the player to move in the direction of the camera.
+//!         // Because of this, we must rotate the camera before running the physics logic in
+//!         // `FixedUpdate`. This will still run every render frame, though, so there won't be any
+//!         // lag!
+//!         .add_systems(
+//!             RunFixedMainLoop,
+//!             rotate_camera.in_set(RunFixedMainLoopSystem::BeforeFixedMainLoop),
+//!         );
+//! }
+//! ```
+//!
+//! For more information, check out the
+//! [physics in fixed timestep example](https://bevy.org/examples/movement/physics-in-fixed-timestep/).
 //! ```
 
 use clippy_utils::{diagnostics::span_lint_and_help, sym, ty::match_type};
@@ -82,8 +111,8 @@ impl<'tcx> LateLintPass<'tcx> for CameraModificationInFixedUpdate {
         let receiver_ty = cx.typeck_results().expr_ty(receiver).peel_refs();
 
         // Match calls to `App::add_systems(schedule, systems)`
-        if match_type(cx, receiver_ty, &crate::paths::APP)
-            && method_path.ident.name != self.add_systems
+        if !match_type(cx, receiver_ty, &crate::paths::APP)
+            || method_path.ident.name != self.add_systems
         {
             return;
         }
