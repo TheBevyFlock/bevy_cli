@@ -244,8 +244,8 @@ fn minimal_lint(
 /// 1. A toml-string `<crate> = <version>`
 /// 2. A toml-table `<crate> = { version = <version> , ... }`
 ///
-/// Cargo supports specifying version ranges,
-/// but [`Version::from_str`] can only parse exact  versions and not ranges.
+/// Cargo supports specifying version ranges, but [`parse_version()`] can only parse exact versions
+/// and not ranges.
 fn get_version_from_toml(table: &toml::Value) -> anyhow::Result<Version> {
     match table {
         toml::Value::String(version) => parse_version(version),

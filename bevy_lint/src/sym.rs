@@ -66,7 +66,7 @@ pub use rustc_span::sym::{bevy_ecs, plugin, reflect};
 /// pre-interned symbols as well.
 const SYMBOL_OFFSET: u32 = PREDEFINED_SYMBOLS_COUNT + CLIPPY_SYMBOLS.len() as u32;
 
-/// A helper used by [`declare_bevy_symbols!`] to extract its input.
+/// A helper used by `declare_bevy_symbols!` to extract its input.
 ///
 /// ```
 /// assert_eq!(extract_value!(Name), "Name");
