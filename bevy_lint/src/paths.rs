@@ -23,6 +23,8 @@ macro_rules! type_path {
 
 /// <https://github.com/bevyengine/bevy/blob/v0.16.0/crates/bevy_app/src/app.rs#L78>
 pub static APP: PathLookup = type_path!(bevy_app::app::App);
+/// <https://github.com/bevyengine/bevy/blob/v0.16.0/crates/bevy_render/src/camera/camera.rs#L346>
+pub static CAMERA: PathLookup = type_path!(bevy_render::camera::camera::Camera);
 /// <https://github.com/bevyengine/bevy/blob/v0.16.0/crates/bevy_ecs/src/system/commands/mod.rs#L101>
 pub static COMMANDS: PathLookup = type_path!(bevy_ecs::system::commands::Commands);
 /// <https://github.com/bevyengine/bevy/blob/v0.16.0/crates/bevy_ecs/src/component.rs#L485>
@@ -42,6 +44,8 @@ pub static EVENTS: PathLookup = type_path!(bevy_ecs::event::collections::Events)
 /// <https://github.com/bevyengine/bevy/blob/v0.16.0/crates/bevy_ecs/src/world/entity_ref.rs#L3687>
 pub static FILTERED_ENTITY_MUT: PathLookup =
     type_path!(bevy_ecs::world::entity_ref::FilteredEntityMut);
+/// <https://github.com/bevyengine/bevy/blob/v0.16.0/crates/bevy_app/src/main_schedule.rs#L132>
+pub static FIXED_UPDATE: PathLookup = type_path!(bevy_app::main_schedule::FixedUpdate);
 /// <https://github.com/bevyengine/bevy/blob/v0.16.0/crates/bevy_ecs/src/change_detection.rs#L1059>
 pub static MUT_UNTYPED: PathLookup = type_path!(bevy_ecs::change_detection::MutUntyped);
 /// <https://github.com/bevyengine/bevy/blob/v0.16.0/crates/bevy_ecs/src/change_detection.rs#L959>
@@ -64,5 +68,7 @@ pub static RES_MUT: PathLookup = type_path!(bevy_ecs::change_detection::ResMut);
 pub static RESOURCE: PathLookup = type_path!(bevy_ecs::resource::Resource);
 /// <https://github.com/bevyengine/bevy/blob/v0.16.0/crates/bevy_ecs/src/schedule/set.rs#L35>
 pub static SYSTEM_SET: PathLookup = type_path!(bevy_ecs::schedule::set::SystemSet);
+/// <https://github.com/bevyengine/bevy/blob/v0.16.0/crates/bevy_ecs/src/query/filter.rs#L137>
+pub static WITH: PathLookup = type_path!(bevy_ecs::query::filter::With);
 /// <https://github.com/bevyengine/bevy/blob/v0.16.0/crates/bevy_ecs/src/world/mod.rs#L94>
 pub static WORLD: PathLookup = type_path!(bevy_ecs::world::World);
