@@ -28,7 +28,9 @@ fn main() -> anyhow::Result<ExitCode> {
     let mut cargo = match custom_sysroot {
         // When there's a custom sysroot, run `$SYSROOT/bin/cargo`.
         Some(sysroot) => {
-            let cargo = sysroot.join("bin/cargo");
+            let cargo = sysroot
+                .join("bin/cargo")
+                .with_extension(env::consts::EXE_EXTENSION);
 
             ensure!(
                 cargo.exists(),
