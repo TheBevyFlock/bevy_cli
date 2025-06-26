@@ -213,13 +213,29 @@ impl TraitConvention {
                 for incorrect_suffix in INCORRECT_SUFFIXES {
                     if struct_name.ends_with(incorrect_suffix) {
                         let stripped_name =
-                            &struct_name[0..(struct_name.len() - incorrect_suffix.len())];
+                            &struct_name[..(struct_name.len() - incorrect_suffix.len())];
                         return format!("{stripped_name}{}", self.suffix());
                     }
                 }
+
+                // If none of the special cases are matched, simply append the suffix.
                 format!("{struct_name}{}", self.suffix())
             }
-            TraitConvention::Plugin => format!("{struct_name}{}", self.suffix()),
+            TraitConvention::Plugin => {
+                // If the name is prefixed with "Plugin", remove it and add it to the end.
+                if struct_name.starts_with("Plugin") {
+                    let stripped_name = &struct_name["Plugin".len()..];
+                    return format!("{stripped_name}{}", self.suffix());
+                }
+
+                // If "Plugins" is plural instead of singular, remove the "s" to make it singular.
+                if struct_name.ends_with("Plugins") {
+                    return struct_name[..(struct_name.len() - 1)].to_string();
+                }
+
+                // If none of the special cases are matched, simply append the suffix.
+                format!("{struct_name}{}", self.suffix())
+            },
         }
     }
 }
