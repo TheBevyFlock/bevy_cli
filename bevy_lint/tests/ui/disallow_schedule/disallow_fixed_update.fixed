@@ -8,8 +8,8 @@ fn main() {
     let mut app = App::new();
 
     app.add_plugins(DefaultPlugins)
-        //~| HELP: use the Update schedule instead
-        //~v ERROR: use of the FixedUpdate schedule is disallowed
+        //~| HELP: use the `Update` schedule instead
+        //~v ERROR: use of the `FixedUpdate` schedule is disallowed
         .add_systems(Update, hello_world);
 
     // Ensure the lint can be muted by annotating the expression.

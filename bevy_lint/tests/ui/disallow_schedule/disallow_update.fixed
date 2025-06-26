@@ -7,8 +7,8 @@ use bevy::prelude::*;
 fn main() {
     let mut app = App::new();
     app.add_plugins(DefaultPlugins)
-        //~| HELP: use the FixedUpdate schedule instead
-        //~v ERROR: use of the Update schedule is disallowed
+        //~| HELP: use the `FixedUpdate` schedule instead
+        //~v ERROR: use of the `Update` schedule is disallowed
         .add_systems(FixedUpdate, hello_world);
 
     // Ensure the lint can be muted by annotating the expression.

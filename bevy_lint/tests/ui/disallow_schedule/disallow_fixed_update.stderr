@@ -1,8 +1,8 @@
-error: use of the FixedUpdate schedule is disallowed
+error: use of the `FixedUpdate` schedule is disallowed
   --> tests/ui/disallow_schedule/disallow_fixed_update.rs:13:22
    |
 13 |         .add_systems(FixedUpdate, hello_world);
-   |                      ^^^^^^^^^^^ help: use the Update schedule instead: `Update`
+   |                      ^^^^^^^^^^^ help: use the `Update` schedule instead: `Update`
    |
 note: the lint level is defined here
   --> tests/ui/disallow_schedule/disallow_fixed_update.rs:3:9
