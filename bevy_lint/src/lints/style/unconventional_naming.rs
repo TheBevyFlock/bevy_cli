@@ -209,9 +209,7 @@ impl TraitConvention {
                 // "Systems". If a struct was originally named `FooSet`, this suggests `FooSystems`
                 // instead of `FooSetSystems`.
                 for incorrect_suffix in INCORRECT_SUFFIXES {
-                    if struct_name.ends_with(incorrect_suffix) {
-                        let stripped_name =
-                            &struct_name[..(struct_name.len() - incorrect_suffix.len())];
+                    if let Some(stripped_name) = struct_name.strip_suffix(incorrect_suffix) {
                         return format!("{stripped_name}{}", self.suffix());
                     }
                 }
@@ -221,14 +219,13 @@ impl TraitConvention {
             }
             TraitConvention::Plugin => {
                 // If the name is prefixed with "Plugin", remove it and add it to the end.
-                if struct_name.starts_with("Plugin") {
-                    let stripped_name = &struct_name["Plugin".len()..];
+                if let Some(stripped_name) = struct_name.strip_prefix("Plugin") {
                     return format!("{stripped_name}{}", self.suffix());
                 }
 
                 // If "Plugins" is plural instead of singular, remove the "s" to make it singular.
-                if struct_name.ends_with("Plugins") {
-                    return struct_name[..(struct_name.len() - 1)].to_string();
+                if let Some(stripped_name) = struct_name.strip_suffix("Plugins") {
+                    return format!("{stripped_name}{}", self.suffix());
                 }
 
                 // If none of the special cases are matched, simply append the suffix.
