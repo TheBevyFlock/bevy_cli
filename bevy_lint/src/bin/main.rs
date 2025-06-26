@@ -154,16 +154,18 @@ fn driver_path() -> anyhow::Result<PathBuf> {
 ///
 /// If the result is [`Some`], the path is guaranteed to exist.
 fn custom_sysroot() -> anyhow::Result<Option<PathBuf>> {
-    let sysroot = env::var_os("BEVY_LINT_SYSROOT").map(PathBuf::from);
+    let Some(sysroot) = env::var_os("BEVY_LINT_SYSROOT").map(PathBuf::from) else {
+        return Ok(None);
+    };
 
-    // If the user specified `BEVY_LINT_SYSROOT`, verify it exists.
-    if let Some(ref path) = sysroot {
-        ensure!(
-            path.is_dir(),
-            "the path specified by `BEVY_LINT_SYSROOT`, {}, is not a folder",
-            path.display(),
-        );
+    ensure!(
+        sysroot.exists(),
+        "the path specified by `BEVY_LINT_SYSROOT`, {}, does not exist",
+        sysroot.display(),
+    );
+
+    match sysroot.canonicalize() {
+        Ok(sysroot) => Ok(Some(sysroot)),
+        Err(error) => Err(error.into()),
     }
-
-    Ok(sysroot)
 }
