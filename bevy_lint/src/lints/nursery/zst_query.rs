@@ -50,10 +50,6 @@
 //! # assert_eq!(std::mem::size_of::<Player>(), 0);
 //! ```
 
-use crate::{
-    declare_bevy_lint, declare_bevy_lint_pass,
-    utils::hir_parse::{detuple, generic_type_at},
-};
 use clippy_utils::{
     diagnostics::span_lint_and_help,
     ty::{is_normalizable, match_type, ty_from_hir_ty},
@@ -66,8 +62,13 @@ use rustc_middle::ty::{
     layout::{LayoutOf, TyAndLayout},
 };
 
+use crate::{
+    declare_bevy_lint, declare_bevy_lint_pass,
+    utils::hir_parse::{detuple, generic_type_at},
+};
+
 declare_bevy_lint! {
-    pub ZST_QUERY,
+    pub(crate) ZST_QUERY,
     // This will eventually be a `RESTRICTION` lint, but due to
     // <https://github.com/TheBevyFlock/bevy_cli/issues/279> it is not yet ready for production.
     super::Nursery,
@@ -75,7 +76,7 @@ declare_bevy_lint! {
 }
 
 declare_bevy_lint_pass! {
-    pub ZstQuery => [ZST_QUERY],
+    pub(crate) ZstQuery => [ZST_QUERY],
 }
 
 impl<'tcx> LateLintPass<'tcx> for ZstQuery {

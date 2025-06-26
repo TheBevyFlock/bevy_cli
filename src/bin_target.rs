@@ -16,13 +16,30 @@ pub struct BinTarget<'p> {
     pub bin_name: String,
 }
 
+impl BinTarget<'_> {
+    pub fn update_artifact_directory(
+        &mut self,
+        target_directory: impl Into<PathBuf>,
+        compile_target: Option<&str>,
+        compile_profile: &str,
+        is_example: bool,
+    ) {
+        self.artifact_directory = get_artifact_directory(
+            target_directory,
+            compile_target,
+            compile_profile,
+            is_example,
+        );
+    }
+}
+
 /// Determine which binary target should be run.
 ///
 /// The `--package` arg narrows down the search space to the given package,
 /// while the `--bin` and `--example` args determine the binary target within the selected packages.
 ///
-/// If the search couldn't be narrowed down to a single binary,
-/// the `default_run` option is taken into account.
+/// From the `Cargo.toml`, the `default-members` workspace option
+/// and the `default-run` package option are taken into account.
 ///
 /// The path to the compiled binary is determined via the compilation target and profile.
 pub(crate) fn select_run_binary<'p>(
@@ -33,29 +50,35 @@ pub(crate) fn select_run_binary<'p>(
     compile_target: Option<&str>,
     compile_profile: &str,
 ) -> anyhow::Result<BinTarget<'p>> {
-    // Determine which packages the binary could be in
+    let workspace_packages = metadata.workspace_packages();
+
+    // Narrow down the packages that the binary could be contained in:
+    // - If `--package=name` is specified, look for that specific package
+    // - If `default-members` is defined in the workspace, consider only these packages
+    // - Otherwise, consider all packages in the current workspace
     let packages = if let Some(package_name) = package_name {
-        let package = metadata
-            .packages
+        let package = workspace_packages
             .iter()
-            .find(|package| {
-                // Only consider packages in the current workspace and with the correct name
-                metadata.workspace_members.contains(&package.id)
-                    && package.name.as_str() == package_name
-            })
+            .find(|package| package.name.as_str() == package_name)
             .ok_or_else(|| anyhow::anyhow!("Failed to find package {package_name}"))?;
-        vec![package]
+        vec![*package]
     } else {
-        metadata
-            .packages
-            .iter()
-            // Only consider packages in the current workspace
-            .filter(|package| metadata.workspace_members.contains(&package.id))
-            .collect()
+        let default_packages = metadata.workspace_default_packages();
+
+        if default_packages.is_empty() {
+            workspace_packages
+        } else {
+            default_packages
+        }
     };
 
     let mut is_example = false;
 
+    // Find the binary in the specified packages:
+    // - If `--bin=name` is specified, look for that specific binary
+    // - If `--example=name` is specified, look for that specific example
+    // - If only one binary is available, take that one
+    // - Otherwise, take the `default-run` binary, if specified
     let (target, package) = if let Some(bin_name) = bin_name {
         // The user specified a concrete binary
         let bins: Vec<_> = packages
@@ -137,11 +160,14 @@ pub(crate) fn select_run_binary<'p>(
 
             if default_runs.is_empty() {
                 anyhow::bail!(
-                    "There are multiple binaries available, try specifying one with --bin or define `default_run` in the Cargo.toml"
+                    "There are multiple binaries available, try one of the following:
+- add `--bin` or `--package` after `bevy run` to specify which binary or package to run,
+- define `default-run` in the Cargo.toml to define the default binary that should be executed in a package,
+- define `default-members` in the Cargo.toml of your workspace to define the default package to pick the binary from."
                 );
             } else if default_runs.len() > 1 {
                 anyhow::bail!(
-                    "Found multiple `default_run` definitions, I don't know which one to pick!"
+                    "Found multiple `default-run` definitions, I don't know which one to pick!"
                 );
             }
 
@@ -149,7 +175,7 @@ pub(crate) fn select_run_binary<'p>(
             *bins
                 .iter()
                 .find(|(bin, _)| bin.name == *default_run)
-                .ok_or_else(|| anyhow::anyhow!("Didn't find `default_run` binary {default_run}"))?
+                .ok_or_else(|| anyhow::anyhow!("Didn't find `default-run` binary {default_run}"))?
         }
     };
 
@@ -197,8 +223,9 @@ fn get_artifact_directory(
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use std::path::Path;
+
+    use super::*;
 
     #[test]
     fn test_artifact_directory_dev_native() {

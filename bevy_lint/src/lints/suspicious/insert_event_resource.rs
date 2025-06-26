@@ -39,10 +39,8 @@
 //! }
 //! ```
 
-use crate::{
-    declare_bevy_lint, declare_bevy_lint_pass,
-    utils::hir_parse::{MethodCall, generic_args_snippet, span_args},
-};
+use std::borrow::Cow;
+
 use clippy_utils::{
     diagnostics::span_lint_and_sugg,
     source::{snippet, snippet_with_applicability},
@@ -54,16 +52,20 @@ use rustc_hir::{Expr, GenericArg, GenericArgs, Path, PathSegment, QPath};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::{Ty, TyKind};
 use rustc_span::Symbol;
-use std::borrow::Cow;
+
+use crate::{
+    declare_bevy_lint, declare_bevy_lint_pass,
+    utils::hir_parse::{MethodCall, generic_args_snippet, span_args},
+};
 
 declare_bevy_lint! {
-    pub INSERT_EVENT_RESOURCE,
+    pub(crate) INSERT_EVENT_RESOURCE,
     super::Suspicious,
     "called `App::insert_resource(Events<T>)` or `App::init_resource::<Events<T>>()` instead of `App::add_event::<T>()`",
 }
 
 declare_bevy_lint_pass! {
-    pub InsertEventResource => [INSERT_EVENT_RESOURCE],
+    pub(crate) InsertEventResource => [INSERT_EVENT_RESOURCE],
     @default = {
         insert_resource: Symbol = sym!(insert_resource),
         init_resource: Symbol = sym!(init_resource),

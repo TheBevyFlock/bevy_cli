@@ -1,8 +1,7 @@
 use clap::Args;
 
-use crate::external_cli::{CommandExt, arg_builder::ArgBuilder};
-
 use super::{CargoCommonArgs, CargoCompilationArgs, CargoFeatureArgs, CargoManifestArgs, program};
+use crate::external_cli::{CommandExt, arg_builder::ArgBuilder};
 
 /// Create a command to run `cargo run`.
 pub(crate) fn command() -> CommandExt {

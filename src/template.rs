@@ -1,10 +1,11 @@
 //! Utilities to create a new Bevy project with `cargo-generate`
 
+use std::path::PathBuf;
+
 use cargo_generate::{GenerateArgs, TemplatePath};
 use regex::Regex;
 use reqwest::blocking::Client;
 use serde::Deserialize;
-use std::path::PathBuf;
 
 /// An abbreviated version of the full [GitHub API response](https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#list-organization-repositories).
 ///
@@ -22,6 +23,14 @@ struct Repository {
 ///
 /// [TheBevyFlock/bevy_new_minimal]: https://github.com/TheBevyFlock/bevy_new_miminal
 pub fn generate_template(name: &str, template: &str, branch: &str) -> anyhow::Result<PathBuf> {
+    // Validate that the package name starts with an alphabetic character
+    if let Some(first_char) = name.chars().next() {
+        anyhow::ensure!(
+            first_char.is_alphabetic(),
+            "invalid character `{first_char}` in package name: {name}"
+        );
+    }
+
     cargo_generate::generate(GenerateArgs {
         template_path: template_path(template, branch)?,
         name: Some(name.to_string()),
