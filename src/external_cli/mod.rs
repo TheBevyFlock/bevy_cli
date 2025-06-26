@@ -12,6 +12,7 @@ use tracing::{Level, debug, error, info, trace, warn};
 
 pub(crate) mod arg_builder;
 pub(crate) mod cargo;
+pub mod external_cli_args;
 #[cfg(feature = "rustup")]
 pub(crate) mod rustup;
 #[cfg(feature = "web")]

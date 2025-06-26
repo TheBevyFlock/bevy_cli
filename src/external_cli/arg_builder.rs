@@ -1,7 +1,9 @@
+use std::ffi::OsString;
+
 /// A helper to make passing arguments to [`Command`](std::process::Command) more convenient.
 #[derive(Debug, Clone)]
 #[must_use]
-pub struct ArgBuilder(Vec<String>);
+pub struct ArgBuilder(Vec<OsString>);
 
 impl ArgBuilder {
     /// Create a new builder for command arguments.
@@ -19,7 +21,7 @@ impl ArgBuilder {
     /// ```
     pub fn arg<A>(mut self, arg: A) -> Self
     where
-        A: Into<String>,
+        A: Into<OsString>,
     {
         self.0.push(arg.into());
         self
@@ -35,8 +37,8 @@ impl ArgBuilder {
     /// ```
     pub fn add_with_value<A, V>(self, arg: A, value: V) -> Self
     where
-        A: Into<String>,
-        V: Into<String>,
+        A: Into<OsString>,
+        V: Into<OsString>,
     {
         self.arg(arg).arg(value)
     }
@@ -52,7 +54,7 @@ impl ArgBuilder {
     /// ```
     pub fn add_flag_if<N>(self, name: N, value: bool) -> Self
     where
-        N: Into<String>,
+        N: Into<OsString>,
     {
         if value { self.arg(name) } else { self }
     }
@@ -70,8 +72,8 @@ impl ArgBuilder {
     /// ```
     pub fn add_opt_value<N, V>(self, name: N, value: &Option<V>) -> Self
     where
-        N: Into<String>,
-        V: Into<String> + Clone,
+        N: Into<OsString>,
+        V: Into<OsString> + Clone,
     {
         if let Some(value) = value {
             self.add_with_value::<N, V>(name, value.clone())
@@ -91,16 +93,16 @@ impl ArgBuilder {
     /// ```
     pub fn add_value_list<N, V>(self, name: N, value_list: impl IntoIterator<Item = V>) -> Self
     where
-        N: Into<String>,
-        V: Into<String>,
+        N: Into<OsString>,
+        V: Into<OsString>,
     {
-        let values: Vec<String> = value_list.into_iter().map(|val| val.into()).collect();
+        let values: Vec<OsString> = value_list.into_iter().map(|val| val.into()).collect();
 
         // If there are no values to add, omit the name of the argument as well
         if values.is_empty() {
             self
         } else {
-            self.add_with_value(name, values.join(","))
+            self.add_with_value(name, values.join(&OsString::from(",")))
         }
     }
 
@@ -119,10 +121,10 @@ impl ArgBuilder {
         value_list: impl IntoIterator<Item = V>,
     ) -> Self
     where
-        N: Into<String>,
-        V: Into<String>,
+        N: Into<OsString>,
+        V: Into<OsString>,
     {
-        let arg: String = name.into();
+        let arg: OsString = name.into();
 
         for value in value_list {
             self = self.add_with_value(&arg, value);
@@ -134,7 +136,7 @@ impl ArgBuilder {
     /// Add a list of positional arguments.
     pub fn args<I, V>(mut self, iter: I) -> Self
     where
-        V: Into<String>,
+        V: Into<OsString>,
         I: IntoIterator<Item = V>,
     {
         self.0.extend(iter.into_iter().map(|value| value.into()));
@@ -155,8 +157,8 @@ impl Default for ArgBuilder {
 }
 
 impl IntoIterator for ArgBuilder {
-    type Item = <Vec<String> as IntoIterator>::Item;
-    type IntoIter = <Vec<String> as IntoIterator>::IntoIter;
+    type Item = <Vec<OsString> as IntoIterator>::Item;
+    type IntoIter = <Vec<OsString> as IntoIterator>::IntoIter;
 
     fn into_iter(self) -> Self::IntoIter {
         self.0.into_iter()
@@ -171,8 +173,8 @@ mod tests {
     fn new_creates_empty_args() {
         let args = ArgBuilder::new();
         assert_eq!(
-            args.into_iter().collect::<Vec<String>>(),
-            Vec::<String>::new()
+            args.into_iter().collect::<Vec<OsString>>(),
+            Vec::<OsString>::new()
         );
     }
 
@@ -180,7 +182,7 @@ mod tests {
     fn arg_preserves_order() {
         let args = ArgBuilder::new().arg("one").arg("two").arg("three");
         assert_eq!(
-            args.into_iter().collect::<Vec<String>>(),
+            args.into_iter().collect::<Vec<OsString>>(),
             vec!["one", "two", "three"]
         );
     }
@@ -189,17 +191,17 @@ mod tests {
     fn add_with_value_adds_name_and_value() {
         let args = ArgBuilder::new().add_with_value("--bin", "bevy");
         assert_eq!(
-            args.into_iter().collect::<Vec<String>>(),
+            args.into_iter().collect::<Vec<OsString>>(),
             vec!["--bin", "bevy"]
         );
     }
 
     #[test]
     fn add_opt_value_adds_nothing_for_none() {
-        let args = ArgBuilder::new().add_opt_value("--bin", &None::<String>);
+        let args = ArgBuilder::new().add_opt_value("--bin", &None::<OsString>);
         assert_eq!(
-            args.into_iter().collect::<Vec<String>>(),
-            Vec::<String>::new()
+            args.into_iter().collect::<Vec<OsString>>(),
+            Vec::<OsString>::new()
         );
     }
 
@@ -207,7 +209,7 @@ mod tests {
     fn add_opt_value_adds_name_and_value_for_some() {
         let args = ArgBuilder::new().add_opt_value("--bin", &Some("bevy"));
         assert_eq!(
-            args.into_iter().collect::<Vec<String>>(),
+            args.into_iter().collect::<Vec<OsString>>(),
             vec!["--bin", "bevy"]
         );
     }
@@ -215,15 +217,18 @@ mod tests {
     #[test]
     fn add_flag_if_adds_flag_for_true() {
         let args = ArgBuilder::new().add_flag_if("--release", true);
-        assert_eq!(args.into_iter().collect::<Vec<String>>(), vec!["--release"]);
+        assert_eq!(
+            args.into_iter().collect::<Vec<OsString>>(),
+            vec!["--release"]
+        );
     }
 
     #[test]
     fn add_flag_if_adds_flag_for_false() {
         let args = ArgBuilder::new().add_flag_if("--release", false);
         assert_eq!(
-            args.into_iter().collect::<Vec<String>>(),
-            Vec::<String>::new()
+            args.into_iter().collect::<Vec<OsString>>(),
+            Vec::<OsString>::new()
         );
     }
 
@@ -231,7 +236,7 @@ mod tests {
     fn add_value_list_concatenates_values() {
         let args = ArgBuilder::new().add_value_list("--features", ["dev", "file_watcher"]);
         assert_eq!(
-            args.into_iter().collect::<Vec<String>>(),
+            args.into_iter().collect::<Vec<OsString>>(),
             vec!["--features", "dev,file_watcher"]
         );
     }
@@ -240,8 +245,8 @@ mod tests {
     fn add_value_list_empty_list_no_changes() {
         let args = ArgBuilder::new().add_value_list("--features", Vec::<String>::new());
         assert_eq!(
-            args.into_iter().collect::<Vec<String>>(),
-            Vec::<String>::new()
+            args.into_iter().collect::<Vec<OsString>>(),
+            Vec::<OsString>::new()
         );
     }
 
@@ -252,7 +257,7 @@ mod tests {
             [r#"profile.web.inherits="dev""#, "profile.web.debug=false"],
         );
         assert_eq!(
-            args.into_iter().collect::<Vec<String>>(),
+            args.into_iter().collect::<Vec<OsString>>(),
             vec![
                 "--config",
                 r#"profile.web.inherits="dev""#,
@@ -264,10 +269,10 @@ mod tests {
 
     #[test]
     fn add_values_separately_empty_no_changes() {
-        let args = ArgBuilder::new().add_values_separately("--config", Vec::<String>::new());
+        let args = ArgBuilder::new().add_values_separately("--config", Vec::<OsString>::new());
         assert_eq!(
-            args.into_iter().collect::<Vec<String>>(),
-            Vec::<String>::new()
+            args.into_iter().collect::<Vec<OsString>>(),
+            Vec::<OsString>::new()
         );
     }
 
@@ -278,7 +283,7 @@ mod tests {
             .arg("two")
             .append(ArgBuilder::new().arg("three").arg("four"));
         assert_eq!(
-            args.into_iter().collect::<Vec<String>>(),
+            args.into_iter().collect::<Vec<OsString>>(),
             vec!["one", "two", "three", "four"]
         );
     }

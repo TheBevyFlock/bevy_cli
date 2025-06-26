@@ -46,13 +46,13 @@ use rustc_span::Symbol;
 use crate::{declare_bevy_lint, declare_bevy_lint_pass, utils::hir_parse::MethodCall};
 
 declare_bevy_lint! {
-    pub ITER_CURRENT_UPDATE_EVENTS,
+    pub(crate) ITER_CURRENT_UPDATE_EVENTS,
     super::Suspicious,
     "called `Events::<T>::iter_current_update_events()`",
 }
 
 declare_bevy_lint_pass! {
-    pub IterCurrentUpdateEvents => [ITER_CURRENT_UPDATE_EVENTS],
+    pub(crate) IterCurrentUpdateEvents => [ITER_CURRENT_UPDATE_EVENTS],
 
     @default = {
         iter_current_update_events: Symbol = Symbol::intern("iter_current_update_events"),

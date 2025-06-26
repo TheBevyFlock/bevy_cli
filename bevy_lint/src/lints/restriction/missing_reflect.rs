@@ -54,7 +54,6 @@
 //! For more information, please see [Toggling Lints in
 //! Code](../../index.html#toggling-lints-in-code).
 
-use crate::{declare_bevy_lint, declare_bevy_lint_pass};
 use clippy_utils::{
     def_path_res,
     diagnostics::span_lint_hir_and_then,
@@ -71,8 +70,10 @@ use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::{span_bug, ty::TyCtxt};
 use rustc_span::Span;
 
+use crate::{declare_bevy_lint, declare_bevy_lint_pass};
+
 declare_bevy_lint! {
-    pub MISSING_REFLECT,
+    pub(crate) MISSING_REFLECT,
     super::Restriction,
     "defined a component, resource, or event without a `Reflect` implementation",
     // We only override `check_crate()`.
@@ -80,7 +81,7 @@ declare_bevy_lint! {
 }
 
 declare_bevy_lint_pass! {
-    pub MissingReflect => [MISSING_REFLECT],
+    pub(crate) MissingReflect => [MISSING_REFLECT],
 }
 
 impl<'tcx> LateLintPass<'tcx> for MissingReflect {

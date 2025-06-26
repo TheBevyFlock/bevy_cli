@@ -60,13 +60,13 @@ use rustc_span::Symbol;
 use crate::{declare_bevy_lint, declare_bevy_lint_pass, utils::hir_parse::MethodCall};
 
 declare_bevy_lint! {
-    pub INSERT_UNIT_BUNDLE,
+    pub(crate) INSERT_UNIT_BUNDLE,
     super::Suspicious,
     "inserted a `Bundle` containing a unit `()` type",
 }
 
 declare_bevy_lint_pass! {
-    pub InsertUnitBundle => [INSERT_UNIT_BUNDLE],
+    pub(crate) InsertUnitBundle => [INSERT_UNIT_BUNDLE],
     @default = {
         spawn: Symbol = sym!(spawn),
     },

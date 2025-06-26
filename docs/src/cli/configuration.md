@@ -13,12 +13,12 @@ The CLI supports two targets:
 
 For both these targets a release and dev [`profile`] exists that will automatically be chosen by the CLI:
 
-| **Profile Name**         | **Configuration Section**                          |
-|--------------------------|----------------------------------------------------|
-| `release`                | `[package.metadata.bevy_cli.native.release]`       |
-| `dev`                    | `[package.metadata.bevy_cli.native.dev]`           |
-| `web-release`            | `[package.metadata.bevy_cli.web.release]`          |
-| `web`                    | `[package.metadata.bevy_cli.web.dev]`              |
+| **Profile Name** | **Configuration Section**                    |
+| ---------------- | -------------------------------------------- |
+| `release`        | `[package.metadata.bevy_cli.native.release]` |
+| `dev`            | `[package.metadata.bevy_cli.native.dev]`     |
+| `web-release`    | `[package.metadata.bevy_cli.web.release]`    |
+| `web`            | `[package.metadata.bevy_cli.web.dev]`        |
 
 > **Note**
 >
@@ -50,6 +50,7 @@ wasm-opt = true
 [package.metadata.bevy_cli.release]
 default-features = false
 ```
+
 When building for web in release mode, the final merged configuration will be:
 
 ```toml
@@ -69,4 +70,3 @@ default-features = true
 ```
 
 [`profile`]: https://doc.rust-lang.org/cargo/reference/profiles.html
-

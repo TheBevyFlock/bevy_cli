@@ -58,13 +58,13 @@ use rustc_span::symbol::Ident;
 use crate::{declare_bevy_lint, declare_bevy_lint_pass, utils::hir_parse::impls_trait};
 
 declare_bevy_lint! {
-    pub UNCONVENTIONAL_NAMING,
+    pub(crate) UNCONVENTIONAL_NAMING,
     super::Style,
     "unconventional type name for a `Plugin` or `SystemSet`",
 }
 
 declare_bevy_lint_pass! {
-    pub UnconventionalNaming => [UNCONVENTIONAL_NAMING],
+    pub(crate) UnconventionalNaming => [UNCONVENTIONAL_NAMING],
 }
 
 impl<'tcx> LateLintPass<'tcx> for UnconventionalNaming {

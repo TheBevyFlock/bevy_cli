@@ -1,10 +1,9 @@
 //! Provides functionalities to run a Bevy app targeting either native or web platforms.
 
+pub use self::args::RunArgs;
 #[cfg(feature = "web")]
 use crate::web::run::run_web;
 use crate::{bin_target::select_run_binary, config::CliConfig, external_cli::cargo};
-
-pub use self::args::RunArgs;
 
 pub mod args;
 
@@ -16,7 +15,7 @@ pub mod args;
 pub fn run(args: &mut RunArgs) -> anyhow::Result<()> {
     let metadata = cargo::metadata::metadata()?;
 
-    let bin_target = select_run_binary(
+    let mut bin_target = select_run_binary(
         &metadata,
         args.cargo_args.package_args.package.as_deref(),
         args.cargo_args.target_args.bin.as_deref(),
@@ -32,6 +31,13 @@ pub fn run(args: &mut RunArgs) -> anyhow::Result<()> {
         args.is_release(),
     )?;
     args.apply_config(&config);
+    // Update the artifact directory based on the config, e.g. in case the `target` changed
+    bin_target.update_artifact_directory(
+        &metadata.target_directory,
+        args.target().as_deref(),
+        args.profile(),
+        args.cargo_args.target_args.example.is_some(),
+    );
 
     #[cfg(feature = "web")]
     if args.is_web() {

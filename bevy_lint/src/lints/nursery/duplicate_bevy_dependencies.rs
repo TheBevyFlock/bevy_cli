@@ -62,7 +62,6 @@
 
 use std::{collections::BTreeMap, ops::Range, path::Path, sync::Arc};
 
-use crate::declare_bevy_lint;
 use cargo_metadata::{
     Metadata, Resolve,
     semver::{Prerelease, Version, VersionReq},
@@ -77,8 +76,10 @@ use rustc_span::{BytePos, Pos, SourceFile, Span, Symbol, SyntaxContext};
 use serde::Deserialize;
 use toml::Spanned;
 
+use crate::declare_bevy_lint;
+
 declare_bevy_lint! {
-    pub DUPLICATE_BEVY_DEPENDENCIES,
+    pub(crate) DUPLICATE_BEVY_DEPENDENCIES,
     super::Nursery,
     "multiple versions of the `bevy` crate found",
     @crate_level_only = true,
@@ -98,7 +99,7 @@ fn toml_span(range: Range<usize>, file: &SourceFile) -> Span {
     )
 }
 
-pub fn check(cx: &LateContext<'_>, metadata: &Metadata, bevy_symbol: Symbol) {
+pub(crate) fn check(cx: &LateContext<'_>, metadata: &Metadata, bevy_symbol: Symbol) {
     // no reason to continue the check if there is only one instance of `bevy` required
     if find_crates(cx.tcx, bevy_symbol).len() == 1 {
         return;
