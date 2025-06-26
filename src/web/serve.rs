@@ -1,4 +1,6 @@
 //! Serving the app locally for the browser.
+use std::net::SocketAddr;
+
 use axum::{
     Router,
     extract::{
@@ -10,7 +12,6 @@ use axum::{
     routing::{any, get, get_service},
 };
 use http::HeaderMap;
-use std::net::SocketAddr;
 use tower_http::{
     services::{ServeDir, ServeFile},
     trace::TraceLayer,

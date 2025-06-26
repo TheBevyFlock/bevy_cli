@@ -98,7 +98,6 @@
 
 use std::ops::ControlFlow;
 
-use crate::{declare_bevy_lint, declare_bevy_lint_pass};
 use clippy_utils::{
     diagnostics::span_lint_and_sugg,
     source::{snippet, snippet_opt},
@@ -109,6 +108,8 @@ use rustc_hir::{Body, FnDecl, MutTy, Mutability, intravisit::FnKind};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::{Interner, Ty, TyKind, TypeVisitable, TypeVisitor};
 use rustc_span::{Span, def_id::LocalDefId, symbol::kw};
+
+use crate::{declare_bevy_lint, declare_bevy_lint_pass};
 
 declare_bevy_lint! {
     pub(crate) BORROWED_REBORROWABLE,

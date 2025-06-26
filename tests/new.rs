@@ -1,5 +1,6 @@
-use assert_cmd::prelude::*;
 use std::{path::Path, process::Command};
+
+use assert_cmd::prelude::*;
 use tempfile::TempDir;
 
 fn temp_test_dir() -> anyhow::Result<TempDir> {

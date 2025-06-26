@@ -8,9 +8,8 @@ use std::{
 use anyhow::Context;
 use tracing::info;
 
-use crate::external_cli::cargo::install::is_installed;
-
 use super::{CommandExt, cargo::install::AutoInstall};
+use crate::external_cli::cargo::install::is_installed;
 
 /// The rustup command can be customized via the `BEVY_CLI_RUSTUP` env
 fn program() -> OsString {
