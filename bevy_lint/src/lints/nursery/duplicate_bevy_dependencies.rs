@@ -204,8 +204,8 @@ fn minimal_lint(
                 return node.id.repr.split('#').nth(1).map(|version| vec![version]);
             }
             // Extract versions from external crates
-            if let Some((id, _)) = node.id.repr.split_once('@') {
-                if bevy_dependents
+            if let Some((id, _)) = node.id.repr.split_once('@')
+                && bevy_dependents
                     .keys()
                     .any(|crate_name| id.ends_with(crate_name))
                 {
@@ -219,7 +219,6 @@ fn minimal_lint(
                             .collect(),
                     );
                 }
-            }
 
             None
         })

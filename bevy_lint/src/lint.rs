@@ -158,7 +158,6 @@ macro_rules! declare_bevy_lint_pass {
         $vis:vis $name:ident => [$($lint:expr),* $(,)?],
     ) => {
         $(#[$attr])*
-        #[derive(Default)]
         $vis struct $name;
 
         ::rustc_lint_defs::impl_lint_pass!($name => [$($lint),*]);

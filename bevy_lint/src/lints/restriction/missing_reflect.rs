@@ -218,7 +218,7 @@ impl TraitType {
         // the same crate.
         let trait_def_ids = trait_path
             .get(cx)
-            .into_iter()
+            .iter()
             .filter(|&def_id| cx.tcx.def_kind(def_id) == DefKind::Trait);
 
         // Find a map of all trait `impl` items within the current crate. The key is the `DefId` of

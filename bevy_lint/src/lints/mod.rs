@@ -50,5 +50,5 @@ pub(crate) fn register(store: &mut LintStore) {
 
     // The Cargo lint pass is not associated with a single lint group, so we register it
     // separately.
-    store.register_late_pass(|_| Box::new(cargo::Cargo::default()));
+    store.register_late_pass(|_| Box::new(cargo::Cargo));
 }

@@ -19,7 +19,7 @@ impl LintGroup for Style {
 
     fn register_passes(store: &mut LintStore) {
         store.register_late_pass(|_| {
-            Box::new(unconventional_naming::UnconventionalNaming::default())
+            Box::new(unconventional_naming::UnconventionalNaming)
         });
     }
 
