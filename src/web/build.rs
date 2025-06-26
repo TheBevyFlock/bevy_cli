@@ -1,19 +1,17 @@
-use crate::external_cli::wasm_opt;
 use anyhow::Context as _;
 use cargo_metadata::Metadata;
 use tracing::info;
 
+use super::bundle::WebBundle;
 use crate::{
     bin_target::BinTarget,
     build::args::{BuildArgs, BuildSubcommands},
-    external_cli::{cargo, wasm_bindgen},
+    external_cli::{cargo, wasm_bindgen, wasm_opt},
     web::{
         bundle::{PackedBundle, create_web_bundle},
         profiles::configure_default_web_profiles,
     },
 };
-
-use super::bundle::WebBundle;
 
 /// Build the Bevy app for use in the browser.
 ///

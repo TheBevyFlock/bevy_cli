@@ -1,5 +1,6 @@
 use clap::{ArgAction, Args, Subcommand};
 
+use super::cargo::build::{CargoBuildArgs, CargoPackageBuildArgs, CargoTargetBuildArgs};
 #[cfg(feature = "web")]
 use crate::build::args::{BuildSubcommands, BuildWebArgs};
 use crate::{
@@ -10,8 +11,6 @@ use crate::{
         cargo::{install::AutoInstall, run::CargoRunArgs},
     },
 };
-
-use super::cargo::build::{CargoBuildArgs, CargoPackageBuildArgs, CargoTargetBuildArgs};
 
 #[derive(Debug, Args, Clone)]
 pub struct RunArgs {

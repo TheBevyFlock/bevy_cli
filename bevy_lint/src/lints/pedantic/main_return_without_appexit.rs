@@ -33,7 +33,8 @@
 //! }
 //! ```
 
-use crate::{declare_bevy_lint, declare_bevy_lint_pass, utils::hir_parse::MethodCall};
+use std::ops::ControlFlow;
+
 use clippy_utils::{
     diagnostics::span_lint_hir_and_then, is_entrypoint_fn, is_expr_used_or_unified, sym,
     ty::match_type, visitors::for_each_expr,
@@ -42,7 +43,8 @@ use rustc_errors::Applicability;
 use rustc_hir::{Body, FnDecl, FnRetTy, Ty, TyKind, def_id::LocalDefId, intravisit::FnKind};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_span::{Span, Symbol};
-use std::ops::ControlFlow;
+
+use crate::{declare_bevy_lint, declare_bevy_lint_pass, utils::hir_parse::MethodCall};
 
 declare_bevy_lint! {
     pub(crate) MAIN_RETURN_WITHOUT_APPEXIT,

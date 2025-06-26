@@ -1,9 +1,10 @@
-use anyhow::{Context, anyhow, ensure};
 use std::{
     env,
     path::PathBuf,
     process::{Command, ExitCode},
 };
+
+use anyhow::{Context, anyhow, ensure};
 
 /// The Rustup toolchain channel specified by `rust-toolchain.toml`. This is set by `build.rs`.
 const RUST_TOOLCHAIN_CHANNEL: &str = env!("RUST_TOOLCHAIN_CHANNEL");

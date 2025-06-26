@@ -48,10 +48,6 @@
 //! # bevy::ecs::system::assert_is_system(graceful_world);
 //! ```
 
-use crate::{
-    declare_bevy_lint, declare_bevy_lint_pass,
-    utils::hir_parse::{MethodCall, generic_args_snippet, span_args},
-};
 use clippy_utils::{
     diagnostics::span_lint_and_help,
     source::{snippet, snippet_opt},
@@ -61,6 +57,11 @@ use rustc_hir::Expr;
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::Ty;
 use rustc_span::Symbol;
+
+use crate::{
+    declare_bevy_lint, declare_bevy_lint_pass,
+    utils::hir_parse::{MethodCall, generic_args_snippet, span_args},
+};
 
 declare_bevy_lint! {
     pub(crate) PANICKING_METHODS,

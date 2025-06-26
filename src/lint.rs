@@ -32,9 +32,10 @@ impl LintArgs {
 /// terminal. This will run [`find_bevy_lint()`] to locate `bevy_lint`.
 #[cfg(feature = "rustup")]
 pub fn lint(args: LintArgs) -> anyhow::Result<()> {
-    use crate::external_cli::Package;
     use anyhow::{Context, ensure};
     use toml_edit::DocumentMut;
+
+    use crate::external_cli::Package;
 
     const RUST_TOOLCHAIN: &str = include_str!("../rust-toolchain.toml");
     const BEVY_LINT_TAG: &str = "lint-v0.3.0";

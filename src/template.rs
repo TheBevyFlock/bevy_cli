@@ -1,10 +1,11 @@
 //! Utilities to create a new Bevy project with `cargo-generate`
 
+use std::path::PathBuf;
+
 use cargo_generate::{GenerateArgs, TemplatePath};
 use regex::Regex;
 use reqwest::blocking::Client;
 use serde::Deserialize;
-use std::path::PathBuf;
 
 /// An abbreviated version of the full [GitHub API response](https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#list-organization-repositories).
 ///
