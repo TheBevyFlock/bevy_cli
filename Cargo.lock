@@ -812,7 +812,7 @@ version = "0.4.0-dev"
 dependencies = [
  "anyhow",
  "bevy",
- "cargo_metadata 0.19.2",
+ "cargo_metadata 0.20.0",
  "clippy_utils",
  "serde",
  "serde_json",
@@ -1437,20 +1437,6 @@ dependencies = [
  "serde",
  "serde_json",
  "thiserror 1.0.69",
-]
-
-[[package]]
-name = "cargo_metadata"
-version = "0.19.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dd5eb614ed4c27c5d706420e4320fbe3216ab31fa1c33cd8246ac36dae4479ba"
-dependencies = [
- "camino",
- "cargo-platform 0.1.9",
- "semver",
- "serde",
- "serde_json",
- "thiserror 2.0.12",
 ]
 
 [[package]]
