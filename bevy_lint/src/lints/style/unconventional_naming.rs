@@ -123,6 +123,7 @@ impl<'tcx> LateLintPass<'tcx> for UnconventionalNaming {
                 def_id: struct_local_def_id,
             }
             .into();
+
             span_lint_hir_and_then(
                 cx,
                 UNCONVENTIONAL_NAMING,
@@ -130,14 +131,11 @@ impl<'tcx> LateLintPass<'tcx> for UnconventionalNaming {
                 struct_span,
                 conventional_name_impl.lint_description(),
                 |diag| {
-                    diag.span_note(
-                        struct_span,
-                        format!(
-                            "structures that implement `{}` should end in `{}`",
-                            conventional_name_impl.name(),
-                            conventional_name_impl.suffix()
-                        ),
-                    );
+                    diag.note(format!(
+                        "structures that implement `{}` should end in \"{}\"",
+                        conventional_name_impl.name(),
+                        conventional_name_impl.suffix()
+                    ));
 
                     diag.span_suggestion(
                         struct_span,
@@ -235,7 +233,7 @@ impl TraitConvention {
 
                 // If none of the special cases are matched, simply append the suffix.
                 format!("{struct_name}{}", self.suffix())
-            },
+            }
         }
     }
 }

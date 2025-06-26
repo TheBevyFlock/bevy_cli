@@ -4,11 +4,7 @@ error: unconventional type name for a `Plugin`
 9  | struct Foo;
    |        ^^^ help: rename `Foo`: `FooPlugin`
    |
-note: structures that implement `Plugin` should end in `Plugin`
-  --> tests/ui/unconventional_naming/plugin.rs:9:8
-   |
-9  | struct Foo;
-   |        ^^^
+   = note: structures that implement `Plugin` should end in "Plugin"
 note: `Plugin` implemented here
   --> tests/ui/unconventional_naming/plugin.rs:15:1
    |
@@ -28,11 +24,7 @@ error: unconventional type name for a `Plugin`
 38 | struct PluginFoo;
    |        ^^^^^^^^^ help: rename `PluginFoo`: `FooPlugin`
    |
-note: structures that implement `Plugin` should end in `Plugin`
-  --> tests/ui/unconventional_naming/plugin.rs:38:8
-   |
-38 | struct PluginFoo;
-   |        ^^^^^^^^^
+   = note: structures that implement `Plugin` should end in "Plugin"
 note: `Plugin` implemented here
   --> tests/ui/unconventional_naming/plugin.rs:44:1
    |
@@ -47,11 +39,7 @@ error: unconventional type name for a `Plugin`
 48 | struct FooPlugins;
    |        ^^^^^^^^^^ help: rename `FooPlugins`: `FooPlugin`
    |
-note: structures that implement `Plugin` should end in `Plugin`
-  --> tests/ui/unconventional_naming/plugin.rs:48:8
-   |
-48 | struct FooPlugins;
-   |        ^^^^^^^^^^
+   = note: structures that implement `Plugin` should end in "Plugin"
 note: `Plugin` implemented here
   --> tests/ui/unconventional_naming/plugin.rs:54:1
    |

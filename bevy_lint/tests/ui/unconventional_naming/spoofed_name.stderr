@@ -4,11 +4,7 @@ error: unconventional type name for a `Plugin`
 13 |         pub struct Foo;
    |                    ^^^ help: rename `Foo`: `FooPlugin`
    |
-note: structures that implement `Plugin` should end in `Plugin`
-  --> tests/ui/unconventional_naming/spoofed_name.rs:13:20
-   |
-13 |         pub struct Foo;
-   |                    ^^^
+   = note: structures that implement `Plugin` should end in "Plugin"
 note: `Plugin` implemented here
   --> tests/ui/unconventional_naming/spoofed_name.rs:24:1
    |
