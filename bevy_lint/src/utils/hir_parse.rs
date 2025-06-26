@@ -238,7 +238,7 @@ impl<'tcx> MethodCall<'tcx> {
                 // ```
                 if let Res::Def(DefKind::AssocFn, def_id) = cx.qpath_res(qpath, path.hir_id) {
                     // Retrieve the identifiers for all the arguments to this function.
-                    let inputs = cx.tcx.fn_arg_names(def_id);
+                    let inputs = cx.tcx.fn_arg_idents(def_id);
 
                     // If the name of the first argument is `self`, then it *must* be a method.
                     // `self` is a reserved keyword, and cannot be used as a general function
