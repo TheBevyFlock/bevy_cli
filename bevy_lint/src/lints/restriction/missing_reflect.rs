@@ -54,7 +54,6 @@
 //! For more information, please see [Toggling Lints in
 //! Code](../../index.html#toggling-lints-in-code).
 
-use crate::{declare_bevy_lint, declare_bevy_lint_pass};
 use clippy_utils::{
     diagnostics::span_lint_hir_and_then,
     paths::PathLookup,
@@ -66,6 +65,8 @@ use rustc_hir::{HirId, Item, ItemKind, Node, OwnerId, QPath, TyKind, def::DefKin
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::span_bug;
 use rustc_span::Span;
+
+use crate::{declare_bevy_lint, declare_bevy_lint_pass};
 
 declare_bevy_lint! {
     pub(crate) MISSING_REFLECT,

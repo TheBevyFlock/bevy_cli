@@ -50,10 +50,6 @@
 //! # assert_eq!(std::mem::size_of::<Player>(), 0);
 //! ```
 
-use crate::{
-    declare_bevy_lint, declare_bevy_lint_pass,
-    utils::hir_parse::{detuple, generic_type_at},
-};
 use clippy_utils::{diagnostics::span_lint_and_help, ty::ty_from_hir_ty};
 use rustc_abi::Size;
 use rustc_hir::AmbigArg;
@@ -61,6 +57,11 @@ use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::{
     Ty,
     layout::{LayoutOf, TyAndLayout},
+};
+
+use crate::{
+    declare_bevy_lint, declare_bevy_lint_pass,
+    utils::hir_parse::{detuple, generic_type_at},
 };
 
 declare_bevy_lint! {

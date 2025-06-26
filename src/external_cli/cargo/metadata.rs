@@ -1,11 +1,11 @@
 use std::{ffi::OsStr, str::from_utf8};
 
-use crate::external_cli::CommandExt;
 use anyhow::Context;
 use cargo_metadata::{Metadata, MetadataCommand};
 use tracing::Level;
 
 use super::install::AutoInstall;
+use crate::external_cli::CommandExt;
 
 /// Create a command to run `cargo metadata`.
 pub(crate) fn command() -> CommandExt {

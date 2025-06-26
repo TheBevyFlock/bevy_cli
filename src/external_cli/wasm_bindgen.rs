@@ -1,9 +1,8 @@
 use cargo_metadata::Metadata;
 use semver::{Comparator, Version, VersionReq};
 
-use crate::bin_target::BinTarget;
-
 use super::{CommandExt, Package, arg_builder::ArgBuilder, cargo::install::AutoInstall};
+use crate::bin_target::BinTarget;
 
 pub(crate) const PACKAGE: &str = "wasm-bindgen-cli";
 pub(crate) const PROGRAM: &str = "wasm-bindgen";

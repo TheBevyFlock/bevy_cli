@@ -39,10 +39,8 @@
 //! }
 //! ```
 
-use crate::{
-    declare_bevy_lint, declare_bevy_lint_pass, sym,
-    utils::hir_parse::{MethodCall, generic_args_snippet, span_args},
-};
+use std::borrow::Cow;
+
 use clippy_utils::{
     diagnostics::span_lint_and_sugg,
     source::{snippet, snippet_with_applicability},
@@ -52,7 +50,11 @@ use rustc_errors::Applicability;
 use rustc_hir::{Expr, GenericArg, GenericArgs, Path, PathSegment, QPath};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::{Ty, TyKind};
-use std::borrow::Cow;
+
+use crate::{
+    declare_bevy_lint, declare_bevy_lint_pass, sym,
+    utils::hir_parse::{MethodCall, generic_args_snippet, span_args},
+};
 
 declare_bevy_lint! {
     pub(crate) INSERT_EVENT_RESOURCE,

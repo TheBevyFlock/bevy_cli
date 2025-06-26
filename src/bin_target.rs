@@ -223,8 +223,9 @@ fn get_artifact_directory(
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use std::path::Path;
+
+    use super::*;
 
     #[test]
     fn test_artifact_directory_dev_native() {

@@ -62,7 +62,6 @@
 
 use std::{collections::BTreeMap, ops::Range, path::Path, sync::Arc};
 
-use crate::{declare_bevy_lint, sym};
 use cargo_metadata::{
     Metadata, Resolve,
     semver::{Prerelease, Version, VersionReq},
@@ -76,6 +75,8 @@ use rustc_lint::LateContext;
 use rustc_span::{BytePos, Pos, SourceFile, Span, SyntaxContext};
 use serde::Deserialize;
 use toml::Spanned;
+
+use crate::{declare_bevy_lint, sym};
 
 declare_bevy_lint! {
     pub(crate) DUPLICATE_BEVY_DEPENDENCIES,

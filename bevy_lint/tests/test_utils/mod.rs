@@ -1,10 +1,11 @@
-use serde::Deserialize;
 use std::{
     env::{self},
     ffi::OsStr,
     path::{Path, PathBuf},
     process::{Command, Stdio},
 };
+
+use serde::Deserialize;
 use ui_test::{
     CommandBuilder, Config,
     color_eyre::{self, eyre::ensure},
