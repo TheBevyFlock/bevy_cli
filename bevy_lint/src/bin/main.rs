@@ -28,7 +28,15 @@ fn main() -> anyhow::Result<ExitCode> {
     let mut cargo = match custom_sysroot {
         // When there's a custom sysroot, run `$SYSROOT/bin/cargo`.
         Some(sysroot) => {
-            let mut c = Command::new(sysroot.join("bin/cargo"));
+            let cargo = sysroot.join("bin/cargo");
+
+            ensure!(
+                cargo.exists(),
+                "path to sysroot cargo executable, {}, does not exist",
+                cargo.display(),
+            );
+
+            let mut c = Command::new(cargo);
 
             let path_name = match env::consts::OS {
                 "windows" => "PATH",
