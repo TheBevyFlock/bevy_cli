@@ -25,12 +25,8 @@ impl LintGroup for Suspicious {
     ];
 
     fn register_passes(store: &mut LintStore) {
-        store.register_late_pass(|_| {
-            Box::new(insert_event_resource::InsertEventResource)
-        });
+        store.register_late_pass(|_| Box::new(insert_event_resource::InsertEventResource));
         store.register_late_pass(|_| Box::new(insert_unit_bundle::InsertUnitBundle));
-        store.register_late_pass(|_| {
-            Box::new(iter_current_update_events::IterCurrentUpdateEvents)
-        });
+        store.register_late_pass(|_| Box::new(iter_current_update_events::IterCurrentUpdateEvents));
     }
 }

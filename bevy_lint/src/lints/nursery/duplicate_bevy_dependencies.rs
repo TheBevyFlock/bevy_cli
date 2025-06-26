@@ -208,17 +208,15 @@ fn minimal_lint(
                 && bevy_dependents
                     .keys()
                     .any(|crate_name| id.ends_with(crate_name))
-                {
-                    return Some(
-                        node.dependencies
-                            .iter()
-                            .filter_map(|dep| dep.repr.split_once('@'))
-                            .filter_map(|(name, version)| {
-                                (name.contains("bevy")).then_some(version)
-                            })
-                            .collect(),
-                    );
-                }
+            {
+                return Some(
+                    node.dependencies
+                        .iter()
+                        .filter_map(|dep| dep.repr.split_once('@'))
+                        .filter_map(|(name, version)| (name.contains("bevy")).then_some(version))
+                        .collect(),
+                );
+            }
 
             None
         })

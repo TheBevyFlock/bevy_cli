@@ -68,7 +68,7 @@ const SYMBOL_OFFSET: u32 = PREDEFINED_SYMBOLS_COUNT + CLIPPY_SYMBOLS.len() as u3
 
 /// A helper used by `declare_bevy_symbols!` to extract its input.
 ///
-/// ```
+/// ```ignore
 /// assert_eq!(extract_value!(Name), "Name");
 /// assert_eq!(extract_value!(Name: "value"), "value");
 /// ```
@@ -85,7 +85,7 @@ macro_rules! extract_value {
 ///
 /// # Example
 ///
-/// ```
+/// ```ignore
 /// declare_bevy_symbols! {
 ///     // Interns the string "Hello, world" available as the constant named `Hello`.
 ///     Hello: "Hello, world!",

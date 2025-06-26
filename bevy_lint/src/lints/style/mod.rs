@@ -18,9 +18,7 @@ impl LintGroup for Style {
     const LINTS: &[&Lint] = &[unconventional_naming::UNCONVENTIONAL_NAMING];
 
     fn register_passes(store: &mut LintStore) {
-        store.register_late_pass(|_| {
-            Box::new(unconventional_naming::UnconventionalNaming)
-        });
+        store.register_late_pass(|_| Box::new(unconventional_naming::UnconventionalNaming));
     }
 
     fn register_lints(store: &mut LintStore) {
