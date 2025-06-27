@@ -69,7 +69,6 @@
 //!
 //! For more information, check out the
 //! [physics in fixed timestep example](https://bevy.org/examples/movement/physics-in-fixed-timestep/).
-//! ```
 
 use clippy_utils::{diagnostics::span_lint_and_help, sym, ty::match_type};
 use rustc_hir::{ExprKind, QPath, def::Res};
