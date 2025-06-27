@@ -60,7 +60,7 @@ fn main() {
                 .then(|| ui_test::default_any_file_filter(path, config))
         },
         |_config, _file_contents| {},
-        status_emitter::Text::from(ui_test::Format::Pretty),
+        status_emitter::Text::verbose(),
     )
     .unwrap();
 }
