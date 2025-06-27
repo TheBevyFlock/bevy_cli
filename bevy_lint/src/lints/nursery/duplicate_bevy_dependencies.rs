@@ -1,65 +1,3 @@
-//! Checks for multiple versions of the `bevy` crate in your project's dependencies.
-//!
-//! This lint will prevent you from accidentally using multiple versions of the Bevy game engine at
-//! the same time by scanning your dependency tree for the `bevy` crate. If your project or its
-//! dependencies use different versions of `bevy`, this lint will emit a warning.
-//!
-//! You may also be interested in [`cargo-deny`], which can detect duplicate dependencies as well,
-//! and is far more powerful and configurable.
-//!
-//! [`cargo-deny`]: https://github.com/EmbarkStudios/cargo-deny
-//!
-//! # Motivation
-//!
-//! Cargo allows there to be multiple major versions of a crate in your project's dependency
-//! tree[^semver-compatibility]. Although the crates and their types are _named_ the same, they are
-//! treated as distinct by the compiler. This can lead to confusing error messages that only appear
-//! if you try to mix the types from the two versions of the crate.
-//!
-//! With Bevy, these errors become particularly easy to encounter when you add a plugin that pulls
-//! in a different version of the Bevy engine. (This isn't immediately obvious, however, unless you
-//! look at `Cargo.lock` or the plugin's engine compatibility table.)
-//!
-//! [^semver-compatibility]: The rules for dependency unification and duplication are specified
-//!     [here](https://doc.rust-lang.org/cargo/reference/resolver.html#semver-compatibility).
-//!
-//! # Known Issues
-//!
-//! This lint only works if a specific version of `bevy` is declared. If a version range is
-//! specified, this lint will be skipped. For example:
-//!
-//! ```toml
-//! [dependencies]
-//! # This will not be linted, since it is a version range.
-//! bevy = ">=0.15"
-//! ```
-//!
-//! # Example
-//!
-//! ```toml
-//! [package]
-//! name = "foo"
-//! edition = "2024"
-//!
-//! [dependencies]
-//! bevy = "0.15"
-//! # This depends on Bevy 0.14, not 0.15! This will cause duplicate versions of the engine.
-//! leafwing-input-manager = "0.15"
-//! ```
-//!
-//! Use instead:
-//!
-//! ```toml
-//! [package]
-//! name = "foo"
-//! edition = "2024"
-//!
-//! [dependencies]
-//! bevy = "0.15"
-//! # Update to a newer version of the plugin, which supports Bevy 0.15.
-//! leafwing-input-manager = "0.16"
-//! ```
-
 use std::{collections::BTreeMap, ops::Range, path::Path, sync::Arc};
 
 use cargo_metadata::{
@@ -79,6 +17,67 @@ use toml::Spanned;
 use crate::declare_bevy_lint;
 
 declare_bevy_lint! {
+/// Checks for multiple versions of the `bevy` crate in your project's dependencies.
+///
+/// This lint will prevent you from accidentally using multiple versions of the Bevy game engine at
+/// the same time by scanning your dependency tree for the `bevy` crate. If your project or its
+/// dependencies use different versions of `bevy`, this lint will emit a warning.
+///
+/// You may also be interested in [`cargo-deny`], which can detect duplicate dependencies as well,
+/// and is far more powerful and configurable.
+///
+/// [`cargo-deny`]: https://github.com/EmbarkStudios/cargo-deny
+///
+/// # Motivation
+///
+/// Cargo allows there to be multiple major versions of a crate in your project's dependency
+/// tree[^semver-compatibility]. Although the crates and their types are _named_ the same, they are
+/// treated as distinct by the compiler. This can lead to confusing error messages that only appear
+/// if you try to mix the types from the two versions of the crate.
+///
+/// With Bevy, these errors become particularly easy to encounter when you add a plugin that pulls
+/// in a different version of the Bevy engine. (This isn't immediately obvious, however, unless you
+/// look at `Cargo.lock` or the plugin's engine compatibility table.)
+///
+/// [^semver-compatibility]: The rules for dependency unification and duplication are specified
+///     [here](https://doc.rust-lang.org/cargo/reference/resolver.html#semver-compatibility).
+///
+/// # Known Issues
+///
+/// This lint only works if a specific version of `bevy` is declared. If a version range is
+/// specified, this lint will be skipped. For example:
+///
+/// ```toml
+/// [dependencies]
+/// # This will not be linted, since it is a version range.
+/// bevy = ">=0.15"
+/// ```
+///
+/// # Example
+///
+/// ```toml
+/// [package]
+/// name = "foo"
+/// edition = "2024"
+///
+/// [dependencies]
+/// bevy = "0.15"
+/// # This depends on Bevy 0.14, not 0.15! This will cause duplicate versions of the engine.
+/// leafwing-input-manager = "0.15"
+/// ```
+///
+/// Use instead:
+///
+/// ```toml
+/// [package]
+/// name = "foo"
+/// edition = "2024"
+///
+/// [dependencies]
+/// bevy = "0.15"
+/// # Update to a newer version of the plugin, which supports Bevy 0.15.
+/// leafwing-input-manager = "0.16"
+/// ```
     pub DUPLICATE_BEVY_DEPENDENCIES,
     super::Nursery,
     "multiple versions of the `bevy` crate found",

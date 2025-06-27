@@ -1,55 +1,3 @@
-//! Checks for queries that query the data for a zero-sized type.
-//!
-//! # Motivation
-//!
-//! Zero-sized types (ZSTs) are types that have no size because they contain no runtime data. Any
-//! information they may hold is known at compile-time in the form of [constant generics], which do
-//! not need to be queried. As such, ZSTs are better used as query filters instead of query data.
-//!
-//! [constant generics]: https://doc.rust-lang.org/reference/items/generics.html#const-generics
-//!
-//! # Known Issues
-//!
-//! This lint raises false positives on queries like `Has<T>` and `AnyOf<T>` because they are ZSTs,
-//! even though they still retrieve data from the ECS. Please see [#279] for more information.
-//!
-//! [#279]: https://github.com/TheBevyFlock/bevy_cli/issues/279
-//!
-//! # Example
-//!
-//! ```
-//! # use bevy::prelude::*;
-//! #
-//! // This is a zero-sized type, sometimes known as a "marker component".
-//! #[derive(Component)]
-//! struct Player;
-//!
-//! fn move_player(mut query: Query<(&mut Transform, &Player)>) {
-//!     for (transform, _) in query.iter_mut() {
-//!         // ...
-//!     }
-//! }
-//! #
-//! # assert_eq!(std::mem::size_of::<Player>(), 0);
-//! ```
-//!
-//! Use instead:
-//!
-//! ```
-//! # use bevy::prelude::*;
-//! #
-//! #[derive(Component)]
-//! struct Player;
-//!
-//! fn move_player(mut query: Query<&mut Transform, With<Player>>) {
-//!     for transform in query.iter_mut() {
-//!         // ...
-//!     }
-//! }
-//! #
-//! # assert_eq!(std::mem::size_of::<Player>(), 0);
-//! ```
-
 use clippy_utils::{
     diagnostics::span_lint_and_help,
     ty::{is_normalizable, match_type, ty_from_hir_ty},
@@ -68,6 +16,57 @@ use crate::{
 };
 
 declare_bevy_lint! {
+/// Checks for queries that query the data for a zero-sized type.
+///
+/// # Motivation
+///
+/// Zero-sized types (ZSTs) are types that have no size because they contain no runtime data. Any
+/// information they may hold is known at compile-time in the form of [constant generics], which do
+/// not need to be queried. As such, ZSTs are better used as query filters instead of query data.
+///
+/// [constant generics]: https://doc.rust-lang.org/reference/items/generics.html#const-generics
+///
+/// # Known Issues
+///
+/// This lint raises false positives on queries like `Has<T>` and `AnyOf<T>` because they are ZSTs,
+/// even though they still retrieve data from the ECS. Please see [#279] for more information.
+///
+/// [#279]: https://github.com/TheBevyFlock/bevy_cli/issues/279
+///
+/// # Example
+///
+/// ```
+/// # use bevy::prelude::*;
+/// #
+/// // This is a zero-sized type, sometimes known as a "marker component".
+/// #[derive(Component)]
+/// struct Player;
+///
+/// fn move_player(mut query: Query<(&mut Transform, &Player)>) {
+///     for (transform, _) in query.iter_mut() {
+///         // ...
+///     }
+/// }
+/// #
+/// # assert_eq!(std::mem::size_of::<Player>(), 0);
+/// ```
+///
+/// Use instead:
+///
+/// ```
+/// # use bevy::prelude::*;
+/// #
+/// #[derive(Component)]
+/// struct Player;
+///
+/// fn move_player(mut query: Query<&mut Transform, With<Player>>) {
+///     for transform in query.iter_mut() {
+///         // ...
+///     }
+/// }
+/// #
+/// # assert_eq!(std::mem::size_of::<Player>(), 0);
+/// ```
     pub ZST_QUERY,
     // This will eventually be a `RESTRICTION` lint, but due to
     // <https://github.com/TheBevyFlock/bevy_cli/issues/279> it is not yet ready for production.

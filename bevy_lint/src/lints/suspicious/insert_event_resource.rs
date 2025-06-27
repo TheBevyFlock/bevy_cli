@@ -1,44 +1,3 @@
-//! Checks for the `Events<T>` resource being manually inserted with `App::init_resource()` or
-//! `App::insert_resource()` instead of with `App::add_event()`.
-//!
-//! # Motivation
-//!
-//! Unless you have intentionally and knowingly initialized the `Events<T>` resource in this way,
-//! events and their resources should be initialized with `App::add_event()` because it
-//! automatically handles dropping old events. Just adding `Events<T>` makes no such guarantee, and
-//! will likely result in a memory leak.
-//!
-//! For more information, please see the documentation on [`App::add_event()`] and [`Events<T>`].
-//!
-//! [`Events<T>`]: https://dev-docs.bevyengine.org/bevy/ecs/event/struct.Events.html
-//! [`App::add_event()`]: https://docs.rs/bevy/latest/bevy/app/struct.App.html#method.add_event
-//!
-//! # Example
-//!
-//! ```
-//! # use bevy::prelude::*;
-//! #
-//! #[derive(Event)]
-//! struct MyEvent;
-//!
-//! fn plugin(app: &mut App) {
-//!     app.init_resource::<Events<MyEvent>>();
-//! }
-//! ```
-//!
-//! Use instead:
-//!
-//! ```
-//! # use bevy::prelude::*;
-//! #
-//! #[derive(Event)]
-//! struct MyEvent;
-//!
-//! fn plugin(app: &mut App) {
-//!     app.add_event::<MyEvent>();
-//! }
-//! ```
-
 use std::borrow::Cow;
 
 use clippy_utils::{
@@ -59,6 +18,46 @@ use crate::{
 };
 
 declare_bevy_lint! {
+/// Checks for the `Events<T>` resource being manually inserted with `App::init_resource()` or
+/// `App::insert_resource()` instead of with `App::add_event()`.
+///
+/// # Motivation
+///
+/// Unless you have intentionally and knowingly initialized the `Events<T>` resource in this way,
+/// events and their resources should be initialized with `App::add_event()` because it
+/// automatically handles dropping old events. Just adding `Events<T>` makes no such guarantee, and
+/// will likely result in a memory leak.
+///
+/// For more information, please see the documentation on [`App::add_event()`] and [`Events<T>`].
+///
+/// [`Events<T>`]: https://dev-docs.bevyengine.org/bevy/ecs/event/struct.Events.html
+/// [`App::add_event()`]: https://docs.rs/bevy/latest/bevy/app/struct.App.html#method.add_event
+///
+/// # Example
+///
+/// ```
+/// # use bevy::prelude::*;
+/// #
+/// #[derive(Event)]
+/// struct MyEvent;
+///
+/// fn plugin(app: &mut App) {
+///     app.init_resource::<Events<MyEvent>>();
+/// }
+/// ```
+///
+/// Use instead:
+///
+/// ```
+/// # use bevy::prelude::*;
+/// #
+/// #[derive(Event)]
+/// struct MyEvent;
+///
+/// fn plugin(app: &mut App) {
+///     app.add_event::<MyEvent>();
+/// }
+/// ```
     pub INSERT_EVENT_RESOURCE,
     super::Suspicious,
     "called `App::insert_resource(Events<T>)` or `App::init_resource::<Events<T>>()` instead of `App::add_event::<T>()`",

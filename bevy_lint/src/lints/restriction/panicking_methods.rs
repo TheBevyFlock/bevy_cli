@@ -1,53 +1,3 @@
-//! Checks for use of panicking methods of `World` when a non-panicking
-//! alternative exists.
-//!
-//! For instance, this will lint against `World::entity()`, recommending that `World::get_entity()`
-//! should be used instead.
-//!
-//! # Motivation
-//!
-//! Panicking is the nuclear option of error handling in Rust: it is meant for cases where recovery
-//! is near-impossible. As such, panicking is usually undesirable in long-running applications
-//! and games like what Bevy is used for. This lint aims to prevent unwanted crashes in these
-//! applications by forcing developers to handle the `Option` or `Result` in their code.
-//!
-//! # Example
-//!
-//! ```
-//! # use bevy::prelude::*;
-//! #
-//! #[derive(Resource)]
-//! struct MyResource;
-//!
-//! fn panicking_world(world: &mut World) {
-//!     let resource = world.resource::<MyResource>();
-//!     // ...
-//! }
-//! #
-//! # bevy::ecs::system::assert_is_system(panicking_world);
-//! ```
-//!
-//! Use instead:
-//!
-//! ```
-//! # use bevy::prelude::*;
-//! #
-//!
-//! #[derive(Resource)]
-//! struct MyResource;
-//!
-//! fn graceful_world(world: &mut World) {
-//!     let Some(resource) = world.get_resource::<MyResource>() else {
-//!         // Resource may not exist.
-//!         return;
-//!     };
-//!
-//!     // ...
-//! }
-//! #
-//! # bevy::ecs::system::assert_is_system(graceful_world);
-//! ```
-
 use clippy_utils::{
     diagnostics::span_lint_and_help,
     source::{snippet, snippet_opt},
@@ -64,6 +14,55 @@ use crate::{
 };
 
 declare_bevy_lint! {
+/// Checks for use of panicking methods of `World` when a non-panicking
+/// alternative exists.
+///
+/// For instance, this will lint against `World::entity()`, recommending that `World::get_entity()`
+/// should be used instead.
+///
+/// # Motivation
+///
+/// Panicking is the nuclear option of error handling in Rust: it is meant for cases where recovery
+/// is near-impossible. As such, panicking is usually undesirable in long-running applications
+/// and games like what Bevy is used for. This lint aims to prevent unwanted crashes in these
+/// applications by forcing developers to handle the `Option` or `Result` in their code.
+///
+/// # Example
+///
+/// ```
+/// # use bevy::prelude::*;
+/// #
+/// #[derive(Resource)]
+/// struct MyResource;
+///
+/// fn panicking_world(world: &mut World) {
+///     let resource = world.resource::<MyResource>();
+///     // ...
+/// }
+/// #
+/// # bevy::ecs::system::assert_is_system(panicking_world);
+/// ```
+///
+/// Use instead:
+///
+/// ```
+/// # use bevy::prelude::*;
+/// #
+///
+/// #[derive(Resource)]
+/// struct MyResource;
+///
+/// fn graceful_world(world: &mut World) {
+///     let Some(resource) = world.get_resource::<MyResource>() else {
+///         // Resource may not exist.
+///         return;
+///     };
+///
+///     // ...
+/// }
+/// #
+/// # bevy::ecs::system::assert_is_system(graceful_world);
+/// ```
     pub PANICKING_METHODS,
     super::Restriction,
     "called a method that can panic when a non-panicking alternative exists",

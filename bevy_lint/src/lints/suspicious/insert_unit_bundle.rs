@@ -1,55 +1,3 @@
-//! Checks for calls to `Commands::spawn()` that inserts unit [`()`](unit) as a component.
-//!
-//! # Motivation
-//!
-//! It is possible to use `Commands::spawn()` to spawn an entity with a unit `()` component, since
-//! unit implements `Bundle`. Unit is not a `Component`, however, and will be ignored instead of
-//! added to the entity. Often, inserting a unit is unintentional and is a sign that the author
-//! intended to do something else.
-//!
-//! # Example
-//!
-//! ```
-//! # use bevy::prelude::*;
-//! # use std::f32::consts::PI;
-//! #
-//! fn spawn(mut commands: Commands) {
-//!     commands.spawn(());
-//!
-//!     commands.spawn((
-//!         Name::new("Decal"),
-//!         // This is likely a mistake! `Transform::rotate_z()` returns a unit `()`, not a
-//!         // `Transform`! As such, no `Transform` will be inserted into the entity.
-//!         Transform::from_translation(Vec3::new(0.75, 0.0, 0.0))
-//!             .rotate_z(PI / 4.0),
-//!     ));
-//! }
-//! #
-//! # bevy::ecs::system::assert_is_system(spawn);
-//! ```
-//!
-//! Use instead:
-//!
-//! ```
-//! # use bevy::prelude::*;
-//! # use std::f32::consts::PI;
-//! #
-//! fn spawn(mut commands: Commands) {
-//!     // `Commands::spawn_empty()` is preferred if you do not need any components.
-//!     commands.spawn_empty();
-//!
-//!     commands.spawn((
-//!         Name::new("Decal"),
-//!         // `Transform::with_rotation()` returns a `Transform`, which was likely the intended
-//!         // behavior.
-//!         Transform::from_translation(Vec3::new(0.75, 0.0, 0.0))
-//!             .with_rotation(Quat::from_rotation_z(PI / 4.0)),
-//!     ));
-//! }
-//! #
-//! # bevy::ecs::system::assert_is_system(spawn);
-//! ```
-
 use clippy_utils::{diagnostics::span_lint_hir_and_then, sym, ty::match_type};
 use rustc_errors::Applicability;
 use rustc_hir::{Expr, ExprKind};
@@ -60,6 +8,57 @@ use rustc_span::Symbol;
 use crate::{declare_bevy_lint, declare_bevy_lint_pass, utils::hir_parse::MethodCall};
 
 declare_bevy_lint! {
+/// Checks for calls to `Commands::spawn()` that inserts unit [`()`](unit) as a component.
+///
+/// # Motivation
+///
+/// It is possible to use `Commands::spawn()` to spawn an entity with a unit `()` component, since
+/// unit implements `Bundle`. Unit is not a `Component`, however, and will be ignored instead of
+/// added to the entity. Often, inserting a unit is unintentional and is a sign that the author
+/// intended to do something else.
+///
+/// # Example
+///
+/// ```
+/// # use bevy::prelude::*;
+/// # use std::f32::consts::PI;
+/// #
+/// fn spawn(mut commands: Commands) {
+///     commands.spawn(());
+///
+///     commands.spawn((
+///         Name::new("Decal"),
+///         // This is likely a mistake! `Transform::rotate_z()` returns a unit `()`, not a
+///         // `Transform`! As such, no `Transform` will be inserted into the entity.
+///         Transform::from_translation(Vec3::new(0.75, 0.0, 0.0))
+///             .rotate_z(PI / 4.0),
+///     ));
+/// }
+/// #
+/// # bevy::ecs::system::assert_is_system(spawn);
+/// ```
+///
+/// Use instead:
+///
+/// ```
+/// # use bevy::prelude::*;
+/// # use std::f32::consts::PI;
+/// #
+/// fn spawn(mut commands: Commands) {
+///     // `Commands::spawn_empty()` is preferred if you do not need any components.
+///     commands.spawn_empty();
+///
+///     commands.spawn((
+///         Name::new("Decal"),
+///         // `Transform::with_rotation()` returns a `Transform`, which was likely the intended
+///         // behavior.
+///         Transform::from_translation(Vec3::new(0.75, 0.0, 0.0))
+///             .with_rotation(Quat::from_rotation_z(PI / 4.0)),
+///     ));
+/// }
+/// #
+/// # bevy::ecs::system::assert_is_system(spawn);
+/// ```
     pub INSERT_UNIT_BUNDLE,
     super::Suspicious,
     "inserted a `Bundle` containing a unit `()` type",

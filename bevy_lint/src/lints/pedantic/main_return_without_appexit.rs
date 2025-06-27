@@ -1,38 +1,3 @@
-//! Checks for `fn main()` entrypoints that call `App::run()` but do not return `AppExit`.
-//!
-//! This lint will not be emitted if `fn main()` returns a non-[`unit`] type, even if that type is
-//! not `AppExit`.
-//!
-//! # Motivation
-//!
-//! `AppExit` is used to determine whether the `App` exited successfully or due to an error.
-//! Returning it from `main()` will set the [exit code], which can be read by external processes.
-//! Not returning any `AppExit` may cause external processes to believe the program gracefully
-//! exited, when in reality it may have crashed.
-//!
-//! [exit code]: https://en.wikipedia.org/wiki/Exit_status
-//!
-//! # Example
-//!
-//! ```
-//! # use bevy::prelude::*;
-//! #
-//! fn main() {
-//!     App::new().run();
-//! }
-//! ```
-//!
-//! Use instead:
-//!
-//! ```
-//! # use bevy::prelude::*;
-//! #
-//! fn main() -> AppExit {
-//!     // Note the removed semicolon, since `App::run()` returns `AppExit`.
-//!     App::new().run()
-//! }
-//! ```
-
 use std::ops::ControlFlow;
 
 use clippy_utils::{
@@ -47,6 +12,40 @@ use rustc_span::{Span, Symbol};
 use crate::{declare_bevy_lint, declare_bevy_lint_pass, utils::hir_parse::MethodCall};
 
 declare_bevy_lint! {
+/// Checks for `fn main()` entrypoints that call `App::run()` but do not return `AppExit`.
+///
+/// This lint will not be emitted if `fn main()` returns a non-[`unit`] type, even if that type is
+/// not `AppExit`.
+///
+/// # Motivation
+///
+/// `AppExit` is used to determine whether the `App` exited successfully or due to an error.
+/// Returning it from `main()` will set the [exit code], which can be read by external processes.
+/// Not returning any `AppExit` may cause external processes to believe the program gracefully
+/// exited, when in reality it may have crashed.
+///
+/// [exit code]: https://en.wikipedia.org/wiki/Exit_status
+///
+/// # Example
+///
+/// ```
+/// # use bevy::prelude::*;
+/// #
+/// fn main() {
+///     App::new().run();
+/// }
+/// ```
+///
+/// Use instead:
+///
+/// ```
+/// # use bevy::prelude::*;
+/// #
+/// fn main() -> AppExit {
+///     // Note the removed semicolon, since `App::run()` returns `AppExit`.
+///     App::new().run()
+/// }
+/// ```
     pub MAIN_RETURN_WITHOUT_APPEXIT,
     super::Pedantic,
     "an entrypoint that calls `App::run()` does not return `AppExit`",
