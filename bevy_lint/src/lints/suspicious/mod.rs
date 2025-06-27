@@ -9,9 +9,14 @@ use rustc_lint::{Level, Lint, LintStore};
 
 use crate::lint::LintGroup;
 
-pub mod insert_event_resource;
-pub mod insert_unit_bundle;
-pub mod iter_current_update_events;
+pub(crate) mod insert_event_resource;
+pub(crate) mod insert_unit_bundle;
+pub(crate) mod iter_current_update_events;
+
+pub use self::{
+    insert_event_resource::INSERT_EVENT_RESOURCE, insert_unit_bundle::INSERT_UNIT_BUNDLE,
+    iter_current_update_events::ITER_CURRENT_UPDATE_EVENTS,
+};
 
 pub(crate) struct Suspicious;
 

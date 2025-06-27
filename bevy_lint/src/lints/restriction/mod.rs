@@ -10,8 +10,10 @@ use rustc_lint::{Level, Lint, LintStore};
 
 use crate::lint::LintGroup;
 
-pub mod missing_reflect;
-pub mod panicking_methods;
+pub(crate) mod missing_reflect;
+pub(crate) mod panicking_methods;
+
+pub use self::{missing_reflect::MISSING_REFLECT, panicking_methods::PANICKING_METHODS};
 
 pub(crate) struct Restriction;
 

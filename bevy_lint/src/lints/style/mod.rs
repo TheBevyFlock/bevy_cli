@@ -8,7 +8,9 @@ use rustc_lint::{Level, Lint, LintStore};
 
 use crate::lint::LintGroup;
 
-pub mod unconventional_naming;
+pub(crate) mod unconventional_naming;
+
+pub use self::unconventional_naming::UNCONVENTIONAL_NAMING;
 
 pub(crate) struct Style;
 

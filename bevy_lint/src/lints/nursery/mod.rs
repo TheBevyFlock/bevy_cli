@@ -6,9 +6,14 @@ use rustc_lint::{Level, Lint, LintStore};
 
 use crate::lint::LintGroup;
 
-pub mod camera_modification_in_fixed_update;
-pub mod duplicate_bevy_dependencies;
-pub mod zst_query;
+pub(crate) mod camera_modification_in_fixed_update;
+pub(crate) mod duplicate_bevy_dependencies;
+pub(crate) mod zst_query;
+
+pub use self::{
+    camera_modification_in_fixed_update::CAMERA_MODIFICATION_IN_FIXED_UPDATE,
+    duplicate_bevy_dependencies::DUPLICATE_BEVY_DEPENDENCIES, zst_query::ZST_QUERY,
+};
 
 pub(crate) struct Nursery;
 

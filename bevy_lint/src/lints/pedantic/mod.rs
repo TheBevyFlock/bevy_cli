@@ -10,8 +10,13 @@ use rustc_lint::{Level, Lint, LintStore};
 
 use crate::lint::LintGroup;
 
-pub mod borrowed_reborrowable;
-pub mod main_return_without_appexit;
+pub(crate) mod borrowed_reborrowable;
+pub(crate) mod main_return_without_appexit;
+
+pub use self::{
+    borrowed_reborrowable::BORROWED_REBORROWABLE,
+    main_return_without_appexit::MAIN_RETURN_WITHOUT_APPEXIT,
+};
 
 pub(crate) struct Pedantic;
 
