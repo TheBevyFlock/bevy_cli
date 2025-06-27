@@ -24,7 +24,7 @@ impl LintGroup for Restriction {
     ];
 
     fn register_passes(store: &mut LintStore) {
-        store.register_late_pass(|_| Box::new(missing_reflect::MissingReflect::default()));
-        store.register_late_pass(|_| Box::new(panicking_methods::PanickingMethods::default()));
+        store.register_late_pass(|_| Box::new(missing_reflect::MissingReflect));
+        store.register_late_pass(|_| Box::new(panicking_methods::PanickingMethods));
     }
 }

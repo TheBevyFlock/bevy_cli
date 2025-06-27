@@ -23,11 +23,9 @@ impl LintGroup for Nursery {
 
     fn register_passes(store: &mut LintStore) {
         store.register_late_pass(|_| {
-            Box::new(
-                camera_modification_in_fixed_update::CameraModificationInFixedUpdate::default(),
-            )
+            Box::new(camera_modification_in_fixed_update::CameraModificationInFixedUpdate)
         });
         // `duplicate_bevy_dependencies` is a Cargo lint, so it does not have its own pass.
-        store.register_late_pass(|_| Box::new(zst_query::ZstQuery::default()));
+        store.register_late_pass(|_| Box::new(zst_query::ZstQuery));
     }
 }

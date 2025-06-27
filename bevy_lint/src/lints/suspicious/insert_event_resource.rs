@@ -44,17 +44,15 @@ use std::borrow::Cow;
 use clippy_utils::{
     diagnostics::span_lint_and_sugg,
     source::{snippet, snippet_with_applicability},
-    sym,
-    ty::{match_type, ty_from_hir_ty},
+    ty::ty_from_hir_ty,
 };
 use rustc_errors::Applicability;
 use rustc_hir::{Expr, GenericArg, GenericArgs, Path, PathSegment, QPath};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::{Ty, TyKind};
-use rustc_span::Symbol;
 
 use crate::{
-    declare_bevy_lint, declare_bevy_lint_pass,
+    declare_bevy_lint, declare_bevy_lint_pass, sym,
     utils::hir_parse::{MethodCall, generic_args_snippet, span_args},
 };
 
@@ -66,10 +64,6 @@ declare_bevy_lint! {
 
 declare_bevy_lint_pass! {
     pub(crate) InsertEventResource => [INSERT_EVENT_RESOURCE],
-    @default = {
-        insert_resource: Symbol = sym!(insert_resource),
-        init_resource: Symbol = sym!(init_resource),
-    },
 }
 
 const HELP_MESSAGE: &str = "inserting an `Events` resource does not fully setup that event";
@@ -91,17 +85,17 @@ impl<'tcx> LateLintPass<'tcx> for InsertEventResource {
                 .peel_refs();
 
             // If `src` is not a Bevy `App`, exit.
-            if !match_type(cx, src_ty, &crate::paths::APP) {
+            if !crate::paths::APP.matches_ty(cx, src_ty) {
                 return;
             }
 
             // If the method is `App::insert_resource()` or `App::init_resource()`, check it with
             // its corresponding function.
             match method_call.method_path.ident.name {
-                symbol if symbol == self.insert_resource => {
+                symbol if symbol == sym::insert_resource => {
                     check_insert_resource(cx, &method_call);
                 }
-                symbol if symbol == self.init_resource => {
+                symbol if symbol == sym::init_resource => {
                     check_init_resource(cx, &method_call);
                 }
                 _ => {}
@@ -121,7 +115,7 @@ fn check_insert_resource(cx: &LateContext<'_>, method_call: &MethodCall) {
     let ty = cx.typeck_results().expr_ty(arg);
 
     // If `arg` is `Events<T>`, emit the lint.
-    if match_type(cx, ty, &crate::paths::EVENTS) {
+    if crate::paths::EVENTS.matches_ty(cx, ty) {
         let mut applicability = Applicability::MachineApplicable;
 
         let event_ty_snippet = extract_ty_event_snippet(ty, &mut applicability);
@@ -199,7 +193,7 @@ fn check_init_resource<'tcx>(cx: &LateContext<'tcx>, method_call: &MethodCall<'t
         let resource_ty = ty_from_hir_ty(cx, resource_hir_ty.as_unambig_ty());
 
         // If the resource type is `Events<T>`, emit the lint.
-        if match_type(cx, resource_ty, &crate::paths::EVENTS) {
+        if crate::paths::EVENTS.matches_ty(cx, resource_ty) {
             let mut applicability = Applicability::MachineApplicable;
 
             let event_ty_snippet =
