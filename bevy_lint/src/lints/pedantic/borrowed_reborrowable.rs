@@ -14,103 +14,104 @@ use rustc_span::{Span, def_id::LocalDefId, symbol::kw};
 use crate::{declare_bevy_lint, declare_bevy_lint_pass};
 
 declare_bevy_lint! {
-/// Checks for function parameters that take a mutable reference to a re-borrowable type.
-///
-/// This lint checks for the following re-borrowable types:
-///
-/// - `Commands`
-/// - `Deferred`
-/// - `DeferredWorld`
-/// - `EntityCommands`
-/// - `EntityMut`
-/// - `FilteredEntityMut`
-/// - `Mut`
-/// - `MutUntyped`
-/// - `NonSendMut`
-/// - `PtrMut`
-/// - `Query`
-/// - `ResMut`
-///
-/// Though a type may be re-borrowable, there are circumstances where it cannot be easily
-/// reborrowed. (Please see the [Examples](#example).) In these cases, no warning will be emitted.
-///
-/// # Motivation
-///
-/// Several Bevy types look like they are owned, when in reality they contain an `&mut` reference
-/// to the data owned by the ECS. `Commands` and `Query` are examples of such types that _pretend_
-/// to own data for better user ergonomics.
-///
-/// This can be an issue when a user writes a function that takes a mutable reference to one of
-/// these types, not realizing that it itself is _already_ a reference. These mutable references
-/// can almost always be readily converted back to an owned instance of the type, which is a cheap
-/// operation that avoids nested references.
-///
-/// # Known Issues
-///
-/// This lint does not currently support the [`Fn`] traits or function pointers. This means the
-/// following types will not be caught by the lint:
-///
-/// - `impl FnOnce(&mut Commands)`
-/// - `Box<dyn FnMut(&mut Commands)>`
-/// - `fn(&mut Commands)`
-///
-/// For more information, please see [#174].
-///
-/// [#174]: https://github.com/TheBevyFlock/bevy_cli/issues/174
-///
-/// # Example
-///
-/// ```
-/// # use bevy::prelude::*;
-/// #
-/// fn system(mut commands: Commands) {
-///     helper_function(&mut commands);
-/// }
-///
-/// // This takes `&mut Commands`, but it doesn't need to!
-/// fn helper_function(commands: &mut Commands) {
-///     // ...
-/// }
-/// #
-/// # bevy::ecs::system::assert_is_system(system);
-/// ```
-///
-/// Use instead:
-///
-/// ```
-/// # use bevy::prelude::*;
-/// #
-/// fn system(mut commands: Commands) {
-///     // Convert `&mut Commands` to `Commands`.
-///     helper_function(commands.reborrow());
-/// }
-///
-/// fn helper_function(mut commands: Commands) {
-///     // ...
-/// }
-/// #
-/// # bevy::ecs::system::assert_is_system(system);
-/// ```
-///
-/// A type cannot be easily reborrowed when a function returns a reference with the same lifetime
-/// as the borrowed type. The lint knows about this case, however, and will not emit any warning if
-/// it knows the type cannot be re-borrowed:
-///
-/// ```
-/// # use bevy::{prelude::*, ecs::system::EntityCommands};
-/// #
-/// fn system(mut commands: Commands) {
-///     let entity_commands = helper_function(&mut commands);
-///     // ...
-/// }
-///
-/// // Note how this function returns a reference with the same lifetime as `Commands`.
-/// fn helper_function<'a>(commands: &'a mut Commands) -> EntityCommands<'a> {
-///     commands.spawn_empty()
-/// }
-/// #
-/// # bevy::ecs::system::assert_is_system(system);
-/// ```
+    /// Checks for function parameters that take a mutable reference to a re-borrowable type.
+    ///
+    /// This lint checks for the following re-borrowable types:
+    ///
+    /// - `Commands`
+    /// - `Deferred`
+    /// - `DeferredWorld`
+    /// - `EntityCommands`
+    /// - `EntityMut`
+    /// - `FilteredEntityMut`
+    /// - `Mut`
+    /// - `MutUntyped`
+    /// - `NonSendMut`
+    /// - `PtrMut`
+    /// - `Query`
+    /// - `ResMut`
+    ///
+    /// Though a type may be re-borrowable, there are circumstances where it cannot be easily
+    /// reborrowed. (Please see the [Examples](#example).) In these cases, no warning will be
+    /// emitted.
+    ///
+    /// # Motivation
+    ///
+    /// Several Bevy types look like they are owned, when in reality they contain an `&mut`
+    /// reference to the data owned by the ECS. `Commands` and `Query` are examples of such types
+    /// that _pretend_ to own data for better user ergonomics.
+    ///
+    /// This can be an issue when a user writes a function that takes a mutable reference to one of
+    /// these types, not realizing that it itself is _already_ a reference. These mutable
+    /// references can almost always be readily converted back to an owned instance of the type,
+    /// which is a cheap operation that avoids nested references.
+    ///
+    /// # Known Issues
+    ///
+    /// This lint does not currently support the [`Fn`] traits or function pointers. This means the
+    /// following types will not be caught by the lint:
+    ///
+    /// - `impl FnOnce(&mut Commands)`
+    /// - `Box<dyn FnMut(&mut Commands)>`
+    /// - `fn(&mut Commands)`
+    ///
+    /// For more information, please see [#174].
+    ///
+    /// [#174]: https://github.com/TheBevyFlock/bevy_cli/issues/174
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use bevy::prelude::*;
+    /// #
+    /// fn system(mut commands: Commands) {
+    ///     helper_function(&mut commands);
+    /// }
+    ///
+    /// // This takes `&mut Commands`, but it doesn't need to!
+    /// fn helper_function(commands: &mut Commands) {
+    ///     // ...
+    /// }
+    /// #
+    /// # bevy::ecs::system::assert_is_system(system);
+    /// ```
+    ///
+    /// Use instead:
+    ///
+    /// ```
+    /// # use bevy::prelude::*;
+    /// #
+    /// fn system(mut commands: Commands) {
+    ///     // Convert `&mut Commands` to `Commands`.
+    ///     helper_function(commands.reborrow());
+    /// }
+    ///
+    /// fn helper_function(mut commands: Commands) {
+    ///     // ...
+    /// }
+    /// #
+    /// # bevy::ecs::system::assert_is_system(system);
+    /// ```
+    ///
+    /// A type cannot be easily reborrowed when a function returns a reference with the same
+    /// lifetime as the borrowed type. The lint knows about this case, however, and will not emit
+    /// any warning if it knows the type cannot be re-borrowed:
+    ///
+    /// ```
+    /// # use bevy::{prelude::*, ecs::system::EntityCommands};
+    /// #
+    /// fn system(mut commands: Commands) {
+    ///     let entity_commands = helper_function(&mut commands);
+    ///     // ...
+    /// }
+    ///
+    /// // Note how this function returns a reference with the same lifetime as `Commands`.
+    /// fn helper_function<'a>(commands: &'a mut Commands) -> EntityCommands<'a> {
+    ///     commands.spawn_empty()
+    /// }
+    /// #
+    /// # bevy::ecs::system::assert_is_system(system);
+    /// ```
     pub BORROWED_REBORROWABLE,
     super::Pedantic,
     "function parameter takes a mutable reference to a re-borrowable type",
