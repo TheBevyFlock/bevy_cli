@@ -73,7 +73,7 @@ use rustc_span::Span;
 use crate::{declare_bevy_lint, declare_bevy_lint_pass};
 
 declare_bevy_lint! {
-    pub(crate) MISSING_REFLECT,
+    pub MISSING_REFLECT,
     super::Restriction,
     "defined a component, resource, or event without a `Reflect` implementation",
     // We only override `check_crate()`.

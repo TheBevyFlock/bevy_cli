@@ -58,7 +58,7 @@ use rustc_span::symbol::Ident;
 use crate::{declare_bevy_lint, declare_bevy_lint_pass, utils::hir_parse::impls_trait};
 
 declare_bevy_lint! {
-    pub(crate) UNCONVENTIONAL_NAMING,
+    pub UNCONVENTIONAL_NAMING,
     super::Style,
     "unconventional type name for a `Plugin` or `SystemSet`",
 }

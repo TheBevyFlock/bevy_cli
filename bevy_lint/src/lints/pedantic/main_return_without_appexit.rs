@@ -47,7 +47,7 @@ use rustc_span::{Span, Symbol};
 use crate::{declare_bevy_lint, declare_bevy_lint_pass, utils::hir_parse::MethodCall};
 
 declare_bevy_lint! {
-    pub(crate) MAIN_RETURN_WITHOUT_APPEXIT,
+    pub MAIN_RETURN_WITHOUT_APPEXIT,
     super::Pedantic,
     "an entrypoint that calls `App::run()` does not return `AppExit`",
 }

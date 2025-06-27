@@ -59,7 +59,7 @@ use crate::{
 };
 
 declare_bevy_lint! {
-    pub(crate) INSERT_EVENT_RESOURCE,
+    pub INSERT_EVENT_RESOURCE,
     super::Suspicious,
     "called `App::insert_resource(Events<T>)` or `App::init_resource::<Events<T>>()` instead of `App::add_event::<T>()`",
 }

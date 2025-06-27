@@ -64,7 +64,7 @@ use crate::{
 };
 
 declare_bevy_lint! {
-    pub(crate) PANICKING_METHODS,
+    pub PANICKING_METHODS,
     super::Restriction,
     "called a method that can panic when a non-panicking alternative exists",
 }

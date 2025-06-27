@@ -60,7 +60,7 @@ use rustc_span::Symbol;
 use crate::{declare_bevy_lint, declare_bevy_lint_pass, utils::hir_parse::MethodCall};
 
 declare_bevy_lint! {
-    pub(crate) INSERT_UNIT_BUNDLE,
+    pub INSERT_UNIT_BUNDLE,
     super::Suspicious,
     "inserted a `Bundle` containing a unit `()` type",
 }

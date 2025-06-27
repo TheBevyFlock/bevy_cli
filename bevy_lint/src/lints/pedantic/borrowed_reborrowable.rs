@@ -112,7 +112,7 @@ use rustc_span::{Span, def_id::LocalDefId, symbol::kw};
 use crate::{declare_bevy_lint, declare_bevy_lint_pass};
 
 declare_bevy_lint! {
-    pub(crate) BORROWED_REBORROWABLE,
+    pub BORROWED_REBORROWABLE,
     super::Pedantic,
     "function parameter takes a mutable reference to a re-borrowable type",
 }

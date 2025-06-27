@@ -68,7 +68,7 @@ use crate::{
 };
 
 declare_bevy_lint! {
-    pub(crate) ZST_QUERY,
+    pub ZST_QUERY,
     // This will eventually be a `RESTRICTION` lint, but due to
     // <https://github.com/TheBevyFlock/bevy_cli/issues/279> it is not yet ready for production.
     super::Nursery,
