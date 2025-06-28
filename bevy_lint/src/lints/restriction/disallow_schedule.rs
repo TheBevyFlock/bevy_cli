@@ -1,36 +1,46 @@
-//! Checks for systems in disallowed schedules
+//! Checks for adding systems to a disallowed schedule.
 //!
-//! - `disallow_fixed_update`: Disallows using the `FixedUpdate` schedule.
-//! - `disallow_update`: Disallows using the `Update` schedule.
+//! - `fixed_update_schedule`: Disallows using the `FixedUpdate` schedule.
+//! - `update_schedule`: Disallows using the `Update` schedule.
 //!
 //! # Motivation
-//!
-//! In Bevy, systems can be scheduled in various schedules like `Update` and `FixedUpdate`.
-//! However, projects often prefer one of these for most game logic.
+//! 
+//! Often, projects will prefer certain systems be in either the `Update` or `FixedUpdate`
+//! schedule. These two lints are useful for denying an unwanted schedule throughout entire
+//! modules. For example, a project may deny the `Update` schedule in a module that only contains
+//! physics logic, or deny the `FixedUpdate` schedule in a module that likewise contains only
+//! rendering code.
 //!
 //! # Example
 //!
 //! ```
-//! use bevy::prelude::*;
-//!
-//! fn my_system() {}
-//!
-//! fn main() {
-//!     App::new()
-//!         .add_systems(FixedUpdate, my_system);
+//! mod physics {
+//!     #![warn(bevy::update_schedule)]
+//! 
+//!     fn plugin(app: &mut App) {
+//!         // This isn't allowed, use `FixedUpdate` instead!
+//!         app.add_systems(Update, my_system);
+//!     }
+//! 
+//!     fn my_system() {
+//!         // ...
+//!     }
 //! }
 //! ```
 //!
 //! Use instead:
 //!
 //! ```
-//! use bevy::prelude::*;
-//!
-//! fn my_system() {}
-//!
-//! fn main() {
-//!     App::new()
-//!         .add_systems(Update, my_system);
+//! mod physics {
+//!     #![warn(bevy::update_schedule)]
+//! 
+//!     fn plugin(app: &mut App) {
+//!         app.add_systems(FixedUpdate, my_system);
+//!     }
+//! 
+//!     fn my_system() {
+//!         // ...
+//!     }
 //! }
 //! ```
 
