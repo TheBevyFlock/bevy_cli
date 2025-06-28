@@ -4,7 +4,7 @@
 //! - `update_schedule`: Disallows using the `Update` schedule.
 //!
 //! # Motivation
-//! 
+//!
 //! Often, projects will prefer certain systems be in either the `Update` or `FixedUpdate`
 //! schedule. These two lints are useful for denying an unwanted schedule throughout entire
 //! modules. For example, a project may deny the `Update` schedule in a module that only contains
@@ -16,12 +16,12 @@
 //! ```
 //! mod physics {
 //!     #![warn(bevy::update_schedule)]
-//! 
+//!
 //!     fn plugin(app: &mut App) {
 //!         // This isn't allowed, use `FixedUpdate` instead!
 //!         app.add_systems(Update, my_system);
 //!     }
-//! 
+//!
 //!     fn my_system() {
 //!         // ...
 //!     }
@@ -33,11 +33,11 @@
 //! ```
 //! mod physics {
 //!     #![warn(bevy::update_schedule)]
-//! 
+//!
 //!     fn plugin(app: &mut App) {
 //!         app.add_systems(FixedUpdate, my_system);
 //!     }
-//! 
+//!
 //!     fn my_system() {
 //!         // ...
 //!     }
@@ -53,19 +53,19 @@ use rustc_span::Symbol;
 use crate::{declare_bevy_lint, declare_bevy_lint_pass, utils::hir_parse::MethodCall};
 
 declare_bevy_lint! {
-    pub DISALLOW_FIXED_UPDATE,
+    pub UPDATE_SCHEDULE,
     super::Restriction,
     "defined a system in the `FixedUpdate` schedule",
 }
 
 declare_bevy_lint! {
-    pub DISALLOW_UPDATE,
+    pub FIXED_UPDATE_SCHEDULE,
     super::Restriction,
     "defined a system in the `Update` schedule",
 }
 
 declare_bevy_lint_pass! {
-    pub DenySchedule => [DISALLOW_FIXED_UPDATE,DISALLOW_UPDATE],
+    pub DenySchedule => [UPDATE_SCHEDULE,FIXED_UPDATE_SCHEDULE],
     @default = {
         add_systems: Symbol = sym!(add_systems),
     },
@@ -116,10 +116,7 @@ impl<'tcx> LateLintPass<'tcx> for DenySchedule {
             schedule_type.lint(),
             schedule_label.hir_id,
             schedule_label.span,
-            format!(
-                "use of the `{}` schedule is disallowed",
-                schedule_type.name()
-            ),
+            format!("the `{}` schedule is disallowed", schedule_type.name()),
             |diag| {
                 diag.span_suggestion(
                     schedule_label.span,
@@ -158,8 +155,8 @@ impl ScheduleType {
 
     fn lint(&self) -> &'static Lint {
         match self {
-            Self::FixedUpdate => DISALLOW_FIXED_UPDATE,
-            Self::Update => DISALLOW_UPDATE,
+            Self::FixedUpdate => FIXED_UPDATE_SCHEDULE,
+            Self::Update => UPDATE_SCHEDULE,
         }
     }
 

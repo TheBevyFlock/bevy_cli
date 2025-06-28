@@ -1,20 +1,19 @@
 #![feature(register_tool)]
 #![register_tool(bevy)]
-#![deny(bevy::disallow_fixed_update)]
+#![deny(bevy::update_schedule)]
 
 use bevy::prelude::*;
 
 fn main() {
     let mut app = App::new();
-
     app.add_plugins(DefaultPlugins)
-        //~| HELP: use the `Update` schedule instead
-        //~v ERROR: use of the `FixedUpdate` schedule is disallowed
+        //~| HELP: use the `FixedUpdate` schedule instead
+        //~v ERROR: the `Update` schedule is disallowed
         .add_systems(Update, hello_world);
 
     // Ensure the lint can be muted by annotating the expression.
-    #[allow(bevy::disallow_fixed_update)]
-    app.add_systems(FixedUpdate, hello_world);
+    #[allow(bevy::update_schedule)]
+    app.add_systems(Update, hello_world);
 
     app.run();
 }

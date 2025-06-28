@@ -20,8 +20,8 @@ impl LintGroup for Restriction {
     const NAME: &str = "bevy::restriction";
     const LEVEL: Level = Level::Allow;
     const LINTS: &[&Lint] = &[
-        disallow_schedule::DISALLOW_FIXED_UPDATE,
-        disallow_schedule::DISALLOW_UPDATE,
+        disallow_schedule::FIXED_UPDATE_SCHEDULE,
+        disallow_schedule::UPDATE_SCHEDULE,
         missing_reflect::MISSING_REFLECT,
         panicking_methods::PANICKING_METHODS,
     ];
