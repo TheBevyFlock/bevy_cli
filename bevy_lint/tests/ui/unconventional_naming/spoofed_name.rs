@@ -12,7 +12,7 @@ mod bar {
     pub mod baz {
         pub struct Foo;
         //~^ ERROR: unconventional type name for a `Plugin`
-        //~| NOTE: structures that implement `Plugin` should end in `Plugin`
+        //~| NOTE: structures that implement `Plugin` should end in "Plugin"
         //~| HELP: rename `Foo`
     }
 }
