@@ -1,0 +1,14 @@
+error: the `FixedUpdate` schedule is disallowed
+  --> tests/ui/disallow_schedule/fixed_update_schedule.rs:13:22
+   |
+13 |         .add_systems(FixedUpdate, hello_world);
+   |                      ^^^^^^^^^^^ help: use the `Update` schedule instead: `Update`
+   |
+note: the lint level is defined here
+  --> tests/ui/disallow_schedule/fixed_update_schedule.rs:3:9
+   |
+3  | #![deny(bevy::fixed_update_schedule)]
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: aborting due to 1 previous error
+

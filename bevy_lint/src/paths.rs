@@ -54,5 +54,7 @@ pub const RES_MUT: [&str; 3] = ["bevy_ecs", "change_detection", "ResMut"];
 pub const RESOURCE: [&str; 3] = ["bevy_ecs", "resource", "Resource"];
 /// <https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_ecs/src/schedule/set.rs>
 pub const SYSTEM_SET: [&str; 4] = ["bevy_ecs", "schedule", "set", "SystemSet"];
+/// <https://github.com/bevyengine/bevy/blob/v0.16.0/crates/bevy_app/src/main_schedule.rs#L172>
+pub const UPDATE: [&str; 3] = ["bevy_app", "main_schedule", "Update"];
 /// <https://github.com/bevyengine/bevy/blob/release-0.16.0/crates/bevy_ecs/src/world/mod.rs#L94>
 pub const WORLD: [&str; 3] = ["bevy_ecs", "world", "World"];
