@@ -8,7 +8,7 @@ use bevy::prelude::*;
 // This should raise an error, since it does not end in "Plugin".
 struct Foo;
 //~^ ERROR: unconventional type name for a `Plugin`
-//~| NOTE: structures that implement `Plugin` should end in `Plugin`
+//~| NOTE: structures that implement `Plugin` should end in "Plugin"
 //~| HELP: rename `Foo`
 
 //~v NOTE: `Plugin` implemented here
@@ -33,4 +33,24 @@ impl Plugin for Baz {
 
 fn main() {
     App::new().add_plugins((Foo, BarPlugin, Baz));
+}
+
+struct PluginFoo;
+//~^ ERROR: unconventional type name for a `Plugin`
+//~| NOTE: structures that implement `Plugin` should end in "Plugin"
+//~| HELP: rename `PluginFoo`
+
+//~v NOTE: `Plugin` implemented here
+impl Plugin for PluginFoo {
+    fn build(&self, _app: &mut App) {}
+}
+
+struct FooPlugins;
+//~^ ERROR: unconventional type name for a `Plugin`
+//~| NOTE: structures that implement `Plugin` should end in "Plugin"
+//~| HELP: rename `FooPlugins`
+
+//~v NOTE: `Plugin` implemented here
+impl Plugin for FooPlugins {
+    fn build(&self, _app: &mut App) {}
 }

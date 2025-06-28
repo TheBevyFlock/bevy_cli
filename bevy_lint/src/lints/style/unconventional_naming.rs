@@ -123,6 +123,7 @@ impl<'tcx> LateLintPass<'tcx> for UnconventionalNaming {
                 def_id: struct_local_def_id,
             }
             .into();
+
             span_lint_hir_and_then(
                 cx,
                 UNCONVENTIONAL_NAMING,
@@ -130,14 +131,11 @@ impl<'tcx> LateLintPass<'tcx> for UnconventionalNaming {
                 struct_span,
                 conventional_name_impl.lint_description(),
                 |diag| {
-                    diag.span_note(
-                        struct_span,
-                        format!(
-                            "structures that implement `{}` should end in `{}`",
-                            conventional_name_impl.name(),
-                            conventional_name_impl.suffix()
-                        ),
-                    );
+                    diag.note(format!(
+                        "structures that implement `{}` should end in \"{}\"",
+                        conventional_name_impl.name(),
+                        conventional_name_impl.suffix()
+                    ));
 
                     diag.span_suggestion(
                         struct_span,
@@ -211,15 +209,28 @@ impl TraitConvention {
                 // "Systems". If a struct was originally named `FooSet`, this suggests `FooSystems`
                 // instead of `FooSetSystems`.
                 for incorrect_suffix in INCORRECT_SUFFIXES {
-                    if struct_name.ends_with(incorrect_suffix) {
-                        let stripped_name =
-                            &struct_name[0..(struct_name.len() - incorrect_suffix.len())];
+                    if let Some(stripped_name) = struct_name.strip_suffix(incorrect_suffix) {
                         return format!("{stripped_name}{}", self.suffix());
                     }
                 }
+
+                // If none of the special cases are matched, simply append the suffix.
                 format!("{struct_name}{}", self.suffix())
             }
-            TraitConvention::Plugin => format!("{struct_name}{}", self.suffix()),
+            TraitConvention::Plugin => {
+                // If the name is prefixed with "Plugin", remove it and add it to the end.
+                if let Some(stripped_name) = struct_name.strip_prefix("Plugin") {
+                    return format!("{stripped_name}{}", self.suffix());
+                }
+
+                // If "Plugins" is plural instead of singular, remove the "s" to make it singular.
+                if let Some(stripped_name) = struct_name.strip_suffix("Plugins") {
+                    return format!("{stripped_name}{}", self.suffix());
+                }
+
+                // If none of the special cases are matched, simply append the suffix.
+                format!("{struct_name}{}", self.suffix())
+            }
         }
     }
 }
