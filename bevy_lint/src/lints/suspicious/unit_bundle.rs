@@ -51,7 +51,7 @@
 //! # bevy::ecs::system::assert_is_system(spawn);
 //! ```
 
-use clippy_utils::{diagnostics::span_lint, fn_def_id};
+use clippy_utils::{diagnostics::span_lint_hir_and_then, fn_def_id};
 use rustc_hir::{Expr, ExprKind, def_id::DefId};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::{self, Ty};
@@ -62,7 +62,7 @@ use crate::{declare_bevy_lint, declare_bevy_lint_pass, paths};
 declare_bevy_lint! {
     pub(crate) UNIT_BUNDLE,
     super::Suspicious,
-    "created a `Bundle` containing a unit `()` type",
+    "created a `Bundle` containing a unit `()`",
 }
 
 declare_bevy_lint_pass! {
@@ -113,7 +113,16 @@ impl<'tcx> LateLintPass<'tcx> for UnitBundle {
             for tuple_path in find_units_in_tuple(bundle_ty) {
                 let unit_expr = tuple_path.into_expr(bundle_expr);
 
-                span_lint(cx, UNIT_BUNDLE, unit_expr.span, UNIT_BUNDLE.desc);
+                span_lint_hir_and_then(
+                    cx,
+                    UNIT_BUNDLE,
+                    unit_expr.hir_id,
+                    unit_expr.span,
+                    UNIT_BUNDLE.desc,
+                    |diag| {
+                        diag.note("units `()` are not `Component`s and will be skipped");
+                    },
+                );
             }
         }
     }
