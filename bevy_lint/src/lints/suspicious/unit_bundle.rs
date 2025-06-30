@@ -51,13 +51,15 @@
 //! # bevy::ecs::system::assert_is_system(spawn);
 //! ```
 
-use clippy_utils::{diagnostics::span_lint_hir_and_then, fn_def_id};
-use rustc_hir::{Expr, ExprKind, def_id::DefId};
+use clippy_utils::{diagnostics::span_lint_hir_and_then, fn_def_id, paths::PathLookup};
+use rustc_errors::Applicability;
+use rustc_hir::{Expr, ExprKind, PathSegment, def_id::DefId};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::{self, Ty};
+use rustc_span::Symbol;
 use rustc_type_ir::PredicatePolarity;
 
-use crate::{declare_bevy_lint, declare_bevy_lint_pass, paths};
+use crate::{declare_bevy_lint, declare_bevy_lint_pass, paths, sym, utils::hir_parse::MethodCall};
 
 declare_bevy_lint! {
     pub(crate) UNIT_BUNDLE,
@@ -75,32 +77,63 @@ impl<'tcx> LateLintPass<'tcx> for UnitBundle {
             return;
         }
 
-        let (fn_id, fn_args, fn_arg_types) = match expr.kind {
-            ExprKind::Call(_, fn_args) => {
-                let Some(fn_id) = fn_def_id(cx, expr) else {
-                    // This will be `None` if the function is a local closure. Since closures
-                    // cannot have generic parameters, they cannot take bundles as an input, so we
-                    // can skip them.
-                    return;
-                };
+        let (fn_id, fn_args, fn_arg_types) = if let Some(MethodCall {
+            method_path,
+            receiver,
+            args,
+            span,
+            ..
+        }) = MethodCall::try_from(cx, expr)
+        {
+            // There are a few methods named `spawn()` that can be substituted for `spawn_empty()`.
+            // This checks for those special cases and emits a machine-applicable suggestion when
+            // possible.
+            if let Some(bundle_expr) = can_be_spawn_empty(cx, method_path, receiver, args) {
+                span_lint_hir_and_then(
+                    cx,
+                    UNIT_BUNDLE,
+                    bundle_expr.hir_id,
+                    bundle_expr.span,
+                    UNIT_BUNDLE.desc,
+                    |diag| {
+                        diag.note("units `()` are not `Component`s and will be skipped")
+                            .span_suggestion(
+                                span,
+                                "`spawn_empty()` is more efficient",
+                                "spawn_empty()",
+                                Applicability::MachineApplicable,
+                            );
+                    },
+                );
 
-                let fn_arg_types = fn_arg_types(cx, fn_id);
-
-                (fn_id, fn_args, fn_arg_types)
+                return;
             }
-            ExprKind::MethodCall(_, _, fn_args, _) => {
-                let Some(fn_id) = fn_def_id(cx, expr) else {
-                    // See comment for `ExprKind::Call` branch for why we return here.
-                    return;
-                };
 
-                // The first argument is `&self` because it's a method. We skip it because `&self`
-                // won't be in `args`, making the two slices two different lengths.
-                let fn_arg_types = &fn_arg_types(cx, fn_id)[1..];
+            let Some(fn_id) = fn_def_id(cx, expr) else {
+                // This will be `None` if the function is a local closure. Since closures
+                // cannot have generic parameters, they cannot take bundles as an input, so we
+                // can skip them.
+                return;
+            };
 
-                (fn_id, fn_args, fn_arg_types)
-            }
-            _ => return,
+            // The first argument is `&self` because it's a method. We skip it because `&self`
+            // won't be in `args`, making the two slices two different lengths.
+            let fn_arg_types = &fn_arg_types(cx, fn_id)[1..];
+
+            (fn_id, args, fn_arg_types)
+        } else if let ExprKind::Call(_, fn_args) = expr.kind {
+            let Some(fn_id) = fn_def_id(cx, expr) else {
+                // This will be `None` if the function is a local closure. Since closures
+                // cannot have generic parameters, they cannot take bundles as an input, so we
+                // can skip them.
+                return;
+            };
+
+            let fn_arg_types = fn_arg_types(cx, fn_id);
+
+            (fn_id, fn_args, fn_arg_types)
+        } else {
+            return;
         };
 
         debug_assert_eq!(fn_args.len(), fn_arg_types.len());
@@ -342,4 +375,41 @@ fn find_units_in_tuple(ty: Ty<'_>) -> Vec<TuplePath> {
     inner(ty, &mut current_path, &mut unit_paths);
 
     unit_paths
+}
+
+/// Returns [`Some`] if the method can be replaced with `spawn_empty()`.
+///
+/// The returned [`Expr`] is that of the unit `()` in the bundle argument.
+fn can_be_spawn_empty<'tcx>(
+    cx: &LateContext<'tcx>,
+    method_path: &'tcx PathSegment<'tcx>,
+    receiver: &'tcx Expr<'tcx>,
+    args: &'tcx [Expr<'tcx>],
+) -> Option<&'tcx Expr<'tcx>> {
+    // A list of all methods that can be replaced with `spawn_empty()`. The format is `(receiver
+    // type, method name, bundle arg index)`.
+    static CAN_SPAWN_EMPTY: &[(&PathLookup, Symbol, usize)] = &[
+        (&paths::COMMANDS, sym::spawn, 0),
+        (&paths::WORLD, sym::spawn, 0),
+        (&paths::RELATED_SPAWNER, sym::spawn, 0),
+        (&paths::RELATED_SPAWNER_COMMANDS, sym::spawn, 0),
+    ];
+
+    let typeck_results = cx.typeck_results();
+
+    // Find the adjusted receiver type (e.g. `World` from `Box<World>`), removing any references to
+    // find the underlying type.
+    let receiver_ty = typeck_results.expr_ty_adjusted(receiver).peel_refs();
+
+    for (path, method, index) in CAN_SPAWN_EMPTY {
+        if path.matches_ty(cx, receiver_ty)
+            && method_path.ident.name == *method
+            && let Some(bundle_expr) = args.get(*index)
+            && typeck_results.expr_ty(bundle_expr).is_unit()
+        {
+            return Some(bundle_expr);
+        }
+    }
+
+    None
 }

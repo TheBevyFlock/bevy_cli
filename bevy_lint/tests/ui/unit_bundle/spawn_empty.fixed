@@ -9,7 +9,7 @@ fn main() {
 }
 
 fn my_system(mut commands: Commands) {
-    commands.spawn(());
+    commands.spawn_empty();
     //~^ ERROR: created a `Bundle` containing a unit `()`
     //~| HELP: `spawn_empty()` is more efficient
 }

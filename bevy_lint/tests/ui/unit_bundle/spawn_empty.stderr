@@ -2,7 +2,7 @@ error: created a `Bundle` containing a unit `()`
   --> tests/ui/unit_bundle/spawn_empty.rs:12:20
    |
 12 |     commands.spawn(());
-   |                    ^^
+   |              ------^^- help: `spawn_empty()` is more efficient: `spawn_empty()`
    |
    = note: units `()` are not `Component`s and will be skipped
 note: the lint level is defined here

@@ -64,6 +64,12 @@ pub static PTR_MUT: PathLookup = type_path!(bevy_ptr::PtrMut);
 pub static QUERY: PathLookup = type_path!(bevy_ecs::system::query::Query);
 /// <https://github.com/bevyengine/bevy/blob/v0.16.0/crates/bevy_reflect/src/reflect.rs#L413>
 pub static REFLECT: PathLookup = type_path!(bevy_reflect::reflect::Reflect);
+/// <https://github.com/bevyengine/bevy/blob/v0.16.0/crates/bevy_ecs/src/relationship/related_methods.rs#L490>
+pub static RELATED_SPAWNER: PathLookup =
+    type_path!(bevy_ecs::relationship::related_methods::RelatedSpawner);
+/// <https://github.com/bevyengine/bevy/blob/v0.16.0/crates/bevy_ecs/src/relationship/related_methods.rs#L526>
+pub static RELATED_SPAWNER_COMMANDS: PathLookup =
+    type_path!(bevy_ecs::relationship::related_methods::RelatedSpawnerCommands);
 /// <https://github.com/bevyengine/bevy/blob/v0.16.0/crates/bevy_ecs/src/change_detection.rs#L714>
 pub static RES_MUT: PathLookup = type_path!(bevy_ecs::change_detection::ResMut);
 /// <https://github.com/bevyengine/bevy/blob/v0.16.0/crates/bevy_ecs/src/resource.rs#L75>
