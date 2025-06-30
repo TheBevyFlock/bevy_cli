@@ -117,6 +117,11 @@ impl BuildArgs {
             if web_args.wasm_opt.is_empty() {
                 web_args.wasm_opt = config.wasm_opt(is_release).to_raw();
             }
+
+            #[cfg(feature = "experimental")]
+            if web_args.multi_threading.is_none() {
+                web_args.multi_threading = config.web_multi_threading();
+            }
         }
     }
 }
@@ -149,6 +154,7 @@ pub struct BuildWebArgs {
     /// so you have to implement it yourself.
     ///
     /// Requires a nightly Rust toolchain.
+    #[cfg(feature = "experimental")]
     #[arg(long = "experimental-multi-threading", action = ArgAction::SetTrue)]
     pub multi_threading: Option<bool>,
 }

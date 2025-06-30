@@ -29,6 +29,8 @@ pub struct CliConfig {
     rustflags: Vec<String>,
     /// Use `wasm-opt` to optimize wasm binaries.
     wasm_opt: Option<ExternalCliArgs>,
+    /// EXPERIMENTAL: Enable building and running apps that use Wasm multi-threading features.
+    web_multi_threading: Option<bool>,
 }
 
 impl CliConfig {
@@ -41,6 +43,7 @@ impl CliConfig {
             default_features,
             rustflags,
             wasm_opt,
+            web_multi_threading,
         } = self;
 
         target.is_none()
@@ -48,6 +51,7 @@ impl CliConfig {
             && default_features.is_none()
             && rustflags.is_empty()
             && wasm_opt.is_none()
+            && web_multi_threading.is_none()
     }
 
     /// The platform to target with the build.
@@ -60,6 +64,11 @@ impl CliConfig {
     /// Defaults to `true` if not configured otherwise.
     pub fn default_features(&self) -> bool {
         self.default_features.unwrap_or(true)
+    }
+
+    /// Whether to enable Wasm multi-threading functionality.
+    pub fn web_multi_threading(&self) -> Option<bool> {
+        self.web_multi_threading
     }
 
     /// The features enabled in the config.
@@ -165,6 +174,7 @@ impl CliConfig {
             default_features: extract_default_features(metadata)?,
             rustflags: extract_rustflags(metadata)?,
             wasm_opt: extract_wasm_opt(metadata)?,
+            web_multi_threading: extract_web_multi_threading(metadata)?,
         })
     }
 
@@ -289,6 +299,22 @@ fn extract_wasm_opt(cli_metadata: &Map<String, Value>) -> anyhow::Result<Option<
     }
 }
 
+/// Try to extract whether multi-threading features for the web are enabled from a metadata map for
+/// the CLI.
+fn extract_web_multi_threading(cli_metadata: &Map<String, Value>) -> anyhow::Result<Option<bool>> {
+    const KEY: &str = "experimental-web-multi-threading";
+
+    if let Some(web_multi_threading) = cli_metadata.get(KEY) {
+        match web_multi_threading {
+            Value::Bool(web_multi_threading) => Ok(Some(web_multi_threading).copied()),
+            Value::Null => Ok(None),
+            _ => bail!("{KEY} must be a boolean"),
+        }
+    } else {
+        Ok(None)
+    }
+}
+
 impl Display for CliConfig {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let document = toml_edit::ser::to_document(self).map_err(|_| std::fmt::Error)?;
@@ -351,7 +377,8 @@ mod tests {
                         "--cfg".to_string(),
                         "getrandom_backend=\"wasm_js\"".to_string()
                     ],
-                    wasm_opt: None
+                    wasm_opt: None,
+                    web_multi_threading: None,
                 }
             );
             Ok(())
@@ -392,7 +419,8 @@ mod tests {
                     ],
                     default_features: Some(false),
                     rustflags: vec!["-C opt-level=2".to_string(), "-C debuginfo=1".to_string()],
-                    wasm_opt: None
+                    wasm_opt: None,
+                    web_multi_threading: None,
                 }
             );
             Ok(())
@@ -431,7 +459,8 @@ mod tests {
                     ],
                     default_features: Some(true),
                     rustflags: Vec::new(),
-                    wasm_opt: None
+                    wasm_opt: None,
+                    web_multi_threading: None,
                 }
             );
             Ok(())
@@ -475,7 +504,8 @@ mod tests {
                     features: vec!["base".to_owned(),],
                     default_features: None,
                     rustflags: Vec::new(),
-                    wasm_opt: None
+                    wasm_opt: None,
+                    web_multi_threading: None,
                 }
             );
             Ok(())
