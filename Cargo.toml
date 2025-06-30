@@ -35,6 +35,9 @@ web = [
 # You can disable this feature if your system doesn't have rustup installed.
 rustup = []
 
+# Functionality that's unfinished or comes with caveats
+experimental = []
+
 [dependencies]
 # CLI argument parsing
 clap = { version = "4.5.16", features = ["derive"] }
