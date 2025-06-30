@@ -50,13 +50,13 @@
 //! # bevy::ecs::system::assert_is_system(spawn);
 //! ```
 
-use clippy_utils::diagnostics::span_lint_hir_and_then;
-use rustc_errors::Applicability;
-use rustc_hir::{Expr, ExprKind};
+use clippy_utils::diagnostics::span_lint;
+use rustc_hir::{Expr, ExprKind, def_id::DefId};
 use rustc_lint::{LateContext, LateLintPass};
-use rustc_middle::ty::{Ty, TyKind};
+use rustc_middle::ty::{self, Ty};
+use rustc_type_ir::PredicatePolarity;
 
-use crate::{declare_bevy_lint, declare_bevy_lint_pass, sym, utils::hir_parse::MethodCall};
+use crate::{declare_bevy_lint, declare_bevy_lint_pass, paths};
 
 declare_bevy_lint! {
     pub(crate) INSERT_UNIT_BUNDLE,
@@ -70,78 +70,124 @@ declare_bevy_lint_pass! {
 
 impl<'tcx> LateLintPass<'tcx> for InsertUnitBundle {
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &'tcx Expr<'tcx>) {
-        // Find a method call.
-        let Some(MethodCall {
-            span,
-            method_path,
-            args,
-            receiver,
-            ..
-        }) = MethodCall::try_from(cx, expr)
-        else {
+        if expr.span.in_external_macro(cx.tcx.sess.source_map()) {
             return;
-        };
+        }
 
-        let src_ty = cx.typeck_results().expr_ty(receiver).peel_refs();
-
-        // If the method call was not to `Commands::spawn()` or originates from an external macro,
-        // we skip it.
-        if !(span.in_external_macro(cx.tcx.sess.source_map())
-            || crate::paths::COMMANDS.matches_ty(cx, src_ty)
-                && method_path.ident.name == sym::spawn)
+        if let ExprKind::Call(fn_, args) = expr.kind
+            && let ExprKind::Path(fn_path) = fn_.kind
+            // This will be `None` if the function is a local closure. Since closures cannot have
+            // generic parameters, they cannot take bundles as an input, so we can skip them.
+            && let Some(fn_id) = cx.qpath_res(&fn_path, fn_.hir_id).opt_def_id()
         {
-            return;
-        }
+            let typeck_results = cx.typeck_results();
 
-        // Extract the expression of the bundle being spawned.
-        let [bundle_expr] = args else {
-            return;
-        };
+            for bundle_expr in bundle_arguments(cx, fn_id, args) {
+                let bundle_ty = typeck_results.expr_ty(bundle_expr);
 
-        // Find the type of the bundle.
-        let bundle_ty = cx.typeck_results().expr_ty(bundle_expr);
+                for tuple_path in find_units_in_tuple(bundle_ty) {
+                    let unit_expr = tuple_path.into_expr(bundle_expr);
 
-        // Special-case `commands.spawn(())` and suggest `Commands::spawn_empty()` instead.
-        if bundle_ty.is_unit() {
-            span_lint_hir_and_then(
-                cx,
-                INSERT_UNIT_BUNDLE,
-                bundle_expr.hir_id,
-                bundle_expr.span,
-                INSERT_UNIT_BUNDLE.desc,
-                |diag| {
-                    diag.note("unit `()` types are skipped instead of spawned")
-                        .span_suggestion(
-                            span,
-                            "try",
-                            "spawn_empty()",
-                            Applicability::MachineApplicable,
-                        );
-                },
-            );
-
-            return;
-        }
-
-        // Find the path to all units within the bundle type.
-        let unit_paths = find_units_in_tuple(bundle_ty);
-
-        // Emit the lint for all unit tuple paths.
-        for path in unit_paths {
-            let expr = path.into_expr(bundle_expr);
-
-            span_lint_hir_and_then(
-                cx,
-                INSERT_UNIT_BUNDLE,
-                expr.hir_id,
-                expr.span,
-                INSERT_UNIT_BUNDLE.desc,
-                |diag| {
-                    diag.note("unit `()` types are skipped instead of spawned");
-                },
-            );
+                    span_lint(cx, INSERT_UNIT_BUNDLE, unit_expr.span, INSERT_UNIT_BUNDLE.desc);
+                }
+            }
         }
     }
+}
+
+/// Returns the arguments of a method call that are intended to be `Bundle`s.
+///
+/// `fn_id` should be the definition of the function itself, and `args` should be the arguments
+/// passed to the function.
+fn bundle_arguments<'tcx>(
+    cx: &LateContext<'tcx>,
+    fn_id: DefId,
+    args: &'tcx [Expr<'tcx>],
+) -> impl Iterator<Item = &'tcx Expr<'tcx>> {
+    let fn_arg_types = fn_arg_types(cx, fn_id);
+    let bundle_bounded_generics: Vec<Ty<'_>> = bundle_bounded_generics(cx, fn_id);
+
+    // Only yield arguments whose types are generic parameters that require the `Bundle` trait.
+    fn_arg_types
+        .iter()
+        .enumerate()
+        .filter(move |(_, arg)| bundle_bounded_generics.contains(arg))
+        .map(|(i, _)| &args[i])
+}
+
+/// Returns a list of types corresponding to the inputs of a function.
+///
+/// Notably, the returned types are not instantiated. Generic parameters will be preserved and not
+/// filled in with actual types.
+///
+/// # Example
+///
+/// Running this function on the [`DefId`] of `foo()` will return `[usize, bool]`, while `bar()`
+/// will return `[T, usize]`.
+///
+/// ```
+/// fn foo(a: usize, b: bool) {}
+/// fn bar<T: Bundle>(bundle: T, size: usize) {}
+/// ```
+fn fn_arg_types<'tcx>(cx: &LateContext<'tcx>, fn_id: DefId) -> &'tcx [Ty<'tcx>] {
+    cx.tcx
+        .fn_sig(fn_id)
+        .instantiate_identity()
+        .inputs()
+        .skip_binder()
+}
+
+/// Returns a list of a generic parameters of a function that must implement `Bundle`.
+///
+/// Each returned [`Ty`] is guaranteed to be a [`ty::TyKind::Param`].
+///
+/// # Example
+///
+/// If run on the following function, this function would return `A` and `C` because they both
+/// implement `Bundle`.
+///
+/// ```
+/// fn my_function<A: Bundle, B: Clone, C: Bundle + Clone>(_: A, _: B, _: C) {
+///     // ...
+/// }
+/// ```
+fn bundle_bounded_generics<'tcx>(cx: &LateContext<'tcx>, fn_id: DefId) -> Vec<Ty<'tcx>> {
+    let mut bundle_bounded_generics = Vec::new();
+
+    // Fetch the parameter environment for the function, which contains all generic trait bounds.
+    // (Such as the `T: Bundle` that we're looking for!) See
+    // <https://rustc-dev-guide.rust-lang.org/typing_parameter_envs.html> for more information.
+    let param_env = cx.tcx.param_env(fn_id);
+
+    for clause in param_env.caller_bounds() {
+        // We only want trait predicates, filtering out lifetimes and constants.
+        if let Some(trait_predicate) = clause.as_trait_clause()
+            // The `Bundle` trait doesn't require any bound vars, so we dispel the binder.
+            && let Some(trait_predicate) = trait_predicate.no_bound_vars()
+            && let ty::TraitPredicate {
+                trait_ref,
+                // Negative trait bounds, which are unstable, allow matching all types _except_
+                // those with a specific trait. We don't want that, however, so we only match
+                // positive trait bounds.
+                polarity: PredicatePolarity::Positive,
+            } = trait_predicate
+            // Only match `T: Bundle` predicates.
+            && paths::BUNDLE.matches(cx, trait_ref.def_id)
+        {
+            let self_ty = trait_ref.self_ty();
+
+            debug_assert!(
+                matches!(self_ty.kind(), ty::TyKind::Param(_)),
+                "type from trait bound was expected to be a type parameter",
+            );
+
+            // At this point, we've confirmed the predicate is `T: Bundle`! Add it to the list to
+            // be returned. :)
+            bundle_bounded_generics.push(trait_ref.self_ty());
+        }
+    }
+
+    bundle_bounded_generics
 }
 
 /// Represents the path to an item within a nested tuple.
@@ -170,7 +216,7 @@ impl<'tcx> LateLintPass<'tcx> for InsertUnitBundle {
 ///     (),
 /// )
 /// ```
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 #[repr(transparent)]
 struct TuplePath(Vec<usize>);
 
@@ -243,7 +289,7 @@ impl TuplePath {
 /// See [`TuplePath`]'s documentation for more information.
 fn find_units_in_tuple(ty: Ty<'_>) -> Vec<TuplePath> {
     fn inner(ty: Ty<'_>, current_path: &mut TuplePath, unit_paths: &mut Vec<TuplePath>) {
-        if let TyKind::Tuple(types) = ty.kind() {
+        if let ty::TyKind::Tuple(types) = ty.kind() {
             if types.is_empty() {
                 unit_paths.push(current_path.clone());
                 return;

@@ -23,6 +23,8 @@ macro_rules! type_path {
 
 /// <https://github.com/bevyengine/bevy/blob/v0.16.0/crates/bevy_app/src/app.rs#L78>
 pub static APP: PathLookup = type_path!(bevy_app::app::App);
+/// <https://github.com/bevyengine/bevy/blob/v0.16.0/crates/bevy_ecs/src/bundle.rs#L151>
+pub static BUNDLE: PathLookup = type_path!(bevy_ecs::bundle::Bundle);
 /// <https://github.com/bevyengine/bevy/blob/v0.16.0/crates/bevy_render/src/camera/camera.rs#L346>
 pub static CAMERA: PathLookup = type_path!(bevy_render::camera::camera::Camera);
 /// <https://github.com/bevyengine/bevy/blob/v0.16.0/crates/bevy_ecs/src/system/commands/mod.rs#L101>
