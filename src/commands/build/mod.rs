@@ -1,6 +1,6 @@
 //! Provides functionalities to build a Bevy app targeting either native or web platforms.
 
-use args::BuildArgs;
+pub use args::BuildArgs;
 
 #[cfg(feature = "web")]
 use crate::web::build::build_web;

@@ -2,8 +2,11 @@ use std::{fmt::Write, process::ExitCode};
 
 use ansi_term::Color::{Blue, Green, Purple, Red, Yellow};
 #[cfg(feature = "rustup")]
-use bevy_cli::lint::LintArgs;
-use bevy_cli::{build::args::BuildArgs, run::RunArgs};
+use bevy_cli::commands::lint::{LintArgs, lint};
+use bevy_cli::commands::{
+    build::{BuildArgs, build},
+    run::{RunArgs, run},
+};
 use clap::{Args, CommandFactory, Parser, Subcommand, builder::styling::Style};
 use clap_cargo::style;
 use tracing::error;
@@ -42,9 +45,9 @@ fn main() -> ExitCode {
             bevy_cli::template::generate_template(&new.name, &new.template, &new.branch).map(|_| ())
         }
         #[cfg(feature = "rustup")]
-        Subcommands::Lint(args) => bevy_cli::lint::lint(args),
-        Subcommands::Build(mut args) => bevy_cli::build::build(&mut args),
-        Subcommands::Run(mut args) => bevy_cli::run::run(&mut args),
+        Subcommands::Lint(args) => lint(args),
+        Subcommands::Build(mut args) => build(&mut args),
+        Subcommands::Run(mut args) => run(&mut args),
         Subcommands::Completions { shell } => {
             clap_complete::generate(shell, &mut Cli::command(), "bevy", &mut std::io::stdout());
             Ok(())
