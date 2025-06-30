@@ -5,9 +5,10 @@ use ansi_term::Color::{Blue, Green, Purple, Red, Yellow};
 use bevy_cli::commands::lint::{LintArgs, lint};
 use bevy_cli::commands::{
     build::{BuildArgs, build},
+    completions::completions,
     run::{RunArgs, run},
 };
-use clap::{Args, CommandFactory, Parser, Subcommand, builder::styling::Style};
+use clap::{Args, Parser, Subcommand, builder::styling::Style};
 use clap_cargo::style;
 use tracing::error;
 use tracing_subscriber::{
@@ -49,7 +50,7 @@ fn main() -> ExitCode {
         Subcommands::Build(mut args) => build(&mut args),
         Subcommands::Run(mut args) => run(&mut args),
         Subcommands::Completions { shell } => {
-            clap_complete::generate(shell, &mut Cli::command(), "bevy", &mut std::io::stdout());
+            completions::<Cli>(shell);
             Ok(())
         }
     } {
