@@ -50,7 +50,7 @@
 //! # bevy::ecs::system::assert_is_system(spawn);
 //! ```
 
-use clippy_utils::diagnostics::span_lint;
+use clippy_utils::{diagnostics::span_lint, fn_def_id};
 use rustc_hir::{Expr, ExprKind, def_id::DefId};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::{self, Ty};
@@ -74,22 +74,50 @@ impl<'tcx> LateLintPass<'tcx> for InsertUnitBundle {
             return;
         }
 
-        if let ExprKind::Call(fn_, args) = expr.kind
-            && let ExprKind::Path(fn_path) = fn_.kind
-            // This will be `None` if the function is a local closure. Since closures cannot have
-            // generic parameters, they cannot take bundles as an input, so we can skip them.
-            && let Some(fn_id) = cx.qpath_res(&fn_path, fn_.hir_id).opt_def_id()
-        {
-            let typeck_results = cx.typeck_results();
+        let (fn_id, fn_args, fn_arg_types) = match expr.kind {
+            ExprKind::Call(_, fn_args) => {
+                let Some(fn_id) = fn_def_id(cx, expr) else {
+                    // This will be `None` if the function is a local closure. Since closures
+                    // cannot have generic parameters, they cannot take bundles as an input, so we
+                    // can skip them.
+                    return;
+                };
 
-            for bundle_expr in bundle_arguments(cx, fn_id, args) {
-                let bundle_ty = typeck_results.expr_ty(bundle_expr);
+                let fn_arg_types = fn_arg_types(cx, fn_id);
 
-                for tuple_path in find_units_in_tuple(bundle_ty) {
-                    let unit_expr = tuple_path.into_expr(bundle_expr);
+                (fn_id, fn_args, fn_arg_types)
+            }
+            ExprKind::MethodCall(_, _, fn_args, _) => {
+                let Some(fn_id) = fn_def_id(cx, expr) else {
+                    // See comment for `ExprKind::Call` branch for why we return here.
+                    return;
+                };
 
-                    span_lint(cx, INSERT_UNIT_BUNDLE, unit_expr.span, INSERT_UNIT_BUNDLE.desc);
-                }
+                // The first argument is `&self` because it's a method. We skip it because `&self`
+                // won't be in `args`, making the two slices two different lengths.
+                let fn_arg_types = &fn_arg_types(cx, fn_id)[1..];
+
+                (fn_id, fn_args, fn_arg_types)
+            }
+            _ => return,
+        };
+
+        debug_assert_eq!(fn_args.len(), fn_arg_types.len());
+
+        let typeck_results = cx.typeck_results();
+
+        for bundle_expr in filter_bundle_args(cx, fn_id, fn_args, fn_arg_types) {
+            let bundle_ty = typeck_results.expr_ty(bundle_expr);
+
+            for tuple_path in find_units_in_tuple(bundle_ty) {
+                let unit_expr = tuple_path.into_expr(bundle_expr);
+
+                span_lint(
+                    cx,
+                    INSERT_UNIT_BUNDLE,
+                    unit_expr.span,
+                    INSERT_UNIT_BUNDLE.desc,
+                );
             }
         }
     }
@@ -99,12 +127,12 @@ impl<'tcx> LateLintPass<'tcx> for InsertUnitBundle {
 ///
 /// `fn_id` should be the definition of the function itself, and `args` should be the arguments
 /// passed to the function.
-fn bundle_arguments<'tcx>(
+fn filter_bundle_args<'tcx>(
     cx: &LateContext<'tcx>,
     fn_id: DefId,
-    args: &'tcx [Expr<'tcx>],
+    fn_args: &'tcx [Expr<'tcx>],
+    fn_arg_types: &[Ty<'tcx>],
 ) -> impl Iterator<Item = &'tcx Expr<'tcx>> {
-    let fn_arg_types = fn_arg_types(cx, fn_id);
     let bundle_bounded_generics: Vec<Ty<'_>> = bundle_bounded_generics(cx, fn_id);
 
     // Only yield arguments whose types are generic parameters that require the `Bundle` trait.
@@ -112,7 +140,7 @@ fn bundle_arguments<'tcx>(
         .iter()
         .enumerate()
         .filter(move |(_, arg)| bundle_bounded_generics.contains(arg))
-        .map(|(i, _)| &args[i])
+        .map(|(i, _)| &fn_args[i])
 }
 
 /// Returns a list of types corresponding to the inputs of a function.
