@@ -1,11 +1,13 @@
-//! Checks for calls to `Commands::spawn()` that inserts unit [`()`](unit) as a component.
+//! Checks for `Bundle`s that contain the unit [`()`](unit) as a component.
+//!
+//! Specifically, this lint checks for when you pass a `Bundle` to a function or method, such as
+//! `Commands::spawn()`. If the bundle contains a unit, the lint will emit a warning.
 //!
 //! # Motivation
 //!
-//! It is possible to use `Commands::spawn()` to spawn an entity with a unit `()` component, since
-//! unit implements `Bundle`. Unit is not a `Component`, however, and will be ignored instead of
-//! added to the entity. Often, inserting a unit is unintentional and is a sign that the author
-//! intended to do something else.
+//! It is possible to create bundles with a unit `()` component, since unit implements `Bundle`.
+//! Unit is not a `Component`, however, and will be ignored instead of added to the entity. Often,
+//! inserting a unit is unintentional and is a sign that the author intended to do something else.
 //!
 //! # Example
 //!
@@ -35,13 +37,12 @@
 //! # use std::f32::consts::PI;
 //! #
 //! fn spawn(mut commands: Commands) {
-//!     // `Commands::spawn_empty()` is preferred if you do not need any components.
+//!     // `Commands::spawn_empty()` is preferred if you do not need to add any components.
 //!     commands.spawn_empty();
 //!
 //!     commands.spawn((
 //!         Name::new("Decal"),
-//!         // `Transform::with_rotation()` returns a `Transform`, which was likely the intended
-//!         // behavior.
+//!         // `Transform::with_rotation()` returns a `Transform`, which was the intended behavior.
 //!         Transform::from_translation(Vec3::new(0.75, 0.0, 0.0))
 //!             .with_rotation(Quat::from_rotation_z(PI / 4.0)),
 //!     ));
@@ -59,16 +60,16 @@ use rustc_type_ir::PredicatePolarity;
 use crate::{declare_bevy_lint, declare_bevy_lint_pass, paths};
 
 declare_bevy_lint! {
-    pub(crate) INSERT_UNIT_BUNDLE,
+    pub(crate) UNIT_BUNDLE,
     super::Suspicious,
-    "inserted a `Bundle` containing a unit `()` type",
+    "created a `Bundle` containing a unit `()` type",
 }
 
 declare_bevy_lint_pass! {
-    pub(crate) InsertUnitBundle => [INSERT_UNIT_BUNDLE],
+    pub(crate) UnitBundle => [UNIT_BUNDLE],
 }
 
-impl<'tcx> LateLintPass<'tcx> for InsertUnitBundle {
+impl<'tcx> LateLintPass<'tcx> for UnitBundle {
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &'tcx Expr<'tcx>) {
         if expr.span.in_external_macro(cx.tcx.sess.source_map()) {
             return;
@@ -112,12 +113,7 @@ impl<'tcx> LateLintPass<'tcx> for InsertUnitBundle {
             for tuple_path in find_units_in_tuple(bundle_ty) {
                 let unit_expr = tuple_path.into_expr(bundle_expr);
 
-                span_lint(
-                    cx,
-                    INSERT_UNIT_BUNDLE,
-                    unit_expr.span,
-                    INSERT_UNIT_BUNDLE.desc,
-                );
+                span_lint(cx, UNIT_BUNDLE, unit_expr.span, UNIT_BUNDLE.desc);
             }
         }
     }
