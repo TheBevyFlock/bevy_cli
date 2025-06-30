@@ -4,11 +4,7 @@ error: unconventional type name for a `SystemSet`
 10 | struct MyAudio;
    |        ^^^^^^^ help: rename `MyAudio`: `MyAudioSystems`
    |
-note: structures that implement `SystemSet` should end in `Systems`
-  --> tests/ui/unconventional_naming/system_set.rs:10:8
-   |
-10 | struct MyAudio;
-   |        ^^^^^^^
+   = note: structures that implement `SystemSet` should end in "Systems"
 note: `SystemSet` implemented here
   --> tests/ui/unconventional_naming/system_set.rs:9:10
    |
@@ -27,11 +23,7 @@ error: unconventional type name for a `SystemSet`
 21 | struct MyAudioSystem;
    |        ^^^^^^^^^^^^^ help: rename `MyAudioSystem`: `MyAudioSystems`
    |
-note: structures that implement `SystemSet` should end in `Systems`
-  --> tests/ui/unconventional_naming/system_set.rs:21:8
-   |
-21 | struct MyAudioSystem;
-   |        ^^^^^^^^^^^^^
+   = note: structures that implement `SystemSet` should end in "Systems"
 note: `SystemSet` implemented here
   --> tests/ui/unconventional_naming/system_set.rs:20:10
    |
@@ -45,11 +37,7 @@ error: unconventional type name for a `SystemSet`
 28 | struct MyAudioSet;
    |        ^^^^^^^^^^ help: rename `MyAudioSet`: `MyAudioSystems`
    |
-note: structures that implement `SystemSet` should end in `Systems`
-  --> tests/ui/unconventional_naming/system_set.rs:28:8
-   |
-28 | struct MyAudioSet;
-   |        ^^^^^^^^^^
+   = note: structures that implement `SystemSet` should end in "Systems"
 note: `SystemSet` implemented here
   --> tests/ui/unconventional_naming/system_set.rs:27:10
    |
@@ -63,11 +51,7 @@ error: unconventional type name for a `SystemSet`
 35 | struct MyAudioSteps;
    |        ^^^^^^^^^^^^ help: rename `MyAudioSteps`: `MyAudioSystems`
    |
-note: structures that implement `SystemSet` should end in `Systems`
-  --> tests/ui/unconventional_naming/system_set.rs:35:8
-   |
-35 | struct MyAudioSteps;
-   |        ^^^^^^^^^^^^
+   = note: structures that implement `SystemSet` should end in "Systems"
 note: `SystemSet` implemented here
   --> tests/ui/unconventional_naming/system_set.rs:34:10
    |
