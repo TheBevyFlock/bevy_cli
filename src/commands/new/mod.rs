@@ -2,10 +2,13 @@
 
 use std::path::PathBuf;
 
+pub use args::NewArgs;
 use cargo_generate::{GenerateArgs, TemplatePath};
 use regex::Regex;
 use reqwest::blocking::Client;
 use serde::Deserialize;
+
+pub mod args;
 
 /// An abbreviated version of the full [GitHub API response](https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#list-organization-repositories).
 ///
@@ -22,7 +25,13 @@ struct Repository {
 /// If `git` is [`None`], it will default to [TheBevyFlock/bevy_new_minimal].
 ///
 /// [TheBevyFlock/bevy_new_minimal]: https://github.com/TheBevyFlock/bevy_new_miminal
-pub fn generate_template(name: &str, template: &str, branch: &str) -> anyhow::Result<PathBuf> {
+pub fn new(args: &NewArgs) -> anyhow::Result<PathBuf> {
+    let NewArgs {
+        name,
+        template,
+        branch,
+    } = args;
+
     // Validate that the package name starts with an alphabetic character
     if let Some(first_char) = name.chars().next() {
         anyhow::ensure!(
