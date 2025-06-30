@@ -117,6 +117,11 @@ impl BuildArgs {
             if web_args.wasm_opt.is_empty() {
                 web_args.wasm_opt = config.wasm_opt(is_release).to_raw();
             }
+
+            #[cfg(feature = "experimental")]
+            if web_args.multi_threading.is_none() {
+                web_args.multi_threading = config.web_multi_threading();
+            }
         }
     }
 }
@@ -142,4 +147,14 @@ pub struct BuildWebArgs {
     /// You can also specify custom arguments to use.
     #[arg(long = "wasm-opt", allow_hyphen_values = true)]
     pub wasm_opt: Vec<String>,
+    /// EXPERIMENTAL: Build a Wasm binary that can use multi-threading functionality.
+    ///
+    /// Note that this flag alone won't make your app multi-threaded.
+    /// Bevy doesn't yet natively provide multi-threading for web apps,
+    /// so you have to implement it yourself.
+    ///
+    /// Requires a nightly Rust toolchain.
+    #[cfg(feature = "experimental")]
+    #[arg(long = "experimental-multi-threading", action = ArgAction::SetTrue)]
+    pub multi_threading: Option<bool>,
 }

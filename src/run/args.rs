@@ -119,6 +119,11 @@ impl RunArgs {
             if web_args.wasm_opt.is_empty() {
                 web_args.wasm_opt = config.wasm_opt(is_release).to_raw();
             }
+
+            #[cfg(feature = "experimental")]
+            if web_args.multi_threading.is_none() {
+                web_args.multi_threading = config.web_multi_threading();
+            }
         }
     }
 }
@@ -161,6 +166,17 @@ pub struct RunWebArgs {
     /// You can also specify custom arguments to use.
     #[arg(long = "wasm-opt", allow_hyphen_values = true)]
     pub wasm_opt: Vec<String>,
+
+    /// EXPERIMENTAL: Run an app that can use multi-threading functionality.
+    ///
+    /// Note that this flag alone won't make your app multi-threaded.
+    /// Bevy doesn't yet natively provide multi-threading for web apps,
+    /// so you have to implement it yourself.
+    ///
+    /// Requires a nightly Rust toolchain.
+    #[cfg(feature = "experimental")]
+    #[arg(long = "experimental-multi-threading", action = ArgAction::SetTrue)]
+    pub multi_threading: Option<bool>,
 }
 
 impl Default for RunWebArgs {
@@ -172,6 +188,8 @@ impl Default for RunWebArgs {
             create_packed_bundle: false,
             headers: Vec::new(),
             wasm_opt: Vec::new(),
+            #[cfg(feature = "experimental")]
+            multi_threading: None,
         }
     }
 }
@@ -208,6 +226,8 @@ impl From<RunArgs> for BuildArgs {
                 RunSubcommands::Web(web_args) => BuildSubcommands::Web(BuildWebArgs {
                     create_packed_bundle: web_args.create_packed_bundle,
                     wasm_opt: web_args.wasm_opt,
+                    #[cfg(feature = "experimental")]
+                    multi_threading: web_args.multi_threading,
                 }),
             }),
         }
