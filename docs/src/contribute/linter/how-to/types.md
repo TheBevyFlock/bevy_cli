@@ -64,27 +64,17 @@ For more information, see [`Adjustment`], [Type coercions], and [Method lookup].
 
 ## Checking for a Specific Type
 
-Often you have a `Ty`, and want to check if it matches a specific hardcoded type, such as Bevy's [`App`]. You can do this with `clippy_utils`'s [`match_type()`] function:
+Often you have a `Ty`, and want to check if it matches a specific hardcoded type, such as Bevy's [`App`]. You can check if a type matches a specific path using [`PathLookup::matches_ty()`](https://doc.rust-lang.org/nightly/nightly-rustc/clippy_utils/paths/struct.PathLookup.html#method.matches_ty). `PathLookup`s used by `bevy_lint` are placed in the `paths` module:
 
 ```rust
-use clippy_utils::ty::match_type;
+// Import the `PathLookup` for Bevy's `App` type.
+use crate::paths::APP;
 
-// The absolute path to `App`'s definition.
-const APP: [&str; 3] = ["bevy_app", "app", "App"];
-
-if match_type(cx, ty, &APP) {
+// Returns true if `ty` is an `App`.
+if APP.matches_ty(cx, ty) {
     // ...
 }
 ```
-
-All path constants are defined in `paths.rs`. If you add a new constant, place it there.
-
-> **Important**
->
-> `bevy_app::app` is a [private module], but we still have to refer to it by name because [`struct App`] is within `bevy_app/src/app.rs`. Do not be tricked by re-exported types, such as `bevy::prelude::App`!
->
-> [private module]: https://docs.rs/bevy_app/0.16.0-rc.2/src/bevy_app/lib.rs.html#26
-> [`struct App`]: https://docs.rs/bevy_app/0.16.0-rc.2/src/bevy_app/app.rs.html#78-88
 
 [`App`]: https://docs.rs/bevy/latest/bevy/app/struct.App.html
 [`match_type()`]: https://doc.rust-lang.org/nightly/nightly-rustc/clippy_utils/ty/fn.match_type.html

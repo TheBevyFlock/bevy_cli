@@ -24,11 +24,9 @@ impl LintGroup for Pedantic {
     ];
 
     fn register_passes(store: &mut LintStore) {
+        store.register_late_pass(|_| Box::new(borrowed_reborrowable::BorrowedReborrowable));
         store.register_late_pass(|_| {
-            Box::new(borrowed_reborrowable::BorrowedReborrowable::default())
-        });
-        store.register_late_pass(|_| {
-            Box::new(main_return_without_appexit::MainReturnWithoutAppExit::default())
+            Box::new(main_return_without_appexit::MainReturnWithoutAppExit)
         });
     }
 }
