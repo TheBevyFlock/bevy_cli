@@ -2,7 +2,7 @@
 
 #![feature(register_tool)]
 #![register_tool(bevy)]
-#![deny(bevy::insert_unit_bundle)]
+#![deny(bevy::unit_bundle)]
 
 use bevy::prelude::*;
 

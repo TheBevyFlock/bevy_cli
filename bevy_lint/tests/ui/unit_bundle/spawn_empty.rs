@@ -1,6 +1,6 @@
 #![feature(register_tool)]
 #![register_tool(bevy)]
-#![deny(bevy::insert_unit_bundle)]
+#![deny(bevy::unit_bundle)]
 
 use bevy::prelude::*;
 
@@ -10,5 +10,5 @@ fn main() {
 
 fn my_system(mut commands: Commands) {
     commands.spawn(());
-    //~^ ERROR: inserted a `Bundle` containing a unit `()` type
+    //~^ ERROR: created a `Bundle` containing a unit `()`
 }
