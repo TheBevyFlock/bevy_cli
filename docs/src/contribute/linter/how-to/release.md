@@ -8,11 +8,9 @@
 4. Review the migration guide (`bevy_lint/MIGRATION.md`) and ensure all breaking / significant changes from the previous version are documented.
 5. Remove the `-dev` suffix from the version in `Cargo.toml` and the compatibility table in `bevy_lint/README.md`.
     - Please ensure that `Cargo.lock` also updates!
-6. Replace `--branch main` in `action.yml` with `--tag lint-vX.Y.Z`.
-    - The `linter-action.yml` workflow may fail as the tag does not exist yet. This is fine!
-7. Update the toolchain install, `bevy_lint` install, and `bevy_lint` uninstall commands in both `README.md` and the [install page](../../../linter/install.md) to use the latest version and toolchain.
-8. Commit all of these changes and open a pull request.
-9. Merge the PR once a core Bevy maintainer approves it with no outstanding issues from other contributors.
+6. Update the toolchain install, `bevy_lint` install, and `bevy_lint` uninstall commands in both `README.md` and the [install page](../../../linter/install.md) to use the latest version and toolchain.
+7. Commit all of these changes and open a pull request.
+8. Merge the PR once a core Bevy maintainer approves it with no outstanding issues from other contributors.
     - This starts the release process, enacting a freeze on all other changes until the release has finished. While maintainers need to be aware of this so they do not merge PRs during this time, the release process should take less than an hour, so it's unlikely to ever be an issue.
 
 ## Release on Github
@@ -74,6 +72,5 @@ rustup run nightly-YYYY-MM-DD cargo install \
 
 2. Bump the version in `Cargo.toml` to the next `-dev` version, and ensure `Cargo.lock` also updates.
 3. Add a new row to the compatibility table for the new `-dev` version in `README.md`.
-4. Replace `--tag lint-vX.Y.Z` in `action.yml` with `--branch main`.
-5. Commit all of these changes and open a pull request.
-6. Merge the PR after it has been approved, unblocking frozen pull requests.
+4. Commit all of these changes and open a pull request.
+5. Merge the PR after it has been approved, unblocking frozen pull requests.
