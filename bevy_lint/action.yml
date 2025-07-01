@@ -12,20 +12,39 @@ description: |
 runs:
   using: composite
   steps:
+    # Used to read `rust-toolchain.toml`.
+    - name: Install Taplo
+      uses: taiki-e/install-action@v2
+      with:
+        tool: taplo
+
+    # Read `rust-toolchain.toml` to find the exact nightly toolchain the linter needs.
+    - name: Extract toolchain
+      id: toolchain
+      shell: bash
+      run: |
+        CHANNEL=$(taplo get --file-path="${RUST_TOOLCHAIN_PATH}" 'toolchain.channel')
+        COMPONENTS=$(taplo get --file-path="${RUST_TOOLCHAIN_PATH}" --separator=', ' 'toolchain.components')
+
+        echo "channel=${CHANNEL}" >> "${GITHUB_OUTPUT}"
+        echo "components=${COMPONENTS}" >> "${GITHUB_OUTPUT}"
+      env:
+        RUST_TOOLCHAIN_PATH: ${{ github.action_path }}/../rust-toolchain.toml
+
     - name: Install Rust toolchain and components
       uses: dtolnay/rust-toolchain@master
       with:
-        # This must be kept in sync with `rust-toolchain.toml`.
-        toolchain: nightly-2025-05-14
-        components: rustc-dev, llvm-tools-preview
+        toolchain: ${{ steps.toolchain.outputs.channel }}
+        components: ${{ steps.toolchain.outputs.components }}
 
     - name: Install `bevy_lint`
       shell: bash
       run: |
-        # The toolchain must be kept in sync with `rust-toolchain.toml`. The `--branch main` should
-        # be swapped with `--tag lint-vX.Y.Z` for releases.
-        rustup run nightly-2025-05-14 cargo install \
-          --git https://github.com/TheBevyFlock/bevy_cli.git \
-          --branch main \
-          --locked \
-          bevy_lint
+        rustup run "${RUST_CHANNEL}" cargo install \
+          --path "${BEVY_LINT_PATH}" \
+          --locked
+      env:
+        RUST_CHANNEL: ${{ steps.toolchain.outputs.channel }}
+        # As the full contents of `TheBevyFlock/bevy_cli` is included alongside this action, we can
+        # install the linter relative to the action path.
+        BEVY_LINT_PATH: ${{ github.action_path }}
