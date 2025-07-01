@@ -1,0 +1,167 @@
+error: created a `Bundle` containing a unit `()`
+  --> tests/ui/unit_bundle/general.rs:39:9
+   |
+39 |         (),
+   |         ^^
+   |
+   = note: units `()` are not `Component`s and will be skipped
+note: the lint level is defined here
+  --> tests/ui/unit_bundle/general.rs:3:9
+   |
+3  | #![deny(bevy::unit_bundle)]
+   |         ^^^^^^^^^^^^^^^^^
+
+error: created a `Bundle` containing a unit `()`
+  --> tests/ui/unit_bundle/general.rs:44:9
+   |
+44 |         unit,
+   |         ^^^^
+   |
+   = note: units `()` are not `Component`s and will be skipped
+
+error: created a `Bundle` containing a unit `()`
+  --> tests/ui/unit_bundle/general.rs:51:13
+   |
+51 |             (),
+   |             ^^
+   |
+   = note: units `()` are not `Component`s and will be skipped
+
+error: created a `Bundle` containing a unit `()`
+  --> tests/ui/unit_bundle/general.rs:58:9
+   |
+58 |         contains_unit,
+   |         ^^^^^^^^^^^^^
+   |
+   = note: units `()` are not `Component`s and will be skipped
+
+error: created a `Bundle` containing a unit `()`
+  --> tests/ui/unit_bundle/general.rs:66:9
+   |
+66 |         returns_unit(),
+   |         ^^^^^^^^^^^^^^
+   |
+   = note: units `()` are not `Component`s and will be skipped
+
+error: created a `Bundle` containing a unit `()`
+  --> tests/ui/unit_bundle/general.rs:73:9
+   |
+73 |         (),
+   |         ^^
+   |
+   = note: units `()` are not `Component`s and will be skipped
+
+error: created a `Bundle` containing a unit `()`
+  --> tests/ui/unit_bundle/general.rs:80:13
+   |
+80 |             (),
+   |             ^^
+   |
+   = note: units `()` are not `Component`s and will be skipped
+
+error: created a `Bundle` containing a unit `()`
+  --> tests/ui/unit_bundle/general.rs:90:9
+   |
+90 |         (),
+   |         ^^
+   |
+   = note: units `()` are not `Component`s and will be skipped
+
+error: created a `Bundle` containing a unit `()`
+  --> tests/ui/unit_bundle/general.rs:92:9
+   |
+92 |         (),
+   |         ^^
+   |
+   = note: units `()` are not `Component`s and will be skipped
+
+error: created a `Bundle` containing a unit `()`
+   --> tests/ui/unit_bundle/general.rs:101:17
+    |
+101 |                 (),
+    |                 ^^
+    |
+    = note: units `()` are not `Component`s and will be skipped
+
+error: created a `Bundle` containing a unit `()`
+   --> tests/ui/unit_bundle/general.rs:111:9
+    |
+111 |         (),
+    |         ^^
+    |
+    = note: units `()` are not `Component`s and will be skipped
+
+error: created a `Bundle` containing a unit `()`
+   --> tests/ui/unit_bundle/general.rs:118:13
+    |
+118 |             (),
+    |             ^^
+    |
+    = note: units `()` are not `Component`s and will be skipped
+
+error: created a `Bundle` containing a unit `()`
+   --> tests/ui/unit_bundle/general.rs:127:9
+    |
+127 |         (),
+    |         ^^
+    |
+    = note: units `()` are not `Component`s and will be skipped
+
+error: created a `Bundle` containing a unit `()`
+   --> tests/ui/unit_bundle/general.rs:134:13
+    |
+134 |             (),
+    |             ^^
+    |
+    = note: units `()` are not `Component`s and will be skipped
+
+error: created a `Bundle` containing a unit `()`
+   --> tests/ui/unit_bundle/general.rs:142:9
+    |
+142 |         (),
+    |         ^^
+    |
+    = note: units `()` are not `Component`s and will be skipped
+
+error: created a `Bundle` containing a unit `()`
+   --> tests/ui/unit_bundle/general.rs:149:9
+    |
+149 |         (),
+    |         ^^
+    |
+    = note: units `()` are not `Component`s and will be skipped
+
+error: created a `Bundle` containing a unit `()`
+   --> tests/ui/unit_bundle/general.rs:154:9
+    |
+154 |         (),
+    |         ^^
+    |
+    = note: units `()` are not `Component`s and will be skipped
+
+error: created a `Bundle` containing a unit `()`
+   --> tests/ui/unit_bundle/general.rs:159:9
+    |
+159 |         (),
+    |         ^^
+    |
+    = note: units `()` are not `Component`s and will be skipped
+
+error: created a `Bundle` containing a unit `()`
+   --> tests/ui/unit_bundle/general.rs:166:13
+    |
+166 |             (),
+    |             ^^
+    |
+    = note: units `()` are not `Component`s and will be skipped
+
+error: created a `Bundle` containing a unit `()`
+   --> tests/ui/unit_bundle/general.rs:175:13
+    |
+175 |             (),
+    |             ^^
+    |
+    = note: units `()` are not `Component`s and will be skipped
+
+error: aborting due to 20 previous errors
+

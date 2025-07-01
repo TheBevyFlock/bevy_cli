@@ -11,12 +11,14 @@ fn main() {
 }
 
 fn my_system(mut commands: Commands) {
-    #[allow(bevy::insert_unit_bundle)]
-    commands.spawn(());
+    commands.spawn(
+        #[expect(bevy::unit_bundle)]
+        (),
+    );
 
     commands.spawn((
         Name::new("Decal"),
-        #[allow(bevy::insert_unit_bundle)]
+        #[expect(bevy::unit_bundle)]
         (),
     ));
 }
