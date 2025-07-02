@@ -17,6 +17,8 @@ fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &Expr<'tcx>) {
 }
 ```
 
+Usually you want to use [`expr_ty_adjusted()`](#getting-the-adjusted-type-of-an-expression) instead.
+
 [`Expr`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir/hir/struct.Expr.html
 [`TypeckResults`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/typeck_results/struct.TypeckResults.html
 
@@ -34,7 +36,7 @@ See [`Ty::peel_refs()`] for more information.
 
 ## Getting the Adjusted Type of an Expression
 
-The Rust compiler occasionally makes adjustments to types in order to support automatic dereferencing and type coercion. `TypeckResults::expr_ty()` ignores these adjustments, returning the original type. Sometimes this isn't desired, as you may want the adjusted type, in which case you should use [`TypeckResults::expr_ty_adjusted()`] instead:
+The Rust compiler occasionally makes adjustments to types in order to support automatic dereferencing and type coercion. `TypeckResults::expr_ty()` ignores these adjustments, returning the type the user wrote. Usually this isn't desired, as you want to see the final coerced type, in which case you should use [`TypeckResults::expr_ty_adjusted()`] instead:
 
 ```rust
 fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &Expr<'tcx>) {

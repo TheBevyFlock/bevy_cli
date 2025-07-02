@@ -101,7 +101,7 @@ impl<'tcx> LateLintPass<'tcx> for PanickingMethods {
             // ^^^^^
             //
             // We peel all references to that `Foo`, `&Foo`, `&&Foo`, etc.
-            let src_ty = cx.typeck_results().expr_ty(receiver).peel_refs();
+            let src_ty = cx.typeck_results().expr_ty_adjusted(receiver).peel_refs();
 
             // Check if `src_ty` is a type that has panicking methods (e.g. `Query`), else exit.
             let Some(panicking_type) = PanickingType::try_from_ty(cx, src_ty) else {

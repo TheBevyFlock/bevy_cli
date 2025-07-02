@@ -82,7 +82,7 @@ impl<'tcx> LateLintPass<'tcx> for InsertUnitBundle {
             return;
         };
 
-        let src_ty = cx.typeck_results().expr_ty(receiver).peel_refs();
+        let src_ty = cx.typeck_results().expr_ty_adjusted(receiver).peel_refs();
 
         // If the method call was not to `Commands::spawn()` or originates from an external macro,
         // we skip it.
@@ -99,7 +99,7 @@ impl<'tcx> LateLintPass<'tcx> for InsertUnitBundle {
         };
 
         // Find the type of the bundle.
-        let bundle_ty = cx.typeck_results().expr_ty(bundle_expr);
+        let bundle_ty = cx.typeck_results().expr_ty_adjusted(bundle_expr);
 
         // Special-case `commands.spawn(())` and suggest `Commands::spawn_empty()` instead.
         if bundle_ty.is_unit() {
