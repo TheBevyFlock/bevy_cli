@@ -28,6 +28,7 @@
     - [Toggling Lints in Code](linter/usage/toggling-lints-code.md)
 - [Compatibility](linter/compatibility.md)
 - [Environmental Variables](linter/environmental-variables.md)
+- [Rust Analyzer Support](linter/rust-analyzer.md)
 - [Github Actions](linter/github-actions.md)
 - [Troubleshooting](linter/troubleshooting.md)
 - [Changelog](linter/changelog.md)
