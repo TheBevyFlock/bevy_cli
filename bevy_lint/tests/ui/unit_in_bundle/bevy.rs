@@ -3,7 +3,7 @@
 
 #![feature(register_tool)]
 #![register_tool(bevy)]
-#![deny(bevy::unit_bundle)]
+#![deny(bevy::unit_in_bundle)]
 
 use std::f32::consts::PI;
 

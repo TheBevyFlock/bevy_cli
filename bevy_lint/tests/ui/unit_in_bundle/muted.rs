@@ -2,7 +2,7 @@
 
 #![feature(register_tool)]
 #![register_tool(bevy)]
-#![deny(bevy::unit_bundle)]
+#![deny(bevy::unit_in_bundle)]
 
 use bevy::prelude::*;
 
@@ -12,13 +12,13 @@ fn main() {
 
 fn my_system(mut commands: Commands) {
     commands.spawn(
-        #[expect(bevy::unit_bundle)]
+        #[expect(bevy::unit_in_bundle)]
         (),
     );
 
     commands.spawn((
         Name::new("Decal"),
-        #[expect(bevy::unit_bundle)]
+        #[expect(bevy::unit_in_bundle)]
         (),
     ));
 }

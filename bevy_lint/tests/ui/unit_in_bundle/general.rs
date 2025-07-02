@@ -1,6 +1,6 @@
 #![feature(register_tool)]
 #![register_tool(bevy)]
-#![deny(bevy::unit_bundle)]
+#![deny(bevy::unit_in_bundle)]
 #![allow(dead_code)]
 
 use bevy::prelude::*;

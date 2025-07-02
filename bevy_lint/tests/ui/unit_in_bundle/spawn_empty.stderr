@@ -1,18 +1,18 @@
 error: created a `Bundle` containing a unit `()`
-  --> tests/ui/unit_bundle/spawn_empty.rs:22:26
+  --> tests/ui/unit_in_bundle/spawn_empty.rs:22:26
    |
 22 |     commands_owned.spawn(());
    |                    ------^^- help: `spawn_empty()` is more efficient: `spawn_empty()`
    |
    = note: units `()` are not `Component`s and will be skipped
 note: the lint level is defined here
-  --> tests/ui/unit_bundle/spawn_empty.rs:3:9
+  --> tests/ui/unit_in_bundle/spawn_empty.rs:3:9
    |
-3  | #![deny(bevy::unit_bundle)]
-   |         ^^^^^^^^^^^^^^^^^
+3  | #![deny(bevy::unit_in_bundle)]
+   |         ^^^^^^^^^^^^^^^^^^^^
 
 error: created a `Bundle` containing a unit `()`
-  --> tests/ui/unit_bundle/spawn_empty.rs:25:29
+  --> tests/ui/unit_in_bundle/spawn_empty.rs:25:29
    |
 25 |     commands_borrowed.spawn(());
    |                       ------^^- help: `spawn_empty()` is more efficient: `spawn_empty()`
@@ -20,7 +20,7 @@ error: created a `Bundle` containing a unit `()`
    = note: units `()` are not `Component`s and will be skipped
 
 error: created a `Bundle` containing a unit `()`
-  --> tests/ui/unit_bundle/spawn_empty.rs:28:26
+  --> tests/ui/unit_in_bundle/spawn_empty.rs:28:26
    |
 28 |     commands_boxed.spawn(());
    |                    ------^^- help: `spawn_empty()` is more efficient: `spawn_empty()`
@@ -28,7 +28,7 @@ error: created a `Bundle` containing a unit `()`
    = note: units `()` are not `Component`s and will be skipped
 
 error: created a `Bundle` containing a unit `()`
-  --> tests/ui/unit_bundle/spawn_empty.rs:34:23
+  --> tests/ui/unit_in_bundle/spawn_empty.rs:34:23
    |
 34 |     world_owned.spawn(());
    |                 ------^^- help: `spawn_empty()` is more efficient: `spawn_empty()`
@@ -36,7 +36,7 @@ error: created a `Bundle` containing a unit `()`
    = note: units `()` are not `Component`s and will be skipped
 
 error: created a `Bundle` containing a unit `()`
-  --> tests/ui/unit_bundle/spawn_empty.rs:37:26
+  --> tests/ui/unit_in_bundle/spawn_empty.rs:37:26
    |
 37 |     world_borrowed.spawn(());
    |                    ------^^- help: `spawn_empty()` is more efficient: `spawn_empty()`
@@ -44,7 +44,7 @@ error: created a `Bundle` containing a unit `()`
    = note: units `()` are not `Component`s and will be skipped
 
 error: created a `Bundle` containing a unit `()`
-  --> tests/ui/unit_bundle/spawn_empty.rs:40:23
+  --> tests/ui/unit_in_bundle/spawn_empty.rs:40:23
    |
 40 |     world_boxed.spawn(());
    |                 ------^^- help: `spawn_empty()` is more efficient: `spawn_empty()`
@@ -52,7 +52,7 @@ error: created a `Bundle` containing a unit `()`
    = note: units `()` are not `Component`s and will be skipped
 
 error: created a `Bundle` containing a unit `()`
-  --> tests/ui/unit_bundle/spawn_empty.rs:50:33
+  --> tests/ui/unit_in_bundle/spawn_empty.rs:50:33
    |
 50 |     related_spawner_owned.spawn(());
    |                           ------^^- help: `spawn_empty()` is more efficient: `spawn_empty()`
@@ -60,7 +60,7 @@ error: created a `Bundle` containing a unit `()`
    = note: units `()` are not `Component`s and will be skipped
 
 error: created a `Bundle` containing a unit `()`
-  --> tests/ui/unit_bundle/spawn_empty.rs:53:36
+  --> tests/ui/unit_in_bundle/spawn_empty.rs:53:36
    |
 53 |     related_spawner_borrowed.spawn(());
    |                              ------^^- help: `spawn_empty()` is more efficient: `spawn_empty()`
@@ -68,7 +68,7 @@ error: created a `Bundle` containing a unit `()`
    = note: units `()` are not `Component`s and will be skipped
 
 error: created a `Bundle` containing a unit `()`
-  --> tests/ui/unit_bundle/spawn_empty.rs:56:33
+  --> tests/ui/unit_in_bundle/spawn_empty.rs:56:33
    |
 56 |     related_spawner_boxed.spawn(());
    |                           ------^^- help: `spawn_empty()` is more efficient: `spawn_empty()`
@@ -76,7 +76,7 @@ error: created a `Bundle` containing a unit `()`
    = note: units `()` are not `Component`s and will be skipped
 
 error: created a `Bundle` containing a unit `()`
-  --> tests/ui/unit_bundle/spawn_empty.rs:66:42
+  --> tests/ui/unit_in_bundle/spawn_empty.rs:66:42
    |
 66 |     related_spawner_commands_owned.spawn(());
    |                                    ------^^- help: `spawn_empty()` is more efficient: `spawn_empty()`
@@ -84,7 +84,7 @@ error: created a `Bundle` containing a unit `()`
    = note: units `()` are not `Component`s and will be skipped
 
 error: created a `Bundle` containing a unit `()`
-  --> tests/ui/unit_bundle/spawn_empty.rs:69:45
+  --> tests/ui/unit_in_bundle/spawn_empty.rs:69:45
    |
 69 |     related_spawner_commands_borrowed.spawn(());
    |                                       ------^^- help: `spawn_empty()` is more efficient: `spawn_empty()`
@@ -92,7 +92,7 @@ error: created a `Bundle` containing a unit `()`
    = note: units `()` are not `Component`s and will be skipped
 
 error: created a `Bundle` containing a unit `()`
-  --> tests/ui/unit_bundle/spawn_empty.rs:72:42
+  --> tests/ui/unit_in_bundle/spawn_empty.rs:72:42
    |
 72 |     related_spawner_commands_boxed.spawn(());
    |                                    ------^^- help: `spawn_empty()` is more efficient: `spawn_empty()`

@@ -1,6 +1,6 @@
 #![feature(register_tool)]
 #![register_tool(bevy)]
-#![deny(bevy::unit_bundle)]
+#![deny(bevy::unit_in_bundle)]
 #![allow(dead_code)]
 
 use bevy::{
@@ -19,25 +19,25 @@ pub fn test_commands(
     commands_borrowed: &mut Commands,
     mut commands_boxed: Box<Commands>,
 ) {
-    commands_owned.spawn_empty();
+    commands_owned.spawn(());
     //~^ ERROR: created a `Bundle` containing a unit `()`
     //~| HELP: `spawn_empty()` is more efficient
-    commands_borrowed.spawn_empty();
+    commands_borrowed.spawn(());
     //~^ ERROR: created a `Bundle` containing a unit `()`
     //~| HELP: `spawn_empty()` is more efficient
-    commands_boxed.spawn_empty();
+    commands_boxed.spawn(());
     //~^ ERROR: created a `Bundle` containing a unit `()`
     //~| HELP: `spawn_empty()` is more efficient
 }
 
 pub fn test_world(mut world_owned: World, world_borrowed: &mut World, mut world_boxed: Box<World>) {
-    world_owned.spawn_empty();
+    world_owned.spawn(());
     //~^ ERROR: created a `Bundle` containing a unit `()`
     //~| HELP: `spawn_empty()` is more efficient
-    world_borrowed.spawn_empty();
+    world_borrowed.spawn(());
     //~^ ERROR: created a `Bundle` containing a unit `()`
     //~| HELP: `spawn_empty()` is more efficient
-    world_boxed.spawn_empty();
+    world_boxed.spawn(());
     //~^ ERROR: created a `Bundle` containing a unit `()`
     //~| HELP: `spawn_empty()` is more efficient
 }
@@ -47,13 +47,13 @@ pub fn test_related_spawner(
     related_spawner_borrowed: &mut RelatedSpawner<'_, ChildOf>,
     mut related_spawner_boxed: Box<RelatedSpawner<'_, ChildOf>>,
 ) {
-    related_spawner_owned.spawn_empty();
+    related_spawner_owned.spawn(());
     //~^ ERROR: created a `Bundle` containing a unit `()`
     //~| HELP: `spawn_empty()` is more efficient
-    related_spawner_borrowed.spawn_empty();
+    related_spawner_borrowed.spawn(());
     //~^ ERROR: created a `Bundle` containing a unit `()`
     //~| HELP: `spawn_empty()` is more efficient
-    related_spawner_boxed.spawn_empty();
+    related_spawner_boxed.spawn(());
     //~^ ERROR: created a `Bundle` containing a unit `()`
     //~| HELP: `spawn_empty()` is more efficient
 }
@@ -63,13 +63,13 @@ pub fn test_related_spawner_commands(
     related_spawner_commands_borrowed: &mut RelatedSpawnerCommands<'_, ChildOf>,
     mut related_spawner_commands_boxed: Box<RelatedSpawnerCommands<'_, ChildOf>>,
 ) {
-    related_spawner_commands_owned.spawn_empty();
+    related_spawner_commands_owned.spawn(());
     //~^ ERROR: created a `Bundle` containing a unit `()`
     //~| HELP: `spawn_empty()` is more efficient
-    related_spawner_commands_borrowed.spawn_empty();
+    related_spawner_commands_borrowed.spawn(());
     //~^ ERROR: created a `Bundle` containing a unit `()`
     //~| HELP: `spawn_empty()` is more efficient
-    related_spawner_commands_boxed.spawn_empty();
+    related_spawner_commands_boxed.spawn(());
     //~^ ERROR: created a `Bundle` containing a unit `()`
     //~| HELP: `spawn_empty()` is more efficient
 }
