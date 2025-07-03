@@ -11,6 +11,9 @@ use anyhow::{Context, ensure};
 /// The Rustup toolchain channel specified by `rust-toolchain.toml`. This is set by `build.rs`.
 const RUST_TOOLCHAIN_CHANNEL: &str = env!("RUST_TOOLCHAIN_CHANNEL");
 
+/// All arguments that configure the linter's behavior when checking over code.
+///
+/// This does not include flags that short-circuit, like `--help` and `--version`.
 #[derive(Debug)]
 struct Args {
     /// If true, runs `cargo fix` instead of `cargo check`.
@@ -134,6 +137,9 @@ fn main() -> anyhow::Result<ExitCode> {
     Ok(ExitCode::from(code))
 }
 
+/// Parses arguments from the CLI.
+///
+/// This function will never return if `--help` or `--version` is passed.
 fn parse_args() -> Result<Args, pico_args::Error> {
     let mut parser = pico_args::Arguments::from_env();
 
@@ -149,6 +155,8 @@ fn parse_args() -> Result<Args, pico_args::Error> {
 
     let args = Args {
         fix: parser.contains("--fix"),
+
+        // Collect remaining arguments in a list to be passed to Cargo.
         cargo_args: parser.finish(),
     };
 
