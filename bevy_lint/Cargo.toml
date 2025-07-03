@@ -44,7 +44,7 @@ serde = { version = "1.0.210", features = ["derive"] }
 toml = { version = "0.8.19", default-features = false, features = ["parse"] }
 
 # CLI argument parsing
-pico-args = { version = "0.5.0", features = ["eq-separator"] }
+pico-args = "0.5.0"
 
 # Colored terminal output
 anstream = "0.6.19"
