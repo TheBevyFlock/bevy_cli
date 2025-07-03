@@ -1,5 +1,7 @@
 use std::{
-    env, iter,
+    env,
+    ffi::OsString,
+    iter,
     path::PathBuf,
     process::{Command, ExitCode},
 };
@@ -9,15 +11,14 @@ use anyhow::{Context, ensure};
 /// The Rustup toolchain channel specified by `rust-toolchain.toml`. This is set by `build.rs`.
 const RUST_TOOLCHAIN_CHANNEL: &str = env!("RUST_TOOLCHAIN_CHANNEL");
 
+#[derive(Debug)]
+struct Args {
+    /// The remaining arguments to forward to `cargo check` or `cargo fix`.
+    cargo_args: Vec<OsString>,
+}
+
 fn main() -> anyhow::Result<ExitCode> {
-    // If any of the arguments contains `--version`, print the version and exit.
-    if std::env::args()
-        .skip(1)
-        .any(|arg| arg == "--version" || arg == "-V")
-    {
-        show_version();
-        return Ok(ExitCode::SUCCESS);
-    }
+    let args = parse_args()?;
 
     // Find the path to `bevy_lint_driver`.
     let driver_path = driver_path()?;
@@ -100,7 +101,7 @@ fn main() -> anyhow::Result<ExitCode> {
         .arg("check")
         // Forward all arguments to `cargo check` except for the first, which is the path to the
         // current executable.
-        .args(std::env::args().skip(1))
+        .args(args.cargo_args)
         // This instructs Cargo to call `bevy_lint_driver` instead of `rustc`, which lets us use
         // custom lints.
         .env("RUSTC_WORKSPACE_WRAPPER", driver_path)
@@ -122,6 +123,21 @@ fn main() -> anyhow::Result<ExitCode> {
 
     // Return `cargo`'s exit code.
     Ok(ExitCode::from(code))
+}
+
+fn parse_args() -> Result<Args, pico_args::Error> {
+    let mut parser = pico_args::Arguments::from_env();
+
+    if parser.contains(["-V", "--version"]) {
+        show_version();
+        std::process::exit(0);
+    }
+
+    let args = Args {
+        cargo_args: parser.finish(),
+    };
+
+    Ok(args)
 }
 
 /// Prints `bevy_lint`'s name and version (as specified in `Cargo.toml`) to stdout.
