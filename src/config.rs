@@ -238,7 +238,7 @@ fn extract_default_features(cli_metadata: &Map<String, Value>) -> anyhow::Result
             _ => bail!("default_features must be a boolean"),
         }
     } else {
-        return Ok(None);
+        Ok(None)
     }
 }
 

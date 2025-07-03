@@ -153,7 +153,7 @@ impl<'tcx> LateLintPass<'tcx> for CameraModificationInFixedUpdate {
                     // Get the type arguments and ignore Lifetimes
                     let mut query_type_arguments =
                         args.iter()
-                            .filter_map(|generic_arg| match generic_arg.unpack() {
+                            .filter_map(|generic_arg| match generic_arg.kind() {
                                 GenericArgKind::Type(ty) => Some(ty),
                                 _ => None,
                             });
@@ -196,7 +196,7 @@ impl<'tcx> LateLintPass<'tcx> for CameraModificationInFixedUpdate {
                         && let Some(filter_component_arg) = with_args.iter().next()
                         // Get the type of the component the filter should filter for
                         && let GenericArgKind::Type(filter_component_ty) =
-                            filter_component_arg.unpack()
+                            filter_component_arg.kind()
                         // Check if Filter is of type `Camera`
                         && crate::paths::CAMERA.matches_ty(cx, filter_component_ty)
                         // Emit lint if any `Camera` component is mutably borrowed

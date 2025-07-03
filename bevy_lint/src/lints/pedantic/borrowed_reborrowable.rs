@@ -106,9 +106,8 @@ use clippy_utils::{
 use rustc_errors::Applicability;
 use rustc_hir::{Body, FnDecl, MutTy, Mutability, PatKind, intravisit::FnKind};
 use rustc_lint::{LateContext, LateLintPass};
-use rustc_middle::ty::{Ty, TyKind, TypeVisitable, TypeVisitor};
+use rustc_middle::ty::{Region, Ty, TyCtxt, TyKind, TypeVisitable, TypeVisitor};
 use rustc_span::{Span, def_id::LocalDefId, kw};
-use rustc_type_ir::Interner;
 
 use crate::{declare_bevy_lint, declare_bevy_lint_pass};
 
@@ -306,12 +305,12 @@ impl Reborrowable {
 }
 
 /// [`TypeVisitor`] for checking if the given region is contained in the type.
-struct ContainsRegion<I: Interner>(pub I::Region);
+struct ContainsRegion<'tcx>(pub Region<'tcx>);
 
-impl<I: Interner> TypeVisitor<I> for ContainsRegion<I> {
+impl<'tcx> TypeVisitor<TyCtxt<'tcx>> for ContainsRegion<'tcx> {
     type Result = ControlFlow<()>;
 
-    fn visit_region(&mut self, r: I::Region) -> Self::Result {
+    fn visit_region(&mut self, r: Region<'tcx>) -> Self::Result {
         if self.0 == r {
             ControlFlow::Break(())
         } else {
