@@ -137,6 +137,11 @@ fn main() -> anyhow::Result<ExitCode> {
 fn parse_args() -> Result<Args, pico_args::Error> {
     let mut parser = pico_args::Arguments::from_env();
 
+    if parser.contains(["-h", "--help"]) {
+        show_help();
+        std::process::exit(0);
+    }
+
     if parser.contains(["-V", "--version"]) {
         show_version();
         std::process::exit(0);
@@ -148,6 +153,38 @@ fn parse_args() -> Result<Args, pico_args::Error> {
     };
 
     Ok(args)
+}
+
+fn show_help() {
+    use anstyle::{AnsiColor, Color, Style};
+
+    // Styles that mimic Cargo's look, adapted from `clap_cargo`. Thank you!
+    const HEADER: Style = Style::new()
+        .fg_color(Some(Color::Ansi(AnsiColor::Green)))
+        .bold();
+    const LITERAL: Style = Style::new()
+        .fg_color(Some(Color::Ansi(AnsiColor::Cyan)))
+        .bold();
+    const PLACEHOLDER: Style = Style::new().fg_color(Some(Color::Ansi(AnsiColor::Cyan)));
+
+    // `anstream` automatically removes ANSI escape codes if the terminal does not support it. This
+    // text is formatted to look like `bevy -h`, `cargo clippy --help`, and `cargo check -h`. Keep
+    // the printed text no wider than 80 characters, so it fits on most terminals without wrapping.
+    anstream::println!(
+        "\
+A custom linter for the Bevy game engine
+
+{HEADER}Usage:{HEADER:#} {LITERAL}bevy_lint{LITERAL:#} {PLACEHOLDER}[OPTIONS]{PLACEHOLDER:#}
+
+{HEADER}Options:{HEADER:#}
+  {LITERAL}--fix{LITERAL:#}          Automatically apply lint suggestions if possible
+  {LITERAL}-h{LITERAL:#}, {LITERAL}--help{LITERAL:#}     Prints the help text and exits
+  {LITERAL}-V{LITERAL:#}, {LITERAL}--version{LITERAL:#}  Prints the version info and exits
+
+In addition to the options listed above, {LITERAL}bevy_lint{LITERAL:#} supports all of {LITERAL}cargo check{LITERAL:#}'s
+options, which you can view with {LITERAL}cargo check --help{LITERAL:#}. If you pass {LITERAL}--fix{LITERAL:#},
+{LITERAL}bevy_lint{LITERAL:#} will support all of {LITERAL}cargo fix{LITERAL:#}'s options instead."
+    );
 }
 
 /// Prints `bevy_lint`'s name and version (as specified in `Cargo.toml`) to stdout.
