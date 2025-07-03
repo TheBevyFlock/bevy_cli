@@ -13,6 +13,9 @@ const RUST_TOOLCHAIN_CHANNEL: &str = env!("RUST_TOOLCHAIN_CHANNEL");
 
 #[derive(Debug)]
 struct Args {
+    /// If true, runs `cargo fix` instead of `cargo check`.
+    fix: bool,
+
     /// The remaining arguments to forward to `cargo check` or `cargo fix`.
     cargo_args: Vec<OsString>,
 }
@@ -97,8 +100,14 @@ fn main() -> anyhow::Result<ExitCode> {
         }
     };
 
+    let cargo_subcommand = match args.fix {
+        true => "fix",
+        false => "check",
+    };
+
     let status = cargo
-        .arg("check")
+        // Usually this is `cargo check`, but it can be `cargo fix` if the `--fix` flag is passed.
+        .arg(cargo_subcommand)
         // Forward all arguments to `cargo check` except for the first, which is the path to the
         // current executable.
         .args(args.cargo_args)
@@ -134,6 +143,7 @@ fn parse_args() -> Result<Args, pico_args::Error> {
     }
 
     let args = Args {
+        fix: parser.contains("--fix"),
         cargo_args: parser.finish(),
     };
 
