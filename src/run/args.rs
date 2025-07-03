@@ -115,11 +115,10 @@ impl RunArgs {
         let is_release = self.is_release();
 
         #[cfg(feature = "web")]
-        if let Some(RunSubcommands::Web(web_args)) = self.subcommand.as_mut() {
-            if web_args.wasm_opt.is_empty() {
+        if let Some(RunSubcommands::Web(web_args)) = self.subcommand.as_mut()
+            && web_args.wasm_opt.is_empty() {
                 web_args.wasm_opt = config.wasm_opt(is_release).to_raw();
             }
-        }
     }
 }
 
