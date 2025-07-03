@@ -134,8 +134,8 @@ impl<'tcx> LateLintPass<'tcx> for MissingReflect {
 
                 // Extract a list of all fields within the structure definition.
                 let fields = match without_reflect_item.kind {
-                    ItemKind::Struct(_, data, _) => data.fields().to_vec(),
-                    ItemKind::Enum(_, enum_def, _) => enum_def
+                    ItemKind::Struct(_, _, data) => data.fields().to_vec(),
+                    ItemKind::Enum(_, _, enum_def) => enum_def
                         .variants
                         .iter()
                         .flat_map(|variant| variant.data.fields())

@@ -16,7 +16,7 @@ runs:
       uses: dtolnay/rust-toolchain@master
       with:
         # This must be kept in sync with `rust-toolchain.toml`.
-        toolchain: nightly-2025-05-14
+        toolchain: nightly-2025-06-26
         components: rustc-dev, llvm-tools-preview
 
     - name: Install `bevy_lint`
@@ -24,7 +24,7 @@ runs:
       run: |
         # The toolchain must be kept in sync with `rust-toolchain.toml`. The `--branch main` should
         # be swapped with `--tag lint-vX.Y.Z` for releases.
-        rustup run nightly-2025-05-14 cargo install \
+        rustup run nightly-2025-06-26 cargo install \
           --git https://github.com/TheBevyFlock/bevy_cli.git \
           --branch main \
           --locked \
