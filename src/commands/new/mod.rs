@@ -2,13 +2,13 @@
 
 use std::path::PathBuf;
 
-pub use args::NewArgs;
+pub use args::*;
 use cargo_generate::{GenerateArgs, TemplatePath};
 use regex::Regex;
 use reqwest::blocking::Client;
 use serde::Deserialize;
 
-pub mod args;
+mod args;
 
 /// An abbreviated version of the full [GitHub API response](https://docs.github.com/en/rest/repos/repos?apiVersion=2022-11-28#list-organization-repositories).
 ///

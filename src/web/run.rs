@@ -12,11 +12,8 @@ use super::{build::build_web, serve::serve};
 use crate::{
     bin_target::BinTarget,
     commands::{
-        build::args::BuildArgs,
-        run::{
-            RunArgs,
-            args::{RunSubcommands, RunWebArgs},
-        },
+        build::BuildArgs,
+        run::{RunArgs, RunSubcommands, RunWebArgs},
     },
 };
 
