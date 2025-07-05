@@ -68,15 +68,15 @@ use cargo_metadata::{
 };
 use clippy_utils::{
     diagnostics::{span_lint, span_lint_and_then},
-    find_crates,
+    paths::find_crates,
 };
 use rustc_hir::def_id::LOCAL_CRATE;
 use rustc_lint::LateContext;
-use rustc_span::{BytePos, Pos, SourceFile, Span, Symbol, SyntaxContext};
+use rustc_span::{BytePos, Pos, SourceFile, Span, SyntaxContext};
 use serde::Deserialize;
 use toml::Spanned;
 
-use crate::declare_bevy_lint;
+use crate::{declare_bevy_lint, sym};
 
 declare_bevy_lint! {
     pub(crate) DUPLICATE_BEVY_DEPENDENCIES,
@@ -99,9 +99,9 @@ fn toml_span(range: Range<usize>, file: &SourceFile) -> Span {
     )
 }
 
-pub(crate) fn check(cx: &LateContext<'_>, metadata: &Metadata, bevy_symbol: Symbol) {
+pub(crate) fn check(cx: &LateContext<'_>, metadata: &Metadata) {
     // no reason to continue the check if there is only one instance of `bevy` required
-    if find_crates(cx.tcx, bevy_symbol).len() == 1 {
+    if find_crates(cx.tcx, sym::bevy).len() == 1 {
         return;
     }
 
@@ -205,21 +205,18 @@ fn minimal_lint(
                 return node.id.repr.split('#').nth(1).map(|version| vec![version]);
             }
             // Extract versions from external crates
-            if let Some((id, _)) = node.id.repr.split_once('@') {
-                if bevy_dependents
+            if let Some((id, _)) = node.id.repr.split_once('@')
+                && bevy_dependents
                     .keys()
                     .any(|crate_name| id.ends_with(crate_name))
-                {
-                    return Some(
-                        node.dependencies
-                            .iter()
-                            .filter_map(|dep| dep.repr.split_once('@'))
-                            .filter_map(|(name, version)| {
-                                (name.contains("bevy")).then_some(version)
-                            })
-                            .collect(),
-                    );
-                }
+            {
+                return Some(
+                    node.dependencies
+                        .iter()
+                        .filter_map(|dep| dep.repr.split_once('@'))
+                        .filter_map(|(name, version)| (name.contains("bevy")).then_some(version))
+                        .collect(),
+                );
             }
 
             None
@@ -245,8 +242,8 @@ fn minimal_lint(
 /// 1. A toml-string `<crate> = <version>`
 /// 2. A toml-table `<crate> = { version = <version> , ... }`
 ///
-/// Cargo supports specifying version ranges,
-/// but [`Version::from_str`] can only parse exact  versions and not ranges.
+/// Cargo supports specifying version ranges, but [`parse_version()`] can only parse exact versions
+/// and not ranges.
 fn get_version_from_toml(table: &toml::Value) -> anyhow::Result<Version> {
     match table {
         toml::Value::String(version) => parse_version(version),

@@ -55,19 +55,15 @@
 //! Code](../../index.html#toggling-lints-in-code).
 
 use clippy_utils::{
-    def_path_res,
     diagnostics::span_lint_hir_and_then,
-    get_trait_def_id,
+    paths::PathLookup,
     sugg::DiagExt,
     ty::{implements_trait, ty_from_hir_ty},
 };
 use rustc_errors::Applicability;
-use rustc_hir::{
-    HirId, Item, ItemKind, Node, OwnerId, QPath, TyKind,
-    def::{DefKind, Res},
-};
+use rustc_hir::{HirId, Item, ItemKind, Node, OwnerId, QPath, TyKind, def::DefKind};
 use rustc_lint::{LateContext, LateLintPass};
-use rustc_middle::{span_bug, ty::TyCtxt};
+use rustc_middle::span_bug;
 use rustc_span::Span;
 
 use crate::{declare_bevy_lint, declare_bevy_lint_pass};
@@ -88,36 +84,27 @@ impl<'tcx> LateLintPass<'tcx> for MissingReflect {
     fn check_crate(&mut self, cx: &LateContext<'tcx>) {
         // Finds all types that implement `Reflect` in this crate.
         let reflected: Vec<TraitType> =
-            TraitType::from_local_crate(cx.tcx, &crate::paths::REFLECT).collect();
+            TraitType::from_local_crate(cx, &crate::paths::REFLECT).collect();
 
         // Finds all non-`Reflect` types that implement `Event` in this crate.
-        let events: Vec<TraitType> = TraitType::from_local_crate(cx.tcx, &crate::paths::EVENT)
+        let events: Vec<TraitType> = TraitType::from_local_crate(cx, &crate::paths::EVENT)
             .filter(|trait_type| !reflected.contains(trait_type))
             .collect();
 
         // Finds all non-`Reflect` types that implement `Component` and *not* `Event` in this
         // crate. Because events are also components, we need to deduplicate the two to avoid
         // emitting multiple diagnostics for the same type.
-        let components: Vec<TraitType> =
-            TraitType::from_local_crate(cx.tcx, &crate::paths::COMPONENT)
-                .filter(|trait_type| {
-                    !(reflected.contains(trait_type) || events.contains(trait_type))
-                })
-                .collect();
+        let components: Vec<TraitType> = TraitType::from_local_crate(cx, &crate::paths::COMPONENT)
+            .filter(|trait_type| !(reflected.contains(trait_type) || events.contains(trait_type)))
+            .collect();
 
         // Finds all non-`Reflect` types that implement `Resource` in this crate.
-        let resources: Vec<TraitType> =
-            TraitType::from_local_crate(cx.tcx, &crate::paths::RESOURCE)
-                .filter(|trait_type| !reflected.contains(trait_type))
-                .collect();
+        let resources: Vec<TraitType> = TraitType::from_local_crate(cx, &crate::paths::RESOURCE)
+            .filter(|trait_type| !reflected.contains(trait_type))
+            .collect();
 
-        // This is an expensive function that is purposefully called outside of the `for` loop. Note
-        // that this will only return `None` if `PartialReflect` does not exist (e.g. `bevy_reflect`
-        // is not available.)
-        let Some(reflect_trait_def_id) = get_trait_def_id(cx.tcx, &crate::paths::PARTIAL_REFLECT)
-        else {
-            return;
-        };
+        let reflect_trait_def_ids = crate::paths::PARTIAL_REFLECT.get(cx);
+
         // Emit diagnostics for each of these types.
         for (checked_trait, trait_name, message_phrase) in [
             (events, "Event", "an event"),
@@ -174,7 +161,10 @@ impl<'tcx> LateLintPass<'tcx> for MissingReflect {
                     // Check if the field's type implements the `PartialReflect` trait. If it does
                     // not, change the `Applicability` level to `MaybeIncorrect` because `Reflect`
                     // cannot be automatically derived.
-                    if !implements_trait(cx, ty, reflect_trait_def_id, &[]) {
+                    if !reflect_trait_def_ids
+                        .iter()
+                        .any(|&trait_id| implements_trait(cx, ty, trait_id, &[]))
+                    {
                         applicability = Applicability::MaybeIncorrect;
                         break;
                     }
@@ -221,26 +211,24 @@ struct TraitType {
 }
 
 impl TraitType {
-    fn from_local_crate<'tcx>(
-        tcx: TyCtxt<'tcx>,
-        trait_path: &[&str],
-    ) -> impl Iterator<Item = Self> + use<'tcx> {
+    fn from_local_crate<'tcx, 'a>(
+        cx: &'a LateContext<'tcx>,
+        trait_path: &'a PathLookup,
+    ) -> impl Iterator<Item = Self> + use<'tcx, 'a> {
         // Find the `DefId` of the trait. There may be multiple if there are multiple versions of
         // the same crate.
-        let trait_def_ids = def_path_res(tcx, trait_path)
-            .into_iter()
-            .filter_map(|res| match res {
-                Res::Def(DefKind::Trait, def_id) => Some(def_id),
-                _ => None,
-            });
+        let trait_def_ids = trait_path
+            .get(cx)
+            .iter()
+            .filter(|&def_id| cx.tcx.def_kind(def_id) == DefKind::Trait);
 
         // Find a map of all trait `impl` items within the current crate. The key is the `DefId` of
         // the trait, and the value is a `Vec<LocalDefId>` for all `impl` items.
-        let all_trait_impls = tcx.all_local_trait_impls(());
+        let all_trait_impls = cx.tcx.all_local_trait_impls(());
 
         // Find all `impl` items for the specific trait.
         let trait_impls = trait_def_ids
-            .filter_map(|def_id| all_trait_impls.get(&def_id))
+            .filter_map(|def_id| all_trait_impls.get(def_id))
             .flatten()
             .copied();
 
@@ -248,7 +236,7 @@ impl TraitType {
         // we use `filter_map()` to skip errors.
         trait_impls.filter_map(move |local_def_id| {
             // Retrieve the node of the `impl` item from its `DefId`.
-            let node = tcx.hir_node_by_def_id(local_def_id);
+            let node = cx.tcx.hir_node_by_def_id(local_def_id);
 
             // Verify that it's an `impl` item and not something else.
             let Node::Item(Item {
@@ -285,7 +273,7 @@ impl TraitType {
 
             // Find the span where the type was declared. This is guaranteed to be an item, so we
             // can safely call `expect_item()` without it panicking.
-            let item_span = tcx.hir_node(hir_id).expect_item().span;
+            let item_span = cx.tcx.hir_node(hir_id).expect_item().span;
 
             Some(TraitType {
                 hir_id,

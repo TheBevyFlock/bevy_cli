@@ -1,6 +1,6 @@
 //! Utility functions for parsing HIR types.
 
-use clippy_utils::{match_def_path, source::snippet_opt};
+use clippy_utils::{paths::PathLookup, source::snippet_opt};
 use rustc_hir::{
     Expr, ExprKind, GenericArg, GenericArgs, Impl, Node, Path, PathSegment, QPath, Ty, TyKind,
     def::{DefKind, Res},
@@ -238,7 +238,7 @@ impl<'tcx> MethodCall<'tcx> {
                 // ```
                 if let Res::Def(DefKind::AssocFn, def_id) = cx.qpath_res(qpath, path.hir_id) {
                     // Retrieve the identifiers for all the arguments to this function.
-                    let inputs = cx.tcx.fn_arg_names(def_id);
+                    let inputs = cx.tcx.fn_arg_idents(def_id);
 
                     // If the name of the first argument is `self`, then it *must* be a method.
                     // `self` is a reserved keyword, and cannot be used as a general function
@@ -303,10 +303,12 @@ impl<'tcx> MethodCall<'tcx> {
 }
 
 /// Checks if the [`Impl`] implements a given trait from Bevy.
-pub fn impls_trait(cx: &LateContext, impl_: &Impl, trait_path: &[&str]) -> bool {
+pub fn impls_trait(cx: &LateContext, impl_: &Impl, trait_path: &PathLookup) -> bool {
     impl_.of_trait.is_some_and(|of_trait| {
-        matches!(of_trait.path.res, Res::Def(_, trait_def_id)
-            // is the trait being implemented the specified trait from Bevy
-            if match_def_path(cx, trait_def_id, trait_path))
+        matches!(
+            of_trait.path.res,
+            // Is the trait being implemented the specified trait from Bevy?
+            Res::Def(_, trait_def_id) if trait_path.matches(cx, trait_def_id)
+        )
     })
 }
