@@ -43,3 +43,11 @@ On the flip side, you can now customize the flags that are passed to `wasm-opt`:
 # v0.1.0-alpha.2
 bevy build web --wasm-opt=-Oz --wasm-opt=--enable-bulk-memory
 ```
+
+### Reorganized commands
+
+If you are using the Bevy CLI as a library, a couple of import paths will have changed.
+All commands have been moved to the `commands` module and need to be imported from there.
+
+Note also that the `template` module has been renamed to `new` and also moved to `commands`.
+The `generate_template` function within has been renamed to `new` and now takes `NewArgs` as parameter.
