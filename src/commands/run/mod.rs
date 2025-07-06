@@ -1,11 +1,11 @@
 //! Provides functionalities to run a Bevy app targeting either native or web platforms.
 
-pub use self::args::RunArgs;
+pub use self::args::*;
 #[cfg(feature = "web")]
 use crate::web::run::run_web;
 use crate::{bin_target::select_run_binary, config::CliConfig, external_cli::cargo};
 
-pub mod args;
+mod args;
 
 /// Tries to run the project with the given [`RunArgs`].
 ///

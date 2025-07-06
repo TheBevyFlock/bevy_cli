@@ -81,7 +81,7 @@ impl<'tcx> LateLintPass<'tcx> for InsertEventResource {
             // could either be `App` or `&mut App`.
             let src_ty = cx
                 .typeck_results()
-                .expr_ty(method_call.receiver)
+                .expr_ty_adjusted(method_call.receiver)
                 .peel_refs();
 
             // If `src` is not a Bevy `App`, exit.
@@ -112,7 +112,7 @@ fn check_insert_resource(cx: &LateContext<'_>, method_call: &MethodCall) {
     };
 
     // Find the type of `arg` in `App::insert_resource(&mut self, arg)`.
-    let ty = cx.typeck_results().expr_ty(arg);
+    let ty = cx.typeck_results().expr_ty_adjusted(arg);
 
     // If `arg` is `Events<T>`, emit the lint.
     if crate::paths::EVENTS.matches_ty(cx, ty) {
