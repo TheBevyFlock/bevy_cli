@@ -93,7 +93,7 @@ impl<'tcx> LateLintPass<'tcx> for MainReturnWithoutAppExit {
                 {
                     // Get the type of `src` for `src.run()`. We peel away all references because
                     // both `App` and `&mut App` are allowed.
-                    let ty = cx.typeck_results().expr_ty(receiver).peel_refs();
+                    let ty = cx.typeck_results().expr_ty_adjusted(receiver).peel_refs();
 
                     // If `src` is a Bevy `App` and the `AppExit` is unused, emit the lint.
                     if crate::paths::APP.matches_ty(cx, ty)
