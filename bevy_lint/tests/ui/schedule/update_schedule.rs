@@ -11,8 +11,11 @@ fn main() {
         .add_systems(Update, hello_world);
 
     // Ensure the lint can be muted by annotating the expression.
-    #[allow(bevy::update_schedule)]
-    app.add_systems(Update, hello_world);
+    app.add_systems(
+        #[expect(bevy::update_schedule)]
+        Update,
+        hello_world,
+    );
 
     app.run();
 }

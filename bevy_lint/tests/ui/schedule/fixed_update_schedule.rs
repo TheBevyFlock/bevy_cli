@@ -12,8 +12,11 @@ fn main() {
         .add_systems(FixedUpdate, hello_world);
 
     // Ensure the lint can be muted by annotating the expression.
-    #[allow(bevy::fixed_update_schedule)]
-    app.add_systems(FixedUpdate, hello_world);
+    app.add_systems(
+        #[expect(bevy::fixed_update_schedule)]
+        FixedUpdate,
+        hello_world,
+    );
 
     app.run();
 }
