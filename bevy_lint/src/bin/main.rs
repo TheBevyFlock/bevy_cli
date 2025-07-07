@@ -1,5 +1,7 @@
 use std::{
-    env, iter,
+    env,
+    ffi::OsString,
+    iter,
     path::PathBuf,
     process::{Command, ExitCode},
 };
@@ -9,15 +11,20 @@ use anyhow::{Context, ensure};
 /// The Rustup toolchain channel specified by `rust-toolchain.toml`. This is set by `build.rs`.
 const RUST_TOOLCHAIN_CHANNEL: &str = env!("RUST_TOOLCHAIN_CHANNEL");
 
+/// All arguments that configure the linter's behavior when checking over code.
+///
+/// This does not include flags that short-circuit, like `--help` and `--version`.
+#[derive(Debug)]
+struct Args {
+    /// If true, runs `cargo fix` instead of `cargo check`.
+    fix: bool,
+
+    /// The remaining arguments to forward to `cargo check` or `cargo fix`.
+    cargo_args: Vec<OsString>,
+}
+
 fn main() -> anyhow::Result<ExitCode> {
-    // If any of the arguments contains `--version`, print the version and exit.
-    if std::env::args()
-        .skip(1)
-        .any(|arg| arg == "--version" || arg == "-V")
-    {
-        show_version();
-        return Ok(ExitCode::SUCCESS);
-    }
+    let args = parse_args();
 
     // Find the path to `bevy_lint_driver`.
     let driver_path = driver_path()?;
@@ -96,11 +103,17 @@ fn main() -> anyhow::Result<ExitCode> {
         }
     };
 
+    let cargo_subcommand = match args.fix {
+        true => "fix",
+        false => "check",
+    };
+
     let status = cargo
-        .arg("check")
+        // Usually this is `cargo check`, but it can be `cargo fix` if the `--fix` flag is passed.
+        .arg(cargo_subcommand)
         // Forward all arguments to `cargo check` except for the first, which is the path to the
         // current executable.
-        .args(std::env::args().skip(1))
+        .args(args.cargo_args)
         // This instructs Cargo to call `bevy_lint_driver` instead of `rustc`, which lets us use
         // custom lints.
         .env("RUSTC_WORKSPACE_WRAPPER", driver_path)
@@ -122,6 +135,62 @@ fn main() -> anyhow::Result<ExitCode> {
 
     // Return `cargo`'s exit code.
     Ok(ExitCode::from(code))
+}
+
+/// Parses arguments from the CLI.
+///
+/// This function will never return if `--help` or `--version` is passed.
+fn parse_args() -> Args {
+    let mut parser = pico_args::Arguments::from_env();
+
+    if parser.contains(["-h", "--help"]) {
+        show_help();
+        std::process::exit(0);
+    }
+
+    if parser.contains(["-V", "--version"]) {
+        show_version();
+        std::process::exit(0);
+    }
+
+    Args {
+        fix: parser.contains("--fix"),
+
+        // Collect remaining arguments in a list to be passed to Cargo.
+        cargo_args: parser.finish(),
+    }
+}
+
+fn show_help() {
+    use anstyle::{AnsiColor, Color, Style};
+
+    // Styles that mimic Cargo's look, adapted from `clap_cargo`. Thank you!
+    const HEADER: Style = Style::new()
+        .fg_color(Some(Color::Ansi(AnsiColor::Green)))
+        .bold();
+    const LITERAL: Style = Style::new()
+        .fg_color(Some(Color::Ansi(AnsiColor::Cyan)))
+        .bold();
+    const PLACEHOLDER: Style = Style::new().fg_color(Some(Color::Ansi(AnsiColor::Cyan)));
+
+    // `anstream` automatically removes ANSI escape codes if the terminal does not support it. This
+    // text is formatted to look like `bevy -h`, `cargo clippy --help`, and `cargo check -h`. Keep
+    // the printed text no wider than 80 characters, so it fits on most terminals without wrapping.
+    anstream::println!(
+        "\
+A custom linter for the Bevy game engine
+
+{HEADER}Usage:{HEADER:#} {LITERAL}bevy_lint{LITERAL:#} {PLACEHOLDER}[OPTIONS]{PLACEHOLDER:#}
+
+{HEADER}Options:{HEADER:#}
+  {LITERAL}--fix{LITERAL:#}          Automatically apply lint suggestions if possible
+  {LITERAL}-h{LITERAL:#}, {LITERAL}--help{LITERAL:#}     Prints the help text and exits
+  {LITERAL}-V{LITERAL:#}, {LITERAL}--version{LITERAL:#}  Prints the version info and exits
+
+In addition to the options listed above, {LITERAL}bevy_lint{LITERAL:#} supports all of {LITERAL}cargo check{LITERAL:#}'s
+options, which you can view with {LITERAL}cargo check --help{LITERAL:#}. If you pass {LITERAL}--fix{LITERAL:#},
+{LITERAL}bevy_lint{LITERAL:#} will support all of {LITERAL}cargo fix{LITERAL:#}'s options instead."
+    );
 }
 
 /// Prints `bevy_lint`'s name and version (as specified in `Cargo.toml`) to stdout.
