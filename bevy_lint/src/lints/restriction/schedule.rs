@@ -65,13 +65,13 @@ declare_bevy_lint! {
 }
 
 declare_bevy_lint_pass! {
-    pub DenySchedule => [UPDATE_SCHEDULE,FIXED_UPDATE_SCHEDULE],
+    pub Schedule => [UPDATE_SCHEDULE, FIXED_UPDATE_SCHEDULE],
     @default = {
         add_systems: Symbol = sym!(add_systems),
     },
 }
 
-impl<'tcx> LateLintPass<'tcx> for DenySchedule {
+impl<'tcx> LateLintPass<'tcx> for Schedule {
     fn check_expr(
         &mut self,
         cx: &rustc_lint::LateContext<'tcx>,

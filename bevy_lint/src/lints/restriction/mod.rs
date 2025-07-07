@@ -10,9 +10,9 @@ use rustc_lint::{Level, Lint, LintStore};
 
 use crate::lint::LintGroup;
 
-pub mod disallow_schedule;
 pub mod missing_reflect;
 pub mod panicking_methods;
+pub mod schedule;
 
 pub(crate) struct Restriction;
 
@@ -20,15 +20,15 @@ impl LintGroup for Restriction {
     const NAME: &str = "bevy::restriction";
     const LEVEL: Level = Level::Allow;
     const LINTS: &[&Lint] = &[
-        disallow_schedule::FIXED_UPDATE_SCHEDULE,
-        disallow_schedule::UPDATE_SCHEDULE,
         missing_reflect::MISSING_REFLECT,
         panicking_methods::PANICKING_METHODS,
+        schedule::FIXED_UPDATE_SCHEDULE,
+        schedule::UPDATE_SCHEDULE,
     ];
 
     fn register_passes(store: &mut LintStore) {
-        store.register_late_pass(|_| Box::new(disallow_schedule::DenySchedule::default()));
         store.register_late_pass(|_| Box::new(missing_reflect::MissingReflect::default()));
         store.register_late_pass(|_| Box::new(panicking_methods::PanickingMethods::default()));
+        store.register_late_pass(|_| Box::new(schedule::Schedule::default()));
     }
 }
