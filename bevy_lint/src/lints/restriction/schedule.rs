@@ -44,8 +44,7 @@
 //! }
 //! ```
 
-use clippy_utils::{diagnostics::span_lint_hir_and_then, sym, ty::match_type};
-use rustc_errors::Applicability;
+use clippy_utils::{diagnostics::span_lint_hir, sym, ty::match_type};
 use rustc_lint::{LateContext, LateLintPass, Lint};
 use rustc_middle::ty::Ty;
 use rustc_span::Symbol;
@@ -111,20 +110,12 @@ impl<'tcx> LateLintPass<'tcx> for Schedule {
             return;
         };
 
-        span_lint_hir_and_then(
+        span_lint_hir(
             cx,
             schedule_type.lint(),
             schedule_label.hir_id,
             schedule_label.span,
             format!("the `{}` schedule is disallowed", schedule_type.name()),
-            |diag| {
-                diag.span_suggestion(
-                    schedule_label.span,
-                    format!("use the `{}` schedule instead", schedule_type.suggestion()),
-                    schedule_type.suggestion(),
-                    Applicability::MachineApplicable,
-                );
-            },
         );
     }
 }
@@ -157,13 +148,6 @@ impl ScheduleType {
         match self {
             Self::FixedUpdate => FIXED_UPDATE_SCHEDULE,
             Self::Update => UPDATE_SCHEDULE,
-        }
-    }
-
-    fn suggestion(&self) -> &'static str {
-        match self {
-            ScheduleType::FixedUpdate => "Update",
-            ScheduleType::Update => "FixedUpdate",
         }
     }
 }
