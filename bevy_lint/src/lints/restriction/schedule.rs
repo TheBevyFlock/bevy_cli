@@ -44,30 +44,26 @@
 //! }
 //! ```
 
-use clippy_utils::{diagnostics::span_lint_hir, sym, ty::match_type};
+use clippy_utils::diagnostics::span_lint_hir;
 use rustc_lint::{LateContext, LateLintPass, Lint};
 use rustc_middle::ty::Ty;
-use rustc_span::Symbol;
 
-use crate::{declare_bevy_lint, declare_bevy_lint_pass, utils::hir_parse::MethodCall};
+use crate::{declare_bevy_lint, declare_bevy_lint_pass, sym, utils::hir_parse::MethodCall};
 
 declare_bevy_lint! {
-    pub UPDATE_SCHEDULE,
+    pub(crate) UPDATE_SCHEDULE,
     super::Restriction,
     "defined a system in the `FixedUpdate` schedule",
 }
 
 declare_bevy_lint! {
-    pub FIXED_UPDATE_SCHEDULE,
+    pub(crate) FIXED_UPDATE_SCHEDULE,
     super::Restriction,
     "defined a system in the `Update` schedule",
 }
 
 declare_bevy_lint_pass! {
-    pub Schedule => [UPDATE_SCHEDULE, FIXED_UPDATE_SCHEDULE],
-    @default = {
-        add_systems: Symbol = sym!(add_systems),
-    },
+    pub(crate) Schedule => [UPDATE_SCHEDULE, FIXED_UPDATE_SCHEDULE],
 }
 
 impl<'tcx> LateLintPass<'tcx> for Schedule {
@@ -93,8 +89,8 @@ impl<'tcx> LateLintPass<'tcx> for Schedule {
         let receiver_ty = cx.typeck_results().expr_ty_adjusted(receiver).peel_refs();
 
         // Match calls to `App::add_systems(schedule, systems)`
-        if !match_type(cx, receiver_ty, &crate::paths::APP)
-            || method_path.ident.name != self.add_systems
+        if !crate::paths::APP.matches_ty(cx, receiver_ty)
+            || method_path.ident.name != sym::add_systems
         {
             return;
         }
@@ -128,9 +124,9 @@ enum ScheduleType {
 impl ScheduleType {
     /// Returns the corresponding variant for the given [`Ty`], if it is supported by this lint.
     fn try_from_ty<'tcx>(cx: &LateContext<'tcx>, ty: Ty<'tcx>) -> Option<Self> {
-        if match_type(cx, ty, &crate::paths::FIXED_UPDATE) {
+        if crate::paths::FIXED_UPDATE.matches_ty(cx, ty) {
             Some(Self::FixedUpdate)
-        } else if match_type(cx, ty, &crate::paths::UPDATE) {
+        } else if crate::paths::UPDATE.matches_ty(cx, ty) {
             Some(Self::Update)
         } else {
             None

@@ -6,8 +6,8 @@ If you have `cranelift` setup as a custom codegen backend, you may run into the 
 
 ```
 error: failed to find a `codegen-backends` folder in the sysroot candidates:
-       * ~/.rustup/toolchains/nightly-2025-04-03-x86_64-unknown-linux-gnu
-       * ~/.rustup/toolchains/nightly-2025-04-03-x86_64-unknown-linux-gnu
+       * ~/.rustup/toolchains/nightly-2025-05-14-x86_64-unknown-linux-gnu
+       * ~/.rustup/toolchains/nightly-2025-05-14-x86_64-unknown-linux-gnu
 ```
 
 This error occurs because you do not have `cranelift` installed for the specific nightly toolchain that the linter uses. You can fix this by installing `rustc-codegen-cranelift-preview` for the linter's toolchain:

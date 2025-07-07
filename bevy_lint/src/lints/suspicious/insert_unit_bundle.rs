@@ -50,14 +50,13 @@
 //! # bevy::ecs::system::assert_is_system(spawn);
 //! ```
 
-use clippy_utils::{diagnostics::span_lint_hir_and_then, sym, ty::match_type};
+use clippy_utils::diagnostics::span_lint_hir_and_then;
 use rustc_errors::Applicability;
 use rustc_hir::{Expr, ExprKind};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::{Ty, TyKind};
-use rustc_span::Symbol;
 
-use crate::{declare_bevy_lint, declare_bevy_lint_pass, utils::hir_parse::MethodCall};
+use crate::{declare_bevy_lint, declare_bevy_lint_pass, sym, utils::hir_parse::MethodCall};
 
 declare_bevy_lint! {
     pub(crate) INSERT_UNIT_BUNDLE,
@@ -67,9 +66,6 @@ declare_bevy_lint! {
 
 declare_bevy_lint_pass! {
     pub(crate) InsertUnitBundle => [INSERT_UNIT_BUNDLE],
-    @default = {
-        spawn: Symbol = sym!(spawn),
-    },
 }
 
 impl<'tcx> LateLintPass<'tcx> for InsertUnitBundle {
@@ -86,13 +82,13 @@ impl<'tcx> LateLintPass<'tcx> for InsertUnitBundle {
             return;
         };
 
-        let src_ty = cx.typeck_results().expr_ty(receiver).peel_refs();
+        let src_ty = cx.typeck_results().expr_ty_adjusted(receiver).peel_refs();
 
         // If the method call was not to `Commands::spawn()` or originates from an external macro,
         // we skip it.
         if !(span.in_external_macro(cx.tcx.sess.source_map())
-            || match_type(cx, src_ty, &crate::paths::COMMANDS)
-                && method_path.ident.name == self.spawn)
+            || crate::paths::COMMANDS.matches_ty(cx, src_ty)
+                && method_path.ident.name == sym::spawn)
         {
             return;
         }
@@ -103,7 +99,7 @@ impl<'tcx> LateLintPass<'tcx> for InsertUnitBundle {
         };
 
         // Find the type of the bundle.
-        let bundle_ty = cx.typeck_results().expr_ty(bundle_expr);
+        let bundle_ty = cx.typeck_results().expr_ty_adjusted(bundle_expr);
 
         // Special-case `commands.spawn(())` and suggest `Commands::spawn_empty()` instead.
         if bundle_ty.is_unit() {
