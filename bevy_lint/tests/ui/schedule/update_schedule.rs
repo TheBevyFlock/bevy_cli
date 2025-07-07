@@ -7,7 +7,6 @@ use bevy::prelude::*;
 fn main() {
     let mut app = App::new();
     app.add_plugins(DefaultPlugins)
-        //~| HELP: use the `FixedUpdate` schedule instead
         //~v ERROR: the `Update` schedule is disallowed
         .add_systems(Update, hello_world);
 

@@ -1,11 +1,11 @@
 error: the `Update` schedule is disallowed
-  --> tests/ui/disallow_schedule/update_schedule.rs:12:22
+  --> tests/ui/schedule/update_schedule.rs:11:22
    |
-12 |         .add_systems(Update, hello_world);
-   |                      ^^^^^^ help: use the `FixedUpdate` schedule instead: `FixedUpdate`
+11 |         .add_systems(Update, hello_world);
+   |                      ^^^^^^
    |
 note: the lint level is defined here
-  --> tests/ui/disallow_schedule/update_schedule.rs:3:9
+  --> tests/ui/schedule/update_schedule.rs:3:9
    |
 3  | #![deny(bevy::update_schedule)]
    |         ^^^^^^^^^^^^^^^^^^^^^

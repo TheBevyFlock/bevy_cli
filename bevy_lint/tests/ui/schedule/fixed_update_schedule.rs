@@ -8,7 +8,6 @@ fn main() {
     let mut app = App::new();
 
     app.add_plugins(DefaultPlugins)
-        //~| HELP: use the `Update` schedule instead
         //~v ERROR: the `FixedUpdate` schedule is disallowed
         .add_systems(FixedUpdate, hello_world);
 
