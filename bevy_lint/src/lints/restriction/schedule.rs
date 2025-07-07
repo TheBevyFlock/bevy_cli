@@ -90,7 +90,7 @@ impl<'tcx> LateLintPass<'tcx> for Schedule {
             return;
         };
 
-        let receiver_ty = cx.typeck_results().expr_ty(receiver).peel_refs();
+        let receiver_ty = cx.typeck_results().expr_ty_adjusted(receiver).peel_refs();
 
         // Match calls to `App::add_systems(schedule, systems)`
         if !match_type(cx, receiver_ty, &crate::paths::APP)
@@ -104,7 +104,7 @@ impl<'tcx> LateLintPass<'tcx> for Schedule {
             return;
         };
 
-        let schedule_ty = cx.typeck_results().expr_ty(schedule_label);
+        let schedule_ty = cx.typeck_results().expr_ty_adjusted(schedule_label);
 
         let Some(schedule_type) = ScheduleType::try_from_ty(cx, schedule_ty) else {
             return;
