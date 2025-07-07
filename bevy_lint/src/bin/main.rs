@@ -24,7 +24,7 @@ struct Args {
 }
 
 fn main() -> anyhow::Result<ExitCode> {
-    let args = parse_args()?;
+    let args = parse_args();
 
     // Find the path to `bevy_lint_driver`.
     let driver_path = driver_path()?;
@@ -140,7 +140,7 @@ fn main() -> anyhow::Result<ExitCode> {
 /// Parses arguments from the CLI.
 ///
 /// This function will never return if `--help` or `--version` is passed.
-fn parse_args() -> Result<Args, pico_args::Error> {
+fn parse_args() -> Args {
     let mut parser = pico_args::Arguments::from_env();
 
     if parser.contains(["-h", "--help"]) {
@@ -153,14 +153,12 @@ fn parse_args() -> Result<Args, pico_args::Error> {
         std::process::exit(0);
     }
 
-    let args = Args {
+    Args {
         fix: parser.contains("--fix"),
 
         // Collect remaining arguments in a list to be passed to Cargo.
         cargo_args: parser.finish(),
-    };
-
-    Ok(args)
+    }
 }
 
 fn show_help() {
