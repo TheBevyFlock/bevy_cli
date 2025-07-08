@@ -3,10 +3,11 @@ name: Test linter action
 on:
   push:
     branches: [main]
-  # Only run for pull requests when the action is modified.
+  # Only run for pull requests when the action or toolchain is modified.
   pull_request:
     paths:
       - bevy_lint/action.yml
+      - rust-toolchain.toml
   workflow_dispatch:
 
 jobs:
