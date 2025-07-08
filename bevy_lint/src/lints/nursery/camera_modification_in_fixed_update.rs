@@ -69,7 +69,6 @@
 //!
 //! For more information, check out the
 //! [physics in fixed timestep example](https://bevy.org/examples/movement/physics-in-fixed-timestep/).
-//! ```
 
 use clippy_utils::diagnostics::span_lint_and_help;
 use rustc_hir::{ExprKind, QPath, def::Res};
@@ -104,7 +103,7 @@ impl<'tcx> LateLintPass<'tcx> for CameraModificationInFixedUpdate {
             return;
         };
 
-        let receiver_ty = cx.typeck_results().expr_ty(receiver).peel_refs();
+        let receiver_ty = cx.typeck_results().expr_ty_adjusted(receiver).peel_refs();
 
         // Match calls to `App::add_systems(schedule, systems)`
         if !crate::paths::APP.matches_ty(cx, receiver_ty)
@@ -117,7 +116,7 @@ impl<'tcx> LateLintPass<'tcx> for CameraModificationInFixedUpdate {
             return;
         };
 
-        let schedule_ty = cx.typeck_results().expr_ty(schedule).peel_refs();
+        let schedule_ty = cx.typeck_results().expr_ty_adjusted(schedule).peel_refs();
 
         // Skip if the schedule is not `FixedUpdate`
         if !crate::paths::FIXED_UPDATE.matches_ty(cx, schedule_ty) {

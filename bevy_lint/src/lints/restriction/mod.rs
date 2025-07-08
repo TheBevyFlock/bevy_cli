@@ -12,6 +12,7 @@ use crate::lint::LintGroup;
 
 pub mod missing_reflect;
 pub mod panicking_methods;
+pub mod schedule;
 
 pub(crate) struct Restriction;
 
@@ -21,10 +22,13 @@ impl LintGroup for Restriction {
     const LINTS: &[&Lint] = &[
         missing_reflect::MISSING_REFLECT,
         panicking_methods::PANICKING_METHODS,
+        schedule::FIXED_UPDATE_SCHEDULE,
+        schedule::UPDATE_SCHEDULE,
     ];
 
     fn register_passes(store: &mut LintStore) {
         store.register_late_pass(|_| Box::new(missing_reflect::MissingReflect));
         store.register_late_pass(|_| Box::new(panicking_methods::PanickingMethods));
+        store.register_late_pass(|_| Box::new(schedule::Schedule));
     }
 }

@@ -1,0 +1,14 @@
+error: the `Update` schedule is disallowed
+  --> tests/ui/schedule/update_schedule.rs:11:22
+   |
+11 |         .add_systems(Update, hello_world);
+   |                      ^^^^^^
+   |
+note: the lint level is defined here
+  --> tests/ui/schedule/update_schedule.rs:3:9
+   |
+3  | #![deny(bevy::update_schedule)]
+   |         ^^^^^^^^^^^^^^^^^^^^^
+
+error: aborting due to 1 previous error
+

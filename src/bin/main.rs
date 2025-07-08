@@ -2,9 +2,14 @@ use std::{fmt::Write, process::ExitCode};
 
 use ansi_term::Color::{Blue, Green, Purple, Red, Yellow};
 #[cfg(feature = "rustup")]
-use bevy_cli::lint::LintArgs;
-use bevy_cli::{build::args::BuildArgs, run::RunArgs};
-use clap::{Args, CommandFactory, Parser, Subcommand, builder::styling::Style};
+use bevy_cli::commands::lint::{LintArgs, lint};
+use bevy_cli::commands::{
+    build::{BuildArgs, build},
+    completions::completions,
+    new::{NewArgs, new},
+    run::{RunArgs, run},
+};
+use clap::{Parser, Subcommand, builder::styling::Style};
 use clap_cargo::style;
 use tracing::error;
 use tracing_subscriber::{
@@ -38,15 +43,13 @@ fn main() -> ExitCode {
     tracing_subscriber::registry().with(fmt_layer).init();
 
     if let Err(error) = match cli.subcommand {
-        Subcommands::New(new) => {
-            bevy_cli::template::generate_template(&new.name, &new.template, &new.branch).map(|_| ())
-        }
+        Subcommands::New(args) => new(&args).map(|_| ()),
         #[cfg(feature = "rustup")]
-        Subcommands::Lint(args) => bevy_cli::lint::lint(args),
-        Subcommands::Build(mut args) => bevy_cli::build::build(&mut args),
-        Subcommands::Run(mut args) => bevy_cli::run::run(&mut args),
+        Subcommands::Lint(args) => lint(args),
+        Subcommands::Build(mut args) => build(&mut args),
+        Subcommands::Run(mut args) => run(&mut args),
         Subcommands::Completions { shell } => {
-            clap_complete::generate(shell, &mut Cli::command(), "bevy", &mut std::io::stdout());
+            completions::<Cli>(shell);
             Ok(())
         }
     } {
@@ -183,33 +186,6 @@ fn completions_after_help() -> String {
     );
 
     message
-}
-
-/// Arguments for creating a new Bevy project.
-///
-/// This subcommand allows you to generate a new Bevy project
-/// using a specified template and project name.
-#[derive(Args)]
-pub struct NewArgs {
-    /// The desired name for the new project.
-    ///
-    /// This will be the name of the directory and will be used in the project's files
-    pub name: String,
-
-    /// The name of the template to use for generating the project.
-    ///
-    /// Templates are GitHub repositories. Any repository from the GitHub organization
-    /// "TheBevyFlock" with the prefix `bevy_new_` will be usable via
-    /// its shortcut form i.e. `2d` will use the template `bevy_new_2d`. Full GitHub URLs can also
-    /// be passed in the template argument.
-    ///
-    /// Can be omitted to use a built-in template.
-    #[arg(short, long, default_value = "minimal")]
-    pub template: String,
-
-    /// The git branch to use
-    #[arg(short, long, default_value = "main")]
-    pub branch: String,
 }
 
 /// Align the log formatting to match `cargo`'s style.
