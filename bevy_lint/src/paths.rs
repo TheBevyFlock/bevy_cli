@@ -68,6 +68,8 @@ pub static RES_MUT: PathLookup = type_path!(bevy_ecs::change_detection::ResMut);
 pub static RESOURCE: PathLookup = type_path!(bevy_ecs::resource::Resource);
 /// <https://github.com/bevyengine/bevy/blob/v0.16.0/crates/bevy_ecs/src/schedule/set.rs#L35>
 pub static SYSTEM_SET: PathLookup = type_path!(bevy_ecs::schedule::set::SystemSet);
+/// <https://github.com/bevyengine/bevy/blob/v0.16.0/crates/bevy_app/src/main_schedule.rs#L172>
+pub static UPDATE: PathLookup = type_path!(bevy_app::main_schedule::Update);
 /// <https://github.com/bevyengine/bevy/blob/v0.16.0/crates/bevy_ecs/src/query/filter.rs#L137>
 pub static WITH: PathLookup = type_path!(bevy_ecs::query::filter::With);
 /// <https://github.com/bevyengine/bevy/blob/v0.16.0/crates/bevy_ecs/src/world/mod.rs#L94>

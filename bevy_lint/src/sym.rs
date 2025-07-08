@@ -167,6 +167,7 @@ declare_bevy_symbols! {
     system_param,
     system,
     SystemSet,
+    Update,
     With,
     world,
     World,
