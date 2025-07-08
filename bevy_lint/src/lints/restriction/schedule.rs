@@ -14,8 +14,12 @@
 //! # Example
 //!
 //! ```
+//! # #![feature(register_tool)]
+//! # #![register_tool(bevy)]
 //! mod physics {
 //!     #![warn(bevy::update_schedule)]
+//! #
+//! #     use bevy::prelude::*;
 //!
 //!     fn plugin(app: &mut App) {
 //!         // This isn't allowed, use `FixedUpdate` instead!
@@ -31,8 +35,12 @@
 //! Use instead:
 //!
 //! ```
+//! # #![feature(register_tool)]
+//! # #![register_tool(bevy)]
 //! mod physics {
 //!     #![warn(bevy::update_schedule)]
+//! #
+//! #     use bevy::prelude::*;
 //!
 //!     fn plugin(app: &mut App) {
 //!         app.add_systems(FixedUpdate, my_system);
