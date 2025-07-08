@@ -9,7 +9,7 @@ extern crate rustc_driver;
 extern crate rustc_session;
 extern crate rustc_span;
 
-use std::process::ExitCode;
+use std::{ffi::OsStr, path::Path, process::ExitCode};
 
 use bevy_lint::BevyLintCallback;
 use rustc_driver::{catch_with_exit_code, init_rustc_env_logger, install_ice_hook, run_compiler};
@@ -35,12 +35,24 @@ fn main() -> ExitCode {
     // Run the passed closure, but catch any panics and return the respective exit code.
     let exit_code = catch_with_exit_code(move || {
         // Get the arguments passed through the CLI. This is equivalent to `std::env::args()`, but
-        // it returns a `Result` instead of panicking.
+        // it prints a pretty error message instead of panicking when encountering non-UTF-8 args.
         let mut args = rustc_driver::args::raw_args(&early_dcx);
 
-        // The arguments are formatted as `[DRIVER_PATH, RUSTC_PATH, ARGS...]`. We skip the driver
-        // path so that `run_compiler()` just sees `rustc`'s path.
-        args.remove(0);
+        // There are two scenarios we want to catch:
+        // 1. When called by Cargo: `[DRIVER_PATH, RUSTC_PATH, ...ARGS]`
+        // 2. When called by user: `[DRIVER_PATH, ...ARGS]`
+        //
+        // This handles both cases and converts the args to `[RUSTC_PATH, ...ARGS]`, since that is
+        // what `run_compiler()` expects.
+        let args =
+            if args.get(1).map(Path::new).and_then(Path::file_stem) == Some(OsStr::new("rustc")) {
+                // When called by Cargo, remove the driver path.
+                &args[1..]
+            } else {
+                // When called by user, replace the driver path with the `rustc` path.
+                args[0] = "rustc".to_string();
+                &args
+            };
 
         // Call the compiler with our custom callback.
         run_compiler(&args, &mut BevyLintCallback);
