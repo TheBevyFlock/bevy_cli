@@ -191,7 +191,9 @@ fn filter_bundle_args<'tcx>(
 /// Running this function on the [`DefId`] of `foo()` will return `[usize, bool]`, while `bar()`
 /// will return `[T, usize]`.
 ///
-/// ```ignore
+/// ```
+/// # use bevy::ecs::bundle::Bundle;
+/// #
 /// fn foo(a: usize, b: bool) {}
 /// fn bar<T: Bundle>(bundle: T, size: usize) {}
 /// ```
@@ -212,7 +214,9 @@ fn fn_arg_types<'tcx>(cx: &LateContext<'tcx>, fn_id: DefId) -> &'tcx [Ty<'tcx>] 
 /// If run on the following function, this function would return `A` and `C` because they both
 /// implement `Bundle`.
 ///
-/// ```ignore
+/// ```
+/// # use bevy::ecs::bundle::Bundle;
+/// #
 /// fn my_function<A: Bundle, B: Clone, C: Bundle + Clone>(_: A, _: B, _: C) {
 ///     // ...
 /// }
