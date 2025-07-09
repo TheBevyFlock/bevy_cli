@@ -1,4 +1,5 @@
 use clap::Args;
+#[cfg(feature = "rustup")]
 use serde::Deserialize;
 
 use crate::external_cli::cargo::install::AutoInstall;
@@ -28,11 +29,13 @@ impl LintArgs {
 }
 
 /// Represents the contents of `rust-toolchain.toml`.
+#[cfg(feature = "rustup")]
 #[derive(Deserialize)]
 struct RustToolchain {
     toolchain: Toolchain,
 }
 
+#[cfg(feature = "rustup")]
 #[derive(Deserialize)]
 struct Toolchain {
     channel: String,
