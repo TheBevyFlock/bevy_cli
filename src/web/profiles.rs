@@ -2,13 +2,13 @@ use std::{collections::HashMap, fs};
 
 use anyhow::Context as _;
 use cargo_metadata::Metadata;
-use toml_edit::DocumentMut;
+use toml::Table;
 
 /// Create `--config` args to configure the default profiles to use when compiling for the web.
 pub(crate) fn configure_default_web_profiles(metadata: &Metadata) -> anyhow::Result<Vec<String>> {
     let manifest = fs::read_to_string(metadata.workspace_root.join("Cargo.toml"))
         .context("failed to read workspace manifest")?
-        .parse::<DocumentMut>()
+        .parse::<Table>()
         .context("failed to parse workspace manifest")?;
 
     let mut args = Vec::new();
@@ -24,7 +24,7 @@ pub(crate) fn configure_default_web_profiles(metadata: &Metadata) -> anyhow::Res
     Ok(args)
 }
 
-fn is_profile_defined_in_manifest(manifest: &DocumentMut, profile: &str) -> bool {
+fn is_profile_defined_in_manifest(manifest: &Table, profile: &str) -> bool {
     manifest
         .get("profile")
         .is_some_and(|profiles| profiles.get(profile).is_some())

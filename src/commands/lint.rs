@@ -1,4 +1,6 @@
 use clap::Args;
+#[cfg(feature = "rustup")]
+use serde::Deserialize;
 
 use crate::external_cli::cargo::install::AutoInstall;
 
@@ -26,6 +28,19 @@ impl LintArgs {
     }
 }
 
+/// Represents the contents of `rust-toolchain.toml`.
+#[cfg(feature = "rustup")]
+#[derive(Deserialize)]
+struct RustToolchain {
+    toolchain: Toolchain,
+}
+
+#[cfg(feature = "rustup")]
+#[derive(Deserialize)]
+struct Toolchain {
+    channel: String,
+}
+
 /// Runs `bevy_lint`, if it is installed, with the given arguments.
 ///
 /// Calling `lint(vec!["--workspace"])` is equivalent to calling `bevy_lint --workspace` in the
@@ -33,7 +48,6 @@ impl LintArgs {
 #[cfg(feature = "rustup")]
 pub fn lint(args: LintArgs) -> anyhow::Result<()> {
     use anyhow::{Context, ensure};
-    use toml_edit::DocumentMut;
 
     use crate::external_cli::Package;
 
@@ -42,17 +56,12 @@ pub fn lint(args: LintArgs) -> anyhow::Result<()> {
     const PACKAGE: &str = "bevy_lint";
     const GIT_URL: &str = "https://github.com/TheBevyFlock/bevy_cli.git";
 
-    let rust_toolchain = RUST_TOOLCHAIN
-        .parse::<DocumentMut>()
-        .context("Failed to parse `rust-toolchain.toml`.")?;
-
-    let channel = rust_toolchain["toolchain"]["channel"]
-        .as_str()
-        .context("Could not find `toolchain.channel` key in `rust-toolchain.toml`.")?;
+    let rust_toolchain: RustToolchain =
+        toml::from_str(RUST_TOOLCHAIN).context("Failed to parse `rust-toolchain.toml`.")?;
 
     let package = Package {
         name: PACKAGE.into(),
-        required_toolchain: Some(channel.to_string()),
+        required_toolchain: Some(rust_toolchain.toolchain.channel),
         git: Some(GIT_URL.to_string()),
         tag: Some(BEVY_LINT_TAG.to_string()),
         ..Default::default()

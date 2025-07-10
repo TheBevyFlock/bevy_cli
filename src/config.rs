@@ -291,7 +291,7 @@ fn extract_wasm_opt(cli_metadata: &Map<String, Value>) -> anyhow::Result<Option<
 
 impl Display for CliConfig {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let document = toml_edit::ser::to_document(self).map_err(|_| std::fmt::Error)?;
+        let document = toml::to_string_pretty(self).map_err(|_| std::fmt::Error)?;
         write!(
             f,
             "{}",
@@ -301,7 +301,7 @@ impl Display for CliConfig {
                 .trim_end()
                 .lines()
                 // Align lines with the debug message
-                .map(|line| format!("      {line}"))
+                .map(|line| format!("       {line}"))
                 .collect::<Vec<String>>()
                 .join("\n")
         )
