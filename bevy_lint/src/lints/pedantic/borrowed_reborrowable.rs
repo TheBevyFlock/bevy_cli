@@ -110,7 +110,7 @@ use rustc_middle::ty::{Ty, TyKind, TypeVisitable, TypeVisitor};
 use rustc_span::{Span, def_id::LocalDefId, kw};
 use rustc_type_ir::Interner;
 
-use crate::{declare_bevy_lint, declare_bevy_lint_pass};
+use crate::{debug_assert_eq, declare_bevy_lint, declare_bevy_lint_pass};
 
 declare_bevy_lint! {
     pub(crate) BORROWED_REBORROWABLE,

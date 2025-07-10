@@ -9,6 +9,8 @@ use rustc_middle::ty::TyCtxt;
 use rustc_session::utils::was_invoked_from_cargo;
 use rustc_span::{Ident, Symbol};
 
+use crate::{debug_assert, unreachable};
+
 /// A pointer to the original [`registered_tools()`](TyCtxt::registered_tools) query function.
 ///
 /// # Safety

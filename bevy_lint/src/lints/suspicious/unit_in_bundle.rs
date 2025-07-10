@@ -59,7 +59,10 @@ use rustc_middle::ty::{self, Ty};
 use rustc_span::Symbol;
 use rustc_type_ir::PredicatePolarity;
 
-use crate::{declare_bevy_lint, declare_bevy_lint_pass, paths, sym, utils::hir_parse::MethodCall};
+use crate::{
+    debug_assert, debug_assert_eq, declare_bevy_lint, declare_bevy_lint_pass, paths, sym,
+    utils::hir_parse::MethodCall,
+};
 
 declare_bevy_lint! {
     pub(crate) UNIT_IN_BUNDLE,

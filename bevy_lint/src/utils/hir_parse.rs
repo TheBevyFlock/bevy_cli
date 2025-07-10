@@ -8,6 +8,8 @@ use rustc_hir::{
 use rustc_lint::LateContext;
 use rustc_span::{Ident, Span, kw};
 
+use crate::unreachable;
+
 /// Returns the list of types inside a tuple type.
 ///
 /// If the type is not a tuple, returns a list containing the type itself.
