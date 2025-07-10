@@ -18,7 +18,6 @@
 //! - `span_assert_eq!`
 //! - `debug_span_assert!`
 //! - `debug_span_assert_eq!`
-//! - `span_unreachable!`
 //!
 //! [`todo!`] is purposefully unimplemented, as it should never be used in a user-facing manner.
 
@@ -131,6 +130,22 @@ macro_rules! unreachable {
         match ::std::format_args!($($arg)+) {
             message => {
                 $crate::panic!("entered unreachable code: {message}")
+            },
+        }
+    };
+}
+
+/// A variant of [`std::unreachable!`] with better error messages emitted to a specific
+/// [`Span`](rustc_span::Span).
+#[macro_export]
+macro_rules! span_unreachable {
+    ($span:expr) => {
+        $crate::span_panic!($span, "entered unreachable code")
+    };
+    ($span:expr, $($arg:tt)+) => {
+        match ::std::format_args!($($arg)+) {
+            message => {
+                $crate::span_panic!($span, "entered unreachable code: {message}")
             },
         }
     };
