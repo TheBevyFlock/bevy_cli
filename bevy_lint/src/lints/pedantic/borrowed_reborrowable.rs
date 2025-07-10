@@ -110,7 +110,7 @@ use rustc_middle::ty::{Ty, TyKind, TypeVisitable, TypeVisitor};
 use rustc_span::{Span, def_id::LocalDefId, kw};
 use rustc_type_ir::Interner;
 
-use crate::{debug_assert_eq, declare_bevy_lint, declare_bevy_lint_pass};
+use crate::{debug_span_assert_eq, declare_bevy_lint, declare_bevy_lint_pass};
 
 declare_bevy_lint! {
     pub(crate) BORROWED_REBORROWABLE,
@@ -149,7 +149,8 @@ impl<'tcx> LateLintPass<'tcx> for BorrowedReborrowable {
         // A list of argument parameters, used to find the span of arguments.
         let arg_params = body.params;
 
-        debug_assert_eq!(
+        debug_span_assert_eq!(
+            fn_span,
             arg_types.len(),
             arg_params.len(),
             "there must be the same number of argument types and parameters"
