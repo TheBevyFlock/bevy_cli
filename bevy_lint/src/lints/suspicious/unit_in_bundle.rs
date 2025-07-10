@@ -64,7 +64,7 @@ use rustc_span::Symbol;
 use rustc_type_ir::PredicatePolarity;
 
 use crate::{
-    debug_assert_eq, debug_span_assert, declare_bevy_lint, declare_bevy_lint_pass, paths, sym,
+    debug_span_assert, debug_span_assert_eq, declare_bevy_lint, declare_bevy_lint_pass, paths, sym,
     utils::method_call::MethodCall,
 };
 
@@ -143,7 +143,7 @@ impl<'tcx> LateLintPass<'tcx> for UnitInBundle {
             return;
         };
 
-        debug_assert_eq!(fn_args.len(), fn_arg_types.len());
+        debug_span_assert_eq!(expr.span, fn_args.len(), fn_arg_types.len());
 
         let typeck_results = cx.typeck_results();
 

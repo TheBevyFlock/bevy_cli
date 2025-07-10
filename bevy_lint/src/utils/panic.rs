@@ -119,6 +119,47 @@ assertion `left == right` failed: {message}
     };
 }
 
+/// A variant of [`std::assert_eq!`] with better error messages emitted to a specific
+/// [`Span`](rustc_span::Span).
+#[macro_export]
+macro_rules! span_assert_eq {
+    ($span:expr, $left:expr, $right:expr $(,)?) => {
+        match (&$left, &$right) {
+            (left, right) => {
+                if !(*left == *right) {
+                    $crate::span_panic!(
+                        $span,
+                        "\
+assertion `left == right` failed
+  left: {left:?}
+ right: {right:?}",
+                    );
+                }
+            },
+        }
+    };
+
+    ($span:expr, $left:expr, $right:expr, $($arg:tt)+) => {
+        match (&$left, &$right) {
+            (left, right) => {
+                if !(*left == *right) {
+                    match ::std::format_args!($($arg)+) {
+                        message => {
+                            $crate::span_panic!(
+                                $span,
+                                "\
+assertion `left == right` failed: {message}
+  left: {left:?}
+ right: {right:?}",
+                            );
+                        },
+                    };
+                }
+            },
+        }
+    };
+}
+
 /// A variant of [`std::debug_assert!`] with better error messages.
 #[macro_export]
 macro_rules! debug_assert {
@@ -146,6 +187,17 @@ macro_rules! debug_assert_eq {
     ($($arg:tt)*) => {
         if ::std::cfg!(debug_assertions) {
             $crate::assert_eq!($($arg)*);
+        }
+    };
+}
+
+/// A variant of [`std::debug_assert_eq!`] with better error messages emitted to a specific
+/// [`Span`](rustc_span::Span).
+#[macro_export]
+macro_rules! debug_span_assert_eq {
+    ($span:expr, $($arg:tt)*) => {
+        if ::std::cfg!(debug_assertions) {
+            $crate::span_assert_eq!($span, $($arg)*);
         }
     };
 }
