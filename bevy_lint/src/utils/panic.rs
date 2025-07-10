@@ -62,6 +62,25 @@ macro_rules! assert {
     };
 }
 
+/// A variant of [`std::assert!`] with better error messages emitted to a specific
+/// [`Span`](rustc_span::Span).
+#[macro_export]
+macro_rules! span_assert {
+    ($span:expr, $cond:expr $(,)?) => {
+        $crate::span_assert!($span, $cond, stringify!($cond));
+    };
+
+    ($span:expr, $cond:expr, $($arg:tt)+) => {
+        if !($cond) {
+            match ::std::format_args!($($arg)+) {
+                message => {
+                    $crate::span_panic!($span, "assertion failed: {message}");
+                },
+            };
+        }
+    };
+}
+
 /// A variant of [`std::assert_eq!`] with better error messages.
 #[macro_export]
 macro_rules! assert_eq {
@@ -106,6 +125,17 @@ macro_rules! debug_assert {
     ($($arg:tt)*) => {
         if ::std::cfg!(debug_assertions) {
             $crate::assert!($($arg)*);
+        }
+    };
+}
+
+/// A variant of [`std::debug_assert!`] with better error messages emitted to a specific
+/// [`Span`](rustc_span::Span).
+#[macro_export]
+macro_rules! debug_span_assert {
+    ($span:expr, $($arg:tt)*) => {
+        if ::std::cfg!(debug_assertions) {
+            $crate::span_assert!($span, $($arg)*);
         }
     };
 }
