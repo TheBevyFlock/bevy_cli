@@ -301,7 +301,7 @@ impl Display for CliConfig {
                 .trim_end()
                 .lines()
                 // Align lines with the debug message
-                .map(|line| format!("      {line}"))
+                .map(|line| format!("       {line}"))
                 .collect::<Vec<String>>()
                 .join("\n")
         )
