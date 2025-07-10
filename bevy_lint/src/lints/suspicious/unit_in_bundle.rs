@@ -64,7 +64,7 @@ use rustc_span::Symbol;
 use rustc_type_ir::PredicatePolarity;
 
 use crate::{
-    debug_assert, debug_assert_eq, declare_bevy_lint, declare_bevy_lint_pass, paths, sym,
+    debug_assert_eq, debug_span_assert, declare_bevy_lint, declare_bevy_lint_pass, paths, sym,
     utils::method_call::MethodCall,
 };
 
@@ -253,9 +253,10 @@ fn bundle_bounded_generics<'tcx>(cx: &LateContext<'tcx>, fn_id: DefId) -> Vec<Ty
         {
             let self_ty = trait_ref.self_ty();
 
-            debug_assert!(
+            debug_span_assert!(
+                cx.tcx.def_span(fn_id),
                 matches!(self_ty.kind(), ty::TyKind::Param(_)),
-                "type from trait bound was expected to be a type parameter",
+                "type {self_ty} from trait bound {trait_ref} was expected to be a type parameter",
             );
 
             // At this point, we've confirmed the predicate is `T: Bundle`! Add it to the list to
