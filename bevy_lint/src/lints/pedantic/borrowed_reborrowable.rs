@@ -109,7 +109,7 @@ use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::{Region, Ty, TyCtxt, TyKind, TypeVisitable, TypeVisitor};
 use rustc_span::{Span, def_id::LocalDefId, kw};
 
-use crate::{declare_bevy_lint, declare_bevy_lint_pass};
+use crate::{debug_assert_eq, declare_bevy_lint, declare_bevy_lint_pass};
 
 declare_bevy_lint! {
     pub(crate) BORROWED_REBORROWABLE,
