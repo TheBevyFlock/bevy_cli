@@ -1,0 +1,10 @@
+disallowed-macros = [
+    { path = "std::panic", reason = "`bevy_lint`'s version has better error messages", replacement = "crate::panic" },
+    { path = "std::assert", reason = "`bevy_lint`'s version has better error messages", replacement = "crate::assert" },
+    { path = "std::assert_eq", reason = "`bevy_lint`'s version has better error messages", replacement = "crate::assert_eq" },
+    { path = "std::debug_assert", reason = "`bevy_lint`'s version has better error messages", replacement = "crate::debug_assert" },
+    { path = "std::debug_assert_eq", reason = "`bevy_lint`'s version has better error messages", replacement = "crate::debug_assert_eq" },
+    { path = "std::unreachable", reason = "`bevy_lint`'s version has better error messages", replacement = "crate::unreachable" },
+    { path = "rustc_middle::bug", reason = "use `bevy_lint`'s version instead", replacement = "crate::panic", allow-invalid = true },
+    { path = "rustc_middle::span_bug", reason = "use `bevy_lint`'s version instead", replacement = "crate::span_panic", allow-invalid = true },
+]

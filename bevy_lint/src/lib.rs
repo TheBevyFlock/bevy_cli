@@ -22,7 +22,14 @@
 #![warn(rustc::internal)]
 #![allow(
     rustc::usage_of_ty_tykind,
-    reason = "Many false positives without a valid replacement."
+    reason = "many false positives without a valid replacement"
+)]
+#![cfg_attr(
+    test,
+    allow(
+        clippy::disallowed_macros,
+        reason = "`bevy_lint`'s macros are intended for lints, not tests",
+    )
 )]
 
 // This is a list of every single `rustc` crate used within this library. If you need another, add
