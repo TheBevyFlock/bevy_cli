@@ -57,6 +57,7 @@ use rustc_hir::{Expr, ExprKind, PathSegment, def_id::DefId};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::{self, Ty};
 use rustc_span::Symbol;
+#[allow(rustc::direct_use_of_rustc_type_ir)]
 use rustc_type_ir::PredicatePolarity;
 
 use crate::{declare_bevy_lint, declare_bevy_lint_pass, paths, sym, utils::hir_parse::MethodCall};
