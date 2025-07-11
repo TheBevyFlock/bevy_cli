@@ -16,6 +16,7 @@
 
 /// A variant of [`std::panic!`] with better error messages.
 #[macro_export]
+#[doc(hidden)]
 macro_rules! panic {
     () => {
         $crate::panic!("explicit panic")
@@ -28,6 +29,7 @@ macro_rules! panic {
 /// A variant of [`std::panic!`] with better error messages emitted to a specific
 /// [`Span`](rustc_span::Span).
 #[macro_export]
+#[doc(hidden)]
 macro_rules! span_panic {
     ($span:expr) => {
         $crate::span_panic!($span, "explicit panic")
@@ -39,6 +41,7 @@ macro_rules! span_panic {
 
 /// A variant of [`std::assert!`] with better error messages.
 #[macro_export]
+#[doc(hidden)]
 macro_rules! assert {
     ($cond:expr $(,)?) => {
         $crate::assert!($cond, stringify!($cond));
@@ -58,6 +61,7 @@ macro_rules! assert {
 /// A variant of [`std::assert!`] with better error messages emitted to a specific
 /// [`Span`](rustc_span::Span).
 #[macro_export]
+#[doc(hidden)]
 macro_rules! span_assert {
     ($span:expr, $cond:expr $(,)?) => {
         $crate::span_assert!($span, $cond, stringify!($cond));
@@ -76,6 +80,7 @@ macro_rules! span_assert {
 
 /// A variant of [`std::assert_eq!`] with better error messages.
 #[macro_export]
+#[doc(hidden)]
 macro_rules! assert_eq {
     ($left:expr, $right:expr $(,)?) => {
         match (&$left, &$right) {
@@ -115,6 +120,7 @@ assertion `left == right` failed: {message}
 /// A variant of [`std::assert_eq!`] with better error messages emitted to a specific
 /// [`Span`](rustc_span::Span).
 #[macro_export]
+#[doc(hidden)]
 macro_rules! span_assert_eq {
     ($span:expr, $left:expr, $right:expr $(,)?) => {
         match (&$left, &$right) {
@@ -155,6 +161,7 @@ assertion `left == right` failed: {message}
 
 /// A variant of [`std::debug_assert!`] with better error messages.
 #[macro_export]
+#[doc(hidden)]
 macro_rules! debug_assert {
     ($($arg:tt)*) => {
         if ::std::cfg!(debug_assertions) {
@@ -166,6 +173,7 @@ macro_rules! debug_assert {
 /// A variant of [`std::debug_assert!`] with better error messages emitted to a specific
 /// [`Span`](rustc_span::Span).
 #[macro_export]
+#[doc(hidden)]
 macro_rules! debug_span_assert {
     ($span:expr, $($arg:tt)*) => {
         if ::std::cfg!(debug_assertions) {
@@ -176,6 +184,7 @@ macro_rules! debug_span_assert {
 
 /// A variant of [`std::debug_assert_eq!`] with better error messages.
 #[macro_export]
+#[doc(hidden)]
 macro_rules! debug_assert_eq {
     ($($arg:tt)*) => {
         if ::std::cfg!(debug_assertions) {
@@ -187,6 +196,7 @@ macro_rules! debug_assert_eq {
 /// A variant of [`std::debug_assert_eq!`] with better error messages emitted to a specific
 /// [`Span`](rustc_span::Span).
 #[macro_export]
+#[doc(hidden)]
 macro_rules! debug_span_assert_eq {
     ($span:expr, $($arg:tt)*) => {
         if ::std::cfg!(debug_assertions) {
@@ -197,6 +207,7 @@ macro_rules! debug_span_assert_eq {
 
 /// A variant of [`std::unreachable!`] with better error messages.
 #[macro_export]
+#[doc(hidden)]
 macro_rules! unreachable {
     () => {
         $crate::panic!("entered unreachable code")
@@ -213,6 +224,7 @@ macro_rules! unreachable {
 /// A variant of [`std::unreachable!`] with better error messages emitted to a specific
 /// [`Span`](rustc_span::Span).
 #[macro_export]
+#[doc(hidden)]
 macro_rules! span_unreachable {
     ($span:expr) => {
         $crate::span_panic!($span, "entered unreachable code")
