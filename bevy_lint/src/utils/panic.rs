@@ -12,13 +12,6 @@
 //! - `debug_assert_ne!`
 //! - `unimplemented!`
 //!
-//! The following [`Span`](rustc_span::Span) macros are currently unimplemented as well:
-//!
-//! - `span_assert!`
-//! - `span_assert_eq!`
-//! - `debug_span_assert!`
-//! - `debug_span_assert_eq!`
-//!
 //! [`todo!`] is purposefully unimplemented, as it should never be used in a user-facing manner.
 
 /// A variant of [`std::panic!`] with better error messages.
