@@ -26,7 +26,7 @@ bevy lint --yes
 `bevy_lint` requires a specific nightly Rust toolchain with the `rustc-dev` and `llvm-tools-preview` components. You can install the toolchain required for the latest release with:
 
 ```sh
-rustup toolchain install nightly-2025-05-14 \
+rustup toolchain install nightly-2025-06-26 \
     --component rustc-dev \
     --component llvm-tools-preview
 ```
@@ -38,7 +38,7 @@ If you are installing a different version of the linter, you may need to install
 Once you have the toolchain installed, you can compile and install `bevy_lint` through Cargo:
 
 ```sh
-rustup run nightly-2025-05-14 cargo install \
+rustup run nightly-2025-06-26 cargo install \
     --git https://github.com/TheBevyFlock/bevy_cli.git \
     --tag lint-v0.3.0 \
     --locked \

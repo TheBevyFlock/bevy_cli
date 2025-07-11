@@ -56,6 +56,7 @@
 
 use clippy_utils::sym::EXTRA_SYMBOLS as CLIPPY_SYMBOLS;
 /// These are symbols that we use but are already interned by either the compiler or Clippy.
+pub use clippy_utils::sym::filter;
 pub use rustc_span::sym::{bevy_ecs, plugin, reflect};
 use rustc_span::{Symbol, symbol::PREDEFINED_SYMBOLS_COUNT};
 
@@ -143,7 +144,6 @@ declare_bevy_symbols! {
     event,
     Event,
     Events,
-    filter,
     FilteredEntityMut,
     FixedUpdate,
     init_resource,
