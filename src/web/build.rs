@@ -46,7 +46,7 @@ pub fn build_web(
         // Wasm targets are not installed by default
         .maybe_require_target(args.target())
         .args(cargo_args)
-        .env("RUSTFLAGS", args.cargo_args.common_args.rustflags.clone())
+        .env("RUSTFLAGS", args.rustflags())
         .ensure_status(args.auto_install())?;
 
     info!("bundling JavaScript bindings...");

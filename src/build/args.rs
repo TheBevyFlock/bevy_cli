@@ -82,6 +82,44 @@ impl BuildArgs {
         }
     }
 
+    /// Whether multi-threading is enabled for the web app.
+    #[cfg(feature = "experimental")]
+    pub(crate) fn web_multi_threading(&self) -> bool {
+        if let Some(BuildSubcommands::Web(web_args)) = &self.subcommand {
+            if let Some(multi_threading) = web_args.multi_threading {
+                return multi_threading;
+            }
+        }
+
+        false
+    }
+
+    /// The RUSTFLAGS to pass to the `cargo` command.
+    #[cfg(not(feature = "experimental"))]
+    pub(crate) fn rustflags(&self) -> Option<String> {
+        self.cargo_args.common_args.rustflags.clone()
+    }
+
+    /// The RUSTFLAGS to pass to the `cargo` command.
+    #[cfg(feature = "experimental")]
+    pub(crate) fn rustflags(&self) -> Option<String> {
+        if self.web_multi_threading() {
+            // Rust's default Wasm target does not support multi-threading primitives out of the box
+            // They need to be enabled manually
+            let multi_threading_flags = "-C target-feature=+atomics,+bulk-memory";
+
+            if let Some(mut rustflags) = self.cargo_args.common_args.rustflags.clone() {
+                rustflags += " ";
+                rustflags += multi_threading_flags;
+                Some(rustflags)
+            } else {
+                Some(multi_threading_flags.to_owned())
+            }
+        } else {
+            self.cargo_args.common_args.rustflags.clone()
+        }
+    }
+
     /// Apply the config on top of the CLI arguments.
     ///
     /// CLI arguments take precedence.
