@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use clap::{ArgAction, Args, Subcommand};
 
 use super::cargo::build::{CargoBuildArgs, CargoPackageBuildArgs, CargoTargetBuildArgs};
@@ -157,7 +159,7 @@ pub struct RunWebArgs {
     ///
     /// Can be defined multiple times to add multiple headers.
     #[clap(short = 'H', long = "headers", value_name = "HEADERS")]
-    pub headers: Vec<String>,
+    headers: Vec<String>,
 
     /// Use `wasm-opt` to optimize the wasm binary
     ///
@@ -177,6 +179,32 @@ pub struct RunWebArgs {
     #[cfg(feature = "experimental")]
     #[arg(long = "experimental-multi-threading", action = ArgAction::SetTrue)]
     pub multi_threading: Option<bool>,
+}
+
+impl RunWebArgs {
+    #[cfg(not(feature = "experimental"))]
+    pub fn headers(&self) -> Cow<[String]> {
+        Cow::Borrowed(&self.headers)
+    }
+
+    #[cfg(feature = "experimental")]
+    pub fn headers(&self) -> Cow<[String]> {
+        if let Some(multi_threading) = self.multi_threading {
+            if multi_threading {
+                let mut headers = self.headers.clone();
+                // Make the document cross-origin isolated,
+                // which is required for Wasm multi-threading
+                // See also https://developer.mozilla.org/en-US/docs/Web/API/Window/crossOriginIsolated
+                headers.extend([
+                    "cross-origin-opener-policy='same-origin'".to_owned(),
+                    "cross-origin-embedder-policy='require-corp'".to_owned(),
+                ]);
+                return Cow::Owned(headers);
+            }
+        }
+
+        Cow::Borrowed(&self.headers)
+    }
 }
 
 impl Default for RunWebArgs {
