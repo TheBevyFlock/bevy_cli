@@ -9,17 +9,6 @@ license = "MIT OR Apache-2.0"
 # While there are two binaries available, only `bevy_lint` is intended to be called by users.
 default-run = "bevy_lint"
 
-# The main entrypoint for using Bevy lints. This program is intended to be called by users.
-[[bin]]
-name = "bevy_lint"
-path = "src/bin/main.rs"
-
-# The internal program called by `cargo` instead of `rustc`. While this is where the lints are
-# registered, it is not intended to be called by users.
-[[bin]]
-name = "bevy_lint_driver"
-path = "src/bin/driver.rs"
-
 [[test]]
 name = "ui"
 harness = false
