@@ -51,6 +51,12 @@ std::panic!("Uh oh!");
 crate::panic!("Uh oh!");
 ```
 
+<div class="warning">
+
+`bevy_lint`'s macros require `rustc`'s diagnostics to be setup, so they will not work in tests and the `bevy_lint` binary. In these cases, you should use the standard library versions instead.
+
+</div>
+
 ### Panic for a specific `Span`
 
 `bevy_lint` has custom panicking macros that can be emitted to a specific `Span`. These should be preferred in lint passes, as they tell you what piece of code caused the linter to ICE.
