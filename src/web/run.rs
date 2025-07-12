@@ -30,7 +30,7 @@ pub(crate) fn run_web(
         None => &RunWebArgs::default(),
     };
 
-    let header_map = parse_headers(&web_args.headers)?;
+    let header_map = parse_headers(&web_args.headers())?;
 
     let mut build_args: BuildArgs = args.clone().into();
 
