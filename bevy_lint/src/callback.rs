@@ -81,6 +81,15 @@ impl Callbacks for BevyLintCallback {
                 }
             }
         }));
+
+        // There shouldn't be any existing extra symbols, as we should be the only callback
+        // overriding them.
+        debug_assert!(config.extra_symbols.is_empty());
+
+        // Give the compiler a list of extra `Symbol`s to intern ahead of time. This helps us avoid
+        // calling `Symbol::intern()` while linting. See the `sym` module for a more detailed
+        // explanation.
+        config.extra_symbols = crate::sym::extra_symbols();
     }
 }
 

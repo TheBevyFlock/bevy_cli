@@ -5,7 +5,7 @@ use tracing::info;
 use super::bundle::WebBundle;
 use crate::{
     bin_target::BinTarget,
-    build::args::{BuildArgs, BuildSubcommands},
+    commands::build::{BuildArgs, BuildSubcommands},
     external_cli::{cargo, wasm_bindgen, wasm_opt},
     web::{
         bundle::{PackedBundle, create_web_bundle},

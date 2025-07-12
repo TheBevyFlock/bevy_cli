@@ -51,7 +51,6 @@
 use clippy_utils::{
     diagnostics::span_lint_and_help,
     source::{snippet, snippet_opt},
-    ty::match_type,
 };
 use rustc_hir::Expr;
 use rustc_lint::{LateContext, LateLintPass};
@@ -102,7 +101,7 @@ impl<'tcx> LateLintPass<'tcx> for PanickingMethods {
             // ^^^^^
             //
             // We peel all references to that `Foo`, `&Foo`, `&&Foo`, etc.
-            let src_ty = cx.typeck_results().expr_ty(receiver).peel_refs();
+            let src_ty = cx.typeck_results().expr_ty_adjusted(receiver).peel_refs();
 
             // Check if `src_ty` is a type that has panicking methods (e.g. `Query`), else exit.
             let Some(panicking_type) = PanickingType::try_from_ty(cx, src_ty) else {
@@ -216,9 +215,9 @@ enum PanickingType {
 impl PanickingType {
     /// Returns the corresponding variant for the given [`Ty`], if it is supported by this lint.
     fn try_from_ty<'tcx>(cx: &LateContext<'tcx>, ty: Ty<'tcx>) -> Option<Self> {
-        if match_type(cx, ty, &crate::paths::QUERY) {
+        if crate::paths::QUERY.matches_ty(cx, ty) {
             Some(Self::Query)
-        } else if match_type(cx, ty, &crate::paths::WORLD) {
+        } else if crate::paths::WORLD.matches_ty(cx, ty) {
             Some(Self::World)
         } else {
             None

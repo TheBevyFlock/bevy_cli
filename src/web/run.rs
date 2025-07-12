@@ -11,10 +11,9 @@ use tracing::{error, info};
 use super::{build::build_web, serve::serve};
 use crate::{
     bin_target::BinTarget,
-    build::args::BuildArgs,
-    run::{
-        RunArgs,
-        args::{RunSubcommands, RunWebArgs},
+    commands::{
+        build::BuildArgs,
+        run::{RunArgs, RunSubcommands, RunWebArgs},
     },
 };
 

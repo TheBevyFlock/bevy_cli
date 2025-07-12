@@ -32,7 +32,7 @@ see <https://linebender.org/blog/doc-include/>.
 You can install the toolchain required for the latest release with:
 
 ```sh
-rustup toolchain install nightly-2025-04-03 \
+rustup toolchain install nightly-2025-06-26 \
     --component rustc-dev \
     --component llvm-tools-preview
 ```
@@ -44,7 +44,7 @@ If you are installing a different version of the linter, you may need to install
 Once you have the toolchain installed, you can compile and install `bevy_lint` through `cargo`:
 
 ```sh
-rustup run nightly-2025-04-03 cargo install \
+rustup run nightly-2025-06-26 cargo install \
     --git https://github.com/TheBevyFlock/bevy_cli.git \
     --tag lint-v0.3.0 \
     --locked \

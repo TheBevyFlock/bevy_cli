@@ -26,7 +26,7 @@ bevy lint --yes
 `bevy_lint` requires a specific nightly Rust toolchain with the `rustc-dev` and `llvm-tools-preview` components. You can install the toolchain required for the latest release with:
 
 ```sh
-rustup toolchain install nightly-2025-04-03 \
+rustup toolchain install nightly-2025-06-26 \
     --component rustc-dev \
     --component llvm-tools-preview
 ```
@@ -38,7 +38,7 @@ If you are installing a different version of the linter, you may need to install
 Once you have the toolchain installed, you can compile and install `bevy_lint` through Cargo:
 
 ```sh
-rustup run nightly-2025-04-03 cargo install \
+rustup run nightly-2025-06-26 cargo install \
     --git https://github.com/TheBevyFlock/bevy_cli.git \
     --tag lint-v0.3.0 \
     --locked \
@@ -84,7 +84,7 @@ cargo uninstall bevy_lint
 You may also wish to uninstall the Rustup toolchain. The following command will uninstall the toolchain required by the latest version of the linter, but you may need to specify a different toolchain from the [compatibility table](compatibility.md):
 
 ```sh
-rustup toolchain uninstall nightly-2025-04-03
+rustup toolchain uninstall 2025-05-14
 ```
 
 ## Upgrade

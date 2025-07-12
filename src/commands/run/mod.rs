@@ -1,19 +1,18 @@
-//! Provides functionalities to build a Bevy app targeting either native or web platforms.
+//! Provides functionalities to run a Bevy app targeting either native or web platforms.
 
-use args::BuildArgs;
-
+pub use self::args::*;
 #[cfg(feature = "web")]
-use crate::web::build::build_web;
+use crate::web::run::run_web;
 use crate::{bin_target::select_run_binary, config::CliConfig, external_cli::cargo};
 
-pub mod args;
+mod args;
 
-/// Tries to build the project with the given [`BuildArgs`].
+/// Tries to run the project with the given [`RunArgs`].
 ///
 /// # Errors
 ///
 /// will error if the build process can not be completed
-pub fn build(args: &mut BuildArgs) -> anyhow::Result<()> {
+pub fn run(args: &mut RunArgs) -> anyhow::Result<()> {
     let metadata = cargo::metadata::metadata()?;
 
     let mut bin_target = select_run_binary(
@@ -31,7 +30,6 @@ pub fn build(args: &mut BuildArgs) -> anyhow::Result<()> {
         args.is_web(),
         args.is_release(),
     )?;
-
     args.apply_config(&config);
     // Update the artifact directory based on the config, e.g. in case the `target` changed
     bin_target.update_artifact_directory(
@@ -43,14 +41,15 @@ pub fn build(args: &mut BuildArgs) -> anyhow::Result<()> {
 
     #[cfg(feature = "web")]
     if args.is_web() {
-        build_web(args, &metadata, &bin_target)?;
-        return Ok(());
+        return run_web(args, &metadata, &bin_target);
     }
 
     let cargo_args = args.cargo_args_builder();
-    cargo::build::command()
+
+    // For native builds, wrap `cargo run`
+    cargo::run::command()
         .args(cargo_args)
-        .env("RUSTFLAGS", args.rustflags())
+        .env("RUSTFLAGS", args.cargo_args.common_args.rustflags.clone())
         .ensure_status(args.auto_install())?;
 
     Ok(())

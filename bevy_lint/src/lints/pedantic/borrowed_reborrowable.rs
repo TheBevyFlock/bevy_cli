@@ -100,14 +100,14 @@ use std::ops::ControlFlow;
 
 use clippy_utils::{
     diagnostics::span_lint_and_sugg,
+    paths::PathLookup,
     source::{snippet, snippet_opt},
-    ty::match_type,
 };
 use rustc_errors::Applicability;
-use rustc_hir::{Body, FnDecl, MutTy, Mutability, intravisit::FnKind};
+use rustc_hir::{Body, FnDecl, MutTy, Mutability, PatKind, intravisit::FnKind};
 use rustc_lint::{LateContext, LateLintPass};
-use rustc_middle::ty::{Interner, Ty, TyKind, TypeVisitable, TypeVisitor};
-use rustc_span::{Span, def_id::LocalDefId, symbol::kw};
+use rustc_middle::ty::{Region, Ty, TyCtxt, TyKind, TypeVisitable, TypeVisitor};
+use rustc_span::{Span, def_id::LocalDefId, kw};
 
 use crate::{declare_bevy_lint, declare_bevy_lint_pass};
 
@@ -145,16 +145,9 @@ impl<'tcx> LateLintPass<'tcx> for BorrowedReborrowable {
 
         // A list of argument types, used in the actual lint check.
         let arg_types = fn_sig.inputs().skip_binder();
-        // A list of argument names, used to check and skip `&mut self`.
-        let arg_names = cx.tcx.fn_arg_names(def_id);
         // A list of argument parameters, used to find the span of arguments.
         let arg_params = body.params;
 
-        debug_assert_eq!(
-            arg_types.len(),
-            arg_names.len(),
-            "there must be the same number of argument types and names"
-        );
         debug_assert_eq!(
             arg_types.len(),
             arg_params.len(),
@@ -167,14 +160,13 @@ impl<'tcx> LateLintPass<'tcx> for BorrowedReborrowable {
                 continue;
             };
 
-            // This lint would emit a warning on `&mut self` if `self` was reborrowable. This isn't
-            // useful, though, because it would hurt the ergonomics of using methods of
-            // reborrowable types.
-            //
-            // To avoid this, we skip any parameter named `self`. This won't false-positive on
-            // other function arguments named `self`, since it is a special keyword that is
-            // disallowed in other positions.
-            if arg_names[arg_index].is_some_and(|ident| ident.name == kw::SelfLower) {
+            // If the argument is named `self`, skip it. Without this check the lint would be
+            // emitted for `&mut self` if `self` was reborrowable, which isn't wanted! That would
+            // just be annoying for engine developers trying to add useful methods to reborrowable
+            // types.
+            if let PatKind::Binding(_, _, ident, _) = body.params[arg_index].pat.kind
+                && ident.name == kw::SelfLower
+            {
                 continue;
             }
 
@@ -255,7 +247,7 @@ impl Reborrowable {
     fn try_from_ty<'tcx>(cx: &LateContext<'tcx>, ty: Ty<'tcx>) -> Option<Self> {
         use crate::paths::*;
 
-        const PATH_MAP: &[(&[&str], Reborrowable)] = &[
+        static PATH_MAP: &[(&PathLookup, Reborrowable)] = &[
             (&COMMANDS, Reborrowable::Commands),
             (&DEFERRED, Reborrowable::Deferred),
             (&DEFERRED_WORLD, Reborrowable::DeferredWorld),
@@ -271,7 +263,7 @@ impl Reborrowable {
         ];
 
         for &(path, reborrowable) in PATH_MAP {
-            if match_type(cx, ty, path) {
+            if path.matches_ty(cx, ty) {
                 return Some(reborrowable);
             }
         }
@@ -313,12 +305,12 @@ impl Reborrowable {
 }
 
 /// [`TypeVisitor`] for checking if the given region is contained in the type.
-struct ContainsRegion<I: Interner>(pub I::Region);
+struct ContainsRegion<'tcx>(pub Region<'tcx>);
 
-impl<I: Interner> TypeVisitor<I> for ContainsRegion<I> {
+impl<'tcx> TypeVisitor<TyCtxt<'tcx>> for ContainsRegion<'tcx> {
     type Result = ControlFlow<()>;
 
-    fn visit_region(&mut self, r: I::Region) -> Self::Result {
+    fn visit_region(&mut self, r: Region<'tcx>) -> Self::Result {
         if self.0 == r {
             ControlFlow::Break(())
         } else {

@@ -69,15 +69,13 @@
 //!
 //! For more information, check out the
 //! [physics in fixed timestep example](https://bevy.org/examples/movement/physics-in-fixed-timestep/).
-//! ```
 
-use clippy_utils::{diagnostics::span_lint_and_help, sym, ty::match_type};
+use clippy_utils::diagnostics::span_lint_and_help;
 use rustc_hir::{ExprKind, QPath, def::Res};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::{Adt, GenericArgKind, TyKind};
-use rustc_span::Symbol;
 
-use crate::{declare_bevy_lint, declare_bevy_lint_pass, utils::hir_parse::MethodCall};
+use crate::{declare_bevy_lint, declare_bevy_lint_pass, sym, utils::hir_parse::MethodCall};
 
 declare_bevy_lint! {
     pub(crate) CAMERA_MODIFICATION_IN_FIXED_UPDATE,
@@ -87,9 +85,6 @@ declare_bevy_lint! {
 
 declare_bevy_lint_pass! {
     pub(crate) CameraModificationInFixedUpdate => [CAMERA_MODIFICATION_IN_FIXED_UPDATE],
-    @default = {
-        add_systems: Symbol = sym!(add_systems),
-    },
 }
 
 impl<'tcx> LateLintPass<'tcx> for CameraModificationInFixedUpdate {
@@ -108,11 +103,11 @@ impl<'tcx> LateLintPass<'tcx> for CameraModificationInFixedUpdate {
             return;
         };
 
-        let receiver_ty = cx.typeck_results().expr_ty(receiver).peel_refs();
+        let receiver_ty = cx.typeck_results().expr_ty_adjusted(receiver).peel_refs();
 
         // Match calls to `App::add_systems(schedule, systems)`
-        if !match_type(cx, receiver_ty, &crate::paths::APP)
-            || method_path.ident.name != self.add_systems
+        if !crate::paths::APP.matches_ty(cx, receiver_ty)
+            || method_path.ident.name != sym::add_systems
         {
             return;
         }
@@ -121,10 +116,10 @@ impl<'tcx> LateLintPass<'tcx> for CameraModificationInFixedUpdate {
             return;
         };
 
-        let schedule_ty = cx.typeck_results().expr_ty(schedule).peel_refs();
+        let schedule_ty = cx.typeck_results().expr_ty_adjusted(schedule).peel_refs();
 
         // Skip if the schedule is not `FixedUpdate`
-        if !match_type(cx, schedule_ty, &crate::paths::FIXED_UPDATE) {
+        if !crate::paths::FIXED_UPDATE.matches_ty(cx, schedule_ty) {
             return;
         }
 
@@ -149,14 +144,15 @@ impl<'tcx> LateLintPass<'tcx> for CameraModificationInFixedUpdate {
 
                     // Check if the parameter is a `Query`
                     let adt_ty = cx.tcx.type_of(adt_def_id.did()).skip_binder();
-                    if !match_type(cx, adt_ty, &crate::paths::QUERY) {
+
+                    if !crate::paths::QUERY.matches_ty(cx, adt_ty) {
                         continue;
                     }
 
                     // Get the type arguments and ignore Lifetimes
                     let mut query_type_arguments =
                         args.iter()
-                            .filter_map(|generic_arg| match generic_arg.unpack() {
+                            .filter_map(|generic_arg| match generic_arg.kind() {
                                 GenericArgKind::Type(ty) => Some(ty),
                                 _ => None,
                             });
@@ -192,16 +188,16 @@ impl<'tcx> LateLintPass<'tcx> for CameraModificationInFixedUpdate {
                     // Check for `With<Camera>` filter on a mutable query
                     for query_filter in query_filters {
                         // Check if the `With` `QueryFilter` was used.
-                        if match_type(cx, query_filter, &crate::paths::WITH)
+                        if crate::paths::WITH.matches_ty(cx, query_filter)
                         // Get the generic argument of the Filter
                         && let TyKind::Adt(_, with_args) = query_filter.kind()
                         // There can only be exactly one argument
                         && let Some(filter_component_arg) = with_args.iter().next()
                         // Get the type of the component the filter should filter for
                         && let GenericArgKind::Type(filter_component_ty) =
-                            filter_component_arg.unpack()
+                            filter_component_arg.kind()
                         // Check if Filter is of type `Camera`
-                        && match_type(cx, filter_component_ty, &crate::paths::CAMERA)
+                        && crate::paths::CAMERA.matches_ty(cx, filter_component_ty)
                         // Emit lint if any `Camera` component is mutably borrowed
                         && query_data_mutability.iter().any(|mutability|match mutability {
                                 rustc_ast::Mutability::Not => false,

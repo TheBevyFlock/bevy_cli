@@ -32,7 +32,7 @@ harness = false
 # Contains a series of useful utilities when writing lints. The version is chosen to work with the
 # currently pinned nightly Rust version. When the Rust version changes, this too needs to be
 # updated!
-clippy_utils = "=0.1.88"
+clippy_utils = "=0.1.90"
 
 # Easy error propagation and contexts.
 anyhow = "1.0.86"
@@ -41,13 +41,19 @@ cargo_metadata = "0.20.0"
 
 # Configuration deserialization.
 serde = { version = "1.0.210", features = ["derive"] }
-toml = { version = "0.8.19", default-features = false, features = ["parse"] }
+toml = { version = "0.9.0", default-features = false, features = ["std", "parse", "serde"] }
+
+# CLI argument parsing
+pico-args = "0.5.0"
+
+# Colored terminal output
+anstream = "0.6.19"
+anstyle = "1.0.11"
 
 [build-dependencies]
 # Parse `rust-toolchain.toml` at build time.
-toml_edit = { version = "0.22.22", default-features = false, features = [
-    "parse",
-] }
+serde = { version = "1.0.210", features = ["derive"] }
+toml = { version = "0.9.0", default-features = false, features = ["std", "parse", "serde"] }
 
 [dev-dependencies]
 # Used when running UI tests.
