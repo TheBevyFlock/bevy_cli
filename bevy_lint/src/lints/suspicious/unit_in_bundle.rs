@@ -60,7 +60,7 @@ use rustc_span::Symbol;
 use rustc_type_ir::PredicatePolarity;
 
 use crate::{
-    debug_span_assert, debug_span_assert_eq, declare_bevy_lint, declare_bevy_lint_pass, paths, sym,
+    declare_bevy_lint, declare_bevy_lint_pass, paths, span_assert, span_assert_eq, sym,
     utils::hir_parse::MethodCall,
 };
 
@@ -139,7 +139,7 @@ impl<'tcx> LateLintPass<'tcx> for UnitInBundle {
             return;
         };
 
-        debug_span_assert_eq!(expr.span, fn_args.len(), fn_arg_types.len());
+        span_assert_eq!(expr.span, fn_args.len(), fn_arg_types.len());
 
         let typeck_results = cx.typeck_results();
 
@@ -249,7 +249,7 @@ fn bundle_bounded_generics<'tcx>(cx: &LateContext<'tcx>, fn_id: DefId) -> Vec<Ty
         {
             let self_ty = trait_ref.self_ty();
 
-            debug_span_assert!(
+            span_assert!(
                 cx.tcx.def_span(fn_id),
                 matches!(self_ty.kind(), ty::TyKind::Param(_)),
                 "type {self_ty} from trait bound {trait_ref} was expected to be a type parameter",
