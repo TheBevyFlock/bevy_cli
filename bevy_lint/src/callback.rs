@@ -9,7 +9,7 @@ use rustc_middle::ty::TyCtxt;
 use rustc_session::utils::was_invoked_from_cargo;
 use rustc_span::{Ident, Symbol};
 
-use crate::{debug_assert, unreachable};
+use crate::{assert, unreachable};
 
 /// A pointer to the original [`registered_tools()`](TyCtxt::registered_tools) query function.
 ///
@@ -84,7 +84,7 @@ impl Callbacks for BevyLintCallback {
 
         // There shouldn't be any existing extra symbols, as we should be the only callback
         // overriding them.
-        debug_assert!(config.extra_symbols.is_empty());
+        assert!(config.extra_symbols.is_empty());
 
         // Give the compiler a list of extra `Symbol`s to intern ahead of time. This helps us avoid
         // calling `Symbol::intern()` while linting. See the `sym` module for a more detailed
