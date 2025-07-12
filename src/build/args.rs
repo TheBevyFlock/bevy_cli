@@ -66,8 +66,26 @@ impl BuildArgs {
     }
 
     /// Generate arguments to forward to `cargo build`.
+    #[cfg(not(feature = "experimental"))]
     pub(crate) fn cargo_args_builder(&self) -> ArgBuilder {
         self.cargo_args.args_builder(self.is_web())
+    }
+
+    /// Generate arguments to forward to `cargo build`.
+    #[cfg(feature = "experimental")]
+    pub(crate) fn cargo_args_builder(&self) -> ArgBuilder {
+        // If Wasm multi-threading is enabled and a target with std is used,
+        // the std needs to be rebuilt to enable multi-threading features
+        let rebuild_std = self.web_multi_threading()
+            && self
+                .target()
+                .is_some_and(|target| &target == "wasm32-unknown-unknown");
+
+        self.cargo_args
+            .args_builder(self.is_web())
+            // Add the flags to rebuild std
+            // Unstable, requires nightly Rust
+            .add_opt_value("-Z", &rebuild_std.then_some("build-std=std,panic_abort"))
     }
 
     /// The flags to use for `wasm-opt` if building for the web.
