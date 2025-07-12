@@ -13,7 +13,7 @@ Short description of the feature.
 - **Original Implementation**: PR link
 - **Current Docs**: Docs link
 
-# Known Issues
+## Known Issues
 
 A checkbox list of issues.  For example:
 
