@@ -117,6 +117,7 @@ impl RunArgs {
         let is_release = self.is_release();
 
         #[cfg(feature = "web")]
+        #[allow(clippy::collapsible_if)] // Easier to manage with the other conditional case
         if let Some(RunSubcommands::Web(web_args)) = self.subcommand.as_mut() {
             if web_args.wasm_opt.is_empty() {
                 web_args.wasm_opt = config.wasm_opt(is_release).to_raw();
@@ -183,27 +184,28 @@ pub struct RunWebArgs {
 
 impl RunWebArgs {
     #[cfg(not(feature = "experimental"))]
-    pub fn headers(&self) -> Cow<[String]> {
+    pub fn headers(&self) -> Cow<'_, [String]> {
         Cow::Borrowed(&self.headers)
     }
 
     #[cfg(feature = "experimental")]
-    pub fn headers(&self) -> Cow<[String]> {
-        if let Some(multi_threading) = self.multi_threading {
-            if multi_threading {
-                let mut headers = self.headers.clone();
-                // Make the document cross-origin isolated,
-                // which is required for Wasm multi-threading
-                // See also https://developer.mozilla.org/en-US/docs/Web/API/Window/crossOriginIsolated
-                headers.extend([
-                    "cross-origin-opener-policy='same-origin'".to_owned(),
-                    "cross-origin-embedder-policy='require-corp'".to_owned(),
-                ]);
-                return Cow::Owned(headers);
-            }
-        }
+    pub fn headers(&self) -> Cow<'_, [String]> {
+        if let Some(multi_threading) = self.multi_threading
+            && multi_threading
+        {
+            let mut headers = self.headers.clone();
+            // Make the document cross-origin isolated,
+            // which is required for Wasm multi-threading
+            // See also https://developer.mozilla.org/en-US/docs/Web/API/Window/crossOriginIsolated
+            headers.extend([
+                "cross-origin-opener-policy='same-origin'".to_owned(),
+                "cross-origin-embedder-policy='require-corp'".to_owned(),
+            ]);
 
-        Cow::Borrowed(&self.headers)
+            Cow::Owned(headers)
+        } else {
+            Cow::Borrowed(&self.headers)
+        }
     }
 }
 

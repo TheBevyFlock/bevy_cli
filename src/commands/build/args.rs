@@ -103,13 +103,13 @@ impl BuildArgs {
     /// Whether multi-threading is enabled for the web app.
     #[cfg(feature = "experimental")]
     pub(crate) fn web_multi_threading(&self) -> bool {
-        if let Some(BuildSubcommands::Web(web_args)) = &self.subcommand {
-            if let Some(multi_threading) = web_args.multi_threading {
-                return multi_threading;
-            }
+        if let Some(BuildSubcommands::Web(web_args)) = &self.subcommand
+            && let Some(multi_threading) = web_args.multi_threading
+        {
+            multi_threading
+        } else {
+            false
         }
-
-        false
     }
 
     /// The RUSTFLAGS to pass to the `cargo` command.
@@ -169,6 +169,7 @@ impl BuildArgs {
         let is_release = self.is_release();
 
         #[cfg(feature = "web")]
+        #[allow(clippy::collapsible_if)] // Easier to manage with the other conditional case
         if let Some(BuildSubcommands::Web(web_args)) = self.subcommand.as_mut() {
             if web_args.wasm_opt.is_empty() {
                 web_args.wasm_opt = config.wasm_opt(is_release).to_raw();

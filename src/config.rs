@@ -67,6 +67,7 @@ impl CliConfig {
     }
 
     /// Whether to enable Wasm multi-threading functionality.
+    #[cfg(feature = "experimental")]
     pub fn web_multi_threading(&self) -> Option<bool> {
         self.web_multi_threading
     }
