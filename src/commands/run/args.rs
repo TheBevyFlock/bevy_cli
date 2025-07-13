@@ -198,8 +198,8 @@ impl RunWebArgs {
             // which is required for Wasm multi-threading
             // See also https://developer.mozilla.org/en-US/docs/Web/API/Window/crossOriginIsolated
             headers.extend([
-                "cross-origin-opener-policy='same-origin'".to_owned(),
-                "cross-origin-embedder-policy='require-corp'".to_owned(),
+                "cross-origin-opener-policy=same-origin".to_owned(),
+                "cross-origin-embedder-policy=require-corp".to_owned(),
             ]);
 
             Cow::Owned(headers)
