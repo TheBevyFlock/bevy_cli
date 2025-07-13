@@ -36,7 +36,7 @@ web = [
 rustup = []
 
 # Functionality that's unfinished or comes with caveats
-experimental = []
+unstable = []
 
 [dependencies]
 # CLI argument parsing
@@ -73,7 +73,12 @@ semver = { version = "1.0.23", features = ["serde"] }
 cargo_metadata = "0.20.0"
 
 # Parsing the Cargo manifest
-toml = { version = "0.9.0", default-features = false, features = ["std", "parse", "display", "serde"] }
+toml = { version = "0.9.0", default-features = false, features = [
+    "std",
+    "parse",
+    "display",
+    "serde",
+] }
 
 # Logging crates
 tracing = "0.1.41"

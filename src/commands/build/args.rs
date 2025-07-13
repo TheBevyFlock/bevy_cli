@@ -66,13 +66,13 @@ impl BuildArgs {
     }
 
     /// Generate arguments to forward to `cargo build`.
-    #[cfg(not(feature = "experimental"))]
+    #[cfg(not(feature = "unstable"))]
     pub(crate) fn cargo_args_builder(&self) -> ArgBuilder {
         self.cargo_args.args_builder(self.is_web())
     }
 
     /// Generate arguments to forward to `cargo build`.
-    #[cfg(feature = "experimental")]
+    #[cfg(feature = "unstable")]
     pub(crate) fn cargo_args_builder(&self) -> ArgBuilder {
         // If Wasm multi-threading is enabled and a target with std is used,
         // the std needs to be rebuilt to enable multi-threading features
@@ -101,7 +101,7 @@ impl BuildArgs {
     }
 
     /// Whether multi-threading is enabled for the web app.
-    #[cfg(feature = "experimental")]
+    #[cfg(feature = "unstable")]
     pub(crate) fn web_multi_threading(&self) -> bool {
         if let Some(BuildSubcommands::Web(web_args)) = &self.subcommand
             && let Some(multi_threading) = web_args.multi_threading
@@ -113,13 +113,13 @@ impl BuildArgs {
     }
 
     /// The RUSTFLAGS to pass to the `cargo` command.
-    #[cfg(not(feature = "experimental"))]
+    #[cfg(not(feature = "unstable"))]
     pub(crate) fn rustflags(&self) -> Option<String> {
         self.cargo_args.common_args.rustflags.clone()
     }
 
     /// The RUSTFLAGS to pass to the `cargo` command.
-    #[cfg(feature = "experimental")]
+    #[cfg(feature = "unstable")]
     pub(crate) fn rustflags(&self) -> Option<String> {
         if self.web_multi_threading() {
             // Rust's default Wasm target does not support multi-threading primitives out of the box
@@ -175,7 +175,7 @@ impl BuildArgs {
                 web_args.wasm_opt = config.wasm_opt(is_release).to_raw();
             }
 
-            #[cfg(feature = "experimental")]
+            #[cfg(feature = "unstable")]
             if web_args.multi_threading.is_none() {
                 web_args.multi_threading = config.web_multi_threading();
             }
@@ -211,7 +211,7 @@ pub struct BuildWebArgs {
     /// so you have to implement it yourself.
     ///
     /// Requires a nightly Rust toolchain.
-    #[cfg(feature = "experimental")]
+    #[cfg(feature = "unstable")]
     #[arg(long = "experimental-multi-threading", action = ArgAction::SetTrue)]
     pub multi_threading: Option<bool>,
 }
