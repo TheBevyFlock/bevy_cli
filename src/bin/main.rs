@@ -1,6 +1,7 @@
 use std::{fmt::Write, process::ExitCode};
 
 use ansi_term::Color::{Blue, Green, Purple, Red, Yellow};
+use bevy_cli::commands::test::{args::TestArgs, test};
 #[cfg(feature = "rustup")]
 use bevy_cli::commands::{
     build::{BuildArgs, build},
@@ -9,7 +10,6 @@ use bevy_cli::commands::{
     new::{NewArgs, new},
     run::{RunArgs, run},
 };
-use bevy_cli::test::args::TestArgs;
 use clap::{Parser, Subcommand, builder::styling::Style};
 use clap_cargo::style;
 use tracing::error;
@@ -53,7 +53,7 @@ fn main() -> ExitCode {
             completions::<Cli>(shell);
             Ok(())
         }
-        _ => todo!(),
+        Subcommands::Test(mut args) => test(&mut args),
     } {
         if cli.verbose {
             // `anyhow::Error`'s `Debug` implementation prints backtraces, while `Display` does not.
