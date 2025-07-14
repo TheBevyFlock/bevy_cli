@@ -44,7 +44,7 @@ use rustc_hir::{Body, FnDecl, FnRetTy, Ty, TyKind, def_id::LocalDefId, intravisi
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_span::Span;
 
-use crate::{declare_bevy_lint, declare_bevy_lint_pass, sym, utils::hir_parse::MethodCall};
+use crate::{declare_bevy_lint, declare_bevy_lint_pass, sym, utils::method_call::MethodCall};
 
 declare_bevy_lint! {
     pub(crate) MAIN_RETURN_WITHOUT_APPEXIT,

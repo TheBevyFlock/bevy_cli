@@ -75,7 +75,7 @@ use rustc_hir::{ExprKind, QPath, def::Res};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::{Adt, GenericArgKind, TyKind};
 
-use crate::{declare_bevy_lint, declare_bevy_lint_pass, sym, utils::hir_parse::MethodCall};
+use crate::{declare_bevy_lint, declare_bevy_lint_pass, sym, utils::method_call::MethodCall};
 
 declare_bevy_lint! {
     pub(crate) CAMERA_MODIFICATION_IN_FIXED_UPDATE,
