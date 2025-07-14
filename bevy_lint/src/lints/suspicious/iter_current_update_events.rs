@@ -42,7 +42,7 @@ use clippy_utils::diagnostics::span_lint_and_help;
 use rustc_hir::Expr;
 use rustc_lint::{LateContext, LateLintPass};
 
-use crate::{declare_bevy_lint, declare_bevy_lint_pass, sym, utils::hir_parse::MethodCall};
+use crate::{declare_bevy_lint, declare_bevy_lint_pass, sym, utils::method_call::MethodCall};
 
 declare_bevy_lint! {
     pub(crate) ITER_CURRENT_UPDATE_EVENTS,
