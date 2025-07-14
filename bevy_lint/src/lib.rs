@@ -14,8 +14,6 @@
 #![doc = include_str!("../README.md")]
 // Enables linking to `rustc` crates.
 #![feature(rustc_private)]
-// Allows chaining `if let` multiple times using `&&`.
-#![feature(let_chains)]
 // Used to access the index of repeating macro input in `declare_bevy_symbols!`.
 #![feature(macro_metavar_expr)]
 // Warn on internal `rustc` lints that check for poor usage of internal compiler APIs. Note that
