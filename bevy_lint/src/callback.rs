@@ -23,6 +23,7 @@ static ORIGINAL_REGISTERED_TOOLS: AtomicPtr<()> = {
 };
 
 /// The `rustc` [`Callbacks`] that register Bevy's lints.
+#[doc(hidden)]
 pub struct BevyLintCallback;
 
 impl Callbacks for BevyLintCallback {
