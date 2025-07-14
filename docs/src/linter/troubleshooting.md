@@ -2,7 +2,7 @@
 
 ## Using with `cranelift`
 
-If you have `cranelift` setup as a custom codegen backend, you may run into the following error when running the linter:
+If you have [`cranelift`](https://github.com/rust-lang/rustc_codegen_cranelift) setup as a custom codegen backend, you may run into the following error when running the linter:
 
 ```
 error: failed to find a `codegen-backends` folder in the sysroot candidates:
@@ -20,7 +20,7 @@ You can find the value of `$TOOLCHAIN_VERSION` by looking at the [compatibility 
 
 ## Using with `sccache`
 
-You may run into the following error using `sccache` with `bevy_lint`:
+You may run into the following error using [`sccache`](https://github.com/mozilla/sccache) with `bevy_lint`:
 
 ```
 error: process didn't exit successfully: `~/.cargo/bin/sccache ~/.cargo/bin/bevy_lint_driver ~/.rustup/toolchains/nightly-2025-04-03-x86_64-unknown-linux-gnu/bin/rustc -vV` (exit status: 2)
@@ -32,13 +32,13 @@ Check failed: exit status: 101.
 Error: command `~/.cargo/bin/bevy_lint ` exited with status code exit status: 101
 ```
 
-You can fix the error by setting the `CARGO` environmental variable when running the linter. This informs `sccache` that `bevy_lint` uses Cargo:
+You can fix the error by setting [the `CARGO` environmental variable](https://doc.rust-lang.org/cargo/reference/environment-variables.html#environment-variables-cargo-sets-for-crates) when running the linter. This informs `sccache` that `bevy_lint` uses Cargo:
 
 ```sh
 CARGO=$(rustup which --toolchain nightly-2025-06-26 cargo) bevy_lint
 ```
 
-If you use `BEVY_LINT_SYSROOT` instead of Rustup, you can run this instead:
+If you [use `BEVY_LINT_SYSROOT` instead of Rustup](environmental-variables.md), you can run this instead:
 
 ```sh
 CARGO="${BEVY_LINT_SYSROOT}/bin/cargo" bevy_lint
