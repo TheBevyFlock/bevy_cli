@@ -23,6 +23,7 @@ static ORIGINAL_REGISTERED_TOOLS: AtomicPtr<()> = {
 };
 
 /// The `rustc` [`Callbacks`] that register Bevy's lints.
+#[doc(hidden)]
 pub struct BevyLintCallback;
 
 impl Callbacks for BevyLintCallback {
@@ -32,18 +33,15 @@ impl Callbacks for BevyLintCallback {
         // Add `--cfg bevy_lint` so programs can conditionally configure lints.
         config.crate_cfg.push("bevy_lint".to_string());
 
-        // We're overwriting `register_lints`, but we don't want to completely delete the original
-        // function. Instead, we save it so we can call it ourselves inside its replacement.
-        let previous = config.register_lints.take();
+        // We should be the only callback, meaning nothing else should register custom lints.
+        debug_assert!(config.register_lints.is_none());
 
-        config.register_lints = Some(Box::new(move |session, store| {
-            // If there was a previous `register_lints`, call it first.
-            if let Some(previous) = &previous {
-                (previous)(session, store);
-            }
-
+        config.register_lints = Some(Box::new(|_session, store| {
             crate::lints::register(store);
         }));
+
+        // We should be the only callback, meaning nothing else should override the queries.
+        debug_assert!(config.override_queries.is_none());
 
         config.override_queries = Some(|_session, providers| {
             // Save the original query so we can access it later.
@@ -81,6 +79,15 @@ impl Callbacks for BevyLintCallback {
                 }
             }
         }));
+
+        // There shouldn't be any existing extra symbols, as we should be the only callback
+        // overriding them.
+        debug_assert!(config.extra_symbols.is_empty());
+
+        // Give the compiler a list of extra `Symbol`s to intern ahead of time. This helps us avoid
+        // calling `Symbol::intern()` while linting. See the `sym` module for a more detailed
+        // explanation.
+        config.extra_symbols = crate::sym::extra_symbols();
     }
 }
 

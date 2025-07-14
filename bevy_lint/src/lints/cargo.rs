@@ -1,18 +1,14 @@
 //! Lints that check over `Cargo.toml` instead of your code.
 
-use super::nursery::duplicate_bevy_dependencies::DUPLICATE_BEVY_DEPENDENCIES;
-use crate::declare_bevy_lint_pass;
 use cargo_metadata::MetadataCommand;
-use clippy_utils::sym;
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_session::{config::Input, utils::was_invoked_from_cargo};
-use rustc_span::Symbol;
+
+use super::nursery::duplicate_bevy_dependencies::DUPLICATE_BEVY_DEPENDENCIES;
+use crate::declare_bevy_lint_pass;
 
 declare_bevy_lint_pass! {
-    pub Cargo => [DUPLICATE_BEVY_DEPENDENCIES],
-    @default = {
-        bevy: Symbol = sym!(bevy),
-    },
+    pub(crate) Cargo => [DUPLICATE_BEVY_DEPENDENCIES],
 }
 
 impl LateLintPass<'_> for Cargo {
@@ -35,7 +31,7 @@ impl LateLintPass<'_> for Cargo {
             .exec()
         {
             Ok(metadata) => {
-                super::nursery::duplicate_bevy_dependencies::check(cx, &metadata, self.bevy);
+                super::nursery::duplicate_bevy_dependencies::check(cx, &metadata);
             }
             Err(e) => {
                 cx.tcx

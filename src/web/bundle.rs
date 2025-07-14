@@ -6,7 +6,7 @@ use std::{
 
 use anyhow::Context;
 use cargo_metadata::Metadata;
-use tracing::info;
+use tracing::{info, warn};
 
 use crate::bin_target::BinTarget;
 
@@ -73,19 +73,60 @@ pub fn create_web_bundle(
     bin_target: &BinTarget,
     packed: bool,
 ) -> anyhow::Result<WebBundle> {
+    let package_root = bin_target
+        .package
+        .manifest_path
+        .parent()
+        .context("failed to find package root")?;
+
     let assets_path = Path::new("assets");
+
+    let package_assets = Path::new(package_root).join(assets_path);
+
+    let assets_path = if package_assets.exists() {
+        info!("using package assets.");
+        Some(package_assets)
+    } else if assets_path.exists() {
+        info!("using workspace assets.");
+        Some(assets_path.into())
+    } else {
+        None
+    };
+
     // The "_bg" suffix is needed to reference the bindings created by wasm_bindgen,
     // instead of the artifact created directly by cargo.
     let wasm_file_name = OsString::from(format!("{}_bg.wasm", bin_target.bin_name));
     let js_file_name = OsString::from(format!("{}.js", bin_target.bin_name));
 
-    let custom_web_folder = Path::new("web");
-    let index_path = custom_web_folder.join("index.html");
+    let web_assets_folder = Path::new("web");
 
-    let index = if index_path.exists() {
-        Index::File(index_path)
+    let package_web_assets = Path::new(package_root).join(web_assets_folder);
+    let workspace_web_assets = Path::new(&metadata.workspace_root).join(web_assets_folder);
+
+    // Search for custom web assets first in the package, then in the workspace
+    let web_assets = if package_web_assets.exists() {
+        info!("using custom package web assets.");
+        Some(package_web_assets)
+    } else if workspace_web_assets.exists() {
+        info!("using custom workspace web assets.");
+        Some(workspace_web_assets)
     } else {
-        info!("no custom `web` folder found, using defaults.");
+        info!("no custom web assets found, using defaults.");
+        None
+    };
+
+    let index_path = web_assets
+        .as_ref()
+        .map(|web_assets| web_assets.join("index.html"));
+
+    let index = if let Some(index_path) = index_path {
+        if index_path.exists() {
+            Index::File(index_path)
+        } else {
+            warn!("custom web assets don't contain index.html, using default.");
+            Index::Content(default_index(bin_target))
+        }
+    } else {
         Index::Content(default_index(bin_target))
     };
 
@@ -95,10 +136,8 @@ pub fn create_web_bundle(
         build_artifact_path: bin_target.artifact_directory.clone(),
         wasm_file_name,
         js_file_name,
-        assets_path: assets_path.exists().then(|| assets_path.to_owned()),
-        web_assets: custom_web_folder
-            .exists()
-            .then(|| custom_web_folder.to_owned()),
+        assets_path,
+        web_assets,
         index: Index::Content(index.clone()),
     };
 
@@ -156,13 +195,13 @@ pub fn create_web_bundle(
     }
 
     // Custom web assets
-    if custom_web_folder.exists() {
+    if let Some(web_assets) = &linked.web_assets {
         tracing::debug!(
             "copying custom web assets from file://{}",
-            custom_web_folder.to_string_lossy()
+            web_assets.to_string_lossy()
         );
         fs_extra::dir::copy(
-            custom_web_folder,
+            web_assets,
             &base_path,
             &fs_extra::dir::CopyOptions {
                 overwrite: true,

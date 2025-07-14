@@ -16,6 +16,23 @@ pub struct BinTarget<'p> {
     pub bin_name: String,
 }
 
+impl BinTarget<'_> {
+    pub fn update_artifact_directory(
+        &mut self,
+        target_directory: impl Into<PathBuf>,
+        compile_target: Option<&str>,
+        compile_profile: &str,
+        is_example: bool,
+    ) {
+        self.artifact_directory = get_artifact_directory(
+            target_directory,
+            compile_target,
+            compile_profile,
+            is_example,
+        );
+    }
+}
+
 /// Determine which binary target should be run.
 ///
 /// The `--package` arg narrows down the search space to the given package,
@@ -206,8 +223,9 @@ fn get_artifact_directory(
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use std::path::Path;
+
+    use super::*;
 
     #[test]
     fn test_artifact_directory_dev_native() {

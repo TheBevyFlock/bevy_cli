@@ -33,28 +33,27 @@
 //! }
 //! ```
 
-use crate::{declare_bevy_lint, declare_bevy_lint_pass, utils::hir_parse::MethodCall};
+use std::ops::ControlFlow;
+
 use clippy_utils::{
-    diagnostics::span_lint_hir_and_then, is_entrypoint_fn, is_expr_used_or_unified, sym,
-    ty::match_type, visitors::for_each_expr,
+    diagnostics::span_lint_hir_and_then, is_entrypoint_fn, is_expr_used_or_unified,
+    visitors::for_each_expr,
 };
 use rustc_errors::Applicability;
 use rustc_hir::{Body, FnDecl, FnRetTy, Ty, TyKind, def_id::LocalDefId, intravisit::FnKind};
 use rustc_lint::{LateContext, LateLintPass};
-use rustc_span::{Span, Symbol};
-use std::ops::ControlFlow;
+use rustc_span::Span;
+
+use crate::{declare_bevy_lint, declare_bevy_lint_pass, sym, utils::method_call::MethodCall};
 
 declare_bevy_lint! {
-    pub MAIN_RETURN_WITHOUT_APPEXIT,
+    pub(crate) MAIN_RETURN_WITHOUT_APPEXIT,
     super::Pedantic,
     "an entrypoint that calls `App::run()` does not return `AppExit`",
 }
 
 declare_bevy_lint_pass! {
-    pub MainReturnWithoutAppExit => [MAIN_RETURN_WITHOUT_APPEXIT],
-    @default = {
-        run: Symbol = sym!(run),
-    },
+    pub(crate) MainReturnWithoutAppExit => [MAIN_RETURN_WITHOUT_APPEXIT],
 }
 
 impl<'tcx> LateLintPass<'tcx> for MainReturnWithoutAppExit {
@@ -89,15 +88,15 @@ impl<'tcx> LateLintPass<'tcx> for MainReturnWithoutAppExit {
                     receiver,
                     ..
                 }) = MethodCall::try_from(cx, expr)
-                    && method_path.ident.name == self.run
+                    && method_path.ident.name == sym::run
                     && !expr.span.in_external_macro(cx.tcx.sess.source_map())
                 {
                     // Get the type of `src` for `src.run()`. We peel away all references because
                     // both `App` and `&mut App` are allowed.
-                    let ty = cx.typeck_results().expr_ty(receiver).peel_refs();
+                    let ty = cx.typeck_results().expr_ty_adjusted(receiver).peel_refs();
 
                     // If `src` is a Bevy `App` and the `AppExit` is unused, emit the lint.
-                    if match_type(cx, ty, &crate::paths::APP)
+                    if crate::paths::APP.matches_ty(cx, ty)
                         && !is_expr_used_or_unified(cx.tcx, expr)
                     {
                         span_lint_hir_and_then(

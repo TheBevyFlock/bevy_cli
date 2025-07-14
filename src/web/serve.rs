@@ -1,4 +1,6 @@
 //! Serving the app locally for the browser.
+use std::net::SocketAddr;
+
 use axum::{
     Router,
     extract::{
@@ -10,7 +12,6 @@ use axum::{
     routing::{any, get, get_service},
 };
 use http::HeaderMap;
-use std::net::SocketAddr;
 use tower_http::{
     services::{ServeDir, ServeFile},
     trace::TraceLayer,
@@ -24,10 +25,10 @@ async fn dev_websocket(ws: WebSocketUpgrade) -> Response {
 
 async fn handle_socket(mut socket: WebSocket) {
     while let Some(Ok(msg)) = socket.recv().await {
-        if let Message::Text(msg) = msg {
-            if socket.send(Message::Text(msg)).await.is_err() {
-                break;
-            }
+        if let Message::Text(msg) = msg
+            && socket.send(Message::Text(msg)).await.is_err()
+        {
+            break;
         }
     }
 }

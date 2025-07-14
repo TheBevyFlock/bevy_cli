@@ -1,5 +1,7 @@
 use clap::{ArgAction, Args, Subcommand};
 
+#[cfg(feature = "web")]
+use crate::external_cli::external_cli_args::ExternalCliArgs;
 use crate::{
     config::CliConfig,
     external_cli::{
@@ -68,15 +70,15 @@ impl BuildArgs {
         self.cargo_args.args_builder(self.is_web())
     }
 
-    /// Whether to use `wasm-opt`.
-    ///
-    /// Defaults to `true` for release builds.
+    /// The flags to use for `wasm-opt` if building for the web.
     #[cfg(feature = "web")]
-    pub(crate) fn use_wasm_opt(&self) -> bool {
+    pub(crate) fn wasm_opt_args(&self) -> ExternalCliArgs {
+        use crate::external_cli::external_cli_args::ExternalCliArgs;
+
         if let Some(BuildSubcommands::Web(web_args)) = &self.subcommand {
-            web_args.use_wasm_opt.map_or(self.is_release(), |v| v)
+            ExternalCliArgs::from_raw_args(web_args.wasm_opt.clone())
         } else {
-            false
+            ExternalCliArgs::Enabled(false)
         }
     }
 
@@ -108,10 +110,13 @@ impl BuildArgs {
             .or(config.rustflags());
 
         #[cfg(feature = "web")]
-        if let Some(BuildSubcommands::Web(web_args)) = self.subcommand.as_mut() {
-            if web_args.use_wasm_opt.is_none() {
-                web_args.use_wasm_opt = config.wasm_opt();
-            }
+        let is_release = self.is_release();
+
+        #[cfg(feature = "web")]
+        if let Some(BuildSubcommands::Web(web_args)) = self.subcommand.as_mut()
+            && web_args.wasm_opt.is_empty()
+        {
+            web_args.wasm_opt = config.wasm_opt(is_release).to_raw();
         }
     }
 }
@@ -127,10 +132,14 @@ pub enum BuildSubcommands {
 /// Additional Arguments for building a Bevy web project.
 #[derive(Debug, Args, Default)]
 pub struct BuildWebArgs {
-    // Bundle all web artifacts into a single folder.
+    /// Bundle all web artifacts into a single folder.
     #[arg(short = 'b', long = "bundle", action = ArgAction::SetTrue, default_value_t = false)]
     pub create_packed_bundle: bool,
-    // Use `wasm-opt` to optimize the wasm binary
-    #[arg(long = "wasm-opt")]
-    pub use_wasm_opt: Option<bool>,
+    /// Use `wasm-opt` to optimize the wasm binary
+    ///
+    /// Defaults to `true` for release builds.
+    /// Can be set to `false` to skip optimization.
+    /// You can also specify custom arguments to use.
+    #[arg(long = "wasm-opt", allow_hyphen_values = true)]
+    pub wasm_opt: Vec<String>,
 }

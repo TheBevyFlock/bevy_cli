@@ -2,9 +2,15 @@ use std::{fmt::Write, process::ExitCode};
 
 use ansi_term::Color::{Blue, Green, Purple, Red, Yellow};
 #[cfg(feature = "rustup")]
-use bevy_cli::lint::LintArgs;
-use bevy_cli::{build::args::BuildArgs, run::RunArgs, test::args::TestArgs};
-use clap::{Args, CommandFactory, Parser, Subcommand, builder::styling::Style};
+use bevy_cli::commands::{
+    build::{BuildArgs, build},
+    completions::completions,
+    lint::{LintArgs, lint},
+    new::{NewArgs, new},
+    run::{RunArgs, run},
+};
+use bevy_cli::test::args::TestArgs;
+use clap::{Parser, Subcommand, builder::styling::Style};
 use clap_cargo::style;
 use tracing::error;
 use tracing_subscriber::{
@@ -38,18 +44,16 @@ fn main() -> ExitCode {
     tracing_subscriber::registry().with(fmt_layer).init();
 
     if let Err(error) = match cli.subcommand {
-        Subcommands::New(new) => {
-            bevy_cli::template::generate_template(&new.name, &new.template, &new.branch).map(|_| ())
-        }
+        Subcommands::New(args) => new(&args).map(|_| ()),
         #[cfg(feature = "rustup")]
-        Subcommands::Lint(args) => bevy_cli::lint::lint(args),
-        Subcommands::Build(mut args) => bevy_cli::build::build(&mut args),
-        Subcommands::Run(mut args) => bevy_cli::run::run(&mut args),
-        Subcommands::Test(mut args) => bevy_cli::test::test(&mut args),
+        Subcommands::Lint(args) => lint(args),
+        Subcommands::Build(mut args) => build(&mut args),
+        Subcommands::Run(mut args) => run(&mut args),
         Subcommands::Completions { shell } => {
-            clap_complete::generate(shell, &mut Cli::command(), "bevy", &mut std::io::stdout());
+            completions::<Cli>(shell);
             Ok(())
         }
+        _ => todo!(),
     } {
         if cli.verbose {
             // `anyhow::Error`'s `Debug` implementation prints backtraces, while `Display` does not.
@@ -83,21 +87,22 @@ pub struct Cli {
 fn after_help() -> String {
     let mut message = String::new();
 
-    let header = Style::new().bold().underline();
-    let bold = Style::new().bold();
+    let header = style::HEADER;
+    let literal = style::LITERAL;
+    let underline = Style::new().underline();
 
     _ = writeln!(message, "{header}Resources:{header:#}");
     _ = writeln!(
         message,
-        "  {bold}Bevy Website{bold:#}       https://bevyengine.org"
+        "  {literal}Bevy Website{literal:#}       {underline}https://bevyengine.org{underline:#}"
     );
     _ = writeln!(
         message,
-        "  {bold}Bevy Repository{bold:#}    https://github.com/bevyengine/bevy"
+        "  {literal}Bevy Repository{literal:#}    {underline}https://github.com/bevyengine/bevy{underline:#}"
     );
     _ = writeln!(
         message,
-        "  {bold}CLI Documentation{bold:#}  https://thebevyflock.github.io/bevy_cli"
+        "  {literal}CLI Documentation{literal:#}  {underline}https://thebevyflock.github.io/bevy_cli{underline:#}"
     );
 
     message
@@ -186,33 +191,6 @@ fn completions_after_help() -> String {
     );
 
     message
-}
-
-/// Arguments for creating a new Bevy project.
-///
-/// This subcommand allows you to generate a new Bevy project
-/// using a specified template and project name.
-#[derive(Args)]
-pub struct NewArgs {
-    /// The desired name for the new project.
-    ///
-    /// This will be the name of the directory and will be used in the project's files
-    pub name: String,
-
-    /// The name of the template to use for generating the project.
-    ///
-    /// Templates are GitHub repositories. Any repository from the GitHub organization
-    /// "TheBevyFlock" with the prefix `bevy_new_` will be usable via
-    /// its shortcut form i.e. `2d` will use the template `bevy_new_2d`. Full GitHub URLs can also
-    /// be passed in the template argument.
-    ///
-    /// Can be omitted to use a built-in template.
-    #[arg(short, long, default_value = "minimal")]
-    pub template: String,
-
-    /// The git branch to use
-    #[arg(short, long, default_value = "main")]
-    pub branch: String,
 }
 
 /// Align the log formatting to match `cargo`'s style.

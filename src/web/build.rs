@@ -1,19 +1,17 @@
-use crate::external_cli::wasm_opt;
 use anyhow::Context as _;
 use cargo_metadata::Metadata;
 use tracing::info;
 
+use super::bundle::WebBundle;
 use crate::{
     bin_target::BinTarget,
-    build::args::{BuildArgs, BuildSubcommands},
-    external_cli::{cargo, wasm_bindgen},
+    commands::build::{BuildArgs, BuildSubcommands},
+    external_cli::{cargo, wasm_bindgen, wasm_opt},
     web::{
         bundle::{PackedBundle, create_web_bundle},
         profiles::configure_default_web_profiles,
     },
 };
-
-use super::bundle::WebBundle;
 
 /// Build the Bevy app for use in the browser.
 ///
@@ -53,10 +51,7 @@ pub fn build_web(
 
     info!("bundling JavaScript bindings...");
     wasm_bindgen::bundle(metadata, bin_target, args.auto_install())?;
-
-    if args.use_wasm_opt() {
-        wasm_opt::optimize_path(bin_target, args.auto_install())?;
-    }
+    wasm_opt::optimize_path(bin_target, args.auto_install(), &args.wasm_opt_args())?;
 
     let web_bundle = create_web_bundle(
         metadata,

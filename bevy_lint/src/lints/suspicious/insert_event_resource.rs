@@ -39,35 +39,34 @@
 //! }
 //! ```
 
-use crate::{
-    declare_bevy_lint, declare_bevy_lint_pass,
-    utils::hir_parse::{MethodCall, generic_args_snippet, span_args},
-};
+use std::borrow::Cow;
+
 use clippy_utils::{
     diagnostics::span_lint_and_sugg,
     source::{snippet, snippet_with_applicability},
-    sym,
-    ty::{match_type, ty_from_hir_ty},
+    ty::ty_from_hir_ty,
 };
 use rustc_errors::Applicability;
 use rustc_hir::{Expr, GenericArg, GenericArgs, Path, PathSegment, QPath};
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::{Ty, TyKind};
-use rustc_span::Symbol;
-use std::borrow::Cow;
+
+use crate::{
+    declare_bevy_lint, declare_bevy_lint_pass, sym,
+    utils::{
+        hir_parse::{generic_args_snippet, span_args},
+        method_call::MethodCall,
+    },
+};
 
 declare_bevy_lint! {
-    pub INSERT_EVENT_RESOURCE,
+    pub(crate) INSERT_EVENT_RESOURCE,
     super::Suspicious,
     "called `App::insert_resource(Events<T>)` or `App::init_resource::<Events<T>>()` instead of `App::add_event::<T>()`",
 }
 
 declare_bevy_lint_pass! {
-    pub InsertEventResource => [INSERT_EVENT_RESOURCE],
-    @default = {
-        insert_resource: Symbol = sym!(insert_resource),
-        init_resource: Symbol = sym!(init_resource),
-    },
+    pub(crate) InsertEventResource => [INSERT_EVENT_RESOURCE],
 }
 
 const HELP_MESSAGE: &str = "inserting an `Events` resource does not fully setup that event";
@@ -85,21 +84,21 @@ impl<'tcx> LateLintPass<'tcx> for InsertEventResource {
             // could either be `App` or `&mut App`.
             let src_ty = cx
                 .typeck_results()
-                .expr_ty(method_call.receiver)
+                .expr_ty_adjusted(method_call.receiver)
                 .peel_refs();
 
             // If `src` is not a Bevy `App`, exit.
-            if !match_type(cx, src_ty, &crate::paths::APP) {
+            if !crate::paths::APP.matches_ty(cx, src_ty) {
                 return;
             }
 
             // If the method is `App::insert_resource()` or `App::init_resource()`, check it with
             // its corresponding function.
             match method_call.method_path.ident.name {
-                symbol if symbol == self.insert_resource => {
+                symbol if symbol == sym::insert_resource => {
                     check_insert_resource(cx, &method_call);
                 }
-                symbol if symbol == self.init_resource => {
+                symbol if symbol == sym::init_resource => {
                     check_init_resource(cx, &method_call);
                 }
                 _ => {}
@@ -116,10 +115,10 @@ fn check_insert_resource(cx: &LateContext<'_>, method_call: &MethodCall) {
     };
 
     // Find the type of `arg` in `App::insert_resource(&mut self, arg)`.
-    let ty = cx.typeck_results().expr_ty(arg);
+    let ty = cx.typeck_results().expr_ty_adjusted(arg);
 
     // If `arg` is `Events<T>`, emit the lint.
-    if match_type(cx, ty, &crate::paths::EVENTS) {
+    if crate::paths::EVENTS.matches_ty(cx, ty) {
         let mut applicability = Applicability::MachineApplicable;
 
         let event_ty_snippet = extract_ty_event_snippet(ty, &mut applicability);
@@ -197,7 +196,7 @@ fn check_init_resource<'tcx>(cx: &LateContext<'tcx>, method_call: &MethodCall<'t
         let resource_ty = ty_from_hir_ty(cx, resource_hir_ty.as_unambig_ty());
 
         // If the resource type is `Events<T>`, emit the lint.
-        if match_type(cx, resource_ty, &crate::paths::EVENTS) {
+        if crate::paths::EVENTS.matches_ty(cx, resource_ty) {
             let mut applicability = Applicability::MachineApplicable;
 
             let event_ty_snippet =

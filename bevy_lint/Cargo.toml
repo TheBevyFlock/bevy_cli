@@ -9,17 +9,6 @@ license = "MIT OR Apache-2.0"
 # While there are two binaries available, only `bevy_lint` is intended to be called by users.
 default-run = "bevy_lint"
 
-# The main entrypoint for using Bevy lints. This program is intended to be called by users.
-[[bin]]
-name = "bevy_lint"
-path = "src/bin/main.rs"
-
-# The internal program called by `cargo` instead of `rustc`. While this is where the lints are
-# registered, it is not intended to be called by users.
-[[bin]]
-name = "bevy_lint_driver"
-path = "src/bin/driver.rs"
-
 [[test]]
 name = "ui"
 harness = false
@@ -32,32 +21,50 @@ harness = false
 # Contains a series of useful utilities when writing lints. The version is chosen to work with the
 # currently pinned nightly Rust version. When the Rust version changes, this too needs to be
 # updated!
-clippy_utils = "=0.1.88"
+clippy_utils = "=0.1.90"
 
 # Easy error propagation and contexts.
 anyhow = "1.0.86"
 # Easy structured output for `cargo metadata`, used for cargo lints
-cargo_metadata = "0.19"
+cargo_metadata = "0.21.0"
 
 # Configuration deserialization.
 serde = { version = "1.0.210", features = ["derive"] }
-toml = { version = "0.8.19", default-features = false, features = ["parse"] }
+toml = { version = "0.9.0", default-features = false, features = [
+    "std",
+    "parse",
+    "serde",
+] }
+
+# CLI argument parsing
+pico-args = "0.5.0"
+
+# Colored terminal output
+anstream = "0.6.19"
+anstyle = "1.0.11"
 
 [build-dependencies]
 # Parse `rust-toolchain.toml` at build time.
-toml_edit = { version = "0.22.22", default-features = false, features = [
+serde = { version = "1.0.210", features = ["derive"] }
+toml = { version = "0.9.0", default-features = false, features = [
+    "std",
     "parse",
+    "serde",
 ] }
 
 [dev-dependencies]
 # Used when running UI tests.
-bevy = { version = "0.16.0", default-features = false, features = ["std"] }
+bevy = { version = "0.16.0", default-features = false, features = [
+    "std",
+    # used for the `camera_modification_in_fixed_update` lint
+    "bevy_render",
+] }
 
 # Used to deserialize `--message-format=json` messages from Cargo.
 serde_json = "1.0.140"
 
 # Ensures the error messages for lints do not regress.
-ui_test = "0.29.2"
+ui_test = "0.30.1"
 
 [package.metadata.rust-analyzer]
 # Enables Rust-Analyzer support for `rustc` crates.
