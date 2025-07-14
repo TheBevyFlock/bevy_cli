@@ -49,7 +49,7 @@
 //! Note that the order here is important. [`clippy_utils`] expects its symbols to start at
 //! [`PREDEFINED_SYMBOLS_COUNT`], which is why it's before Bevy's symbols.
 
-#![allow(
+#![expect(
     non_upper_case_globals,
     reason = "Symbol constants are named as-is so it is easy to see what strings they represent."
 )]
