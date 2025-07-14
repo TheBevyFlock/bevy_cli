@@ -1,3 +1,7 @@
+//! A `rustc` wrapper that does the actual linting, called by the main `bevy_lint` executable.
+//!
+//! While this mostly mimics `rustc`'s CLI interface, it is not intended to be called by users.
+
 // Enables linking to `rustc` crates.
 #![feature(rustc_private)]
 
