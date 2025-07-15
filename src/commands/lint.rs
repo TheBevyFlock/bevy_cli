@@ -52,7 +52,7 @@ pub fn lint(args: LintArgs) -> anyhow::Result<()> {
     use crate::external_cli::Package;
 
     const RUST_TOOLCHAIN: &str = include_str!("../../rust-toolchain.toml");
-    const BEVY_LINT_TAG: &str = "lint-v0.3.0";
+    const BEVY_LINT_TAG: &str = "lint-v0.4.0";
     const PACKAGE: &str = "bevy_lint";
     const GIT_URL: &str = "https://github.com/TheBevyFlock/bevy_cli.git";
 
