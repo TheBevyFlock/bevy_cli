@@ -56,7 +56,7 @@ use clippy_utils::diagnostics::span_lint_hir;
 use rustc_lint::{LateContext, LateLintPass, Lint};
 use rustc_middle::ty::Ty;
 
-use crate::{declare_bevy_lint, declare_bevy_lint_pass, sym, utils::hir_parse::MethodCall};
+use crate::{declare_bevy_lint, declare_bevy_lint_pass, sym, utils::method_call::MethodCall};
 
 declare_bevy_lint! {
     pub(crate) UPDATE_SCHEDULE,
