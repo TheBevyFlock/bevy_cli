@@ -11,7 +11,8 @@
     > ```
 
 2. Change the `channel` field in `rust-toolchain.toml` to the version specified by `clippy_utils`.
-3. Update the [compatibility table](../../../linter/compatibility.md) for the latest `-dev` version.
+3. Find and replace occurrences of the old toolchain version with the new toolchain version in the `docs` folder.
+    - Make sure you only modify the toolchain for the latest `-dev` version in the [compatibility table](../../../linter/compatibility.md).
 4. Increase the version of `clippy_utils` in `Cargo.toml` to the latest version.
 
 Once you've finished upgrading the Rust toolchain and `clippy_utils`, there are a few extra steps that can verify `bevy_lint` still functions the same.
