@@ -1,3 +1,7 @@
+//! The main entrypoint for using Bevy lints, mimicking the CLI interface of `cargo check`.
+//!
+//! This program is intended to be called by users.
+
 use std::{
     env,
     ffi::OsString,

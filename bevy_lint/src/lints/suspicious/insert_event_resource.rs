@@ -53,7 +53,10 @@ use rustc_middle::ty::{Ty, TyKind};
 
 use crate::{
     declare_bevy_lint, declare_bevy_lint_pass, sym,
-    utils::hir_parse::{MethodCall, generic_args_snippet, span_args},
+    utils::{
+        hir_parse::{generic_args_snippet, span_args},
+        method_call::MethodCall,
+    },
 };
 
 declare_bevy_lint! {
