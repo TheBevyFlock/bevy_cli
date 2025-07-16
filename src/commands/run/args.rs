@@ -7,6 +7,7 @@ use super::cargo::build::{CargoBuildArgs, CargoPackageBuildArgs, CargoTargetBuil
 use crate::commands::build::{BuildSubcommands, BuildWebArgs};
 use crate::{
     commands::build::BuildArgs,
+    common_args::CommonArgs,
     config::CliConfig,
     external_cli::{
         arg_builder::ArgBuilder,
@@ -33,6 +34,10 @@ pub struct RunArgs {
     /// Specified after `--`.
     #[clap(last = true, name = "ARGS")]
     pub forward_args: Vec<String>,
+
+    /// Arguments shared by most other commands.
+    #[clap(flatten)]
+    pub common_args: CommonArgs,
 }
 
 impl RunArgs {
@@ -117,17 +122,13 @@ impl RunArgs {
         let is_release = self.is_release();
 
         #[cfg(feature = "web")]
-        #[allow(clippy::collapsible_if)] // Easier to manage with the other conditional case
         if let Some(RunSubcommands::Web(web_args)) = self.subcommand.as_mut() {
             if web_args.wasm_opt.is_empty() {
                 web_args.wasm_opt = config.wasm_opt(is_release).to_raw();
             }
-
-            #[cfg(feature = "unstable")]
-            if web_args.multi_threading.is_none() {
-                web_args.multi_threading = config.web_multi_threading();
-            }
         }
+
+        self.common_args.apply_config(config);
     }
 }
 
@@ -169,17 +170,6 @@ pub struct RunWebArgs {
     /// You can also specify custom arguments to use.
     #[arg(long = "wasm-opt", allow_hyphen_values = true)]
     pub wasm_opt: Vec<String>,
-
-    /// EXPERIMENTAL: Run an app that can use multi-threading functionality.
-    ///
-    /// Note that this flag alone won't make your app multi-threaded.
-    /// Bevy doesn't yet natively provide multi-threading for web apps,
-    /// so you have to implement it yourself.
-    ///
-    /// Requires a nightly Rust toolchain.
-    #[cfg(feature = "unstable")]
-    #[arg(long = "experimental-multi-threading", action = ArgAction::SetTrue)]
-    pub multi_threading: Option<bool>,
 }
 
 impl RunWebArgs {
@@ -190,6 +180,8 @@ impl RunWebArgs {
 
     #[cfg(feature = "unstable")]
     pub fn headers(&self) -> Cow<'_, [String]> {
+        // FIXME: Can't access the multi threading field directly now, because it's on the "parent"
+        // struct
         if let Some(multi_threading) = self.multi_threading
             && multi_threading
         {
@@ -218,8 +210,6 @@ impl Default for RunWebArgs {
             create_packed_bundle: false,
             headers: Vec::new(),
             wasm_opt: Vec::new(),
-            #[cfg(feature = "unstable")]
-            multi_threading: None,
         }
     }
 }
@@ -251,13 +241,12 @@ impl From<RunArgs> for BuildArgs {
                     test: None,
                 },
             },
+            common_args: args.common_args.clone(),
             subcommand: args.subcommand.map(|subcommand| match subcommand {
                 #[cfg(feature = "web")]
                 RunSubcommands::Web(web_args) => BuildSubcommands::Web(BuildWebArgs {
                     create_packed_bundle: web_args.create_packed_bundle,
                     wasm_opt: web_args.wasm_opt,
-                    #[cfg(feature = "unstable")]
-                    multi_threading: web_args.multi_threading,
                 }),
             }),
         }

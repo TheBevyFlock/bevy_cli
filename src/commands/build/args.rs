@@ -3,6 +3,7 @@ use clap::{ArgAction, Args, Subcommand};
 #[cfg(feature = "web")]
 use crate::external_cli::external_cli_args::ExternalCliArgs;
 use crate::{
+    common_args::CommonArgs,
     config::CliConfig,
     external_cli::{
         arg_builder::ArgBuilder,
@@ -24,6 +25,10 @@ pub struct BuildArgs {
     /// Arguments to forward to `cargo build`.
     #[clap(flatten)]
     pub cargo_args: CargoBuildArgs,
+
+    /// Arguments shared by most commands.
+    #[clap(flatten)]
+    pub common_args: CommonArgs,
 }
 
 impl BuildArgs {
@@ -103,13 +108,7 @@ impl BuildArgs {
     /// Whether multi-threading is enabled for the web app.
     #[cfg(feature = "unstable")]
     pub(crate) fn web_multi_threading(&self) -> bool {
-        if let Some(BuildSubcommands::Web(web_args)) = &self.subcommand
-            && let Some(multi_threading) = web_args.multi_threading
-        {
-            multi_threading
-        } else {
-            false
-        }
+        self.common_args.unstable.web_multi_threading()
     }
 
     /// The RUSTFLAGS to pass to the `cargo` command.
@@ -121,7 +120,7 @@ impl BuildArgs {
     /// The RUSTFLAGS to pass to the `cargo` command.
     #[cfg(feature = "unstable")]
     pub(crate) fn rustflags(&self) -> Option<String> {
-        if self.web_multi_threading() {
+        if self.common_args.unstable.web_multi_threading() {
             // Rust's default Wasm target does not support multi-threading primitives out of the box
             // They need to be enabled manually
             let multi_threading_flags = "-C target-feature=+atomics,+bulk-memory";
@@ -169,17 +168,13 @@ impl BuildArgs {
         let is_release = self.is_release();
 
         #[cfg(feature = "web")]
-        #[allow(clippy::collapsible_if)] // Easier to manage with the other conditional case
         if let Some(BuildSubcommands::Web(web_args)) = self.subcommand.as_mut() {
             if web_args.wasm_opt.is_empty() {
                 web_args.wasm_opt = config.wasm_opt(is_release).to_raw();
             }
-
-            #[cfg(feature = "unstable")]
-            if web_args.multi_threading.is_none() {
-                web_args.multi_threading = config.web_multi_threading();
-            }
         }
+
+        self.common_args.apply_config(config);
     }
 }
 
@@ -204,14 +199,4 @@ pub struct BuildWebArgs {
     /// You can also specify custom arguments to use.
     #[arg(long = "wasm-opt", allow_hyphen_values = true)]
     pub wasm_opt: Vec<String>,
-    /// EXPERIMENTAL: Build a Wasm binary that can use multi-threading functionality.
-    ///
-    /// Note that this flag alone won't make your app multi-threaded.
-    /// Bevy doesn't yet natively provide multi-threading for web apps,
-    /// so you have to implement it yourself.
-    ///
-    /// Requires a nightly Rust toolchain.
-    #[cfg(feature = "unstable")]
-    #[arg(long = "experimental-multi-threading", action = ArgAction::SetTrue)]
-    pub multi_threading: Option<bool>,
 }
