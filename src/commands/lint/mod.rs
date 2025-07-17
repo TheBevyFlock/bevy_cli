@@ -2,6 +2,9 @@ pub use args::*;
 #[cfg(feature = "rustup")]
 use serde::Deserialize;
 
+#[cfg(feature = "rustup")]
+use crate::external_cli::Package;
+
 mod args;
 
 /// Represents the contents of `rust-toolchain.toml`.
@@ -21,33 +24,12 @@ struct Toolchain {
 ///
 /// Calling `lint(vec!["--workspace"])` is equivalent to calling `bevy_lint --workspace` in the
 /// terminal. This will run [`find_bevy_lint()`] to locate `bevy_lint`.
-#[cfg(feature = "rustup")]
 pub fn lint(args: &mut LintArgs) -> anyhow::Result<()> {
-    use anyhow::{Context, ensure};
+    use anyhow::ensure;
 
     #[cfg(feature = "web")]
     use crate::commands::lint::args::LintSubcommands;
-    use crate::{
-        bin_target::select_run_binary,
-        config::CliConfig,
-        external_cli::{Package, cargo},
-    };
-
-    const RUST_TOOLCHAIN: &str = include_str!("../../../rust-toolchain.toml");
-    const BEVY_LINT_TAG: &str = "lint-v0.3.0";
-    const PACKAGE: &str = "bevy_lint";
-    const GIT_URL: &str = "https://github.com/TheBevyFlock/bevy_cli.git";
-
-    let rust_toolchain: RustToolchain =
-        toml::from_str(RUST_TOOLCHAIN).context("Failed to parse `rust-toolchain.toml`.")?;
-
-    let package = Package {
-        name: PACKAGE.into(),
-        required_toolchain: Some(rust_toolchain.toolchain.channel),
-        git: Some(GIT_URL.to_string()),
-        tag: Some(BEVY_LINT_TAG.to_string()),
-        ..Default::default()
-    };
+    use crate::{bin_target::select_run_binary, config::CliConfig, external_cli::cargo};
 
     let auto_install = args.auto_install();
 
@@ -78,7 +60,12 @@ pub fn lint(args: &mut LintArgs) -> anyhow::Result<()> {
         args.cargo_args.target_args.example.is_some(),
     );
 
+    #[allow(
+        unused_mut,
+        reason = "This only needs to be mutable when the web feature is enabled"
+    )]
     let mut cargo_args = args.cargo_args_builder();
+
     #[cfg(feature = "web")]
     if matches!(args.subcommand, Some(LintSubcommands::Web)) {
         use crate::web::profiles::configure_default_web_profiles;
@@ -92,11 +79,15 @@ pub fn lint(args: &mut LintArgs) -> anyhow::Result<()> {
         cargo_args = args.cargo_args_builder();
     }
 
-    let status = crate::external_cli::CommandExt::new("bevy_lint")
-        .require_package(package)
-        .args(cargo_args)
-        .env("RUSTFLAGS", args.cargo_args.common_args.rustflags.clone())
-        .ensure_status(auto_install)?;
+    let mut cmd = crate::external_cli::CommandExt::new("bevy_lint");
+
+    #[cfg(feature = "rustup")]
+    cmd.require_package(parse_required_package()?);
+
+    cmd.args(cargo_args)
+        .env("RUSTFLAGS", args.cargo_args.common_args.rustflags.clone());
+
+    let status = cmd.ensure_status(auto_install)?;
 
     ensure!(
         status.success(),
@@ -104,4 +95,24 @@ pub fn lint(args: &mut LintArgs) -> anyhow::Result<()> {
     );
 
     Ok(())
+}
+
+#[cfg(feature = "rustup")]
+fn parse_required_package() -> anyhow::Result<Package> {
+    use anyhow::Context;
+    const RUST_TOOLCHAIN: &str = include_str!("../../../rust-toolchain.toml");
+    const BEVY_LINT_TAG: &str = "lint-v0.3.0";
+    const PACKAGE: &str = "bevy_lint";
+    const GIT_URL: &str = "https://github.com/TheBevyFlock/bevy_cli.git";
+
+    let rust_toolchain: RustToolchain =
+        toml::from_str(RUST_TOOLCHAIN).context("Failed to parse `rust-toolchain.toml`.")?;
+
+    Ok(Package {
+        name: PACKAGE.into(),
+        required_toolchain: Some(rust_toolchain.toolchain.channel),
+        git: Some(GIT_URL.to_string()),
+        tag: Some(BEVY_LINT_TAG.to_string()),
+        ..Default::default()
+    })
 }
