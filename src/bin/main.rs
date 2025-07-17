@@ -2,10 +2,10 @@ use std::{fmt::Write, process::ExitCode};
 
 use ansi_term::Color::{Blue, Green, Purple, Red, Yellow};
 #[cfg(feature = "rustup")]
-use bevy_cli::commands::lint::{LintArgs, lint};
 use bevy_cli::commands::{
     build::{BuildArgs, build},
     completions::completions,
+    lint::{LintArgs, lint},
     new::{NewArgs, new},
     run::{RunArgs, run},
 };
@@ -45,7 +45,7 @@ fn main() -> ExitCode {
     if let Err(error) = match cli.subcommand {
         Subcommands::New(args) => new(&args).map(|_| ()),
         #[cfg(feature = "rustup")]
-        Subcommands::Lint(args) => lint(args),
+        Subcommands::Lint(mut args) => lint(&mut args),
         Subcommands::Build(mut args) => build(&mut args),
         Subcommands::Run(mut args) => run(&mut args),
         Subcommands::Completions { shell } => {
