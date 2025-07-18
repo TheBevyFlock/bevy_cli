@@ -30,7 +30,12 @@ pub(crate) fn run_web(
         None => &RunWebArgs::default(),
     };
 
-    let header_map = parse_headers(&web_args.headers())?;
+    let header_map = parse_headers(
+        web_args
+            .headers
+            .iter()
+            .chain(args.common_args.web_headers().iter()),
+    )?;
 
     let mut build_args: BuildArgs = args.clone().into();
 
@@ -68,8 +73,8 @@ pub(crate) fn run_web(
     Ok(())
 }
 
-fn parse_headers(headers: &[String]) -> anyhow::Result<HeaderMap> {
-    let mut header_map = HeaderMap::with_capacity(headers.len());
+fn parse_headers<'a>(headers: impl Iterator<Item = &'a String>) -> anyhow::Result<HeaderMap> {
+    let mut header_map = HeaderMap::new();
 
     for header in headers {
         let (key, value) = header

@@ -1,5 +1,3 @@
-use std::borrow::Cow;
-
 use clap::{ArgAction, Args, Subcommand};
 
 use super::cargo::build::{CargoBuildArgs, CargoPackageBuildArgs, CargoTargetBuildArgs};
@@ -122,10 +120,10 @@ impl RunArgs {
         let is_release = self.is_release();
 
         #[cfg(feature = "web")]
-        if let Some(RunSubcommands::Web(web_args)) = self.subcommand.as_mut() {
-            if web_args.wasm_opt.is_empty() {
-                web_args.wasm_opt = config.wasm_opt(is_release).to_raw();
-            }
+        if let Some(RunSubcommands::Web(web_args)) = self.subcommand.as_mut()
+            && web_args.wasm_opt.is_empty()
+        {
+            web_args.wasm_opt = config.wasm_opt(is_release).to_raw();
         }
 
         self.common_args.apply_config(config);
@@ -161,7 +159,7 @@ pub struct RunWebArgs {
     ///
     /// Can be defined multiple times to add multiple headers.
     #[clap(short = 'H', long = "headers", value_name = "HEADERS")]
-    headers: Vec<String>,
+    pub headers: Vec<String>,
 
     /// Use `wasm-opt` to optimize the wasm binary
     ///
@@ -170,35 +168,6 @@ pub struct RunWebArgs {
     /// You can also specify custom arguments to use.
     #[arg(long = "wasm-opt", allow_hyphen_values = true)]
     pub wasm_opt: Vec<String>,
-}
-
-impl RunWebArgs {
-    #[cfg(not(feature = "unstable"))]
-    pub fn headers(&self) -> Cow<'_, [String]> {
-        Cow::Borrowed(&self.headers)
-    }
-
-    #[cfg(feature = "unstable")]
-    pub fn headers(&self) -> Cow<'_, [String]> {
-        // FIXME: Can't access the multi threading field directly now, because it's on the "parent"
-        // struct
-        if let Some(multi_threading) = self.multi_threading
-            && multi_threading
-        {
-            let mut headers = self.headers.clone();
-            // Make the document cross-origin isolated,
-            // which is required for Wasm multi-threading
-            // See also https://developer.mozilla.org/en-US/docs/Web/API/Window/crossOriginIsolated
-            headers.extend([
-                "cross-origin-opener-policy=same-origin".to_owned(),
-                "cross-origin-embedder-policy=require-corp".to_owned(),
-            ]);
-
-            Cow::Owned(headers)
-        } else {
-            Cow::Borrowed(&self.headers)
-        }
-    }
 }
 
 impl Default for RunWebArgs {
