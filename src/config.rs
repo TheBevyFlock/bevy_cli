@@ -169,13 +169,15 @@ impl CliConfig {
             bail!("Bevy CLI config must be a table");
         };
 
+        let unstable_config = extract_unstable_config(metadata)?;
+
         Ok(Self {
             target: extract_target(metadata)?,
             features: extract_features(metadata)?,
             default_features: extract_default_features(metadata)?,
             rustflags: extract_rustflags(metadata)?,
             wasm_opt: extract_wasm_opt(metadata)?,
-            web_multi_threading: extract_web_multi_threading(metadata)?,
+            web_multi_threading: extract_web_multi_threading(unstable_config)?,
         })
     }
 
@@ -184,14 +186,24 @@ impl CliConfig {
     /// The other config takes precedence,
     /// it's values overwrite the current values if one has to be chosen.
     pub fn overwrite(mut self, with: &Self) -> Self {
-        self.target = with.target.clone().or(self.target);
-        self.default_features = with.default_features.or(self.default_features);
+        let Self {
+            default_features,
+            features,
+            rustflags,
+            target,
+            wasm_opt,
+            web_multi_threading,
+        } = with;
 
-        self.wasm_opt = with.wasm_opt.clone().or(self.wasm_opt);
+        self.target = target.clone().or(self.target);
+        self.default_features = default_features.or(self.default_features);
+
+        self.wasm_opt = wasm_opt.clone().or(self.wasm_opt);
+        self.web_multi_threading = web_multi_threading.or(self.web_multi_threading);
 
         // Features and Rustflags are additive
-        self.features.extend(with.features.iter().cloned());
-        self.rustflags.extend(with.rustflags.iter().cloned());
+        self.features.extend(features.iter().cloned());
+        self.rustflags.extend(rustflags.iter().cloned());
 
         self
     }
@@ -300,12 +312,34 @@ fn extract_wasm_opt(cli_metadata: &Map<String, Value>) -> anyhow::Result<Option<
     }
 }
 
+/// Try to extract the map containing unstable CLI features.
+fn extract_unstable_config(
+    cli_metadata: &Map<String, Value>,
+) -> anyhow::Result<Option<&Map<String, Value>>> {
+    const KEY: &str = "unstable";
+
+    if let Some(unstable) = cli_metadata.get(KEY) {
+        match unstable {
+            Value::Object(unstable) => Ok(Some(unstable)),
+            _ => bail!("{KEY} must be a map"),
+        }
+    } else {
+        Ok(None)
+    }
+}
+
 /// Try to extract whether multi-threading features for the web are enabled from a metadata map for
 /// the CLI.
-fn extract_web_multi_threading(cli_metadata: &Map<String, Value>) -> anyhow::Result<Option<bool>> {
-    const KEY: &str = "experimental-web-multi-threading";
+fn extract_web_multi_threading(
+    unstable_config: Option<&Map<String, Value>>,
+) -> anyhow::Result<Option<bool>> {
+    const KEY: &str = "web-multi-threading";
 
-    if let Some(web_multi_threading) = cli_metadata.get(KEY) {
+    let Some(unstable_config) = unstable_config else {
+        return Ok(None);
+    };
+
+    if let Some(web_multi_threading) = unstable_config.get(KEY) {
         match web_multi_threading {
             Value::Bool(web_multi_threading) => Ok(Some(web_multi_threading).copied()),
             Value::Null => Ok(None),
