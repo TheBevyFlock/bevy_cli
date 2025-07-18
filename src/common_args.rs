@@ -1,6 +1,5 @@
 use clap::Args;
 
-#[cfg(feature = "unstable")]
 use crate::config::CliConfig;
 
 #[derive(Debug, Clone, Args)]
@@ -21,8 +20,11 @@ impl CommonArgs {
         self.unstable.web_headers()
     }
 
+    #[cfg(not(feature = "unstable"))]
+    pub(crate) fn apply_config(&mut self, _config: &CliConfig) {}
+
+    #[cfg(feature = "unstable")]
     pub(crate) fn apply_config(&mut self, config: &CliConfig) {
-        #[cfg(feature = "unstable")]
         self.unstable.apply_config(config);
     }
 }
