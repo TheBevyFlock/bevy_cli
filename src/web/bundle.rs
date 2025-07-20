@@ -177,6 +177,24 @@ pub fn create_web_bundle(
     )
     .context("failed to copy JS artifact")?;
 
+    // Snippets (https://rustwasm.github.io/wasm-bindgen/reference/js-snippets.html)
+    let snippets_path = linked.build_artifact_path.join("snippets");
+    if snippets_path.exists() {
+        tracing::debug!(
+            "copying snippets from file://{}",
+            snippets_path.to_string_lossy()
+        );
+        fs_extra::dir::copy(
+            snippets_path,
+            base_path.join("build"),
+            &fs_extra::dir::CopyOptions {
+                overwrite: true,
+                ..Default::default()
+            },
+        )
+        .context("failed to copy js snippets")?;
+    }
+
     // Assets
     if let Some(assets_path) = linked.assets_path {
         tracing::debug!(
