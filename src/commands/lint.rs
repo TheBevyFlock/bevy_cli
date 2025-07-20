@@ -129,7 +129,7 @@ fn install_linter(arg: &InstallArgs) -> anyhow::Result<()> {
 
 fn list() -> anyhow::Result<()> {
     use std::fmt::Write;
-    let releases = list_availlable_releases()?;
+    let releases = list_available_releases()?;
 
     let releases = if let Some(mut releases) = releases {
         releases.push("main".to_string());
@@ -157,7 +157,7 @@ fn list() -> anyhow::Result<()> {
 }
 
 // Lists the available `bevy_lint` releases from the `GitHub` release page.
-fn list_availlable_releases() -> anyhow::Result<Option<Vec<String>>> {
+fn list_available_releases() -> anyhow::Result<Option<Vec<String>>> {
     #[derive(Deserialize, Debug)]
     struct Release {
         name: String,
