@@ -17,23 +17,15 @@ runs:
       id: channel
       shell: bash
       run: |
-        # Read the contents of `rust-toolchain.toml`.
-        RUST_TOOLCHAIN=$(< "${RUST_TOOLCHAIN_PATH}")
-
         # This Regex will capture the channel specified in `rust-toolchain.toml`.
         REGEX='^channel = "(.+)"$'
 
-        if [[ "${RUST_TOOLCHAIN}" =~ $REGEX ]]; then
-          # The `$BASH_REMATCH` variable stores the captured results. In this case,
-          # `${BASH_REMATCH[1]}` gives us the value of the first group, which is usually
-          # `nightly-YYYY-MM-DD`.
-          CHANNEL="${BASH_REMATCH[1]}"
+        # Match the Regex pattern against the contents of `rust-toolchain.toml`, then store the
+        # captured channel in the variable. `-E` enables Regex capture groups, while `-n` and `/p`
+        # tells `sed` to only print lines that match the Regex.
+        CHANNEL=$(sed -nE "s/${REGEX}/\1/p" < "${RUST_TOOLCHAIN_PATH}")
 
-          echo "channel=${CHANNEL}" >> "${GITHUB_OUTPUT}"
-        else
-          echo "::error title=Could not extract channel::The Regex ${REGEX} did not match the contents of ${RUST_TOOLCHAIN_PATH}."
-          exit 1
-        fi
+        echo "channel=${CHANNEL}" >> "${GITHUB_OUTPUT}"
       env:
         RUST_TOOLCHAIN_PATH: ${{ github.action_path }}/../rust-toolchain.toml
 
