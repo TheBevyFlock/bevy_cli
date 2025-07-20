@@ -23,7 +23,7 @@ runs:
         # This Regex will capture the channel specified in `rust-toolchain.toml`.
         REGEX='^channel = "(.+)"$'
 
-        if [[ "${RUST_TOOLCHAIN}" =~ "${REGEX}" ]]; then
+        if [[ "${RUST_TOOLCHAIN}" =~ $REGEX ]]; then
           # The `$BASH_REMATCH` variable stores the captured results. In this case,
           # `${BASH_REMATCH[1]}` gives us the value of the first group, which is usually
           # `nightly-YYYY-MM-DD`.
