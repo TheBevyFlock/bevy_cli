@@ -56,12 +56,24 @@ runs:
         toolchain: ${{ steps.toolchain.outputs.channel }}
         components: ${{ steps.toolchain.outputs.components }}
 
+    - name: Create cache key
+      id: cache-key
+      if: ${{ inputs.cache == 'true' }}
+      shell: bash
+      run: echo "key=bevy_lint-${RUNNER_OS}-${ACTION_REF}" >> "${GITHUB_OUTPUT}"
+      env:
+        RUNNER_OS: ${{ runner.os }}
+        # When this action is run as `TheBevyLint/bevy_cli/bevy_lint@lint-vX.Y.Z`, this will be
+        # `lint-vX.Y.Z` (the "action ref"). When this is run locally by our CI
+        # (`uses: ./bevy_lint`), this will be short commit hash.
+        ACTION_REF: ${{ github.action_ref || github.ref_name }}
+
     - name: Restore and save cached `bevy_lint`
       uses: actions/cache@v4
       id: cache
       if: ${{ inputs.cache == 'true' && inputs.save-cache-if == 'true' }}
       with:
-        key: bevy_lint-${{ runner.os }}-${{ github.action_ref }}
+        key: ${{ steps.cache-key.outputs.key }}
         path: |
           ~/.cargo/bin/bevy_lint
           ~/.cargo/bin/bevy_lint.exe
@@ -73,7 +85,7 @@ runs:
       id: restore-cache
       if: ${{ inputs.cache == 'true' && inputs.save-cache-if != 'true' }}
       with:
-        key: bevy_lint-${{ runner.os }}-${{ github.action_ref }}
+        key: ${{ steps.cache-key.outputs.key }}
         path: |
           ~/.cargo/bin/bevy_lint
           ~/.cargo/bin/bevy_lint.exe
