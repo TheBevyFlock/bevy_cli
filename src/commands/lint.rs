@@ -3,7 +3,7 @@ use clap::{Args, Subcommand};
 use reqwest::blocking::Client;
 #[cfg(feature = "rustup")]
 use serde::Deserialize;
-use tracing::info;
+use tracing::{debug, error, info};
 
 use crate::external_cli::{cargo::install::AutoInstall, rustup};
 
@@ -89,12 +89,33 @@ fn install_linter(arg: &InstallArgs) -> anyhow::Result<()> {
     use std::env;
 
     const GIT_URL: &str = "https://github.com/TheBevyFlock/bevy_cli.git";
-    // TODO: Check that version exists
+
+    // get a list of all available `bevy_lint` versions, there should always be at least one.
+    let available_versions = list_available_releases()?;
+
     let (rust_toolchain, version) = if let Some(version) = &arg.version {
-        (lookup_toolchain_version(version)?, version.as_str())
+        // Check if the desired version exists, if not exit with an error message
+        if !available_versions.contains(version) {
+            error!("version: {} does not exist", version);
+            return Ok(());
+        }
+
+        (lookup_toolchain_version(version)?, version.clone())
     } else {
-        // TODO: Interactive dialog: list -> install
-        (lookup_toolchain_version("master")?, "main")
+        // Create a `FuzzySelect` select dialog with all the available `bevy_lint` versions
+        // (including main).
+        let Some(selection) = dialoguer::FuzzySelect::new()
+            .with_prompt("Available `bevy_lint` versions")
+            .items(&available_versions)
+            .interact_opt()?
+        else {
+            debug!("no version selected");
+            return Ok(());
+        };
+
+        let version = &available_versions[selection];
+        debug!("selected {}", version);
+        (lookup_toolchain_version(version)?, version.clone())
     };
 
     rustup::install_toolchain_if_needed(&rust_toolchain.toolchain.channel, AutoInstall::Always)?;
@@ -131,13 +152,6 @@ fn list() -> anyhow::Result<()> {
     use std::fmt::Write;
     let releases = list_available_releases()?;
 
-    let releases = if let Some(mut releases) = releases {
-        releases.push("main".to_string());
-        releases
-    } else {
-        vec!["main".to_string()]
-    };
-
     // TODO: make this pretty
     let mut output = String::new();
 
@@ -156,8 +170,8 @@ fn list() -> anyhow::Result<()> {
     Ok(())
 }
 
-// Lists the available `bevy_lint` releases from the `GitHub` release page.
-fn list_available_releases() -> anyhow::Result<Option<Vec<String>>> {
+// Lists the available `bevy_lint` releases from the `GitHub` release page (including main).
+fn list_available_releases() -> anyhow::Result<Vec<String>> {
     #[derive(Deserialize, Debug)]
     struct Release {
         name: String,
@@ -167,23 +181,22 @@ fn list_available_releases() -> anyhow::Result<Option<Vec<String>>> {
     let releases = client
         .get(url)
         .header("User-Agent", "bevy_cli")
-        .send()?
+        .send()
+        .context("failed to query available GitHub releases")?
         .json::<Vec<Release>>()?;
 
-    Ok(releases
+    let mut releases = releases
         .iter()
         .filter_map(|r| {
-            if r.name.starts_with("`bevy_lint`") {
-                Some(
-                    r.name
-                        .strip_prefix("`bevy_lint` - ")
-                        .map(ToString::to_string),
-                )
-            } else {
-                None
-            }
+            r.name
+                .strip_prefix("`bevy_lint` - ")
+                .map(ToString::to_string)
         })
-        .collect())
+        .collect::<Vec<_>>();
+
+    releases.push("main".to_string());
+
+    Ok(releases)
 }
 
 /// Looks up the `rust-toolchain.toml` file for the given version from GitHub and tries to parse it
@@ -205,7 +218,10 @@ fn lookup_toolchain_version(linter_version: &str) -> anyhow::Result<RustToolchai
     let response = &client
         .get(url)
         .header("User-Agent", "bevy_cli")
-        .send()?
+        .send()
+        .context(
+            "failed to query `rust-toolchain.toml` from GitHub for the given `bevy_lint` version",
+        )?
         .text()?;
 
     let rust_toolchain: RustToolchain =
