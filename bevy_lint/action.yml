@@ -9,6 +9,19 @@ description: |
 
   Note that this currently will override the default Rustup toolchain to nightly. You can fix this
   by calling `rustup default` after this action is run.
+inputs:
+  cache:
+    description: |
+      If set to `true`, this action will cache the built `bevy_lint` executable and reuse it on
+      subsequent runs, which can speed up the runtime. This defaults to `false`.
+    required: false
+    default: 'false'
+  save-cache-if:
+    description: |
+      When caching is enabled, this configures whether a freshly built `bevy_lint` will be saved as
+      a new cache. When caching is disabled, this does nothing. This defaults to `true`.
+    required: false
+    default: 'true'
 runs:
   using: composite
   steps:
@@ -43,7 +56,36 @@ runs:
         toolchain: ${{ steps.toolchain.outputs.channel }}
         components: ${{ steps.toolchain.outputs.components }}
 
+    - name: Restore and save cached `bevy_lint`
+      uses: actions/cache@v4
+      id: cache
+      if: ${{ inputs.cache == 'true' && inputs.save-cache-if == 'true' }}
+      with:
+        key: bevy_lint-${{ runner.os }}-${{ github.action_ref }}
+        path: |
+          ~/.cargo/bin/bevy_lint
+          ~/.cargo/bin/bevy_lint.exe
+          ~/.cargo/bin/bevy_lint_driver
+          ~/.cargo/bin/bevy_lint_driver.exe
+
+    - name: Restore cached `bevy_lint`
+      uses: actions/cache/restore@v4
+      id: restore-cache
+      if: ${{ inputs.cache == 'true' && inputs.save-cache-if != 'true' }}
+      with:
+        key: bevy_lint-${{ runner.os }}-${{ github.action_ref }}
+        path: |
+          ~/.cargo/bin/bevy_lint
+          ~/.cargo/bin/bevy_lint.exe
+          ~/.cargo/bin/bevy_lint_driver
+          ~/.cargo/bin/bevy_lint_driver.exe
+
     - name: Install `bevy_lint`
+      # If caching is disabled, we always install `bevy_lint`. However, if caching is enabled we
+      # only need to run this if there was a cache miss. We need to handle both cases where
+      # `save-cache-if` can be true or false, which is why there are two additional checks instead
+      # of one. Also note that `cache-hit` is an empty string on a cache miss, not 'false'.
+      if: ${{ inputs.cache != 'true' || (inputs.save-cache-if == 'true' && steps.cache.outputs.cache-hit == '') || (inputs.save-cache-if != 'true' && steps.restore-cache.outputs.cache-hit == '') }}
       shell: bash
       run: |
         rustup run "${RUST_CHANNEL}" cargo install \
