@@ -17,12 +17,17 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
+        cache: ['true', 'false']
+        save-cache-if: ['true', 'false']
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Install `bevy_lint`
         uses: ./bevy_lint
+        with:
+          cache: ${{ matrix.cache }}
+          save-cache-if: ${{ matrix.save-cache-if }}
 
       - name: Print `bevy_lint` version
         run: bevy_lint --version
