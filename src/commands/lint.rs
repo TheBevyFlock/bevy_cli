@@ -96,7 +96,10 @@ fn install_linter(arg: &InstallArgs) -> anyhow::Result<()> {
     let (rust_toolchain, version) = if let Some(version) = &arg.version {
         // Check if the desired version exists, if not exit with an error message
         if !available_versions.contains(version) {
-            error!("version: {} does not exist", version);
+            error!(
+                "version: {} does not exist, available versions are: {:?}",
+                version, available_versions
+            );
             return Ok(());
         }
 
