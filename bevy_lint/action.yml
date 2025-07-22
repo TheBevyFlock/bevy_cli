@@ -12,30 +12,36 @@ description: |
 runs:
   using: composite
   steps:
-    # Use Regex to extract the `toolchain.channel` field in `rust-toolchain.toml`.
-    - name: Extract channel
-      id: channel
+    # Use Regex to extract the `channel` and `components` fields in `rust-toolchain.toml`.
+    - name: Extract toolchain
+      id: toolchain
       shell: bash
       run: |
-        # This Regex will capture the channel specified in `rust-toolchain.toml`.
-        REGEX='^channel = "(.+)"$'
+        # These Regex patterns will capture the channel and component lines specified in
+        # `rust-toolchain.toml`.
+        CHANNEL_REGEX='^channel = "(.+)"$'
+        COMPONENTS_REGEX='^components = \[(.*)\]$'
 
         # Match the Regex pattern against the contents of `rust-toolchain.toml`, then store the
         # captured channel in the variable. `-E` enables Regex capture groups, while `-n` and `/p`
         # tells `sed` to only print lines that match the Regex.
-        CHANNEL=$(sed -nE "s/${REGEX}/\1/p" < "${RUST_TOOLCHAIN_PATH}")
+        CHANNEL=$(sed -nE "s/${CHANNEL_REGEX}/\1/p" < "${RUST_TOOLCHAIN_PATH}")
+
+        # This does the same thing, but also strips out double quotes. In practice, this converts
+        # `components = ["rustc-dev", "llvm-tools-preview"]` to `"rustc-dev", "llvm-tools-preview"`
+        # to `rustc-dev, llvm-tools-preview`.
+        COMPONENTS=$(sed -nE "s/${COMPONENTS_REGEX}/\1/p" < "${RUST_TOOLCHAIN_PATH}" | tr -d '"')
 
         echo "channel=${CHANNEL}" >> "${GITHUB_OUTPUT}"
+        echo "components=${COMPONENTS}" >> "${GITHUB_OUTPUT}"
       env:
         RUST_TOOLCHAIN_PATH: ${{ github.action_path }}/../rust-toolchain.toml
 
     - name: Install Rust toolchain and components
       uses: dtolnay/rust-toolchain@master
       with:
-        toolchain: ${{ steps.channel.outputs.channel }}
-        # These components are hard-coded because they are unlikely to change. They should match
-        # `rust-toolchain.toml`.
-        components: rustc-dev, llvm-tools-preview
+        toolchain: ${{ steps.toolchain.outputs.channel }}
+        components: ${{ steps.toolchain.outputs.components }}
 
     - name: Install `bevy_lint`
       shell: bash

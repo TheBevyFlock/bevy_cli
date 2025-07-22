@@ -7,6 +7,6 @@
 # line, so be wary when changing its formatting.
 channel = "nightly-2025-06-26"
 
-# These components are required to use `rustc` crates. Note that if you change these, you may need
-# to also update `bevy_lint/action.yml`.
+# These components are required to use `rustc` crates. Note that we use the Regex
+# `^components = \[(.*)\]$` to match this line, so be wary when changing its formatting.
 components = ["rustc-dev", "llvm-tools-preview"]
