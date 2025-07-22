@@ -22,6 +22,15 @@ inputs:
       a new cache. When caching is disabled, this does nothing. This defaults to `true`.
     required: false
     default: 'true'
+outputs:
+  cache-hit:
+    description: |
+      A string indicating whether an existing cached `bevy_lint` was used. This will be 'true' if a
+      cache was used and '' (an empty string) if a cache was not. If caching is disabled, this will
+      always be an empty string.
+    # Technically `cache-hit` could be 'false' if a fallback key was used instead of the primary
+    # key, but we don't use fallback keys.
+    value: ${{ steps.cache.outputs.cache-hit || steps.restore-cache.outputs.cache-hit }}
 runs:
   using: composite
   steps:
