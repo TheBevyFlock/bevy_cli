@@ -17,6 +17,13 @@ concurrency:
   group: linter-action
   cancel-in-progress: false
 
+defaults:
+  run:
+    # We use the `test` command, which on Windows is only available through Bash. (If we didn't set
+    # this, Windows runners would use Powershell instead, which doesn't have a Unix-style `test`
+    # command.)
+    shell: bash
+
 jobs:
   without-cache:
     name: Install `bevy_lint`
