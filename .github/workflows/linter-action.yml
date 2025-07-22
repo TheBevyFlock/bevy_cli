@@ -48,6 +48,9 @@ jobs:
     name: Empty `bevy_lint` cache
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Clear cached `bevy_lint`
         # Delete all existing `bevy_lint` caches.
         run: gh cache delete "bevy_lint-"
