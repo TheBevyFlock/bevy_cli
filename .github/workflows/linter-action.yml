@@ -10,6 +10,13 @@ on:
       - rust-toolchain.toml
   workflow_dispatch:
 
+# Several jobs in this workflow require the cache to be in a certain state. As the cache is global,
+# we cannot run two of this workflow at the same time without them clobbering each other. This
+# forces the workflow to run synchronously.
+concurrency:
+  group: linter-action
+  cancel-in-progress: false
+
 jobs:
   without-cache:
     name: Install `bevy_lint`
@@ -37,33 +44,31 @@ jobs:
       - name: Run `bevy_lint` on `bevy_lint`
         run: bevy_lint --package bevy_lint --locked
 
-  with-cache:
-    name: Test `bevy_lint` caching
+  delete-cache:
+    name: Empty `bevy_lint` cache
     runs-on: ubuntu-latest
+    steps:
+      - name: Clear cached `bevy_lint`
+        # Delete all existing `bevy_lint` caches.
+        run: gh cache delete "bevy_lint-"
+        # If `bevy_lint` isn't cached yet, this will fail. That's alright, though! The cache is
+        # empty either way.
+        continue-on-error: true
+
+  cache-miss-no-save:
+    name: Cache miss without saving
+    # The cache must be empty before running.
+    needs: delete-cache
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-    # This prevents multiple runners with the same OS from running this job concurrently. If two
-    # Ubuntu, Windows, or Mac runners try to run at the same time, they might accidentally delete
-    # each other's caches.
-    concurrency:
-      group: linter-action-with-cache-${{ matrix.os }}
-      cancel-in-progress: false
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Clear cached `bevy_lint`
-        # Delete all existing `bevy_lint` caches for a specific OS.
-        run: gh cache delete "bevy_lint-${RUNNER_OS}-"
-        # If `bevy_lint` isn't cached yet, this will fail. That's alright, though! The cache is
-        # empty either way.
-        continue-on-error: true
-        env:
-          RUNNER_OS: ${{ runner.os }}
-
       - name: Install `bevy_lint` without saving cache
-        id: first-install-linter
+        id: install-linter
         uses: ./bevy_lint
         with:
           cache: 'true'
@@ -72,13 +77,25 @@ jobs:
       - name: Ensure `cache-hit` is empty
         run: test -z "${CACHE_HIT}"
         env:
-          CACHE_HIT: ${{ steps.first-install-linter.outputs.cache-hit }}
+          CACHE_HIT: ${{ steps.install-linter.outputs.cache-hit }}
 
-      - name: Uninstall `bevy_lint`
-        run: cargo uninstall bevy_lint
+      - name: Print `bevy_lint` version
+        run: bevy_lint --version
+
+  cache-miss-and-save:
+    name: Cache miss and save
+    # The cache must still be empty before running.
+    needs: cache-miss-no-save
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Install `bevy_lint` and save cache
-        id: second-install-linter
+        id: install-linter
         uses: ./bevy_lint
         with:
           cache: 'true'
@@ -87,13 +104,25 @@ jobs:
       - name: Ensure `cache-hit` is empty
         run: test -z "${CACHE_HIT}"
         env:
-          CACHE_HIT: ${{ steps.second-install-linter.outputs.cache-hit }}
+          CACHE_HIT: ${{ steps.install-linter.outputs.cache-hit }}
 
-      - name: Uninstall `bevy_lint`
-        run: cargo uninstall bevy_lint
+      - name: Print `bevy_lint` version
+        run: bevy_lint --version
+
+  cache-hit:
+    name: Cache hit
+    # The cache must exist before running.
+    needs: cache-miss-and-save
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Install `bevy_lint` from cache
-        id: third-install-linter
+        id: install-linter
         uses: ./bevy_lint
         with:
           cache: 'true'
@@ -102,4 +131,7 @@ jobs:
       - name: Ensure `cache-hit` is 'true'
         run: test "${CACHE_HIT}" = 'true'
         env:
-          CACHE_HIT: ${{ steps.third-install-linter.outputs.cache-hit }}
+          CACHE_HIT: ${{ steps.install-linter.outputs.cache-hit }}
+
+      - name: Print `bevy_lint` version
+        run: bevy_lint --version
