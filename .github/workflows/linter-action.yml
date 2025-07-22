@@ -8,6 +8,7 @@ on:
     paths:
       - bevy_lint/action.yml
       - rust-toolchain.toml
+      - .github/workflows/linter-action.yml
   workflow_dispatch:
 
 # Several jobs in this workflow require the cache to be in a certain state. As the cache is global,
