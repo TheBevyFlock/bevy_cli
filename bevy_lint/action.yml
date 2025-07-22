@@ -50,7 +50,7 @@ runs:
           --path "${BEVY_LINT_PATH}" \
           --locked
       env:
-        RUST_CHANNEL: ${{ steps.channel.outputs.channel }}
+        RUST_CHANNEL: ${{ steps.toolchain.outputs.channel }}
         # As the full contents of `TheBevyFlock/bevy_cli` is included alongside this action, we can
         # install the linter relative to the action path.
         BEVY_LINT_PATH: ${{ github.action_path }}
