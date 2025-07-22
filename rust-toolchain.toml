@@ -1,9 +1,12 @@
-# If you modify this file, please also update the `clippy_utils` version in `bevy_lint/Cargo.toml`
-# and the compatibility table in `bevy_lint/README.md`.
+# If you wish to update this file, please read
+# <https://thebevyflock.github.io/bevy_cli/contribute/linter/how-to/upgrade-rust-toolchain.html>.
 
 [toolchain]
 # Writing custom lints requires using nightly Rust. We pin to a specific version of nightly version
-# so that builds are reproducible.
+# so that builds are reproducible. Note that we use the Regex `^channel = "(.+)"$` to match this
+# line, so be wary when changing its formatting.
 channel = "nightly-2025-06-26"
-# These components are required to use `rustc` crates.
+
+# These components are required to use `rustc` crates. Note that we use the Regex
+# `^components = \[(.*)\]$` to match this line, so be wary when changing its formatting.
 components = ["rustc-dev", "llvm-tools-preview"]
