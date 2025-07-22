@@ -8,10 +8,25 @@ on:
     paths:
       - bevy_lint/action.yml
       - rust-toolchain.toml
+      - .github/workflows/linter-action.yml
   workflow_dispatch:
 
+# Several jobs in this workflow require the cache to be in a certain state. As the cache is global,
+# we cannot run two of this workflow at the same time without them clobbering each other. This
+# forces the workflow to run synchronously.
+concurrency:
+  group: linter-action
+  cancel-in-progress: false
+
+defaults:
+  run:
+    # We use the `test` command, which on Windows is only available through Bash. (If we didn't set
+    # this, Windows runners would use Powershell instead, which doesn't have a Unix-style `test`
+    # command.)
+    shell: bash
+
 jobs:
-  install-linter:
+  without-cache:
     name: Install `bevy_lint`
     runs-on: ${{ matrix.os }}
     strategy:
@@ -22,10 +37,114 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install `bevy_lint`
+        id: install-linter
         uses: ./bevy_lint
+
+      # As we're not using the cache, there shouldn't be a cache hit.
+      - name: Ensure `cache-hit` is empty
+        run: test -z "${CACHE_HIT}"
+        env:
+          CACHE_HIT: ${{ steps.install-linter.outputs.cache-hit }}
 
       - name: Print `bevy_lint` version
         run: bevy_lint --version
 
       - name: Run `bevy_lint` on `bevy_lint`
         run: bevy_lint --package bevy_lint --locked
+
+  delete-cache:
+    name: Empty `bevy_lint` cache
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Clear cached `bevy_lint`
+        # Delete all existing `bevy_lint` caches.
+        run: gh cache delete "bevy_lint-"
+        # If `bevy_lint` isn't cached yet, this will fail. That's alright, though! The cache is
+        # empty either way.
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+  cache-miss-no-save:
+    name: Cache miss without saving
+    # The cache must be empty before running.
+    needs: delete-cache
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install `bevy_lint` without saving cache
+        id: install-linter
+        uses: ./bevy_lint
+        with:
+          cache: 'true'
+          save-cache-if: 'false'
+
+      - name: Ensure `cache-hit` is empty
+        run: test -z "${CACHE_HIT}"
+        env:
+          CACHE_HIT: ${{ steps.install-linter.outputs.cache-hit }}
+
+      - name: Print `bevy_lint` version
+        run: bevy_lint --version
+
+  cache-miss-and-save:
+    name: Cache miss and save
+    # The cache must still be empty before running.
+    needs: cache-miss-no-save
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install `bevy_lint` and save cache
+        id: install-linter
+        uses: ./bevy_lint
+        with:
+          cache: 'true'
+          save-cache-if: 'true'
+
+      - name: Ensure `cache-hit` is empty
+        run: test -z "${CACHE_HIT}"
+        env:
+          CACHE_HIT: ${{ steps.install-linter.outputs.cache-hit }}
+
+      - name: Print `bevy_lint` version
+        run: bevy_lint --version
+
+  cache-hit:
+    name: Cache hit
+    # The cache must exist before running.
+    needs: cache-miss-and-save
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install `bevy_lint` from cache
+        id: install-linter
+        uses: ./bevy_lint
+        with:
+          cache: 'true'
+          save-cache-if: 'true'
+
+      - name: Ensure `cache-hit` is 'true'
+        run: test "${CACHE_HIT}" = 'true'
+        env:
+          CACHE_HIT: ${{ steps.install-linter.outputs.cache-hit }}
+
+      - name: Print `bevy_lint` version
+        run: bevy_lint --version
