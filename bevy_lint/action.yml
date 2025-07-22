@@ -29,7 +29,7 @@ outputs:
       cache was used and '' (an empty string) if a cache was not. If caching is disabled, this will
       always be an empty string.
     # Technically `cache-hit` could be 'false' if a fallback key was used instead of the primary
-    # key, but we don't use fallback keys.
+    # key, but we don't use fallback keys, so that shouldn't happen.
     value: ${{ steps.cache.outputs.cache-hit || steps.restore-cache.outputs.cache-hit }}
 runs:
   using: composite
@@ -73,8 +73,8 @@ runs:
       env:
         RUNNER_OS: ${{ runner.os }}
         # When this action is run as `TheBevyLint/bevy_cli/bevy_lint@lint-vX.Y.Z`, this will be
-        # `lint-vX.Y.Z` (the "action ref"). When this is run locally by our CI
-        # (`uses: ./bevy_lint`), this will be short commit hash.
+        # `lint-vX.Y.Z` (the "action ref"). When this is run locally by our CI as `./bevy_lint`,
+        # this will be short commit hash (the "ref name").
         ACTION_REF: ${{ github.action_ref || github.ref_name }}
 
     - name: Restore and save cached `bevy_lint`
@@ -103,9 +103,9 @@ runs:
 
     - name: Install `bevy_lint`
       # If caching is disabled, we always install `bevy_lint`. However, if caching is enabled we
-      # only need to run this if there was a cache miss. We need to handle both cases where
-      # `save-cache-if` can be true or false, which is why there are two additional checks instead
-      # of one. Also note that `cache-hit` is an empty string on a cache miss, not 'false'.
+      # only need to run this if there was a cache miss. Since there are two different steps that
+      # could restore the cache, we need to refer to `save-cache-if` to see which was run. Also
+      # note that `cache-hit` is an empty string on a cache miss, not 'false'.
       if: ${{ inputs.cache != 'true' || (inputs.save-cache-if == 'true' && steps.cache.outputs.cache-hit == '') || (inputs.save-cache-if != 'true' && steps.restore-cache.outputs.cache-hit == '') }}
       shell: bash
       run: |
