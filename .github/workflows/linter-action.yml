@@ -54,6 +54,8 @@ jobs:
         # If `bevy_lint` isn't cached yet, this will fail. That's alright, though! The cache is
         # empty either way.
         continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
 
   cache-miss-no-save:
     name: Cache miss without saving
