@@ -15,6 +15,8 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 
 - You can now customize the flags passed to `wasm-opt` in both CLI and `Cargo.toml`. Simply pass a list of flags you want to use, e.g. `--wasm-opt=-Oz --wasm-opt=--enable-bulk-memory` in the CLI or `wasm-opt = ["-Oz", "--enable-bulk-memory"]` in the config.
 
+- `bevy run web` and `bevy build web -b` now support [JS snippets](https://rustwasm.github.io/wasm-bindgen/reference/js-snippets.html) ([#527](https://github.com/TheBevyFlock/bevy_cli/pull/527))
+
 ## v0.1.0-alpha.1 - 2025-05-23
 
 **All Changes**: [`cli-v0.1.0-alpha.1`](https://github.com/TheBevyFlock/bevy_cli/commits/cli-v0.1.0-alpha.1)
