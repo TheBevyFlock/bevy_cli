@@ -18,7 +18,7 @@ name = "bevy"
 path = "src/bin/main.rs"
 
 [features]
-default = ["rustup", "web"]
+default = ["rustup", "web", "unstable"]
 
 # Run your Bevy app in the browser
 web = [
