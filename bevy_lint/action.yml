@@ -59,12 +59,6 @@ runs:
       env:
         RUST_TOOLCHAIN_PATH: ${{ github.action_path }}/../rust-toolchain.toml
 
-    - name: Install Rust toolchain and components
-      uses: dtolnay/rust-toolchain@master
-      with:
-        toolchain: ${{ steps.toolchain.outputs.channel }}
-        components: ${{ steps.toolchain.outputs.components }}
-
     - name: Create cache key
       id: cache-key
       if: ${{ inputs.cache == 'true' }}
@@ -84,10 +78,16 @@ runs:
       with:
         key: ${{ steps.cache-key.outputs.key }}
         path: |
+          # The linter
           ~/.cargo/bin/bevy_lint
           ~/.cargo/bin/bevy_lint.exe
           ~/.cargo/bin/bevy_lint_driver
           ~/.cargo/bin/bevy_lint_driver.exe
+
+          # The Rust toolchain
+          ~/.rustup/toolchains/${{ steps.toolchain.outputs.channel }}-*
+          ~/.rustup/update-hashes/${{ steps.toolchain.outputs.channel }}-*
+          ~/.rustup/settings.toml
 
     - name: Restore cached `bevy_lint`
       uses: actions/cache/restore@v4
@@ -96,16 +96,29 @@ runs:
       with:
         key: ${{ steps.cache-key.outputs.key }}
         path: |
+          # The linter
           ~/.cargo/bin/bevy_lint
           ~/.cargo/bin/bevy_lint.exe
           ~/.cargo/bin/bevy_lint_driver
           ~/.cargo/bin/bevy_lint_driver.exe
 
-    - name: Install `bevy_lint`
+          # The Rust toolchain
+          ~/.rustup/toolchains/${{ steps.toolchain.outputs.channel }}-*
+          ~/.rustup/update-hashes/${{ steps.toolchain.outputs.channel }}-*
+          ~/.rustup/settings.toml
+
+    - name: Install Rust toolchain and components
       # If caching is disabled, we always install `bevy_lint`. However, if caching is enabled we
       # only need to run this if there was a cache miss. Since there are two different steps that
       # could restore the cache, we need to refer to `save-cache-if` to see which was run. Also
       # note that `cache-hit` is an empty string on a cache miss, not 'false'.
+      if: ${{ inputs.cache != 'true' || (inputs.save-cache-if == 'true' && steps.cache.outputs.cache-hit == '') || (inputs.save-cache-if != 'true' && steps.restore-cache.outputs.cache-hit == '') }}
+      uses: dtolnay/rust-toolchain@master
+      with:
+        toolchain: ${{ steps.toolchain.outputs.channel }}
+        components: ${{ steps.toolchain.outputs.components }}
+
+    - name: Install `bevy_lint`
       if: ${{ inputs.cache != 'true' || (inputs.save-cache-if == 'true' && steps.cache.outputs.cache-hit == '') || (inputs.save-cache-if != 'true' && steps.restore-cache.outputs.cache-hit == '') }}
       shell: bash
       run: |
