@@ -18,7 +18,7 @@ name = "bevy"
 path = "src/bin/main.rs"
 
 [features]
-default = ["rustup", "web"]
+default = ["rustup", "web", "unstable"]
 
 # Run your Bevy app in the browser
 web = [
@@ -34,6 +34,9 @@ web = [
 # Support installing required targets with `rustup` from a prompt.
 # You can disable this feature if your system doesn't have rustup installed.
 rustup = []
+
+# Functionality that's unfinished or comes with caveats
+unstable = []
 
 [dependencies]
 # CLI argument parsing
