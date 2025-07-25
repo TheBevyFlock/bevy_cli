@@ -55,25 +55,19 @@ pub(crate) async fn serve(
         WebBundle::Packed(PackedBundle { path }) => {
             // Using `fallback_service` instead of `route_service`
             // to recursively serve the directory with correct MIME types
+            tracing::debug!("Serving packed bundle from {path:?}");
             router = router.fallback_service(get_service(ServeDir::new(path)));
         }
         WebBundle::Linked(LinkedBundle {
             build_artifact_path,
-            wasm_file_name,
-            js_file_name,
             index,
             assets_path,
             web_assets,
+            ..
         }) => {
+            tracing::debug!("Serving linked bundle from {build_artifact_path:?}");
             router = router
-                .route_service(
-                    &format!("/build/{}", js_file_name.to_str().unwrap()),
-                    ServeFile::new(build_artifact_path.join(js_file_name)),
-                )
-                .route_service(
-                    &format!("/build/{}", wasm_file_name.to_str().unwrap()),
-                    ServeFile::new(build_artifact_path.join(wasm_file_name)),
-                )
+                .nest_service("/build", ServeDir::new(build_artifact_path))
                 .route(
                     "/_bevy_dev/auto_reload.js",
                     get(async || {
