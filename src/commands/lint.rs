@@ -63,6 +63,9 @@ struct Toolchain {
 /// terminal. This will run [`find_bevy_lint()`] to locate `bevy_lint`.
 #[cfg(feature = "rustup")]
 pub fn lint(args: LintArgs) -> anyhow::Result<()> {
+    use crate::external_cli::cargo::install::is_installed;
+    const PROGRAM: &str = "bevy_lint";
+
     if let Some(subcommand) = &args.subcommand {
         return match subcommand {
             LintSubcommands::List => list(),
@@ -70,12 +73,21 @@ pub fn lint(args: LintArgs) -> anyhow::Result<()> {
         };
     }
 
-    let auto_install = args.auto_install();
+    if is_installed(PROGRAM).is_none() {
+        error!(
+            "{} is not present, install {} via `bevy install lint`",
+            PROGRAM, PROGRAM
+        );
+        return Ok(());
+    }
 
-    // TODO: What do we want to autoinstall if `bevy_lint` is not present?
     let status = crate::external_cli::CommandExt::new("bevy_lint")
         .args(args.cargo_check_args)
-        .ensure_status(auto_install)?;
+        // We do not want to automatically install a `bevy_lint` version.
+        // The reason is that it's currently not possible to easily install
+        // the latest release without performing network requests.
+        // If we add a `required_package`, `bevy_lint` would no longer work offline.
+        .ensure_status(AutoInstall::Never)?;
 
     ensure!(
         status.success(),
@@ -85,12 +97,13 @@ pub fn lint(args: LintArgs) -> anyhow::Result<()> {
     Ok(())
 }
 
+// TODO: pass auto_install after: https://github.com/TheBevyFlock/bevy_cli/pull/523
 fn install_linter(arg: &InstallArgs) -> anyhow::Result<()> {
     use std::env;
 
     const GIT_URL: &str = "https://github.com/TheBevyFlock/bevy_cli.git";
 
-    // get a list of all available `bevy_lint` versions, there should always be at least one.
+    // get a list of all available `bevy_lint` versions, there should always be at least one (main).
     let available_versions = list_available_releases()?;
 
     let (rust_toolchain, version) = if let Some(version) = &arg.version {
@@ -102,7 +115,8 @@ fn install_linter(arg: &InstallArgs) -> anyhow::Result<()> {
             );
             return Ok(());
         }
-
+        // return the required toolchain version, used to install via `rustup`. And the
+        // linter version used to install the linter with `cargo install --git`
         (lookup_toolchain_version(version)?, version.clone())
     } else {
         // Create a `FuzzySelect` select dialog with all the available `bevy_lint` versions
@@ -118,6 +132,8 @@ fn install_linter(arg: &InstallArgs) -> anyhow::Result<()> {
 
         let version = &available_versions[selection];
         debug!("selected {}", version);
+        // return the required toolchain version, used to install via `rustup`. And the
+        // linter version used to install the linter with `cargo install --git`
         (lookup_toolchain_version(version)?, version.clone())
     };
 
@@ -179,10 +195,11 @@ fn list_available_releases() -> anyhow::Result<Vec<String>> {
     struct Release {
         name: String,
     }
-    let url = "https://api.github.com/repos/TheBevyFlock/bevy_cli/releases";
-    let client = Client::new();
-    let releases = client
-        .get(url)
+
+    const URL: &str = "https://api.github.com/repos/TheBevyFlock/bevy_cli/releases";
+
+    let releases = Client::new()
+        .get(URL)
         .header("User-Agent", "bevy_cli")
         .send()
         .context("failed to query available GitHub releases")?
@@ -216,9 +233,7 @@ fn lookup_toolchain_version(linter_version: &str) -> anyhow::Result<RustToolchai
         )
     };
 
-    let client = Client::new();
-
-    let response = &client
+    let response = Client::new()
         .get(url)
         .header("User-Agent", "bevy_cli")
         .send()
@@ -228,7 +243,7 @@ fn lookup_toolchain_version(linter_version: &str) -> anyhow::Result<RustToolchai
         .text()?;
 
     let rust_toolchain: RustToolchain =
-        toml::from_str(response).context("Failed to parse `rust-toolchain.toml`.")?;
+        toml::from_str(&response).context("Failed to parse `rust-toolchain.toml`.")?;
 
     Ok(rust_toolchain)
 }
