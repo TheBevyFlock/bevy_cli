@@ -12,19 +12,25 @@ description: |
 runs:
   using: composite
   steps:
-    # Used to read `rust-toolchain.toml`.
-    - name: Install Taplo
-      uses: taiki-e/install-action@v2
-      with:
-        tool: taplo
-
-    # Read `rust-toolchain.toml` to find the exact nightly toolchain the linter needs.
+    # Use Regex to extract the `channel` and `components` fields in `rust-toolchain.toml`.
     - name: Extract toolchain
       id: toolchain
       shell: bash
       run: |
-        CHANNEL=$(taplo get --file-path="${RUST_TOOLCHAIN_PATH}" 'toolchain.channel')
-        COMPONENTS=$(taplo get --file-path="${RUST_TOOLCHAIN_PATH}" --separator=', ' 'toolchain.components')
+        # These Regex patterns will capture the channel and component lines specified in
+        # `rust-toolchain.toml`.
+        CHANNEL_REGEX='^channel = "(.+)"$'
+        COMPONENTS_REGEX='^components = \[(.*)\]$'
+
+        # Match the Regex pattern against the contents of `rust-toolchain.toml`, then store the
+        # captured channel in the variable. `-E` enables Regex capture groups, while `-n` and `/p`
+        # tells `sed` to only print lines that match the Regex.
+        CHANNEL=$(sed -nE "s/${CHANNEL_REGEX}/\1/p" < "${RUST_TOOLCHAIN_PATH}")
+
+        # This does the same thing, but also strips out double quotes. In practice, this converts
+        # `components = ["rustc-dev", "llvm-tools-preview"]` to `"rustc-dev", "llvm-tools-preview"`
+        # to `rustc-dev, llvm-tools-preview`.
+        COMPONENTS=$(sed -nE "s/${COMPONENTS_REGEX}/\1/p" < "${RUST_TOOLCHAIN_PATH}" | tr -d '"')
 
         echo "channel=${CHANNEL}" >> "${GITHUB_OUTPUT}"
         echo "components=${COMPONENTS}" >> "${GITHUB_OUTPUT}"
