@@ -42,7 +42,7 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 
 ### Fixed
 
-- The linter will no longer emit the `Plugin` / `SystemSet` span twice in `unconvetional_naming` ([#495](https://github.com/TheBevyFlock/bevy_cli/pull/495))
+- The linter will no longer emit the `Plugin` / `SystemSet` span twice in `unconventional_naming` ([#495](https://github.com/TheBevyFlock/bevy_cli/pull/495))
 - Some lints now support auto-dereference receiver methods ([#504](https://github.com/TheBevyFlock/bevy_cli/pull/504))
     - For example, `panicking_methods` now catches `Box<World>::resource()` where before it would silently pass.
 
