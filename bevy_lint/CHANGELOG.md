@@ -22,8 +22,10 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 - The Bevy CLI (Alpha) can now automatically install the linter for you ([#406](https://github.com/TheBevyFlock/bevy_cli/pull/406))
 - It is now possible to use the linter without Rustup by specifying the `BEVY_LINT_SYSROOT` environmental variable ([#478](https://github.com/TheBevyFlock/bevy_cli/pull/478))
     - This should make it easier to use the linter with NixOS.
+- Added opt-in support for caching `bevy_lint` in Github Actions ([#530](https://github.com/TheBevyFlock/bevy_cli/pull/530))
+    - This can double the speed at which `bevy_lint` is installed in CI, so it is highly recommended to enable it [by following these instructions](https://thebevyflock.github.io/bevy_cli/linter/github-actions.html#caching)!
 - Added docs on how to use `bevy_lint` with Rust-Analyzer ([#503](https://github.com/TheBevyFlock/bevy_cli/pull/503))
-- Added docs for troubleshooting issues with `cranelift` ([#453](https://github.com/TheBevyFlock/bevy_cli/pull/453))
+- Added docs for troubleshooting issues with `cranelift` and `sccache` ([#453](https://github.com/TheBevyFlock/bevy_cli/pull/453), [#522](https://github.com/TheBevyFlock/bevy_cli/pull/522))
 
 ### Changed
 
