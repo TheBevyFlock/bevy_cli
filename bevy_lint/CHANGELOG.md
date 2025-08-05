@@ -9,7 +9,7 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 
 ## v0.4.0 - TODO: Enter the date here :)
 
-**All Changes**: [`lint-v0.3.0...lint-v0.4.0`](https://github.com/TheBevyFlock/bevy_cli/compare/lint-v0.3.0...main)
+**All Changes**: [`lint-v0.3.0...lint-v0.4.0`](https://github.com/TheBevyFlock/bevy_cli/compare/lint-v0.3.0...lint-v0.4.0)
 
 ### Added
 
