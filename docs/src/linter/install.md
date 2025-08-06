@@ -40,7 +40,7 @@ Once you have the toolchain installed, you can compile and install `bevy_lint` t
 ```sh
 rustup run nightly-2025-06-26 cargo install \
     --git https://github.com/TheBevyFlock/bevy_cli.git \
-    --tag lint-v0.3.0 \
+    --tag lint-v0.4.0 \
     --locked \
     bevy_lint
 ```
@@ -56,7 +56,7 @@ Once you've installed the toolchain and components, use that toolchain's `cargo`
 ```sh
 my-toolchain/bin/cargo install \
     --git https://github.com/TheBevyFlock/bevy_cli.git \
-    --tag lint-v0.3.0 \
+    --tag lint-v0.4.0 \
     --locked \
     bevy_lint
 ```
