@@ -26,10 +26,10 @@
 
 You can find the live documentation for this release [here](https://thebevyflock.github.io/bevy_cli/linter/index.html). You may also be interested in [the changelog] and [the migration guide].
 
-<!-- Make sure to update the tags in these links to point to the correct version. -->
+<!-- Make sure to update these links to point to the correct header (after the `#`). -->
 
-[the changelog]: https://github.com/TheBevyFlock/bevy_cli/blob/lint-vX.Y.Z/bevy_lint/CHANGELOG.md
-[the migration guide]: https://github.com/TheBevyFlock/bevy_cli/blob/lint-vX.Y.Z/bevy_lint/MIGRATION.md
+[the changelog]: https://thebevyflock.github.io/bevy_cli/linter/changelog.html#vXYZ---YYYY-MM-DD
+[the migration guide]: https://thebevyflock.github.io/bevy_cli/linter/migration.html#vXYZ-to-vXYZ
 
 > [!WARNING]
 >
@@ -37,7 +37,7 @@ You can find the live documentation for this release [here](https://thebevyflock
 
 <!-- You can refer to the compatibility table in `bevy_lint/README.md` for the following two values. -->
 
-This release uses the <!-- `nightly-YYYY-MM-DD` --> toolchain, based on Rust <!-- 1.XX.Y -->. You can install it from Git with the following commands:
+This release uses the <!-- `nightly-YYYY-MM-DD` --> toolchain, based on Rust <!-- 1.XX.Y -->, and supports Bevy <!-- X.Y.Z -->. You can install it from Git with the following commands:
 
 <!-- Update `nightly-YYYY-MM-DD` and `lint-vX.Y.Z` in the following code block. -->
 
@@ -72,6 +72,6 @@ rustup run nightly-YYYY-MM-DD cargo install \
 ```
 
 2. Bump the version in `Cargo.toml` to the next `-dev` version, and ensure `Cargo.lock` also updates.
-3. Add a new row to the compatibility table for the new `-dev` version in `README.md`.
+3. Add a new row to the [compatibility table](../../../linter/compatibility.md) for the new `-dev` version.
 4. Commit all of these changes and open a pull request.
 5. Merge the PR after it has been approved, unblocking frozen pull requests.
