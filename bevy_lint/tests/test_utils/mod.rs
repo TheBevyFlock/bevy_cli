@@ -27,11 +27,6 @@ pub fn base_config(test_dir: &str) -> color_eyre::Result<Config> {
     );
 
     let config = Config {
-        // When `host` is `None`, `ui_test` will attempt to auto-discover the host by calling
-        // `program -vV`. Unfortunately, `bevy_lint_driver` does not yet support the version flag,
-        // so we manually specify the host as an empty string. This means that, for now, host-
-        // specific configuration in UI tests will not work.
-        host: Some(String::new()),
         program: CommandBuilder {
             // We call `rustup run` to setup the proper environmental variables, so that
             // `bevy_lint_driver` can link to `librustc_driver.so`.
