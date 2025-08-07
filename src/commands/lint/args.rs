@@ -24,18 +24,17 @@ pub struct LintArgs {
 impl LintArgs {
     /// Whether to automatically install missing dependencies.
     // Only needed with the `rustup` feature
-    #[cfg(feature = "rustup")]
     pub(crate) fn auto_install(&self) -> AutoInstall {
-        if self.confirm_prompts {
-            AutoInstall::Always
+        if cfg!(feature = "rustup") {
+            if self.confirm_prompts {
+                AutoInstall::Always
+            } else {
+                AutoInstall::AskUser
+            }
         } else {
-            AutoInstall::AskUser
+            // We cannot auto-install `bevy_lint` without Rustup.
+            AutoInstall::Never
         }
-    }
-
-    #[cfg(not(feature = "rustup"))]
-    pub(crate) fn auto_install(&self) -> AutoInstall {
-        AutoInstall::Never
     }
 
     /// Determine if the app is being built for the web.

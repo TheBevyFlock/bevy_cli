@@ -23,7 +23,7 @@ struct Toolchain {
 /// Runs `bevy_lint`, if it is installed, with the given arguments.
 ///
 /// Calling `lint(vec!["--workspace"])` is equivalent to calling `bevy_lint --workspace` in the
-/// terminal. This will run [`find_bevy_lint()`] to locate `bevy_lint`.
+/// terminal.
 pub fn lint(args: &mut LintArgs) -> anyhow::Result<()> {
     use anyhow::ensure;
 
@@ -60,9 +60,12 @@ pub fn lint(args: &mut LintArgs) -> anyhow::Result<()> {
         args.cargo_args.target_args.example.is_some(),
     );
 
-    #[allow(
-        unused_mut,
-        reason = "This only needs to be mutable when the web feature is enabled"
+    #[cfg_attr(
+        not(feature = "web"),
+        expect(
+            unused_mut,
+            reason = "this is only mutated when the `web` feature is enabled"
+        )
     )]
     let mut cargo_args = args.cargo_args_builder();
 
