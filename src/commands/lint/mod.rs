@@ -31,8 +31,6 @@ pub fn lint(args: &mut LintArgs) -> anyhow::Result<()> {
     use crate::commands::lint::args::LintSubcommands;
     use crate::{bin_target::select_run_binary, config::CliConfig, external_cli::cargo};
 
-    let auto_install = args.auto_install();
-
     let metadata = cargo::metadata::metadata()?;
 
     let mut bin_target = select_run_binary(
@@ -90,7 +88,7 @@ pub fn lint(args: &mut LintArgs) -> anyhow::Result<()> {
     cmd.args(cargo_args)
         .env("RUSTFLAGS", args.cargo_args.common_args.rustflags.clone());
 
-    let status = cmd.ensure_status(auto_install)?;
+    let status = cmd.ensure_status(args.auto_install())?;
 
     ensure!(
         status.success(),
