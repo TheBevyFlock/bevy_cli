@@ -9,6 +9,8 @@ use rustc_middle::ty::TyCtxt;
 use rustc_session::utils::was_invoked_from_cargo;
 use rustc_span::{Ident, Symbol};
 
+use crate::{assert, unreachable};
+
 /// A pointer to the original [`registered_tools()`](TyCtxt::registered_tools) query function.
 ///
 /// # Safety
@@ -34,14 +36,14 @@ impl Callbacks for BevyLintCallback {
         config.crate_cfg.push("bevy_lint".to_string());
 
         // We should be the only callback, meaning nothing else should register custom lints.
-        debug_assert!(config.register_lints.is_none());
+        assert!(config.register_lints.is_none());
 
         config.register_lints = Some(Box::new(|_session, store| {
             crate::lints::register(store);
         }));
 
         // We should be the only callback, meaning nothing else should override the queries.
-        debug_assert!(config.override_queries.is_none());
+        assert!(config.override_queries.is_none());
 
         config.override_queries = Some(|_session, providers| {
             // Save the original query so we can access it later.
@@ -82,7 +84,7 @@ impl Callbacks for BevyLintCallback {
 
         // There shouldn't be any existing extra symbols, as we should be the only callback
         // overriding them.
-        debug_assert!(config.extra_symbols.is_empty());
+        assert!(config.extra_symbols.is_empty());
 
         // Give the compiler a list of extra `Symbol`s to intern ahead of time. This helps us avoid
         // calling `Symbol::intern()` while linting. See the `sym` module for a more detailed

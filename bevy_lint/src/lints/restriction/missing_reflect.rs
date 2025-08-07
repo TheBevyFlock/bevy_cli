@@ -63,10 +63,9 @@ use clippy_utils::{
 use rustc_errors::Applicability;
 use rustc_hir::{HirId, Item, ItemKind, Node, OwnerId, QPath, TyKind, def::DefKind};
 use rustc_lint::{LateContext, LateLintPass};
-use rustc_middle::span_bug;
 use rustc_span::Span;
 
-use crate::{declare_bevy_lint, declare_bevy_lint_pass};
+use crate::{declare_bevy_lint, declare_bevy_lint_pass, span_unreachable};
 
 declare_bevy_lint! {
     pub(crate) MISSING_REFLECT,
@@ -149,7 +148,7 @@ impl<'tcx> LateLintPass<'tcx> for MissingReflect {
                     }
                     // This shouldn't be possible, as only structs, enums, and unions can implement
                     // traits, so panic if this branch is reached.
-                    _ => span_bug!(
+                    _ => span_unreachable!(
                         without_reflect.item_span,
                         "found a type that implements `Event`, `Component`, or `Resource` but is not a struct, enum, or union",
                     ),
