@@ -29,6 +29,8 @@ pub struct CliConfig {
     rustflags: Vec<String>,
     /// Use `wasm-opt` to optimize wasm binaries.
     wasm_opt: Option<ExternalCliArgs>,
+    /// EXPERIMENTAL: Enable building and running apps that use Wasm multi-threading features.
+    web_multi_threading: Option<bool>,
 }
 
 impl CliConfig {
@@ -41,6 +43,7 @@ impl CliConfig {
             default_features,
             rustflags,
             wasm_opt,
+            web_multi_threading,
         } = self;
 
         target.is_none()
@@ -48,6 +51,7 @@ impl CliConfig {
             && default_features.is_none()
             && rustflags.is_empty()
             && wasm_opt.is_none()
+            && web_multi_threading.is_none()
     }
 
     /// The platform to target with the build.
@@ -60,6 +64,12 @@ impl CliConfig {
     /// Defaults to `true` if not configured otherwise.
     pub fn default_features(&self) -> bool {
         self.default_features.unwrap_or(true)
+    }
+
+    /// Whether to enable Wasm multi-threading functionality.
+    #[cfg(feature = "unstable")]
+    pub fn web_multi_threading(&self) -> Option<bool> {
+        self.web_multi_threading
     }
 
     /// The features enabled in the config.
@@ -159,12 +169,15 @@ impl CliConfig {
             bail!("Bevy CLI config must be a table");
         };
 
+        let unstable_config = extract_unstable_config(metadata)?;
+
         Ok(Self {
             target: extract_target(metadata)?,
             features: extract_features(metadata)?,
             default_features: extract_default_features(metadata)?,
             rustflags: extract_rustflags(metadata)?,
             wasm_opt: extract_wasm_opt(metadata)?,
+            web_multi_threading: extract_web_multi_threading(unstable_config)?,
         })
     }
 
@@ -173,14 +186,24 @@ impl CliConfig {
     /// The other config takes precedence,
     /// it's values overwrite the current values if one has to be chosen.
     pub fn overwrite(mut self, with: &Self) -> Self {
-        self.target = with.target.clone().or(self.target);
-        self.default_features = with.default_features.or(self.default_features);
+        let Self {
+            default_features,
+            features,
+            rustflags,
+            target,
+            wasm_opt,
+            web_multi_threading,
+        } = with;
 
-        self.wasm_opt = with.wasm_opt.clone().or(self.wasm_opt);
+        self.target = target.clone().or(self.target);
+        self.default_features = default_features.or(self.default_features);
+
+        self.wasm_opt = wasm_opt.clone().or(self.wasm_opt);
+        self.web_multi_threading = web_multi_threading.or(self.web_multi_threading);
 
         // Features and Rustflags are additive
-        self.features.extend(with.features.iter().cloned());
-        self.rustflags.extend(with.rustflags.iter().cloned());
+        self.features.extend(features.iter().cloned());
+        self.rustflags.extend(rustflags.iter().cloned());
 
         self
     }
@@ -289,6 +312,44 @@ fn extract_wasm_opt(cli_metadata: &Map<String, Value>) -> anyhow::Result<Option<
     }
 }
 
+/// Try to extract the map containing unstable CLI features.
+fn extract_unstable_config(
+    cli_metadata: &Map<String, Value>,
+) -> anyhow::Result<Option<&Map<String, Value>>> {
+    const KEY: &str = "unstable";
+
+    if let Some(unstable) = cli_metadata.get(KEY) {
+        match unstable {
+            Value::Object(unstable) => Ok(Some(unstable)),
+            _ => bail!("{KEY} must be a map"),
+        }
+    } else {
+        Ok(None)
+    }
+}
+
+/// Try to extract whether multi-threading features for the web are enabled from a metadata map for
+/// the CLI.
+fn extract_web_multi_threading(
+    unstable_config: Option<&Map<String, Value>>,
+) -> anyhow::Result<Option<bool>> {
+    const KEY: &str = "web-multi-threading";
+
+    let Some(unstable_config) = unstable_config else {
+        return Ok(None);
+    };
+
+    if let Some(web_multi_threading) = unstable_config.get(KEY) {
+        match web_multi_threading {
+            Value::Bool(web_multi_threading) => Ok(Some(web_multi_threading).copied()),
+            Value::Null => Ok(None),
+            _ => bail!("{KEY} must be a boolean"),
+        }
+    } else {
+        Ok(None)
+    }
+}
+
 impl Display for CliConfig {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let document = toml::to_string_pretty(self).map_err(|_| std::fmt::Error)?;
@@ -351,7 +412,8 @@ mod tests {
                         "--cfg".to_string(),
                         "getrandom_backend=\"wasm_js\"".to_string()
                     ],
-                    wasm_opt: None
+                    wasm_opt: None,
+                    web_multi_threading: None,
                 }
             );
             Ok(())
@@ -392,7 +454,8 @@ mod tests {
                     ],
                     default_features: Some(false),
                     rustflags: vec!["-C opt-level=2".to_string(), "-C debuginfo=1".to_string()],
-                    wasm_opt: None
+                    wasm_opt: None,
+                    web_multi_threading: None,
                 }
             );
             Ok(())
@@ -431,7 +494,8 @@ mod tests {
                     ],
                     default_features: Some(true),
                     rustflags: Vec::new(),
-                    wasm_opt: None
+                    wasm_opt: None,
+                    web_multi_threading: None,
                 }
             );
             Ok(())
@@ -475,7 +539,8 @@ mod tests {
                     features: vec!["base".to_owned(),],
                     default_features: None,
                     rustflags: Vec::new(),
-                    wasm_opt: None
+                    wasm_opt: None,
+                    web_multi_threading: None,
                 }
             );
             Ok(())
