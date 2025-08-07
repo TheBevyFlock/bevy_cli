@@ -7,9 +7,48 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 [Keep a Changelog]: https://keepachangelog.com/en/1.1.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
 
-## Unreleased
+## [Unreleased]
 
-**All Changes**: [`lint-v0.3.0...main`](https://github.com/TheBevyFlock/bevy_cli/compare/lint-v0.3.0...main)
+**All Changes**: [`lint-v0.4.0...main`](https://github.com/TheBevyFlock/bevy_cli/compare/lint-v0.4.0...main)
+
+## v0.4.0 - 2025-08-06
+
+**All Changes**: [`lint-v0.3.0...lint-v0.4.0`](https://github.com/TheBevyFlock/bevy_cli/compare/lint-v0.3.0...lint-v0.4.0)
+
+### Added
+
+- You can now run `bevy_lint --fix` to auto-fix lints ([#505](https://github.com/TheBevyFlock/bevy_cli/pull/505))
+- `bevy_lint` now has a custom `--help` screen to display options specific to the linter ([#505](https://github.com/TheBevyFlock/bevy_cli/pull/505))
+- Added lints `update_schedule` and `fixed_update_schedule` to `restriction` ([#463](https://github.com/TheBevyFlock/bevy_cli/pull/463))
+    - These can help restrict modules to only use the `Update` or `FixedUpdate` schedules. Useful for separating game and rendering logic!
+- Added lint `camera_modification_in_fixed_update` to `nursery` ([#417](https://github.com/TheBevyFlock/bevy_cli/pull/417))
+    - This catches cases where a camera is modified during `FixedUpdate`, which can cause laggy visuals.
+- The Bevy CLI (Alpha) can now automatically install the linter for you ([#406](https://github.com/TheBevyFlock/bevy_cli/pull/406))
+- It is now possible to use the linter without Rustup by specifying the `BEVY_LINT_SYSROOT` environmental variable ([#478](https://github.com/TheBevyFlock/bevy_cli/pull/478))
+    - This should make it easier to use the linter with NixOS.
+- Added opt-in support for caching `bevy_lint` in Github Actions ([#530](https://github.com/TheBevyFlock/bevy_cli/pull/530))
+    - This can double the speed at which `bevy_lint` is installed in CI, so it is highly recommended to enable it [by following these instructions](https://thebevyflock.github.io/bevy_cli/linter/github-actions.html#caching)!
+- Added docs on how to use `bevy_lint` with Rust-Analyzer ([#503](https://github.com/TheBevyFlock/bevy_cli/pull/503))
+- Added docs for troubleshooting issues with `cranelift` and `sccache` ([#453](https://github.com/TheBevyFlock/bevy_cli/pull/453), [#522](https://github.com/TheBevyFlock/bevy_cli/pull/522))
+
+### Changed
+
+- The lint `insert_unit_bundle` has been renamed to `unit_in_bundle` because it now supports many more cases, not just `Commands::spawn()` ([#502](https://github.com/TheBevyFlock/bevy_cli/pull/502))
+- Improved `unconventional_naming`'s diagnostics when encountering a `Plugin` ([#495](https://github.com/TheBevyFlock/bevy_cli/pull/495))
+- The linter documentation has been moved to use `mdbook` instead of `rustdoc` ([#420](https://github.com/TheBevyFlock/bevy_cli/pull/420), [#436](https://github.com/TheBevyFlock/bevy_cli/pull/436))
+    - You can find the [new docs here](https://thebevyflock.github.io/bevy_cli/linter).
+    - The list of all lints is still generated using `rustdoc`, which you can find [here](https://thebevyflock.github.io/bevy_cli/api/bevy_lint/lints/).
+- Bumped nightly toolchain to `nightly-2025-06-26` ([#507](https://github.com/TheBevyFlock/bevy_cli/pull/507))
+    - This adds support for the latest Rust features, such as let-chains!
+- You can now copy-and-paste most commands in the docs, without having to lookup the compatibility table ([#475](https://github.com/TheBevyFlock/bevy_cli/pull/475))
+- You can now install specific commits of the linter with the Github Action ([#501](https://github.com/TheBevyFlock/bevy_cli/pull/501))
+    - This will only work for commits newer than [`f38247d`](https://github.com/TheBevyFlock/bevy_cli/commit/f38247daea376c64919e1d09527acbbadb6df14b).
+
+### Fixed
+
+- The linter will no longer emit the `Plugin` / `SystemSet` span twice in `unconventional_naming` ([#495](https://github.com/TheBevyFlock/bevy_cli/pull/495))
+- Some lints now support auto-dereference receiver methods ([#504](https://github.com/TheBevyFlock/bevy_cli/pull/504))
+    - For example, `panicking_methods` now catches `Box<World>::resource()` where before it would silently pass.
 
 ## v0.3.0 - 2025-04-30
 

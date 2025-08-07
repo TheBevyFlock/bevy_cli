@@ -93,7 +93,7 @@ pub fn lint(args: &mut LintArgs) -> anyhow::Result<()> {
 fn parse_required_package() -> anyhow::Result<Package> {
     use anyhow::Context;
     const RUST_TOOLCHAIN: &str = include_str!("../../../rust-toolchain.toml");
-    const BEVY_LINT_TAG: &str = "lint-v0.3.0";
+    const BEVY_LINT_TAG: &str = "lint-v0.4.0";
     const PACKAGE: &str = "bevy_lint";
     const GIT_URL: &str = "https://github.com/TheBevyFlock/bevy_cli.git";
 

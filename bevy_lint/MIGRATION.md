@@ -8,6 +8,24 @@ To actually install the new version of the linter, please see [the docs] and [th
 [the releases page]: https://github.com/TheBevyFlock/bevy_cli/releases
 [submit an issue]: https://github.com/TheBevyFlock/bevy_cli/issues
 
+## v0.3.0 to v0.4.0
+
+### [Bumped Nightly Toolchain to `nightly-2025-06-26`](https://github.com/TheBevyFlock/bevy_cli/pull/507)
+
+`bevy_lint` now requires the `nightly-2025-06-26` toolchain, which supports Rust 1.90.0. You may uninstall the old `nightly-2025-04-03` toolchain and install the new toolchain using Rustup:
+
+```sh
+rustup toolchain uninstall nightly-2025-04-03
+
+rustup toolchain install nightly-2025-06-26 \
+    --component rustc-dev \
+    --component llvm-tools-preview
+```
+
+### [`insert_unit_bundle` Has Been Renamed to `unit_in_bundle`](https://github.com/TheBevyFlock/bevy_cli/pull/502)
+
+The `unit_in_bundle` lint is a much more powerful version of the older `insert_unit_bundle` lint, as it now works for many more functions instead of just `Commands::spawn()`. If you reference `insert_unit_bundle` in your project, you will need to rename it to `unit_in_bundle`.
+
 ## v0.2.0 to v0.3.0
 
 ### [Bevy 0.16 Support](https://github.com/TheBevyFlock/bevy_cli/pull/323)
