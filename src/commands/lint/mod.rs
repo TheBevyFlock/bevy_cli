@@ -58,15 +58,6 @@ pub fn lint(args: &mut LintArgs) -> anyhow::Result<()> {
         args.cargo_args.target_args.example.is_some(),
     );
 
-    #[cfg_attr(
-        not(feature = "web"),
-        expect(
-            unused_mut,
-            reason = "this is only mutated when the `web` feature is enabled"
-        )
-    )]
-    let mut cargo_args = args.cargo_args_builder();
-
     #[cfg(feature = "web")]
     if matches!(args.subcommand, Some(LintSubcommands::Web)) {
         use crate::web::profiles::configure_default_web_profiles;
@@ -76,9 +67,9 @@ pub fn lint(args: &mut LintArgs) -> anyhow::Result<()> {
         // so the default configuration needs to come before the user args
         profile_args.append(&mut args.cargo_args.common_args.config);
         args.cargo_args.common_args.config = profile_args;
-
-        cargo_args = args.cargo_args_builder();
     }
+
+    let cargo_args = args.cargo_args_builder();
 
     let mut cmd = crate::external_cli::CommandExt::new("bevy_lint");
 
