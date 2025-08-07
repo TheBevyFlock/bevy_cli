@@ -193,10 +193,12 @@ impl<'tcx> MethodCall<'tcx> {
                                 },
                             )
                             | QPath::TypeRelative(_, method_path) => method_path,
-                            QPath::Resolved(_, path @ Path { segments: [], .. }) => unreachable!(
-                                "found a function call path with no segments at {:?}",
-                                path.span
-                            ),
+                            QPath::Resolved(_, path @ Path { segments: [], .. }) => {
+                                span_unreachable!(
+                                    path.span,
+                                    "found a function call path with no segments",
+                                )
+                            }
                             // Lang items are not supported.
                             QPath::LangItem(_, _) => return None,
                         };
