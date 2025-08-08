@@ -1,7 +1,7 @@
 use anyhow::Context;
 use reqwest::blocking::Client;
 use serde::Deserialize;
-use tracing::{debug, error};
+use tracing::debug;
 
 use crate::{
     commands::lint::InstallArgs,
@@ -18,7 +18,6 @@ struct Toolchain {
     channel: String,
 }
 
-// TODO: pass auto_install after: https://github.com/TheBevyFlock/bevy_cli/pull/523
 pub(crate) fn install_linter(arg: &InstallArgs) -> anyhow::Result<()> {
     use std::env;
 
@@ -29,17 +28,17 @@ pub(crate) fn install_linter(arg: &InstallArgs) -> anyhow::Result<()> {
 
     // A specific version was passed in the `InstallArgs`
     let (rust_toolchain, version) = if let Some(version) = &arg.version {
-        // Check if the desired version exists, if not exit with an error message
+        // Check if the desired version exists, if not return with an error message
         if !available_versions.contains(version) {
-            error!(
-                "version: {} does not exist, available versions are: {:?}",
-                version, available_versions
+            anyhow::bail!(
+                "version `{}` does not exist. Available versions: {:?}",
+                version,
+                available_versions
             );
-            return Ok(());
         }
         // return the required toolchain version and the name of the linter tag or `main` that
         // corresponds to the desired version.
-        (lookup_toolchain_version(version)?, version.clone())
+        (lookup_toolchain_version(version)?, version)
     }
     // No version was passed in the `InstallArgs` open a dialog with all available versions
     // (including the main branch) to choose from.
@@ -55,9 +54,29 @@ pub(crate) fn install_linter(arg: &InstallArgs) -> anyhow::Result<()> {
 
         let version = &available_versions[selection];
         debug!("selected {}", version);
+
+        let required_toolchain = lookup_toolchain_version(version)?;
+
+        // If no specific version was passed, ask for confirmation.
+        if !dialoguer::Confirm::new()
+            .with_prompt(format!(
+                "Do you want to install `bevy_lint-{version}` and the required toolchain: `{}` ?",
+                required_toolchain.toolchain.channel
+            ))
+            .interact()
+            .context(
+                "failed to show interactive prompt, try passing a specific version as an argument",
+            )?
+        {
+            anyhow::bail!(
+                "User does not want to install `bevy_lint-{version}` and the required toolchain: `{}`",
+                required_toolchain.toolchain.channel
+            );
+        }
+
         // return the required toolchain version and the name of the linter tag or `main` that
         // corresponds to the desired version.
-        (lookup_toolchain_version(version)?, version.clone())
+        (required_toolchain, version)
     };
 
     rustup::install_toolchain_if_needed(&rust_toolchain.toolchain.channel, AutoInstall::Always)?;
@@ -138,7 +157,7 @@ fn list_available_releases() -> anyhow::Result<Vec<String>> {
 fn lookup_toolchain_version(linter_version: &str) -> anyhow::Result<RustToolchain> {
     let url = if linter_version == "main" {
         "https://raw.githubusercontent.com/TheBevyFlock/bevy_cli/main/rust-toolchain.toml"
-            .to_string()
+            .to_owned()
     } else {
         // the releases are named <`bevy_lint`-v0.3.0> but tags are only named <lint-v0.3.0>, so
         // append `lint-`

@@ -2,10 +2,7 @@ use clap::{Args, Subcommand};
 
 use crate::{
     config::CliConfig,
-    external_cli::{
-        arg_builder::ArgBuilder,
-        cargo::{check::CargoCheckArgs, install::AutoInstall},
-    },
+    external_cli::{arg_builder::ArgBuilder, cargo::check::CargoCheckArgs},
 };
 
 #[derive(Debug, Args)]
@@ -22,21 +19,6 @@ pub struct LintArgs {
 }
 
 impl LintArgs {
-    /// Whether to automatically install missing dependencies.
-    // Only needed with the `rustup` feature
-    pub(crate) fn auto_install(&self) -> AutoInstall {
-        if cfg!(feature = "rustup") {
-            if self.confirm_prompts {
-                AutoInstall::Always
-            } else {
-                AutoInstall::AskUser
-            }
-        } else {
-            // We cannot auto-install `bevy_lint` without Rustup.
-            AutoInstall::Never
-        }
-    }
-
     /// Determine if the app is being built for the web.
     #[cfg(feature = "web")]
     pub(crate) fn is_web(&self) -> bool {
