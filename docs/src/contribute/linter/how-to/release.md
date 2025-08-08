@@ -65,7 +65,7 @@ rustup run nightly-YYYY-MM-DD cargo install \
 1. Add a new unreleased section to the top of the changelog (`bevy_lint/CHANGELOG.md`) from the following template:
 
 ```markdown
-## [Unreleased]
+## Unreleased
 
 <!-- Update `lint-vX.Y.Z` in the link to point to the latest release tag. -->
 
