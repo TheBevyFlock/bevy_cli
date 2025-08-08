@@ -1,9 +1,11 @@
 pub use args::*;
 use tracing::error;
 
+#[cfg(feature = "rustup")]
+use crate::commands::lint::install::install_linter;
 use crate::{
     bin_target::select_run_binary,
-    commands::lint::install::{install_linter, list},
+    commands::lint::install::list,
     config::CliConfig,
     external_cli::cargo::{
         self,
@@ -22,10 +24,16 @@ pub fn lint(args: &mut LintArgs) -> anyhow::Result<()> {
     const PROGRAM: &str = "bevy_lint";
     use anyhow::ensure;
 
+    #[cfg(feature = "rustup")]
     if let Some(LintSubcommands::List) = args.subcommand {
         return list();
     } else if let Some(LintSubcommands::Install(args)) = &args.subcommand {
         return install_linter(args);
+    }
+
+    #[cfg(not(feature = "rustup"))]
+    if let Some(LintSubcommands::List) = args.subcommand {
+        return list();
     }
 
     if is_installed(PROGRAM).is_none() {

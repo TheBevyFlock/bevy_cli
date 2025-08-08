@@ -88,6 +88,7 @@ pub enum LintSubcommands {
     /// Lint your app for the browser.
     #[cfg(feature = "web")]
     Web,
+    #[cfg(feature = "rustup")]
     Install(InstallArgs),
     List,
 }

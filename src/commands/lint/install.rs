@@ -1,23 +1,28 @@
 use anyhow::Context;
 use reqwest::blocking::Client;
 use serde::Deserialize;
+#[cfg(feature = "rustup")]
 use tracing::debug;
 
+#[cfg(feature = "rustup")]
 use crate::{
     commands::lint::InstallArgs,
     external_cli::{cargo::install::AutoInstall, rustup},
 };
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 struct RustToolchain {
     toolchain: Toolchain,
 }
 
 #[derive(Deserialize, Debug)]
+#[allow(dead_code)]
 struct Toolchain {
     channel: String,
 }
 
+#[cfg(feature = "rustup")]
 pub(crate) fn install_linter(arg: &InstallArgs) -> anyhow::Result<()> {
     use std::env;
 
@@ -104,7 +109,7 @@ pub(crate) fn install_linter(arg: &InstallArgs) -> anyhow::Result<()> {
     Ok(())
 }
 
-/// Print the available `bevy_lint` versions, including `main, in a table to stdout.
+/// Print the available `bevy_lint` versions, including main, in a table to stdout.
 pub(crate) fn list() -> anyhow::Result<()> {
     let releases = list_available_releases()?;
 
@@ -154,6 +159,7 @@ fn list_available_releases() -> anyhow::Result<Vec<String>> {
 
 /// Looks up the `rust-toolchain.toml` file for the given version from GitHub and tries to parse it
 /// into [`RustToolchain`].
+#[cfg(feature = "rustup")]
 fn lookup_toolchain_version(linter_version: &str) -> anyhow::Result<RustToolchain> {
     let url = if linter_version == "main" {
         "https://raw.githubusercontent.com/TheBevyFlock/bevy_cli/main/rust-toolchain.toml"
