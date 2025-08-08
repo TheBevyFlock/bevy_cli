@@ -8,7 +8,8 @@
 4. Review the migration guide (`bevy_lint/MIGRATION.md`) and ensure all breaking / significant changes from the previous version are documented.
 5. Remove the `-dev` suffix from the version in `Cargo.toml` and the compatibility table in `bevy_lint/README.md`.
     - Please ensure that `Cargo.lock` also updates!
-6. Update the toolchain install, `bevy_lint` install, and `bevy_lint` uninstall commands in both `README.md` and the [install page](../../../linter/install.md) to use the latest version and toolchain.
+6. Use `grep` to replace most instances of the previous linter version and toolchain with the new ones in the `docs` folder and `README.md`.
+    - Be careful not to change the wrong portions of the changelog, migration guide, and compatibility table.
 7. Update the tags in the [Github Actions docs](../../../linter/github-actions.md#latest-release) to the latest release.
 8. Commit all of these changes and open a pull request.
 9. Merge the PR once a core Bevy maintainer approves it with no outstanding issues from other contributors.
