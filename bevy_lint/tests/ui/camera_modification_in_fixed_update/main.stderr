@@ -8,7 +8,7 @@ error: camera modified in the `FixedUpdate` schedule
 note: the lint level is defined here
   --> tests/ui/camera_modification_in_fixed_update/main.rs:3:9
    |
-3  | #![deny(bevy::camera_modification_in_fixed_update)]
+ 3 | #![deny(bevy::camera_modification_in_fixed_update)]
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 error: camera modified in the `FixedUpdate` schedule
