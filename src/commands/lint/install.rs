@@ -1,4 +1,4 @@
-use anyhow::{Context, ensure};
+use anyhow::Context;
 use reqwest::blocking::Client;
 use serde::Deserialize;
 use tracing::{debug, error, info};
@@ -27,6 +27,7 @@ pub(crate) fn install_linter(arg: &InstallArgs) -> anyhow::Result<()> {
     // get a list of all available `bevy_lint` versions, there should always be at least one (main).
     let available_versions = list_available_releases()?;
 
+    // A specific version was passed in the `InstallArgs`
     let (rust_toolchain, version) = if let Some(version) = &arg.version {
         // Check if the desired version exists, if not exit with an error message
         if !available_versions.contains(version) {
@@ -36,12 +37,13 @@ pub(crate) fn install_linter(arg: &InstallArgs) -> anyhow::Result<()> {
             );
             return Ok(());
         }
-        // return the required toolchain version, used to install via `rustup`. And the
-        // linter version used to install the linter with `cargo install --git`
+        // return the required toolchain version and the name of the linter tag or `main` that
+        // corresponds to the desired version.
         (lookup_toolchain_version(version)?, version.clone())
-    } else {
-        // Create a `FuzzySelect` select dialog with all the available `bevy_lint` versions
-        // (including main).
+    }
+    // No version was passed in the `InstallArgs` open a dialog with all available versions
+    // (including the main branch) to choose from.
+    else {
         let Some(selection) = dialoguer::FuzzySelect::new()
             .with_prompt("Available `bevy_lint` versions")
             .items(&available_versions)
@@ -53,8 +55,8 @@ pub(crate) fn install_linter(arg: &InstallArgs) -> anyhow::Result<()> {
 
         let version = &available_versions[selection];
         debug!("selected {}", version);
-        // return the required toolchain version, used to install via `rustup`. And the
-        // linter version used to install the linter with `cargo install --git`
+        // return the required toolchain version and the name of the linter tag or `main` that
+        // corresponds to the desired version.
         (lookup_toolchain_version(version)?, version.clone())
     };
 
@@ -75,15 +77,10 @@ pub(crate) fn install_linter(arg: &InstallArgs) -> anyhow::Result<()> {
         cmd.arg("--tag").arg(format!("lint-{version}"));
     }
 
-    let status = cmd
-        .arg("--locked")
+    cmd.arg("--locked")
         .arg("bevy_lint")
-        .ensure_status(AutoInstall::Always)?;
-
-    ensure!(
-        status.success(),
-        "installing `bevy_lint` exited with a non-zero exit code."
-    );
+        .ensure_status(AutoInstall::Never)
+        .context(format!("failed to install `bevy_lint-{version}`"))?;
 
     Ok(())
 }
