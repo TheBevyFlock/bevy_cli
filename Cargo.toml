@@ -52,6 +52,9 @@ dialoguer = { version = "0.11.0", default-features = false, features = [
     "fuzzy-select",
 ] }
 
+# Used to create styled table outputs.
+comfy-table = "7.1.4"
+
 # Cargo like styling for clap
 clap-cargo = "0.16.0"
 

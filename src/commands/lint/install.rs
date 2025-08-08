@@ -1,7 +1,7 @@
 use anyhow::Context;
 use reqwest::blocking::Client;
 use serde::Deserialize;
-use tracing::{debug, error, info};
+use tracing::{debug, error};
 
 use crate::{
     commands::lint::InstallArgs,
@@ -85,29 +85,29 @@ pub(crate) fn install_linter(arg: &InstallArgs) -> anyhow::Result<()> {
     Ok(())
 }
 
+/// Print the available `bevy_lint` versions, including `main, in a table to stdout.
 pub(crate) fn list() -> anyhow::Result<()> {
-    use std::fmt::Write;
     let releases = list_available_releases()?;
 
-    // TODO: make this pretty
-    let mut output = String::new();
+    let mut table = comfy_table::Table::new();
 
-    writeln!(output, "╔═════╤══════════════╗")?;
-    writeln!(output, "║  #  │ Version      ║")?;
-    writeln!(output, "╟─────┼──────────────╢")?;
+    table
+        .load_preset(comfy_table::presets::UTF8_FULL)
+        .apply_modifier(comfy_table::modifiers::UTF8_ROUND_CORNERS)
+        .set_header(vec!["Bevy Lint Version"]);
 
-    for (i, version) in releases.iter().enumerate() {
-        writeln!(output, "║ {:>2}  │ {:<12} ║", i + 1, version)?;
+    for release in releases {
+        table.add_row(vec![release]);
     }
 
-    writeln!(output, "╚═════╧══════════════╝")?;
-
-    info!("Available `bevy_lint` versions:\n{output}");
+    println!("{table}");
 
     Ok(())
 }
 
-// Lists the available `bevy_lint` releases from the `GitHub` release page (including main).
+/// Lists the available `bevy_lint` releases from the GitHub release page (including main).
+///
+/// The main branch is always the first item in the Vector.
 fn list_available_releases() -> anyhow::Result<Vec<String>> {
     #[derive(Deserialize, Debug)]
     struct Release {
@@ -123,18 +123,14 @@ fn list_available_releases() -> anyhow::Result<Vec<String>> {
         .context("failed to query available GitHub releases")?
         .json::<Vec<Release>>()?;
 
-    let mut releases = releases
-        .iter()
-        .filter_map(|r| {
-            r.name
-                .strip_prefix("`bevy_lint` - ")
-                .map(ToString::to_string)
-        })
-        .collect::<Vec<_>>();
-
-    releases.push("main".to_string());
-
-    Ok(releases)
+    Ok(["main".to_owned()]
+        .into_iter()
+        .chain(
+            releases
+                .iter()
+                .filter_map(|r| r.name.strip_prefix("`bevy_lint` - ").map(str::to_owned)),
+        )
+        .collect())
 }
 
 /// Looks up the `rust-toolchain.toml` file for the given version from GitHub and tries to parse it
