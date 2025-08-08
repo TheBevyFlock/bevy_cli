@@ -1,10 +1,14 @@
 pub use args::*;
+use tracing::error;
 
 use crate::{
     bin_target::select_run_binary,
     commands::lint::install::{install_linter, list},
     config::CliConfig,
-    external_cli::cargo::{self, install::AutoInstall},
+    external_cli::cargo::{
+        self,
+        install::{AutoInstall, is_installed},
+    },
 };
 
 mod args;
@@ -22,6 +26,14 @@ pub fn lint(args: &mut LintArgs) -> anyhow::Result<()> {
         return list();
     } else if let Some(LintSubcommands::Install(args)) = &args.subcommand {
         return install_linter(args);
+    }
+
+    if is_installed(PROGRAM).is_none() {
+        error!(
+            "{} is not present, install {} via `bevy install lint`",
+            PROGRAM, PROGRAM
+        );
+        return Ok(());
     }
 
     let metadata = cargo::metadata::metadata()?;
