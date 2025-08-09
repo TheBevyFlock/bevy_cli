@@ -185,7 +185,8 @@ impl CliConfig {
         self
     }
 
-    pub fn merge_cargo_config_rustflags(
+    /// Append rustflags from a resolved cargo config to the [`CliConfig`] rustflags.
+    pub fn append_cargo_config_rustflags(
         &mut self,
         is_web: bool,
         config: &cargo_config2::Config,
@@ -686,7 +687,7 @@ mod tests {
             let mut cli_config = CliConfig::default();
             let cargo_config = cargo_config()?;
 
-            cli_config.merge_cargo_config_rustflags(false, &cargo_config)?;
+            cli_config.append_cargo_config_rustflags(false, &cargo_config)?;
 
             let rustflags = [
                 "-Clink-arg=-fuse-ld=mold",
@@ -704,7 +705,7 @@ mod tests {
             let mut cli_config = CliConfig::default();
             let cargo_config = cargo_config()?;
 
-            cli_config.merge_cargo_config_rustflags(true, &cargo_config)?;
+            cli_config.append_cargo_config_rustflags(true, &cargo_config)?;
 
             let rustflags = [
                 "--cfg",
@@ -728,7 +729,7 @@ mod tests {
             let mut cli_config = CliConfig::merged_from_metadata(Some(&metadata), false, false)?;
             let cargo_config = cargo_config()?;
 
-            cli_config.merge_cargo_config_rustflags(false, &cargo_config)?;
+            cli_config.append_cargo_config_rustflags(false, &cargo_config)?;
 
             let rustflags = [
                 "-C debuginfo=1",
@@ -752,7 +753,7 @@ mod tests {
             let mut cli_config = CliConfig::merged_from_metadata(Some(&metadata), true, false)?;
             let cargo_config = cargo_config()?;
 
-            cli_config.merge_cargo_config_rustflags(true, &cargo_config)?;
+            cli_config.append_cargo_config_rustflags(true, &cargo_config)?;
 
             let rustflags = [
                 "-C debuginfo=1",

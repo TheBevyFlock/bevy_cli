@@ -52,7 +52,7 @@ pub fn lint(args: &mut LintArgs) -> anyhow::Result<()> {
     // Read config files hierarchically from the current directory, merge them,
     // apply environment variables, and resolve relative paths.
     let cargo_config = cargo_config2::Config::load()?;
-    config.merge_cargo_config_rustflags(args.is_web(), &cargo_config)?;
+    config.append_cargo_config_rustflags(args.is_web(), &cargo_config)?;
 
     args.apply_config(&config);
     // Update the artifact directory based on the config, e.g. in case the `target` changed
