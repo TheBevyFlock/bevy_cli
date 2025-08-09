@@ -12,7 +12,7 @@ help: expected all crates to use `bevy` 0.16.0, but `leafwing-input-manager` use
 note: the lint level is defined here
   --> src/main.rs:3:9
    |
-3  | #![deny(bevy::duplicate_bevy_dependencies)]
+ 3 | #![deny(bevy::duplicate_bevy_dependencies)]
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 error: could not compile `multiple-bevy-versions` (bin "multiple-bevy-versions") due to 1 previous error
