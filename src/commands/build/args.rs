@@ -4,6 +4,8 @@ use clap::{Args, Subcommand};
 
 #[cfg(feature = "web")]
 use crate::external_cli::external_cli_args::ExternalCliArgs;
+#[cfg(all(feature = "unstable", feature = "web"))]
+use crate::web::unstable::UnstableWebArgs;
 use crate::{
     common_args::CommonArgs,
     config::CliConfig,
@@ -163,4 +165,8 @@ pub struct BuildWebArgs {
     /// You can also specify custom arguments to use.
     #[arg(long = "wasm-opt", allow_hyphen_values = true)]
     pub wasm_opt: Vec<String>,
+
+    #[cfg(feature = "unstable")]
+    #[clap(flatten)]
+    pub unstable: UnstableWebArgs,
 }
