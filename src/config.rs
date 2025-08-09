@@ -627,8 +627,9 @@ mod tests {
     }
 
     mod merge_rustflags {
-        use std::fs;
+        use std::{collections::HashMap, fs};
 
+        use cargo_config2::{PathAndArgs, ResolveOptions};
         use serde_json::json;
         use tempfile::tempdir;
 
@@ -642,7 +643,18 @@ mod tests {
                 cargo_dir.join("config.toml"),
                 r#"
                 [target.x86_64-unknown-linux-gnu]
-                linker = "clang"
+                rustflags = [
+                    "-Clink-arg=-fuse-ld=mold",
+                    "-Zshare-generics=y",
+                    "-Zthreads=8",
+                ]
+                [target.aarch64-apple-darwin]
+                rustflags = [
+                    "-Clink-arg=-fuse-ld=mold",
+                    "-Zshare-generics=y",
+                    "-Zthreads=8",
+                ]
+                [target.x86_64-pc-windows-msvc]
                 rustflags = [
                     "-Clink-arg=-fuse-ld=mold",
                     "-Zshare-generics=y",
@@ -658,7 +670,15 @@ mod tests {
             "#,
             )?;
 
-            Ok(cargo_config2::Config::load_with_cwd(cargo_dir)?)
+            let resolve_options = ResolveOptions::default()
+                .env(HashMap::<String, String>::default())
+                .cargo_home(None)
+                .rustc(PathAndArgs::new("rustc"));
+
+            Ok(cargo_config2::Config::load_with_options(
+                cargo_dir,
+                resolve_options,
+            )?)
         }
 
         #[test]
