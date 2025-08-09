@@ -7,7 +7,7 @@ error: parameter takes `&mut Commands` instead of a re-borrowed `Commands`
 note: the lint level is defined here
   --> tests/ui/borrowed_reborrowable/closures.rs:5:9
    |
-5  | #![deny(bevy::borrowed_reborrowable)]
+ 5 | #![deny(bevy::borrowed_reborrowable)]
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 error: aborting due to 1 previous error

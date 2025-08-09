@@ -1,7 +1,7 @@
 error: an entrypoint that calls `App::run()` does not return `AppExit`
   --> tests/ui/main_return_without_appexit/main.rs:15:16
    |
-9  | fn main() {
+ 9 | fn main() {
    |          - help: try: `-> AppExit`
 ...
 15 |     App::new().run();
@@ -11,13 +11,13 @@ error: an entrypoint that calls `App::run()` does not return `AppExit`
 note: the lint level is defined here
   --> tests/ui/main_return_without_appexit/main.rs:5:9
    |
-5  | #![deny(bevy::main_return_without_appexit)]
+ 5 | #![deny(bevy::main_return_without_appexit)]
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 error: an entrypoint that calls `App::run()` does not return `AppExit`
   --> tests/ui/main_return_without_appexit/main.rs:18:5
    |
-9  | fn main() {
+ 9 | fn main() {
    |          - help: try: `-> AppExit`
 ...
 18 |     App::run(&mut app);

@@ -8,9 +8,11 @@
 4. Review the migration guide (`bevy_lint/MIGRATION.md`) and ensure all breaking / significant changes from the previous version are documented.
 5. Remove the `-dev` suffix from the version in `Cargo.toml` and the compatibility table in `bevy_lint/README.md`.
     - Please ensure that `Cargo.lock` also updates!
-6. Update the toolchain install, `bevy_lint` install, and `bevy_lint` uninstall commands in both `README.md` and the [install page](../../../linter/install.md) to use the latest version and toolchain.
-7. Commit all of these changes and open a pull request.
-8. Merge the PR once a core Bevy maintainer approves it with no outstanding issues from other contributors.
+6. Use `grep` to replace most instances of the previous linter version and toolchain with the new ones in the `docs` folder and `README.md`.
+    - Be careful not to change the wrong portions of the changelog, migration guide, and compatibility table.
+7. Update the tags in the [Github Actions docs](../../../linter/github-actions.md#latest-release) to the latest release.
+8. Commit all of these changes and open a pull request.
+9. Merge the PR once a core Bevy maintainer approves it with no outstanding issues from other contributors.
     - This starts the release process, enacting a freeze on all other changes until the release has finished. While maintainers need to be aware of this so they do not merge PRs during this time, the release process should take less than an hour, so it's unlikely to ever be an issue.
 
 ## Release on Github
@@ -25,10 +27,10 @@
 
 You can find the live documentation for this release [here](https://thebevyflock.github.io/bevy_cli/linter/index.html). You may also be interested in [the changelog] and [the migration guide].
 
-<!-- Make sure to update the tags in these links to point to the correct version. -->
+<!-- Make sure to update these links to point to the correct header (after the `#`). -->
 
-[the changelog]: https://github.com/TheBevyFlock/bevy_cli/blob/lint-vX.Y.Z/bevy_lint/CHANGELOG.md
-[the migration guide]: https://github.com/TheBevyFlock/bevy_cli/blob/lint-vX.Y.Z/bevy_lint/MIGRATION.md
+[the changelog]: https://thebevyflock.github.io/bevy_cli/linter/changelog.html#vXYZ---YYYY-MM-DD
+[the migration guide]: https://thebevyflock.github.io/bevy_cli/linter/migration.html#vXYZ-to-vXYZ
 
 > [!WARNING]
 >
@@ -36,7 +38,7 @@ You can find the live documentation for this release [here](https://thebevyflock
 
 <!-- You can refer to the compatibility table in `bevy_lint/README.md` for the following two values. -->
 
-This release uses the <!-- `nightly-YYYY-MM-DD` --> toolchain, based on Rust <!-- 1.XX.Y -->. You can install it from Git with the following commands:
+This release uses the <!-- `nightly-YYYY-MM-DD` --> toolchain, based on Rust <!-- 1.XX.Y -->, and supports Bevy <!-- X.Y.Z -->. You can install it from Git with the following commands:
 
 <!-- Update `nightly-YYYY-MM-DD` and `lint-vX.Y.Z` in the following code block. -->
 
@@ -63,7 +65,7 @@ rustup run nightly-YYYY-MM-DD cargo install \
 1. Add a new unreleased section to the top of the changelog (`bevy_lint/CHANGELOG.md`) from the following template:
 
 ```markdown
-## [Unreleased]
+## Unreleased
 
 <!-- Update `lint-vX.Y.Z` in the link to point to the latest release tag. -->
 
@@ -71,6 +73,6 @@ rustup run nightly-YYYY-MM-DD cargo install \
 ```
 
 2. Bump the version in `Cargo.toml` to the next `-dev` version, and ensure `Cargo.lock` also updates.
-3. Add a new row to the compatibility table for the new `-dev` version in `README.md`.
+3. Add a new row to the [compatibility table](../../../linter/compatibility.md) for the new `-dev` version.
 4. Commit all of these changes and open a pull request.
 5. Merge the PR after it has been approved, unblocking frozen pull requests.

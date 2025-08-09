@@ -9,22 +9,50 @@ description: |
 
   Note that this currently will override the default Rustup toolchain to nightly. You can fix this
   by calling `rustup default` after this action is run.
+inputs:
+  cache:
+    description: |
+      If set to `true`, this action will cache the built `bevy_lint` executable and reuse it on
+      subsequent runs, which can speed up the runtime. This defaults to `false`.
+    required: false
+    default: 'false'
+  save-cache-if:
+    description: |
+      When caching is enabled, this configures whether a freshly built `bevy_lint` will be saved as
+      a new cache. When caching is disabled, this does nothing. This defaults to `true`.
+    required: false
+    default: 'true'
+outputs:
+  cache-hit:
+    description: |
+      A string indicating whether an existing cached `bevy_lint` was used. This will be 'true' if a
+      cache was used and '' (an empty string) if a cache was not. If caching is disabled, this will
+      always be an empty string.
+    # Technically `cache-hit` could be 'false' if a fallback key was used instead of the primary
+    # key, but we don't use fallback keys, so that shouldn't happen.
+    value: ${{ steps.cache.outputs.cache-hit || steps.restore-cache.outputs.cache-hit }}
 runs:
   using: composite
   steps:
-    # Used to read `rust-toolchain.toml`.
-    - name: Install Taplo
-      uses: taiki-e/install-action@v2
-      with:
-        tool: taplo
-
-    # Read `rust-toolchain.toml` to find the exact nightly toolchain the linter needs.
+    # Use Regex to extract the `channel` and `components` fields in `rust-toolchain.toml`.
     - name: Extract toolchain
       id: toolchain
       shell: bash
       run: |
-        CHANNEL=$(taplo get --file-path="${RUST_TOOLCHAIN_PATH}" 'toolchain.channel')
-        COMPONENTS=$(taplo get --file-path="${RUST_TOOLCHAIN_PATH}" --separator=', ' 'toolchain.components')
+        # These Regex patterns will capture the channel and component lines specified in
+        # `rust-toolchain.toml`.
+        CHANNEL_REGEX='^channel = "(.+)"$'
+        COMPONENTS_REGEX='^components = \[(.*)\]$'
+
+        # Match the Regex pattern against the contents of `rust-toolchain.toml`, then store the
+        # captured channel in the variable. `-E` enables Regex capture groups, while `-n` and `/p`
+        # tells `sed` to only print lines that match the Regex.
+        CHANNEL=$(sed -nE "s/${CHANNEL_REGEX}/\1/p" < "${RUST_TOOLCHAIN_PATH}")
+
+        # This does the same thing, but also strips out double quotes. In practice, this converts
+        # `components = ["rustc-dev", "llvm-tools-preview"]` to `"rustc-dev", "llvm-tools-preview"`
+        # to `rustc-dev, llvm-tools-preview`.
+        COMPONENTS=$(sed -nE "s/${COMPONENTS_REGEX}/\1/p" < "${RUST_TOOLCHAIN_PATH}" | tr -d '"')
 
         echo "channel=${CHANNEL}" >> "${GITHUB_OUTPUT}"
         echo "components=${COMPONENTS}" >> "${GITHUB_OUTPUT}"
@@ -37,7 +65,48 @@ runs:
         toolchain: ${{ steps.toolchain.outputs.channel }}
         components: ${{ steps.toolchain.outputs.components }}
 
+    - name: Create cache key
+      id: cache-key
+      if: ${{ inputs.cache == 'true' }}
+      shell: bash
+      run: echo "key=bevy_lint-${RUNNER_OS}-${ACTION_REF}" >> "${GITHUB_OUTPUT}"
+      env:
+        RUNNER_OS: ${{ runner.os }}
+        # When this action is run as `TheBevyLint/bevy_cli/bevy_lint@lint-vX.Y.Z`, this will be
+        # `lint-vX.Y.Z` (the "action ref"). When this is run locally by our CI as `./bevy_lint`,
+        # this will be short commit hash (the "ref name").
+        ACTION_REF: ${{ github.action_ref || github.ref_name }}
+
+    - name: Restore and save cached `bevy_lint`
+      uses: actions/cache@v4
+      id: cache
+      if: ${{ inputs.cache == 'true' && inputs.save-cache-if == 'true' }}
+      with:
+        key: ${{ steps.cache-key.outputs.key }}
+        path: |
+          ~/.cargo/bin/bevy_lint
+          ~/.cargo/bin/bevy_lint.exe
+          ~/.cargo/bin/bevy_lint_driver
+          ~/.cargo/bin/bevy_lint_driver.exe
+
+    - name: Restore cached `bevy_lint`
+      uses: actions/cache/restore@v4
+      id: restore-cache
+      if: ${{ inputs.cache == 'true' && inputs.save-cache-if != 'true' }}
+      with:
+        key: ${{ steps.cache-key.outputs.key }}
+        path: |
+          ~/.cargo/bin/bevy_lint
+          ~/.cargo/bin/bevy_lint.exe
+          ~/.cargo/bin/bevy_lint_driver
+          ~/.cargo/bin/bevy_lint_driver.exe
+
     - name: Install `bevy_lint`
+      # If caching is disabled, we always install `bevy_lint`. However, if caching is enabled we
+      # only need to run this if there was a cache miss. Since there are two different steps that
+      # could restore the cache, we need to refer to `save-cache-if` to see which was run. Also
+      # note that `cache-hit` is an empty string on a cache miss, not 'false'.
+      if: ${{ inputs.cache != 'true' || (inputs.save-cache-if == 'true' && steps.cache.outputs.cache-hit == '') || (inputs.save-cache-if != 'true' && steps.restore-cache.outputs.cache-hit == '') }}
       shell: bash
       run: |
         rustup run "${RUST_CHANNEL}" cargo install \

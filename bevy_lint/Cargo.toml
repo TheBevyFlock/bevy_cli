@@ -1,6 +1,6 @@
 [package]
 name = "bevy_lint"
-version = "0.4.0-dev"
+version = "0.5.0-dev"
 authors = ["BD103"]
 edition = "2024"
 description = "A collection of lints for the Bevy game engine"
@@ -21,7 +21,7 @@ harness = false
 # Contains a series of useful utilities when writing lints. The version is chosen to work with the
 # currently pinned nightly Rust version. When the Rust version changes, this too needs to be
 # updated!
-clippy_utils = "=0.1.90"
+clippy_utils = "=0.1.91"
 
 # Easy error propagation and contexts.
 anyhow = "1.0.86"
