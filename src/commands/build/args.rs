@@ -1,4 +1,6 @@
-use clap::{ArgAction, Args, Subcommand};
+#[cfg(feature = "web")]
+use clap::ArgAction;
+use clap::{Args, Subcommand};
 
 #[cfg(feature = "web")]
 use crate::external_cli::external_cli_args::ExternalCliArgs;
@@ -148,6 +150,7 @@ pub enum BuildSubcommands {
 }
 
 /// Additional Arguments for building a Bevy web project.
+#[cfg(feature = "web")]
 #[derive(Debug, Args, Default)]
 pub struct BuildWebArgs {
     /// Bundle all web artifacts into a single folder.

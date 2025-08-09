@@ -1,4 +1,6 @@
-use clap::{ArgAction, Args, Subcommand};
+#[cfg(feature = "web")]
+use clap::ArgAction;
+use clap::{Args, Subcommand};
 
 use super::cargo::build::{CargoBuildArgs, CargoPackageBuildArgs, CargoTargetBuildArgs};
 #[cfg(feature = "web")]
@@ -137,6 +139,7 @@ pub enum RunSubcommands {
     Web(RunWebArgs),
 }
 
+#[cfg(feature = "web")]
 #[derive(Debug, Args, Clone)]
 pub struct RunWebArgs {
     /// The port to run the web server on.
@@ -170,6 +173,7 @@ pub struct RunWebArgs {
     pub wasm_opt: Vec<String>,
 }
 
+#[cfg(feature = "web")]
 impl Default for RunWebArgs {
     fn default() -> Self {
         Self {
