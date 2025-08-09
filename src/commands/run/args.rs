@@ -109,7 +109,7 @@ impl RunArgs {
             .common_args
             .rustflags
             .clone()
-            .or(config.rustflags());
+            .or(config.rustflags(self.is_web()));
 
         #[cfg(feature = "web")]
         let is_release = self.is_release();

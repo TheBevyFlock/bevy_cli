@@ -50,6 +50,7 @@ pub fn build(args: &mut BuildArgs) -> anyhow::Result<()> {
     let cargo_args = args.cargo_args_builder();
     cargo::build::command()
         .args(cargo_args)
+        .env("RUSTFLAGS", config.rustflags(args.is_web()))
         .ensure_status(args.auto_install())?;
 
     Ok(())

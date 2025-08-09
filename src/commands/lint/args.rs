@@ -96,7 +96,7 @@ impl LintArgs {
             .common_args
             .rustflags
             .clone()
-            .or(config.rustflags());
+            .or(config.rustflags(self.is_web()));
     }
 }
 
