@@ -68,29 +68,11 @@ impl CliConfig {
     }
 
     /// The rustflags enabled in the config
-    pub fn rustflags(&self, is_web: bool) -> Option<String> {
-        // Read config files hierarchically from the current directory, merge them,
-        // apply environment variables, and resolve relative paths.
-        let config = cargo_config2::Config::load().ok()?;
-
-        let target = if is_web {
-            "wasm32-unknown-unknown"
-        } else {
-            config.host_triple().ok()?
-        };
-
-        let mut rustflags = Vec::new();
-        rustflags.extend(self.rustflags.iter().cloned());
-
-        // Read the rustflags from set environment variables and merged Cargo config's for the
-        // given target and append them to the rustflags from the Cli config
-        if let Some(cargo_config_rustflags) = config.rustflags(target).ok()? {
-            rustflags.extend(cargo_config_rustflags.flags.iter().cloned());
-        }
-        if rustflags.is_empty() {
+    pub fn rustflags(&self) -> Option<String> {
+        if self.rustflags.is_empty() {
             return None;
         }
-        Some(rustflags.join(" "))
+        Some(self.rustflags.clone().join(" "))
     }
 
     /// The `wasm-opt` configuration.
@@ -201,6 +183,30 @@ impl CliConfig {
         self.rustflags.extend(with.rustflags.iter().cloned());
 
         self
+    }
+
+    pub fn merge_cargo_config_rustflags(
+        &mut self,
+        is_web: bool,
+        config: &cargo_config2::Config,
+    ) -> anyhow::Result<()> {
+        let target = if is_web {
+            "wasm32-unknown-unknown"
+        } else {
+            config.host_triple()?
+        };
+
+        let mut rustflags = Vec::new();
+        rustflags.extend(self.rustflags.iter().cloned());
+
+        // Read the rustflags from set environment variables and merged Cargo config's for the
+        // given target and append them to the rustflags from the Cli config
+        if let Some(cargo_config_rustflags) = config.rustflags(target)? {
+            self.rustflags
+                .extend(cargo_config_rustflags.flags.iter().cloned());
+        }
+
+        Ok(())
     }
 }
 
@@ -616,6 +622,128 @@ mod tests {
                     "--enable-bulk-memory".to_owned()
                 ]))
             );
+            Ok(())
+        }
+    }
+
+    mod merge_rustflags {
+        use std::fs;
+
+        use serde_json::json;
+        use tempfile::tempdir;
+
+        use crate::config::CliConfig;
+
+        fn cargo_config() -> anyhow::Result<cargo_config2::Config> {
+            let dir = tempdir()?;
+            let cargo_dir = dir.path().join(".cargo");
+            fs::create_dir_all(&cargo_dir)?;
+            fs::write(
+                cargo_dir.join("config.toml"),
+                r#"
+                [target.x86_64-unknown-linux-gnu]
+                linker = "clang"
+                rustflags = [
+                    "-Clink-arg=-fuse-ld=mold",
+                    "-Zshare-generics=y",
+                    "-Zthreads=8",
+                ]
+                [target.wasm32-unknown-unknown]
+                rustflags = [
+                    "--cfg",
+                    "getrandom_backend=\"wasm_js\"",
+                    "-Zshare-generics=y",
+                    "-Zthreads=8",
+                ]
+            "#,
+            )?;
+
+            Ok(cargo_config2::Config::load_with_cwd(cargo_dir)?)
+        }
+
+        #[test]
+        fn merge_empty_native_cli_config() -> anyhow::Result<()> {
+            let mut cli_config = CliConfig::default();
+            let cargo_config = cargo_config()?;
+
+            cli_config.merge_cargo_config_rustflags(false, &cargo_config)?;
+
+            let rustflags = [
+                "-Clink-arg=-fuse-ld=mold",
+                "-Zshare-generics=y",
+                "-Zthreads=8",
+            ]
+            .join(" ");
+
+            assert_eq!(rustflags, cli_config.rustflags().unwrap());
+            Ok(())
+        }
+
+        #[test]
+        fn merge_empty_web_config() -> anyhow::Result<()> {
+            let mut cli_config = CliConfig::default();
+            let cargo_config = cargo_config()?;
+
+            cli_config.merge_cargo_config_rustflags(true, &cargo_config)?;
+
+            let rustflags = [
+                "--cfg",
+                "getrandom_backend=\"wasm_js\"",
+                "-Zshare-generics=y",
+                "-Zthreads=8",
+            ]
+            .join(" ");
+
+            assert_eq!(rustflags, cli_config.rustflags().unwrap());
+            Ok(())
+        }
+
+        #[test]
+        fn merge_native_cli_config() -> anyhow::Result<()> {
+            let metadata = json!({
+                "native": {
+                    "rustflags": ["-C debuginfo=1"]
+                },
+            });
+            let mut cli_config = CliConfig::merged_from_metadata(Some(&metadata), false, false)?;
+            let cargo_config = cargo_config()?;
+
+            cli_config.merge_cargo_config_rustflags(false, &cargo_config)?;
+
+            let rustflags = [
+                "-C debuginfo=1",
+                "-Clink-arg=-fuse-ld=mold",
+                "-Zshare-generics=y",
+                "-Zthreads=8",
+            ]
+            .join(" ");
+
+            assert_eq!(rustflags, cli_config.rustflags().unwrap());
+            Ok(())
+        }
+
+        #[test]
+        fn merge_web_cli_config() -> anyhow::Result<()> {
+            let metadata = json!({
+                "web": {
+                    "rustflags": ["-C debuginfo=1"]
+                },
+            });
+            let mut cli_config = CliConfig::merged_from_metadata(Some(&metadata), true, false)?;
+            let cargo_config = cargo_config()?;
+
+            cli_config.merge_cargo_config_rustflags(true, &cargo_config)?;
+
+            let rustflags = [
+                "-C debuginfo=1",
+                "--cfg",
+                "getrandom_backend=\"wasm_js\"",
+                "-Zshare-generics=y",
+                "-Zthreads=8",
+            ]
+            .join(" ");
+
+            assert_eq!(rustflags, cli_config.rustflags().unwrap());
             Ok(())
         }
     }

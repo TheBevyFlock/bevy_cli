@@ -107,7 +107,7 @@ impl BuildArgs {
             .common_args
             .rustflags
             .clone()
-            .or(config.rustflags(self.is_web()));
+            .or(config.rustflags());
 
         #[cfg(feature = "web")]
         let is_release = self.is_release();

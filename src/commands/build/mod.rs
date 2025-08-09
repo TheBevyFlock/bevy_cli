@@ -25,12 +25,17 @@ pub fn build(args: &mut BuildArgs) -> anyhow::Result<()> {
         args.profile(),
     )?;
 
-    let config = CliConfig::for_package(
+    let mut config = CliConfig::for_package(
         &metadata,
         bin_target.package,
         args.is_web(),
         args.is_release(),
     )?;
+
+    // Read config files hierarchically from the current directory, merge them,
+    // apply environment variables, and resolve relative paths.
+    let cargo_config = cargo_config2::Config::load()?;
+    config.merge_cargo_config_rustflags(args.is_web(), &cargo_config)?;
 
     args.apply_config(&config);
     // Update the artifact directory based on the config, e.g. in case the `target` changed
@@ -50,7 +55,7 @@ pub fn build(args: &mut BuildArgs) -> anyhow::Result<()> {
     let cargo_args = args.cargo_args_builder();
     cargo::build::command()
         .args(cargo_args)
-        .env("RUSTFLAGS", config.rustflags(args.is_web()))
+        .env("RUSTFLAGS", args.cargo_args.common_args.rustflags.clone())
         .ensure_status(args.auto_install())?;
 
     Ok(())
