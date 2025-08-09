@@ -7,9 +7,8 @@ use tracing::debug;
 #[cfg(feature = "rustup")]
 use crate::{
     commands::lint::InstallArgs,
-    external_cli::{cargo::install::AutoInstall, rustup},
+    external_cli::{CommandExt, cargo::install::AutoInstall},
 };
-
 #[derive(Deserialize, Debug)]
 #[allow(dead_code)]
 struct RustToolchain {
@@ -20,6 +19,7 @@ struct RustToolchain {
 #[allow(dead_code)]
 struct Toolchain {
     channel: String,
+    components: Vec<String>,
 }
 
 #[cfg(feature = "rustup")]
@@ -28,7 +28,7 @@ pub(crate) fn install_linter(arg: &InstallArgs) -> anyhow::Result<()> {
 
     const GIT_URL: &str = "https://github.com/TheBevyFlock/bevy_cli.git";
 
-    // get a list of all available `bevy_lint` versions, there should always be at least one (main).
+    // Get a list of all available `bevy_lint` versions, there should always be at least one (main).
     let available_versions = list_available_releases()?;
 
     // A specific version was passed in the `InstallArgs`
@@ -41,7 +41,7 @@ pub(crate) fn install_linter(arg: &InstallArgs) -> anyhow::Result<()> {
                 available_versions
             );
         }
-        // return the required toolchain version and the name of the linter tag or `main` that
+        // Return the required toolchain version and the name of the linter tag or `main` that
         // corresponds to the desired version.
         (lookup_toolchain_version(version)?, version)
     }
@@ -79,14 +79,15 @@ pub(crate) fn install_linter(arg: &InstallArgs) -> anyhow::Result<()> {
             );
         }
 
-        // return the required toolchain version and the name of the linter tag or `main` that
+        // Return the required toolchain version and the name of the linter tag or `main` that
         // corresponds to the desired version.
         (required_toolchain, version)
     };
 
-    rustup::install_toolchain_if_needed(&rust_toolchain.toolchain.channel, AutoInstall::Always)?;
+    install_toolchain(&rust_toolchain)?;
 
-    let mut cmd = crate::external_cli::CommandExt::new("rustup");
+    // Prepare command to install `bevy_lint`
+    let mut cmd = CommandExt::new("rustup");
 
     cmd.arg("run")
         .arg(rust_toolchain.toolchain.channel)
@@ -185,4 +186,25 @@ fn lookup_toolchain_version(linter_version: &str) -> anyhow::Result<RustToolchai
         toml::from_str(&response).context("Failed to parse `rust-toolchain.toml`.")?;
 
     Ok(rust_toolchain)
+}
+
+/// Install the [`RustToolchain`] with its components.
+#[cfg(feature = "rustup")]
+fn install_toolchain(rust_toolchain: &RustToolchain) -> anyhow::Result<()> {
+    let mut cmd = CommandExt::new("rustup");
+
+    cmd.arg("toolchain")
+        .arg("install")
+        .arg(&rust_toolchain.toolchain.channel);
+
+    for component in &rust_toolchain.toolchain.components {
+        cmd.args(vec!["--component", component]);
+    }
+
+    cmd.ensure_status(AutoInstall::Always).context(format!(
+        "failed to install toolchain `{}`",
+        rust_toolchain.toolchain.channel
+    ))?;
+
+    Ok(())
 }
