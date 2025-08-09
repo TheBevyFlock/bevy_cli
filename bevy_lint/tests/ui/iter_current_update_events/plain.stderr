@@ -8,7 +8,7 @@ error: called `Events::<T>::iter_current_update_events()`
 note: the lint level is defined here
   --> tests/ui/iter_current_update_events/plain.rs:3:9
    |
-3  | #![deny(bevy::iter_current_update_events)]
+ 3 | #![deny(bevy::iter_current_update_events)]
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 error: aborting due to 1 previous error
