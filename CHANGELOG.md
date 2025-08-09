@@ -17,6 +17,9 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 
 - `bevy run web` and `bevy build web -b` now support [JS snippets](https://rustwasm.github.io/wasm-bindgen/reference/js-snippets.html) ([#527](https://github.com/TheBevyFlock/bevy_cli/pull/527))
 
+- `bevy lint` no longer installs `bevy_lint` automatically if it is not present. Instead, the new subcommands `bevy lint list` (to list all available versions) and `bevy lint install` have been added.
+
+
 ## v0.1.0-alpha.1 - 2025-05-23
 
 **All Changes**: [`cli-v0.1.0-alpha.1`](https://github.com/TheBevyFlock/bevy_cli/commits/cli-v0.1.0-alpha.1)

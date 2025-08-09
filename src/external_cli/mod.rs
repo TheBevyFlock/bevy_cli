@@ -26,14 +26,6 @@ pub(crate) struct Package {
     pub(crate) name: OsString,
     /// A specific [`VersionReq`]
     pub(crate) version: Option<VersionReq>,
-    /// The toolchain that should be used to install this package
-    pub(crate) required_toolchain: Option<String>,
-    /// Git URL to install the specified package from
-    pub(crate) git: Option<String>,
-    /// Branch to use when installing from git
-    pub(crate) branch: Option<String>,
-    /// Tag to use when installing from git
-    pub(crate) tag: Option<String>,
 }
 
 pub struct CommandExt {
@@ -99,13 +91,6 @@ impl CommandExt {
     /// Returns `true` if a new version was installed.
     fn install_package_if_needed(&self, auto_install: AutoInstall) -> anyhow::Result<bool> {
         if let Some(package) = &self.package {
-            // If the package that needs to be installed if needed required a specific toolchain,
-            // check first that the toolchain is installed / install it before checking if the
-            // package needs to be installed.
-            #[cfg(feature = "rustup")]
-            if let Some(toolchain) = &package.required_toolchain {
-                rustup::install_toolchain_if_needed(toolchain, auto_install)?;
-            }
             cargo::install::if_needed(self.inner.get_program(), package, auto_install)
         } else {
             Ok(false)
