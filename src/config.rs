@@ -329,7 +329,7 @@ fn extract_native_target() -> anyhow::Result<String> {
     let host = stdout
         .lines()
         .find(|line| line.starts_with("host:"))
-        .map(|line| line.trim_start_matches("host: ").trim().to_string())
+        .map(|line| line.trim_start_matches("host:").trim().to_string())
         .ok_or_else(|| anyhow::anyhow!("host not found in rustc -vV output"))?;
 
     Ok(host)
