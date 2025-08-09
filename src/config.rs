@@ -7,9 +7,7 @@ use serde::Serialize;
 use serde_json::{Map, Value};
 use tracing::warn;
 
-use crate::external_cli::{
-    CommandExt, cargo::install::AutoInstall, external_cli_args::ExternalCliArgs,
-};
+use crate::external_cli::external_cli_args::ExternalCliArgs;
 
 /// Configuration for the `bevy_cli`.
 ///
@@ -74,10 +72,11 @@ impl CliConfig {
         // Read config files hierarchically from the current directory, merge them,
         // apply environment variables, and resolve relative paths.
         let config = cargo_config2::Config::load().ok()?;
+
         let target = if is_web {
-            "wasm32-unknown-unknown".to_owned()
+            "wasm32-unknown-unknown"
         } else {
-            extract_native_target().ok()?
+            config.host_triple().ok()?
         };
 
         let mut rustflags = Vec::new();
@@ -306,33 +305,6 @@ fn extract_wasm_opt(cli_metadata: &Map<String, Value>) -> anyhow::Result<Option<
     } else {
         Ok(None)
     }
-}
-
-/// Extract the target from `rustc -vV` output.
-fn extract_native_target() -> anyhow::Result<String> {
-    let mut cmd = CommandExt::new("rustc");
-    cmd.arg("-vV");
-
-    let output = cmd.output(AutoInstall::Never)?;
-    let stdout = String::from_utf8_lossy(&output.stdout);
-
-    // Example output
-    // rustc -vV
-    // rustc 1.90.0-nightly (0fa4ec6cd 2025-06-25)
-    // binary: rustc
-    // commit-hash: 0fa4ec6cde46fa17ab07acb5531cfe0dc1349ffa
-    // commit-date: 2025-06-25
-    // host: x86_64-unknown-linux-gnu
-    // release: 1.90.0-nightly
-    // LLVM version: 20.1.7
-
-    let host = stdout
-        .lines()
-        .find(|line| line.starts_with("host:"))
-        .map(|line| line.trim_start_matches("host:").trim().to_string())
-        .ok_or_else(|| anyhow::anyhow!("host not found in rustc -vV output"))?;
-
-    Ok(host)
 }
 
 impl Display for CliConfig {
