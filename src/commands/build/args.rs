@@ -130,6 +130,11 @@ impl BuildArgs {
             #[cfg(feature = "unstable")]
             web_args.unstable.apply_config(config);
         }
+
+        #[cfg(all(feature = "web", feature = "unstable"))]
+        if let Some(BuildSubcommands::Web(web_args)) = self.subcommand.as_mut() {
+            web_args.unstable.apply_config(config);
+        }
     }
 }
 
