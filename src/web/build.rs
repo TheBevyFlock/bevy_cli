@@ -33,10 +33,10 @@ pub fn build_web(
     profile_args.append(&mut args.cargo_args.common_args.config);
     args.cargo_args.common_args.config = profile_args;
 
-    let cargo_args = args.cargo_args_builder();
-
     #[cfg(feature = "unstable")]
     support_multi_threading(args);
+
+    let cargo_args = args.cargo_args_builder();
 
     info!("compiling to WebAssembly...");
 
