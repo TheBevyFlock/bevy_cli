@@ -9,8 +9,7 @@ use ui_test::{
     CommandBuilder, Config,
     color_eyre::{self, eyre::ensure},
 };
-// This is set by `build.rs`. It is the version specified in `rust-toolchain.toml`.
-const RUST_TOOLCHAIN_CHANNEL: &str = env!("RUST_TOOLCHAIN_CHANNEL");
+
 // This is set by Cargo to the absolute path of `bevy_lint_driver`.
 const DRIVER_PATH: &str = env!("CARGO_BIN_EXE_bevy_lint_driver");
 
@@ -31,13 +30,10 @@ pub fn base_config(test_dir: &str) -> color_eyre::Result<Config> {
         // specific configuration in UI tests will not work.
         host: Some(String::new()),
         program: CommandBuilder {
-            // We call `rustup run` to setup the proper environmental variables, so that
-            // `bevy_lint_driver` can link to `librustc_driver.so`.
-            program: "rustup".into(),
+            // We don't need `rustup run` here because we're already using the correct toolchain
+            // due to `rust-toolchain.toml`.
+            program: driver_path.into(),
             args: vec![
-                "run".into(),
-                RUST_TOOLCHAIN_CHANNEL.into(),
-                driver_path.into(),
                 // `bevy_lint_driver` expects the first argument to be the path to `rustc`.
                 "rustc".into(),
                 // This is required so that `ui_test` can parse warnings and errors.
