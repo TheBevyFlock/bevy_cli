@@ -120,9 +120,7 @@ impl RunArgs {
                 web_args.wasm_opt = config.wasm_opt(is_release).to_raw();
             }
 
-            if web_args.headers.is_empty() {
-                web_args.headers = config.headers().to_vec();
-            }
+            web_args.headers.extend(config.headers());
         }
     }
 }

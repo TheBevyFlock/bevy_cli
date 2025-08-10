@@ -25,12 +25,12 @@ pub struct CliConfig {
     features: Vec<String>,
     /// Whether to use default features.
     default_features: Option<bool>,
+    /// Additional HTTP headers to send with requests.
+    headers: Vec<String>,
     /// Additional flags for `rustc`
     rustflags: Vec<String>,
     /// Use `wasm-opt` to optimize wasm binaries.
     wasm_opt: Option<ExternalCliArgs>,
-    /// Additional HTTP headers to send with requests.
-    headers: Vec<String>,
 }
 
 impl CliConfig {
@@ -94,8 +94,8 @@ impl CliConfig {
 
     /// Additional HTTP headers to send with requests.
     #[cfg(feature = "web")]
-    pub fn headers(&self) -> &[String] {
-        &self.headers
+    pub fn headers(&self) -> Vec<String> {
+        self.headers.clone()
     }
 
     /// Determine the Bevy CLI config as defined in the given package.
@@ -253,6 +253,30 @@ fn extract_default_features(cli_metadata: &Map<String, Value>) -> anyhow::Result
     }
 }
 
+/// Try to extract additional web headers from the metadata map for the CLI.
+fn extract_headers(cli_metadata: &Map<String, Value>) -> anyhow::Result<Vec<String>> {
+    const KEY: &str = "headers";
+
+    let Some(features) = cli_metadata.get(KEY) else {
+        tracing::debug!("no `{KEY}` found in CLI metadata, using default");
+        return Ok(Vec::new());
+    };
+
+    match features {
+        Value::Array(features) => features
+            .iter()
+            .map(|value| {
+                value
+                    .as_str()
+                    .map(|str| str.to_string())
+                    .ok_or_else(|| anyhow::anyhow!("each header must be a string"))
+            })
+            .collect(),
+        Value::Null => Ok(Vec::new()),
+        _ => bail!("{KEY} must be an array"),
+    }
+}
+
 fn extract_rustflags(cli_metadata: &Map<String, Value>) -> anyhow::Result<Vec<String>> {
     let Some(rustflags) = cli_metadata.get("rustflags") else {
         return Ok(Vec::new());
@@ -297,29 +321,6 @@ fn extract_wasm_opt(cli_metadata: &Map<String, Value>) -> anyhow::Result<Option<
         }
     } else {
         Ok(None)
-    }
-}
-
-/// Try to extract additional web headers from the metadata map for the CLI.
-fn extract_headers(cli_metadata: &Map<String, Value>) -> anyhow::Result<Vec<String>> {
-    const KEY: &str = "headers";
-
-    let Some(features) = cli_metadata.get(KEY) else {
-        return Ok(Vec::new());
-    };
-
-    match features {
-        Value::Array(features) => features
-            .iter()
-            .map(|value| {
-                value
-                    .as_str()
-                    .map(|str| str.to_string())
-                    .ok_or_else(|| anyhow::anyhow!("each header must be a string"))
-            })
-            .collect(),
-        Value::Null => Ok(Vec::new()),
-        _ => bail!("{KEY} must be an array"),
     }
 }
 
