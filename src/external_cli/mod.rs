@@ -273,11 +273,18 @@ impl CommandExt {
 
         let output = output?;
 
-        anyhow::ensure!(
-            output.status.success(),
-            "command `{self}` exited with status code {}",
-            output.status
-        );
+        if !output.status.success() {
+            let stderr = String::from_utf8_lossy(&output.stderr);
+
+            if !stderr.is_empty() {
+                eprintln!("{stderr}");
+            }
+            anyhow::bail!(
+                "command `{}` exited with status code {}",
+                self,
+                output.status
+            );
+        }
 
         Ok(output)
     }
