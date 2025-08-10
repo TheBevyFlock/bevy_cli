@@ -1,5 +1,4 @@
 use std::{
-    env::{self},
     ffi::OsStr,
     path::{Path, PathBuf},
     process::{Command, Stdio},
@@ -12,17 +11,16 @@ use ui_test::{
 };
 // This is set by `build.rs`. It is the version specified in `rust-toolchain.toml`.
 const RUST_TOOLCHAIN_CHANNEL: &str = env!("RUST_TOOLCHAIN_CHANNEL");
-const DRIVER_STEM: &str = "../target/debug/bevy_lint_driver";
+// This is set by Cargo to the absolute path of `bevy_lint_driver`.
+const DRIVER_PATH: &str = env!("CARGO_BIN_EXE_bevy_lint_driver");
 
 /// Generates a custom [`Config`] for `bevy_lint`'s UI tests.
 pub fn base_config(test_dir: &str) -> color_eyre::Result<Config> {
-    // The path to the `bevy_lint_driver` executable, relative from inside the `bevy_lint` folder.
-    // We use `with_extension()` to potentially add the `.exe` suffix, if on Windows.
-    let driver_path = Path::new(DRIVER_STEM).with_extension(env::consts::EXE_EXTENSION);
+    let driver_path = Path::new(DRIVER_PATH);
 
     ensure!(
         driver_path.is_file(),
-        "`bevy_lint_driver` could not be found at {}, make sure to build it with `cargo build -p bevy_lint --bin bevy_lint_driver`.",
+        "`bevy_lint_driver` could not be found at {}, make sure to build it with `cargo build -p bevy_lint --bin bevy_lint_driver`",
         driver_path.display(),
     );
 
