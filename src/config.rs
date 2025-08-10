@@ -29,6 +29,8 @@ pub struct CliConfig {
     rustflags: Vec<String>,
     /// Use `wasm-opt` to optimize wasm binaries.
     wasm_opt: Option<ExternalCliArgs>,
+    /// Additional HTTP headers to send with requests.
+    headers: Vec<String>,
 }
 
 impl CliConfig {
@@ -41,6 +43,7 @@ impl CliConfig {
             default_features,
             rustflags,
             wasm_opt,
+            headers,
         } = self;
 
         target.is_none()
@@ -48,6 +51,7 @@ impl CliConfig {
             && default_features.is_none()
             && rustflags.is_empty()
             && wasm_opt.is_none()
+            && headers.is_empty()
     }
 
     /// The platform to target with the build.
@@ -86,6 +90,12 @@ impl CliConfig {
                 ExternalCliArgs::Enabled(false)
             }
         })
+    }
+
+    /// Additional HTTP headers to send with requests.
+    #[cfg(feature = "web")]
+    pub fn headers(&self) -> &[String] {
+        &self.headers
     }
 
     /// Determine the Bevy CLI config as defined in the given package.
@@ -165,6 +175,7 @@ impl CliConfig {
             default_features: extract_default_features(metadata)?,
             rustflags: extract_rustflags(metadata)?,
             wasm_opt: extract_wasm_opt(metadata)?,
+            headers: extract_headers(metadata)?,
         })
     }
 
@@ -289,6 +300,29 @@ fn extract_wasm_opt(cli_metadata: &Map<String, Value>) -> anyhow::Result<Option<
     }
 }
 
+/// Try to extract additional web headers from the metadata map for the CLI.
+fn extract_headers(cli_metadata: &Map<String, Value>) -> anyhow::Result<Vec<String>> {
+    const KEY: &str = "headers";
+
+    let Some(features) = cli_metadata.get(KEY) else {
+        return Ok(Vec::new());
+    };
+
+    match features {
+        Value::Array(features) => features
+            .iter()
+            .map(|value| {
+                value
+                    .as_str()
+                    .map(|str| str.to_string())
+                    .ok_or_else(|| anyhow::anyhow!("each header must be a string"))
+            })
+            .collect(),
+        Value::Null => Ok(Vec::new()),
+        _ => bail!("{KEY} must be an array"),
+    }
+}
+
 impl Display for CliConfig {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let document = toml::to_string_pretty(self).map_err(|_| std::fmt::Error)?;
@@ -351,7 +385,8 @@ mod tests {
                         "--cfg".to_string(),
                         "getrandom_backend=\"wasm_js\"".to_string()
                     ],
-                    wasm_opt: None
+                    wasm_opt: None,
+                    headers: Vec::new()
                 }
             );
             Ok(())
@@ -392,7 +427,8 @@ mod tests {
                     ],
                     default_features: Some(false),
                     rustflags: vec!["-C opt-level=2".to_string(), "-C debuginfo=1".to_string()],
-                    wasm_opt: None
+                    wasm_opt: None,
+                    headers: Vec::new()
                 }
             );
             Ok(())
@@ -431,7 +467,8 @@ mod tests {
                     ],
                     default_features: Some(true),
                     rustflags: Vec::new(),
-                    wasm_opt: None
+                    wasm_opt: None,
+                    headers: Vec::new()
                 }
             );
             Ok(())
@@ -475,7 +512,8 @@ mod tests {
                     features: vec!["base".to_owned(),],
                     default_features: None,
                     rustflags: Vec::new(),
-                    wasm_opt: None
+                    wasm_opt: None,
+                    headers: Vec::new()
                 }
             );
             Ok(())
@@ -549,6 +587,55 @@ mod tests {
                 .into(),
             );
             assert!(extract_features(&cli_metadata).is_err());
+        }
+    }
+
+    mod extract_headers {
+        use serde_json::Map;
+
+        use super::*;
+
+        #[test]
+        fn should_return_empty_vec_if_no_headers_specified() -> anyhow::Result<()> {
+            let cli_metadata = Map::new();
+            assert_eq!(extract_headers(&cli_metadata)?, Vec::<String>::new());
+            Ok(())
+        }
+
+        #[test]
+        fn should_return_headers_if_listed() -> anyhow::Result<()> {
+            let mut cli_metadata = Map::new();
+            cli_metadata.insert(
+                "headers".to_owned(),
+                vec![
+                    "Cross-Origin-Opener-Policy:same-origin",
+                    "Cross-Origin-Embedder-Policy:require-corp",
+                ]
+                .into(),
+            );
+            assert_eq!(
+                extract_headers(&cli_metadata)?,
+                vec![
+                    "Cross-Origin-Opener-Policy:same-origin".to_owned(),
+                    "Cross-Origin-Embedder-Policy:require-corp".to_owned()
+                ]
+            );
+            Ok(())
+        }
+
+        #[test]
+        fn should_return_error_if_one_feature_is_not_a_string() {
+            let mut cli_metadata = Map::new();
+            cli_metadata.insert(
+                "headers".to_string(),
+                vec![
+                    Value::String("Cross-Origin-Opener-Policy:same-origin".to_owned()),
+                    Value::Bool(false),
+                    Value::Null,
+                ]
+                .into(),
+            );
+            assert!(extract_headers(&cli_metadata).is_err());
         }
     }
 
