@@ -35,7 +35,7 @@ pub fn lint(args: &mut LintArgs) -> anyhow::Result<()> {
 
     if is_installed(PROGRAM).is_none() {
         error!(
-            "{} is not present, install {} via `bevy install lint`",
+            "{} is not present, install {} via `bevy lint install`",
             PROGRAM, PROGRAM
         );
         return Ok(());
