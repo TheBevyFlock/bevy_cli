@@ -7,7 +7,7 @@ error: the `FixedUpdate` schedule is disallowed
 note: the lint level is defined here
   --> tests/ui/schedule/fixed_update_schedule.rs:3:9
    |
-3  | #![deny(bevy::fixed_update_schedule)]
+ 3 | #![deny(bevy::fixed_update_schedule)]
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 error: aborting due to 1 previous error

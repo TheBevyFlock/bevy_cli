@@ -10,7 +10,7 @@ use crate::external_cli::CommandExt;
 /// Create a command to run `cargo metadata`.
 pub(crate) fn command() -> CommandExt {
     let mut command = CommandExt::from_command(MetadataCommand::new().cargo_command());
-    command.log_level(Level::TRACE);
+    command.log_level(Level::DEBUG);
     command
 }
 
@@ -31,7 +31,7 @@ where
     let output = command()
         .args(additional_args)
         .output(AutoInstall::Never)
-        .context("failed to obtain package metadata, are you in a cargo workspace?")?;
+        .context("`bevy_cli` failed to obtain package metadata")?;
 
     let stdout = from_utf8(&output.stdout)?
         .lines()

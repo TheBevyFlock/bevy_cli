@@ -8,7 +8,7 @@ error: queried a zero-sized type
 note: the lint level is defined here
   --> tests/ui/zst_query/query.rs:5:9
    |
-5  | #![deny(bevy::zst_query)]
+ 5 | #![deny(bevy::zst_query)]
    |         ^^^^^^^^^^^^^^^
 
 error: queried a zero-sized type
