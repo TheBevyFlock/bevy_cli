@@ -88,9 +88,8 @@ pub fn lint(args: &mut LintArgs) -> anyhow::Result<()> {
 
     let status = crate::external_cli::CommandExt::new("bevy_lint")
         // We do not want to automatically install a `bevy_lint` version.
-        // The reason is that it's currently not possible to easily install
-        // the latest release without performing network requests.
-        // If we add a `required_package`, `bevy_lint` would no longer work offline.
+        // The reason is that to pass the `Package`, we would need to look up the latest release on
+        // GitHub since there is no easy way of specify "latest".
         .ensure_status(AutoInstall::Never)?;
 
     ensure!(
