@@ -1,11 +1,10 @@
 use clap::{Args, Subcommand};
 
+#[cfg(feature = "rustup")]
+use crate::external_cli::cargo::install::AutoInstall;
 use crate::{
     config::CliConfig,
-    external_cli::{
-        arg_builder::ArgBuilder,
-        cargo::{check::CargoCheckArgs, install::AutoInstall},
-    },
+    external_cli::{arg_builder::ArgBuilder, cargo::check::CargoCheckArgs},
 };
 
 #[derive(Debug, Args)]
