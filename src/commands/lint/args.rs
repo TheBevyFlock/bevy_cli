@@ -88,8 +88,10 @@ pub enum LintSubcommands {
     /// Lint your app for the browser.
     #[cfg(feature = "web")]
     Web,
+    /// Install a `bevy_lint` version.
     #[cfg(feature = "rustup")]
     Install(InstallArgs),
+    /// List all available `bevy_lint` versions.
     List,
 }
 
