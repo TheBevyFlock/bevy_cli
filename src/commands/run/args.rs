@@ -9,7 +9,6 @@ use crate::commands::build::{BuildSubcommands, BuildWebArgs};
 use crate::web::unstable::UnstableWebArgs;
 use crate::{
     commands::build::BuildArgs,
-    common_args::CommonArgs,
     config::CliConfig,
     external_cli::{
         arg_builder::ArgBuilder,
@@ -36,10 +35,6 @@ pub struct RunArgs {
     /// Specified after `--`.
     #[clap(last = true, name = "ARGS")]
     pub forward_args: Vec<String>,
-
-    /// Arguments shared by most other commands.
-    #[clap(flatten)]
-    pub common_args: CommonArgs,
 }
 
 impl RunArgs {
@@ -129,8 +124,6 @@ impl RunArgs {
         {
             web_args.wasm_opt = config.wasm_opt(is_release).to_raw();
         }
-
-        self.common_args.apply_config(config);
     }
 }
 
@@ -222,7 +215,6 @@ impl From<RunArgs> for BuildArgs {
                     test: None,
                 },
             },
-            common_args: args.common_args.clone(),
             subcommand: args.subcommand.map(|subcommand| match subcommand {
                 #[cfg(feature = "web")]
                 RunSubcommands::Web(web_args) => BuildSubcommands::Web(BuildWebArgs {

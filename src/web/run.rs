@@ -43,12 +43,7 @@ pub(crate) fn run_web(
         ]);
     }
 
-    let header_map = parse_headers(
-        web_args
-            .headers
-            .iter()
-            .chain(args.common_args.web_headers().iter()),
-    )?;
+    let header_map = parse_headers(web_args.headers.iter())?;
 
     // When no target is selected, search for the default-run field and append the binary name
     // as `--bin` flag to only compile the default run target

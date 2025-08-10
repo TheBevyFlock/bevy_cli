@@ -7,7 +7,6 @@ use crate::external_cli::external_cli_args::ExternalCliArgs;
 #[cfg(all(feature = "unstable", feature = "web"))]
 use crate::web::unstable::UnstableWebArgs;
 use crate::{
-    common_args::CommonArgs,
     config::CliConfig,
     external_cli::{
         arg_builder::ArgBuilder,
@@ -29,10 +28,6 @@ pub struct BuildArgs {
     /// Arguments to forward to `cargo build`.
     #[clap(flatten)]
     pub cargo_args: CargoBuildArgs,
-
-    /// Arguments shared by most commands.
-    #[clap(flatten)]
-    pub common_args: CommonArgs,
 }
 
 impl BuildArgs {
@@ -91,12 +86,6 @@ impl BuildArgs {
         }
     }
 
-    /// Whether multi-threading is enabled for the web app.
-    #[cfg(feature = "unstable")]
-    pub(crate) fn web_multi_threading(&self) -> bool {
-        self.common_args.unstable.web_multi_threading()
-    }
-
     /// The RUSTFLAGS to pass to the `cargo` command.
     pub(crate) fn rustflags(&self) -> Option<String> {
         self.cargo_args.common_args.rustflags.clone()
@@ -138,8 +127,6 @@ impl BuildArgs {
         {
             web_args.wasm_opt = config.wasm_opt(is_release).to_raw();
         }
-
-        self.common_args.apply_config(config);
     }
 }
 
