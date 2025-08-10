@@ -24,16 +24,13 @@ pub fn lint(args: &mut LintArgs) -> anyhow::Result<()> {
     const PROGRAM: &str = "bevy_lint";
     use anyhow::ensure;
 
-    #[cfg(feature = "rustup")]
     if let Some(LintSubcommands::List) = args.subcommand {
         return list();
-    } else if let Some(LintSubcommands::Install(install_args)) = &args.subcommand {
-        return install_linter(install_args, args.auto_install());
     }
 
-    #[cfg(not(feature = "rustup"))]
-    if let Some(LintSubcommands::List) = args.subcommand {
-        return list();
+    #[cfg(feature = "rustup")]
+    if let Some(LintSubcommands::Install(install_args)) = &args.subcommand {
+        return install_linter(install_args, args.auto_install());
     }
 
     if is_installed(PROGRAM).is_none() {
