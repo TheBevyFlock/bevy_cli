@@ -188,20 +188,22 @@ impl CliConfig {
     /// Append rustflags from a resolved cargo config to the [`CliConfig`] rustflags.
     pub fn append_cargo_config_rustflags(
         &mut self,
-        is_web: bool,
+        target: Option<String>,
         config: &cargo_config2::Config,
     ) -> anyhow::Result<()> {
-        let target = if is_web {
-            "wasm32-unknown-unknown"
-        } else {
-            config.host_triple()?
-        };
-
         let mut rustflags = Vec::new();
         rustflags.extend(self.rustflags.iter().cloned());
 
+        // Use the explicitly provided target, or fall back to the system's host triple.
+        let target = {
+            match target {
+                Some(target_args) => target_args,
+                None => config.host_triple()?.to_owned(),
+            }
+        };
+
         // Read the rustflags from set environment variables and merged Cargo config's for the
-        // given target and append them to the rustflags from the Cli config
+        // given target and append them to the rustflags from the Cli config.
         if let Some(cargo_config_rustflags) = config.rustflags(target)? {
             self.rustflags
                 .extend(cargo_config_rustflags.flags.iter().cloned());
@@ -668,6 +670,12 @@ mod tests {
                     "-Zshare-generics=y",
                     "-Zthreads=8",
                 ]
+                [target.armv4t-none-eabi]
+                rustflags = [
+                  "-Clink-arg=-Tgba.ld",
+                  "-Ctarget-cpu=arm7tdmi",
+                  "-Cforce-frame-pointers=yes",
+                ]
             "#,
             )?;
 
@@ -687,7 +695,7 @@ mod tests {
             let mut cli_config = CliConfig::default();
             let cargo_config = cargo_config()?;
 
-            cli_config.append_cargo_config_rustflags(false, &cargo_config)?;
+            cli_config.append_cargo_config_rustflags(None, &cargo_config)?;
 
             let rustflags = [
                 "-Clink-arg=-fuse-ld=mold",
@@ -705,7 +713,10 @@ mod tests {
             let mut cli_config = CliConfig::default();
             let cargo_config = cargo_config()?;
 
-            cli_config.append_cargo_config_rustflags(true, &cargo_config)?;
+            cli_config.append_cargo_config_rustflags(
+                Some("wasm32-unknown-unknown".to_owned()),
+                &cargo_config,
+            )?;
 
             let rustflags = [
                 "--cfg",
@@ -729,7 +740,7 @@ mod tests {
             let mut cli_config = CliConfig::merged_from_metadata(Some(&metadata), false, false)?;
             let cargo_config = cargo_config()?;
 
-            cli_config.append_cargo_config_rustflags(false, &cargo_config)?;
+            cli_config.append_cargo_config_rustflags(None, &cargo_config)?;
 
             let rustflags = [
                 "-C debuginfo=1",
@@ -753,7 +764,10 @@ mod tests {
             let mut cli_config = CliConfig::merged_from_metadata(Some(&metadata), true, false)?;
             let cargo_config = cargo_config()?;
 
-            cli_config.append_cargo_config_rustflags(true, &cargo_config)?;
+            cli_config.append_cargo_config_rustflags(
+                Some("wasm32-unknown-unknown".to_owned()),
+                &cargo_config,
+            )?;
 
             let rustflags = [
                 "-C debuginfo=1",
@@ -761,6 +775,27 @@ mod tests {
                 "getrandom_backend=\"wasm_js\"",
                 "-Zshare-generics=y",
                 "-Zthreads=8",
+            ]
+            .join(" ");
+
+            assert_eq!(rustflags, cli_config.rustflags().unwrap());
+            Ok(())
+        }
+
+        #[test]
+        fn merge_explicit_target() -> anyhow::Result<()> {
+            let mut cli_config = CliConfig::default();
+            let cargo_config = cargo_config()?;
+
+            cli_config.append_cargo_config_rustflags(
+                Some("armv4t-none-eabi".to_owned()),
+                &cargo_config,
+            )?;
+
+            let rustflags = [
+                "-Clink-arg=-Tgba.ld",
+                "-Ctarget-cpu=arm7tdmi",
+                "-Cforce-frame-pointers=yes",
             ]
             .join(" ");
 
