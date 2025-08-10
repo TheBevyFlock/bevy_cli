@@ -3,6 +3,7 @@
 use std::{
     ffi::{OsStr, OsString},
     fmt::Display,
+    io::{self, Write as _},
     process::{Command, ExitStatus, Output},
 };
 
@@ -274,11 +275,9 @@ impl CommandExt {
         let output = output?;
 
         if !output.status.success() {
-            let stderr = String::from_utf8_lossy(&output.stderr);
+            io::stderr().write_all(&output.stderr)?;
+            io::stderr().flush()?;
 
-            if !stderr.is_empty() {
-                eprintln!("{stderr}");
-            }
             anyhow::bail!(
                 "command `{}` exited with status code {}",
                 self,
