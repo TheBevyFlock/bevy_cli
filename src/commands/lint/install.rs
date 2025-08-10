@@ -112,10 +112,10 @@ pub(crate) fn list() -> anyhow::Result<()> {
     table
         .load_preset(comfy_table::presets::UTF8_FULL)
         .apply_modifier(comfy_table::modifiers::UTF8_ROUND_CORNERS)
-        .set_header(vec!["Bevy Lint Version"]);
+        .set_header(["Bevy Lint Version"]);
 
     for release in releases {
-        table.add_row(vec![release]);
+        table.add_row([release]);
     }
 
     println!("{table}");
@@ -136,13 +136,18 @@ fn list_available_releases() -> anyhow::Result<Vec<String>> {
 
     let releases = Client::new()
         .get(URL)
-        .header("User-Agent", "bevy_cli")
+        .header(
+            "User-Agent",
+            format!(
+                "bevy_cli/{} (https://thebevyflock.github.io/bevy_cli)",
+                env!("CARGO_PKG_VERSION")
+            ),
+        )
         .send()
         .context("failed to query available GitHub releases")?
         .json::<Vec<Release>>()?;
 
-    Ok(["main".to_owned()]
-        .into_iter()
+    Ok(std::iter::once("main".to_owned())
         .chain(
             releases
                 .iter()
@@ -168,7 +173,13 @@ fn lookup_toolchain_version(linter_version: &str) -> anyhow::Result<RustToolchai
 
     let response = Client::new()
         .get(url)
-        .header("User-Agent", "bevy_cli")
+        .header(
+            "User-Agent",
+            format!(
+                "bevy_cli/{} (https://thebevyflock.github.io/bevy_cli)",
+                env!("CARGO_PKG_VERSION")
+            ),
+        )
         .send()
         .context(
             "failed to query `rust-toolchain.toml` from GitHub for the given `bevy_lint` version",
@@ -191,7 +202,7 @@ fn install_toolchain(rust_toolchain: &RustToolchain) -> anyhow::Result<()> {
         .arg(&rust_toolchain.toolchain.channel);
 
     for component in &rust_toolchain.toolchain.components {
-        cmd.args(vec!["--component", component]);
+        cmd.args(["--component", component]);
     }
 
     cmd.ensure_status(AutoInstall::Always).context(format!(
