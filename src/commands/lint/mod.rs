@@ -27,8 +27,8 @@ pub fn lint(args: &mut LintArgs) -> anyhow::Result<()> {
     #[cfg(feature = "rustup")]
     if let Some(LintSubcommands::List) = args.subcommand {
         return list();
-    } else if let Some(LintSubcommands::Install(args)) = &args.subcommand {
-        return install_linter(args);
+    } else if let Some(LintSubcommands::Install(install_args)) = &args.subcommand {
+        return install_linter(install_args, args.auto_install());
     }
 
     #[cfg(not(feature = "rustup"))]

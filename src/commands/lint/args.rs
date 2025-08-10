@@ -2,7 +2,10 @@ use clap::{Args, Subcommand};
 
 use crate::{
     config::CliConfig,
-    external_cli::{arg_builder::ArgBuilder, cargo::check::CargoCheckArgs},
+    external_cli::{
+        arg_builder::ArgBuilder,
+        cargo::{check::CargoCheckArgs, install::AutoInstall},
+    },
 };
 
 #[derive(Debug, Args)]
@@ -19,6 +22,16 @@ pub struct LintArgs {
 }
 
 impl LintArgs {
+    /// Whether to automatically install missing dependencies.
+    #[cfg(feature = "rustup")]
+    pub(crate) fn auto_install(&self) -> AutoInstall {
+        if self.confirm_prompts {
+            AutoInstall::Always
+        } else {
+            AutoInstall::AskUser
+        }
+    }
+
     /// Determine if the app is being built for the web.
     #[cfg(feature = "web")]
     pub(crate) fn is_web(&self) -> bool {

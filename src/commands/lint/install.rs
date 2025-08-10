@@ -23,7 +23,7 @@ struct Toolchain {
 }
 
 #[cfg(feature = "rustup")]
-pub(crate) fn install_linter(arg: &InstallArgs) -> anyhow::Result<()> {
+pub(crate) fn install_linter(arg: &InstallArgs, auto_install: AutoInstall) -> anyhow::Result<()> {
     use std::env;
 
     const GIT_URL: &str = "https://github.com/TheBevyFlock/bevy_cli.git";
@@ -62,27 +62,20 @@ pub(crate) fn install_linter(arg: &InstallArgs) -> anyhow::Result<()> {
 
         let required_toolchain = lookup_toolchain_version(version)?;
 
-        // If no specific version was passed, ask for confirmation.
-        if !dialoguer::Confirm::new()
-            .with_prompt(format!(
-                "Do you want to install `bevy_lint-{version}` and the required toolchain: `{}` ?",
-                required_toolchain.toolchain.channel
-            ))
-            .interact()
-            .context(
-                "failed to show interactive prompt, try passing a specific version as an argument",
-            )?
-        {
-            anyhow::bail!(
-                "User does not want to install `bevy_lint-{version}` and the required toolchain: `{}`",
-                required_toolchain.toolchain.channel
-            );
-        }
-
         // Return the required toolchain version and the name of the linter tag or `main` that
         // corresponds to the desired version.
         (required_toolchain, version)
     };
+
+    if !auto_install.confirm(format!(
+        "Do you want to install `bevy_lint-{version}` and the required toolchain: `{}` ?",
+        rust_toolchain.toolchain.channel
+    ))? {
+        anyhow::bail!(
+            "User does not want to install `bevy_lint-{version}` and the required toolchain: `{}`",
+            rust_toolchain.toolchain.channel
+        );
+    }
 
     install_toolchain(&rust_toolchain)?;
 
