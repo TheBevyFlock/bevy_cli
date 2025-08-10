@@ -183,17 +183,16 @@ impl CliConfig {
     ///
     /// The other config takes precedence,
     /// it's values overwrite the current values if one has to be chosen.
-    pub fn overwrite(mut self, with: &Self) -> Self {
-        self.target = with.target.clone().or(self.target);
-        self.default_features = with.default_features.or(self.default_features);
-
-        self.wasm_opt = with.wasm_opt.clone().or(self.wasm_opt);
-
-        // Features and Rustflags are additive
-        self.features.extend(with.features.iter().cloned());
-        self.rustflags.extend(with.rustflags.iter().cloned());
-
-        self
+    pub fn overwrite(self, with: &Self) -> Self {
+        Self {
+            target: with.target.clone().or(self.target),
+            default_features: with.default_features.or(self.default_features),
+            wasm_opt: with.wasm_opt.clone().or(self.wasm_opt),
+            // Features, rustflags and headers are additive
+            features: [self.features, with.features.clone()].concat(),
+            rustflags: [self.rustflags, with.rustflags.clone()].concat(),
+            headers: [self.headers, with.headers.clone()].concat(),
+        }
     }
 }
 
