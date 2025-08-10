@@ -44,7 +44,7 @@ pub struct UnstableArgs {
     ///
     /// - might be removed or drastically changed in future releases
     /// - might require additional setup or workarounds
-    #[arg(short = 'U', long = "unstable", value_name = "FEATURE", global = true)]
+    #[arg(short = 'U', long = "unstable", value_name = "FEATURE")]
     pub unstable_features: Vec<String>,
 }
 

@@ -21,14 +21,27 @@ use crate::{
 ///
 /// Requires [`RunSubcommands::Web`] to be defined.
 pub(crate) fn run_web(
-    args: &RunArgs,
+    args: &mut RunArgs,
     metadata: &Metadata,
     bin_target: &BinTarget,
 ) -> anyhow::Result<()> {
-    let web_args = match &args.subcommand {
+    let mut build_args: BuildArgs = args.clone().into();
+
+    let web_args = match &mut args.subcommand {
         Some(RunSubcommands::Web(web_args)) => web_args,
-        None => &RunWebArgs::default(),
+        None => &mut RunWebArgs::default(),
     };
+
+    #[cfg(feature = "unstable")]
+    if web_args.unstable.web_multi_threading() {
+        // Make the document cross-origin isolated,
+        // which is required for Wasm multi-threading
+        // See also https://developer.mozilla.org/en-US/docs/Web/API/Window/crossOriginIsolated
+        web_args.headers.extend([
+            "cross-origin-opener-policy=same-origin".to_owned(),
+            "cross-origin-embedder-policy=require-corp".to_owned(),
+        ]);
+    }
 
     let header_map = parse_headers(
         web_args
@@ -36,8 +49,6 @@ pub(crate) fn run_web(
             .iter()
             .chain(args.common_args.web_headers().iter()),
     )?;
-
-    let mut build_args: BuildArgs = args.clone().into();
 
     // When no target is selected, search for the default-run field and append the binary name
     // as `--bin` flag to only compile the default run target
