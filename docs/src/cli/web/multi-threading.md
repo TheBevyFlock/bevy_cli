@@ -27,7 +27,7 @@ web-multi-threading = true
 Alternatively, you can also enable it via the CLI arguments:
 
 ```sh
-bevy run web --unstable web-multi-threading
+bevy run web --unstable multi-threading
 ```
 
 ## What it Does

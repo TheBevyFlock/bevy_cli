@@ -14,7 +14,7 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 ### Added
 
 - Unstable support for building and running web apps using **Wasm multi-threading** features
-  - Use `bevy run web --unstable web-multi-threading` to run an app using multi-threaded Wasm
+  - Use `bevy run web --unstable multi-threading` to run an app using multi-threaded Wasm
   - Can be configured in `Cargo.toml` by setting `package.metadata.bevy_cli.unstable.web-multi-threading = true`
   - Only available when compiling the CLI with `unstable` feature enabled
   - Requires a nightly Rust toolchain
