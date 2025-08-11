@@ -1,0 +1,101 @@
+use semver::VersionReq;
+
+use crate::{commands::build::BuildArgs, external_cli::cargo};
+
+/// Apply the web backend to getrandom.
+///
+/// This is a consistent pain point for users, so we try to automate it.
+///
+/// There's two things you need to do:
+///
+/// 1. Enabling the corresponding feature in the `getrandom` dependency
+/// 2. Setting the `--cfg getrandom_backend="wasm_js"` RUSTFLAG
+///
+/// This function can handle both v2 and v3 dependencies.
+///
+/// If `getrandom` is not a dependency, nothing happens.
+pub fn apply_getrandom_backend(args: &mut BuildArgs, target: &str) -> anyhow::Result<bool> {
+    let metadata = cargo::metadata::metadata_with_args(["--filter-platform", target])?;
+
+    let getrandom_packages = metadata
+        .packages
+        .iter()
+        .filter(|pkg| pkg.name.as_str() == "getrandom")
+        .collect::<Vec<_>>();
+
+    if getrandom_packages.is_empty() {
+        return Ok(false);
+    }
+
+    let mut backend_applied = false;
+
+    let v2 = getrandom_packages
+        .iter()
+        .find(|pkg| VersionReq::parse("^0.2").unwrap().matches(&pkg.version));
+
+    // getrandom v2 needs the `js` feature enabled
+    if let Some(v2) = v2 {
+        let dep = metadata
+            .resolve
+            .as_ref()
+            .and_then(|resolve| resolve.nodes.iter().find(|node| node.id == v2.id));
+
+        let v2_feature = "js";
+
+        if let Some(dep) = dep
+            && !dep.features.iter().any(|feature| **feature == v2_feature)
+        {
+            backend_applied = true;
+            args.cargo_args.common_args.config.push(
+                format!(
+                    r#"dependencies.getrandom_02={{package="getrandom",version="{}",features=["{v2_feature}"]}}"#,
+                    v2.version
+                )
+                .to_string(),
+            )
+        }
+    }
+
+    // getrandom v3 needs the `wasm_js` feature enabled
+    // and the `--cfg getrandom_backend="wasm_js"` RUSTFLAG must be set
+    let v3 = getrandom_packages
+        .iter()
+        .find(|pkg| VersionReq::parse("^0.3").unwrap().matches(&pkg.version));
+
+    if let Some(v3) = v3 {
+        let dep = metadata
+            .resolve
+            .as_ref()
+            .and_then(|resolve| resolve.nodes.iter().find(|node| node.id == v3.id));
+
+        let v3_feature = "wasm_js";
+
+        if let Some(dep) = dep
+            && !dep.features.iter().any(|feature| **feature == v3_feature)
+        {
+            backend_applied = true;
+            args.cargo_args.common_args.config.push(
+                format!(
+                    r#"dependencies.getrandom={{version="{}",features=["{v3_feature}"]}}"#,
+                    v3.version
+                )
+                .to_string(),
+            )
+        }
+
+        let mut rustflags = args
+            .cargo_args
+            .common_args
+            .rustflags
+            .clone()
+            .unwrap_or_default();
+
+        if !rustflags.contains("--cfg getrandom_backend") {
+            backend_applied = true;
+            rustflags += " --cfg getrandom_backend=\"wasm_js\"";
+            args.cargo_args.common_args.rustflags = Some(rustflags);
+        }
+    }
+
+    Ok(backend_applied)
+}
