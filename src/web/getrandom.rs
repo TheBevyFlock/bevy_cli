@@ -15,6 +15,7 @@ use crate::{commands::build::BuildArgs, external_cli::cargo};
 ///
 /// If `getrandom` is not a dependency, nothing happens.
 pub fn apply_getrandom_backend(args: &mut BuildArgs, target: &str) -> anyhow::Result<bool> {
+    // Obtaining the metadata again to filter dependencies and their features by the used target
     let metadata = cargo::metadata::metadata_with_args(["--filter-platform", target])?;
 
     let getrandom_packages = metadata
@@ -24,17 +25,20 @@ pub fn apply_getrandom_backend(args: &mut BuildArgs, target: &str) -> anyhow::Re
         .collect::<Vec<_>>();
 
     if getrandom_packages.is_empty() {
+        // Nothing to do when `getrandom` isn't used
         return Ok(false);
     }
 
     let mut backend_applied = false;
 
+    // The package allows us to find the correct version of the dependency
     let v2 = getrandom_packages
         .iter()
         .find(|pkg| VersionReq::parse("^0.2").unwrap().matches(&pkg.version));
 
     // getrandom v2 needs the `js` feature enabled
     if let Some(v2) = v2 {
+        // The resolved dependency includes the features that are enabled
         let dep = metadata
             .resolve
             .as_ref()
