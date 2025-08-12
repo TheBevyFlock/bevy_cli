@@ -11,6 +11,10 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 
 **All Changes**: [`cli-v0.1.0-alpha.1...main`](https://github.com/TheBevyFlock/bevy_cli/compare/cli-v0.1.0-alpha.1...main)
 
+### Added
+
+- The `bevy build web` and `bevy run web` commands will now automatically apply the web backend for `getrandom` if necessary. It requires both a feature and a rustflag to be enabled by the user, which can quickly lead to compile errors when not set up correctly.
+
 ### Changed
 
 - You can now customize the flags passed to `wasm-opt` in both CLI and `Cargo.toml`. Simply pass a list of flags you want to use, e.g. `--wasm-opt=-Oz --wasm-opt=--enable-bulk-memory` in the CLI or `wasm-opt = ["-Oz", "--enable-bulk-memory"]` in the config.
