@@ -1,4 +1,4 @@
-use semver::VersionReq;
+use semver::{Version, VersionReq};
 
 use crate::{commands::build::BuildArgs, external_cli::cargo};
 
@@ -46,13 +46,12 @@ pub fn apply_getrandom_backend(args: &mut BuildArgs, target: &str) -> anyhow::Re
             && !dep.features.iter().any(|feature| **feature == v2_feature)
         {
             backend_applied = true;
-            args.cargo_args.common_args.config.push(
-                format!(
-                    r#"dependencies.getrandom_02={{package="getrandom",version="{}",features=["{v2_feature}"]}}"#,
-                    v2.version
-                )
-                .to_string(),
-            )
+
+            add_feature_config(
+                &mut args.cargo_args.common_args.config,
+                &v2.version,
+                v2_feature,
+            );
         }
     }
 
@@ -74,13 +73,12 @@ pub fn apply_getrandom_backend(args: &mut BuildArgs, target: &str) -> anyhow::Re
             && !dep.features.iter().any(|feature| **feature == v3_feature)
         {
             backend_applied = true;
-            args.cargo_args.common_args.config.push(
-                format!(
-                    r#"dependencies.getrandom={{version="{}",features=["{v3_feature}"]}}"#,
-                    v3.version
-                )
-                .to_string(),
-            )
+
+            add_feature_config(
+                &mut args.cargo_args.common_args.config,
+                &v3.version,
+                v3_feature,
+            );
         }
 
         let mut rustflags = args
@@ -98,4 +96,14 @@ pub fn apply_getrandom_backend(args: &mut BuildArgs, target: &str) -> anyhow::Re
     }
 
     Ok(backend_applied)
+}
+
+/// Adds the feature configuration for the `getrandom` dependency
+fn add_feature_config(config: &mut Vec<String>, version: &Version, feature: &str) {
+    // Distinguish entries by version to allow multiple versions to be configured
+    let table = format!("dependencies.getrandom_{}{}", version.major, version.minor);
+    // The config arg doesn't support inline tables, so each entries must be configured separately
+    config.push(format!(r#"{table}.package="getrandom""#));
+    config.push(format!(r#"{table}.version="{}""#, version));
+    config.push(format!(r#"{table}.features=["{feature}"]"#));
 }
