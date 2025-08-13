@@ -52,12 +52,17 @@ pub fn lint(args: &mut LintArgs) -> anyhow::Result<()> {
         args.profile(),
     )?;
 
-    let config = CliConfig::for_package(
+    let mut config = CliConfig::for_package(
         &metadata,
         bin_target.package,
         args.is_web(),
         args.is_release(),
     )?;
+
+    // Read config files hierarchically from the current directory, merge them,
+    // apply environment variables, and resolve relative paths.
+    let cargo_config = cargo_config2::Config::load()?;
+    config.append_cargo_config_rustflags(args.target(), &cargo_config)?;
 
     args.apply_config(&config);
     // Update the artifact directory based on the config, e.g. in case the `target` changed

@@ -58,6 +58,9 @@ comfy-table = "7.1.4"
 # Cargo like styling for clap
 clap-cargo = "0.16.0"
 
+# Load and resolve Cargo configuration.
+cargo-config2 = "0.1"
+
 # API interaction
 serde = { features = ["derive"], version = "1.0.210" }
 serde_json = "1.0.128"

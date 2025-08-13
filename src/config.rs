@@ -25,6 +25,8 @@ pub struct CliConfig {
     features: Vec<String>,
     /// Whether to use default features.
     default_features: Option<bool>,
+    /// Additional HTTP headers to send with requests.
+    headers: Vec<String>,
     /// Additional flags for `rustc`
     rustflags: Vec<String>,
     /// Use `wasm-opt` to optimize wasm binaries.
@@ -41,6 +43,7 @@ impl CliConfig {
             default_features,
             rustflags,
             wasm_opt,
+            headers,
         } = self;
 
         target.is_none()
@@ -48,6 +51,7 @@ impl CliConfig {
             && default_features.is_none()
             && rustflags.is_empty()
             && wasm_opt.is_none()
+            && headers.is_empty()
     }
 
     /// The platform to target with the build.
@@ -86,6 +90,12 @@ impl CliConfig {
                 ExternalCliArgs::Enabled(false)
             }
         })
+    }
+
+    /// Additional HTTP headers to send with requests.
+    #[cfg(feature = "web")]
+    pub fn headers(&self) -> Vec<String> {
+        self.headers.clone()
     }
 
     /// Determine the Bevy CLI config as defined in the given package.
@@ -165,6 +175,7 @@ impl CliConfig {
             default_features: extract_default_features(metadata)?,
             rustflags: extract_rustflags(metadata)?,
             wasm_opt: extract_wasm_opt(metadata)?,
+            headers: extract_headers(metadata)?,
         })
     }
 
@@ -172,17 +183,40 @@ impl CliConfig {
     ///
     /// The other config takes precedence,
     /// it's values overwrite the current values if one has to be chosen.
-    pub fn overwrite(mut self, with: &Self) -> Self {
-        self.target = with.target.clone().or(self.target);
-        self.default_features = with.default_features.or(self.default_features);
+    pub fn overwrite(self, with: &Self) -> Self {
+        Self {
+            target: with.target.clone().or(self.target),
+            default_features: with.default_features.or(self.default_features),
+            wasm_opt: with.wasm_opt.clone().or(self.wasm_opt),
+            // Features, rustflags and headers are additive
+            features: [self.features, with.features.clone()].concat(),
+            rustflags: [self.rustflags, with.rustflags.clone()].concat(),
+            headers: [self.headers, with.headers.clone()].concat(),
+        }
+    }
 
-        self.wasm_opt = with.wasm_opt.clone().or(self.wasm_opt);
+    /// Append rustflags from a resolved cargo config to the [`CliConfig`] rustflags.
+    pub fn append_cargo_config_rustflags(
+        &mut self,
+        target: Option<String>,
+        config: &cargo_config2::Config,
+    ) -> anyhow::Result<()> {
+        // Use the explicitly provided target, or fall back to the system's host triple.
+        let target = {
+            match target {
+                Some(target_args) => target_args,
+                None => config.host_triple()?.to_owned(),
+            }
+        };
 
-        // Features and Rustflags are additive
-        self.features.extend(with.features.iter().cloned());
-        self.rustflags.extend(with.rustflags.iter().cloned());
+        // Read the rustflags from set environment variables and merged Cargo config's for the
+        // given target and append them to the rustflags from the Cli config.
+        if let Some(cargo_config_rustflags) = config.rustflags(target)? {
+            self.rustflags
+                .extend(cargo_config_rustflags.flags.iter().cloned());
+        }
 
-        self
+        Ok(())
     }
 }
 
@@ -239,6 +273,30 @@ fn extract_default_features(cli_metadata: &Map<String, Value>) -> anyhow::Result
         }
     } else {
         Ok(None)
+    }
+}
+
+/// Try to extract additional web headers from the metadata map for the CLI.
+fn extract_headers(cli_metadata: &Map<String, Value>) -> anyhow::Result<Vec<String>> {
+    const KEY: &str = "headers";
+
+    let Some(features) = cli_metadata.get(KEY) else {
+        tracing::debug!("no `{KEY}` found in CLI metadata, using default");
+        return Ok(Vec::new());
+    };
+
+    match features {
+        Value::Array(features) => features
+            .iter()
+            .map(|value| {
+                value
+                    .as_str()
+                    .map(|str| str.to_string())
+                    .ok_or_else(|| anyhow::anyhow!("each header must be a string"))
+            })
+            .collect(),
+        Value::Null => Ok(Vec::new()),
+        _ => bail!("{KEY} must be an array"),
     }
 }
 
@@ -351,7 +409,8 @@ mod tests {
                         "--cfg".to_string(),
                         "getrandom_backend=\"wasm_js\"".to_string()
                     ],
-                    wasm_opt: None
+                    wasm_opt: None,
+                    headers: Vec::new()
                 }
             );
             Ok(())
@@ -392,7 +451,8 @@ mod tests {
                     ],
                     default_features: Some(false),
                     rustflags: vec!["-C opt-level=2".to_string(), "-C debuginfo=1".to_string()],
-                    wasm_opt: None
+                    wasm_opt: None,
+                    headers: Vec::new()
                 }
             );
             Ok(())
@@ -431,7 +491,8 @@ mod tests {
                     ],
                     default_features: Some(true),
                     rustflags: Vec::new(),
-                    wasm_opt: None
+                    wasm_opt: None,
+                    headers: Vec::new()
                 }
             );
             Ok(())
@@ -475,7 +536,8 @@ mod tests {
                     features: vec!["base".to_owned(),],
                     default_features: None,
                     rustflags: Vec::new(),
-                    wasm_opt: None
+                    wasm_opt: None,
+                    headers: Vec::new()
                 }
             );
             Ok(())
@@ -552,6 +614,55 @@ mod tests {
         }
     }
 
+    mod extract_headers {
+        use serde_json::Map;
+
+        use super::*;
+
+        #[test]
+        fn should_return_empty_vec_if_no_headers_specified() -> anyhow::Result<()> {
+            let cli_metadata = Map::new();
+            assert_eq!(extract_headers(&cli_metadata)?, Vec::<String>::new());
+            Ok(())
+        }
+
+        #[test]
+        fn should_return_headers_if_listed() -> anyhow::Result<()> {
+            let mut cli_metadata = Map::new();
+            cli_metadata.insert(
+                "headers".to_owned(),
+                vec![
+                    "Cross-Origin-Opener-Policy:same-origin",
+                    "Cross-Origin-Embedder-Policy:require-corp",
+                ]
+                .into(),
+            );
+            assert_eq!(
+                extract_headers(&cli_metadata)?,
+                vec![
+                    "Cross-Origin-Opener-Policy:same-origin".to_owned(),
+                    "Cross-Origin-Embedder-Policy:require-corp".to_owned()
+                ]
+            );
+            Ok(())
+        }
+
+        #[test]
+        fn should_return_error_if_one_feature_is_not_a_string() {
+            let mut cli_metadata = Map::new();
+            cli_metadata.insert(
+                "headers".to_string(),
+                vec![
+                    Value::String("Cross-Origin-Opener-Policy:same-origin".to_owned()),
+                    Value::Bool(false),
+                    Value::Null,
+                ]
+                .into(),
+            );
+            assert!(extract_headers(&cli_metadata).is_err());
+        }
+    }
+
     mod extract_wasm_opt {
         use super::*;
 
@@ -598,6 +709,181 @@ mod tests {
                     "--enable-bulk-memory".to_owned()
                 ]))
             );
+            Ok(())
+        }
+    }
+
+    mod merge_rustflags {
+        use std::{collections::HashMap, fs};
+
+        use cargo_config2::{PathAndArgs, ResolveOptions};
+        use serde_json::json;
+        use tempfile::tempdir;
+
+        use crate::config::CliConfig;
+
+        fn cargo_config() -> anyhow::Result<cargo_config2::Config> {
+            let dir = tempdir()?;
+            let cargo_dir = dir.path().join(".cargo");
+            fs::create_dir_all(&cargo_dir)?;
+            fs::write(
+                cargo_dir.join("config.toml"),
+                r#"
+                [target.x86_64-unknown-linux-gnu]
+                rustflags = [
+                    "-Clink-arg=-fuse-ld=mold",
+                    "-Zshare-generics=y",
+                    "-Zthreads=8",
+                ]
+                [target.aarch64-apple-darwin]
+                rustflags = [
+                    "-Clink-arg=-fuse-ld=mold",
+                    "-Zshare-generics=y",
+                    "-Zthreads=8",
+                ]
+                [target.x86_64-pc-windows-msvc]
+                rustflags = [
+                    "-Clink-arg=-fuse-ld=mold",
+                    "-Zshare-generics=y",
+                    "-Zthreads=8",
+                ]
+                [target.wasm32-unknown-unknown]
+                rustflags = [
+                    "--cfg",
+                    "getrandom_backend=\"wasm_js\"",
+                    "-Zshare-generics=y",
+                    "-Zthreads=8",
+                ]
+                [target.armv4t-none-eabi]
+                rustflags = [
+                  "-Clink-arg=-Tgba.ld",
+                  "-Ctarget-cpu=arm7tdmi",
+                  "-Cforce-frame-pointers=yes",
+                ]
+            "#,
+            )?;
+
+            let resolve_options = ResolveOptions::default()
+                .env(HashMap::<String, String>::default())
+                .cargo_home(None)
+                .rustc(PathAndArgs::new("rustc"));
+
+            Ok(cargo_config2::Config::load_with_options(
+                cargo_dir,
+                resolve_options,
+            )?)
+        }
+
+        #[test]
+        fn merge_empty_native_cli_config() -> anyhow::Result<()> {
+            let mut cli_config = CliConfig::default();
+            let cargo_config = cargo_config()?;
+
+            cli_config.append_cargo_config_rustflags(None, &cargo_config)?;
+
+            let rustflags = [
+                "-Clink-arg=-fuse-ld=mold",
+                "-Zshare-generics=y",
+                "-Zthreads=8",
+            ]
+            .join(" ");
+
+            assert_eq!(rustflags, cli_config.rustflags().unwrap());
+            Ok(())
+        }
+
+        #[test]
+        fn merge_empty_web_config() -> anyhow::Result<()> {
+            let mut cli_config = CliConfig::default();
+            let cargo_config = cargo_config()?;
+
+            cli_config.append_cargo_config_rustflags(
+                Some("wasm32-unknown-unknown".to_owned()),
+                &cargo_config,
+            )?;
+
+            let rustflags = [
+                "--cfg",
+                "getrandom_backend=\"wasm_js\"",
+                "-Zshare-generics=y",
+                "-Zthreads=8",
+            ]
+            .join(" ");
+
+            assert_eq!(rustflags, cli_config.rustflags().unwrap());
+            Ok(())
+        }
+
+        #[test]
+        fn merge_native_cli_config() -> anyhow::Result<()> {
+            let metadata = json!({
+                "native": {
+                    "rustflags": ["-C debuginfo=1"]
+                },
+            });
+            let mut cli_config = CliConfig::merged_from_metadata(Some(&metadata), false, false)?;
+            let cargo_config = cargo_config()?;
+
+            cli_config.append_cargo_config_rustflags(None, &cargo_config)?;
+
+            let rustflags = [
+                "-C debuginfo=1",
+                "-Clink-arg=-fuse-ld=mold",
+                "-Zshare-generics=y",
+                "-Zthreads=8",
+            ]
+            .join(" ");
+
+            assert_eq!(rustflags, cli_config.rustflags().unwrap());
+            Ok(())
+        }
+
+        #[test]
+        fn merge_web_cli_config() -> anyhow::Result<()> {
+            let metadata = json!({
+                "web": {
+                    "rustflags": ["-C debuginfo=1"]
+                },
+            });
+            let mut cli_config = CliConfig::merged_from_metadata(Some(&metadata), true, false)?;
+            let cargo_config = cargo_config()?;
+
+            cli_config.append_cargo_config_rustflags(
+                Some("wasm32-unknown-unknown".to_owned()),
+                &cargo_config,
+            )?;
+
+            let rustflags = [
+                "-C debuginfo=1",
+                "--cfg",
+                "getrandom_backend=\"wasm_js\"",
+                "-Zshare-generics=y",
+                "-Zthreads=8",
+            ]
+            .join(" ");
+
+            assert_eq!(rustflags, cli_config.rustflags().unwrap());
+            Ok(())
+        }
+
+        #[test]
+        fn merge_explicit_target() -> anyhow::Result<()> {
+            let mut cli_config = CliConfig::default();
+            let cargo_config = cargo_config()?;
+
+            cli_config.append_cargo_config_rustflags(
+                Some("armv4t-none-eabi".to_owned()),
+                &cargo_config,
+            )?;
+
+            let rustflags = [
+                "-Clink-arg=-Tgba.ld",
+                "-Ctarget-cpu=arm7tdmi",
+                "-Cforce-frame-pointers=yes",
+            ]
+            .join(" ");
+
+            assert_eq!(rustflags, cli_config.rustflags().unwrap());
             Ok(())
         }
     }
