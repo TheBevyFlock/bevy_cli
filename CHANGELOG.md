@@ -17,6 +17,8 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 
 - `bevy run web` and `bevy build web -b` now support [JS snippets](https://rustwasm.github.io/wasm-bindgen/reference/js-snippets.html) ([#527](https://github.com/TheBevyFlock/bevy_cli/pull/527))
 
+- `rustflags` specified in the [`cargo` configuration](https://doc.rust-lang.org/cargo/reference/config.html#configuration) are respected and added with those defined in `Cargo.toml` ([#540](https://github.com/TheBevyFlock/bevy_cli/pull/540))
+
 ## v0.1.0-alpha.1 - 2025-05-23
 
 **All Changes**: [`cli-v0.1.0-alpha.1`](https://github.com/TheBevyFlock/bevy_cli/commits/cli-v0.1.0-alpha.1)
