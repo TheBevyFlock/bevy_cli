@@ -194,6 +194,30 @@ impl CliConfig {
             headers: [self.headers, with.headers.clone()].concat(),
         }
     }
+
+    /// Append rustflags from a resolved cargo config to the [`CliConfig`] rustflags.
+    pub fn append_cargo_config_rustflags(
+        &mut self,
+        target: Option<String>,
+        config: &cargo_config2::Config,
+    ) -> anyhow::Result<()> {
+        // Use the explicitly provided target, or fall back to the system's host triple.
+        let target = {
+            match target {
+                Some(target_args) => target_args,
+                None => config.host_triple()?.to_owned(),
+            }
+        };
+
+        // Read the rustflags from set environment variables and merged Cargo config's for the
+        // given target and append them to the rustflags from the Cli config.
+        if let Some(cargo_config_rustflags) = config.rustflags(target)? {
+            self.rustflags
+                .extend(cargo_config_rustflags.flags.iter().cloned());
+        }
+
+        Ok(())
+    }
 }
 
 /// Try to extract the target platform from a metadata map for the CLI.
@@ -685,6 +709,181 @@ mod tests {
                     "--enable-bulk-memory".to_owned()
                 ]))
             );
+            Ok(())
+        }
+    }
+
+    mod merge_rustflags {
+        use std::{collections::HashMap, fs};
+
+        use cargo_config2::{PathAndArgs, ResolveOptions};
+        use serde_json::json;
+        use tempfile::tempdir;
+
+        use crate::config::CliConfig;
+
+        fn cargo_config() -> anyhow::Result<cargo_config2::Config> {
+            let dir = tempdir()?;
+            let cargo_dir = dir.path().join(".cargo");
+            fs::create_dir_all(&cargo_dir)?;
+            fs::write(
+                cargo_dir.join("config.toml"),
+                r#"
+                [target.x86_64-unknown-linux-gnu]
+                rustflags = [
+                    "-Clink-arg=-fuse-ld=mold",
+                    "-Zshare-generics=y",
+                    "-Zthreads=8",
+                ]
+                [target.aarch64-apple-darwin]
+                rustflags = [
+                    "-Clink-arg=-fuse-ld=mold",
+                    "-Zshare-generics=y",
+                    "-Zthreads=8",
+                ]
+                [target.x86_64-pc-windows-msvc]
+                rustflags = [
+                    "-Clink-arg=-fuse-ld=mold",
+                    "-Zshare-generics=y",
+                    "-Zthreads=8",
+                ]
+                [target.wasm32-unknown-unknown]
+                rustflags = [
+                    "--cfg",
+                    "getrandom_backend=\"wasm_js\"",
+                    "-Zshare-generics=y",
+                    "-Zthreads=8",
+                ]
+                [target.armv4t-none-eabi]
+                rustflags = [
+                  "-Clink-arg=-Tgba.ld",
+                  "-Ctarget-cpu=arm7tdmi",
+                  "-Cforce-frame-pointers=yes",
+                ]
+            "#,
+            )?;
+
+            let resolve_options = ResolveOptions::default()
+                .env(HashMap::<String, String>::default())
+                .cargo_home(None)
+                .rustc(PathAndArgs::new("rustc"));
+
+            Ok(cargo_config2::Config::load_with_options(
+                cargo_dir,
+                resolve_options,
+            )?)
+        }
+
+        #[test]
+        fn merge_empty_native_cli_config() -> anyhow::Result<()> {
+            let mut cli_config = CliConfig::default();
+            let cargo_config = cargo_config()?;
+
+            cli_config.append_cargo_config_rustflags(None, &cargo_config)?;
+
+            let rustflags = [
+                "-Clink-arg=-fuse-ld=mold",
+                "-Zshare-generics=y",
+                "-Zthreads=8",
+            ]
+            .join(" ");
+
+            assert_eq!(rustflags, cli_config.rustflags().unwrap());
+            Ok(())
+        }
+
+        #[test]
+        fn merge_empty_web_config() -> anyhow::Result<()> {
+            let mut cli_config = CliConfig::default();
+            let cargo_config = cargo_config()?;
+
+            cli_config.append_cargo_config_rustflags(
+                Some("wasm32-unknown-unknown".to_owned()),
+                &cargo_config,
+            )?;
+
+            let rustflags = [
+                "--cfg",
+                "getrandom_backend=\"wasm_js\"",
+                "-Zshare-generics=y",
+                "-Zthreads=8",
+            ]
+            .join(" ");
+
+            assert_eq!(rustflags, cli_config.rustflags().unwrap());
+            Ok(())
+        }
+
+        #[test]
+        fn merge_native_cli_config() -> anyhow::Result<()> {
+            let metadata = json!({
+                "native": {
+                    "rustflags": ["-C debuginfo=1"]
+                },
+            });
+            let mut cli_config = CliConfig::merged_from_metadata(Some(&metadata), false, false)?;
+            let cargo_config = cargo_config()?;
+
+            cli_config.append_cargo_config_rustflags(None, &cargo_config)?;
+
+            let rustflags = [
+                "-C debuginfo=1",
+                "-Clink-arg=-fuse-ld=mold",
+                "-Zshare-generics=y",
+                "-Zthreads=8",
+            ]
+            .join(" ");
+
+            assert_eq!(rustflags, cli_config.rustflags().unwrap());
+            Ok(())
+        }
+
+        #[test]
+        fn merge_web_cli_config() -> anyhow::Result<()> {
+            let metadata = json!({
+                "web": {
+                    "rustflags": ["-C debuginfo=1"]
+                },
+            });
+            let mut cli_config = CliConfig::merged_from_metadata(Some(&metadata), true, false)?;
+            let cargo_config = cargo_config()?;
+
+            cli_config.append_cargo_config_rustflags(
+                Some("wasm32-unknown-unknown".to_owned()),
+                &cargo_config,
+            )?;
+
+            let rustflags = [
+                "-C debuginfo=1",
+                "--cfg",
+                "getrandom_backend=\"wasm_js\"",
+                "-Zshare-generics=y",
+                "-Zthreads=8",
+            ]
+            .join(" ");
+
+            assert_eq!(rustflags, cli_config.rustflags().unwrap());
+            Ok(())
+        }
+
+        #[test]
+        fn merge_explicit_target() -> anyhow::Result<()> {
+            let mut cli_config = CliConfig::default();
+            let cargo_config = cargo_config()?;
+
+            cli_config.append_cargo_config_rustflags(
+                Some("armv4t-none-eabi".to_owned()),
+                &cargo_config,
+            )?;
+
+            let rustflags = [
+                "-Clink-arg=-Tgba.ld",
+                "-Ctarget-cpu=arm7tdmi",
+                "-Cforce-frame-pointers=yes",
+            ]
+            .join(" ");
+
+            assert_eq!(rustflags, cli_config.rustflags().unwrap());
             Ok(())
         }
     }

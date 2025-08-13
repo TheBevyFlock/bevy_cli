@@ -534,6 +534,7 @@ dependencies = [
  "anyhow",
  "assert_cmd",
  "axum",
+ "cargo-config2",
  "cargo-generate",
  "cargo_metadata 0.21.0",
  "clap",
@@ -1333,6 +1334,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0da45bc31171d8d6960122e222a67740df867c1dd53b4d51caa297084c185cab"
 dependencies = [
  "serde",
+]
+
+[[package]]
+name = "cargo-config2"
+version = "0.1.35"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2f307d010782c2a4066cc5125ba8c6b68db926b3a1bb82bd6d0b38950c6d4815"
+dependencies = [
+ "serde",
+ "serde_derive",
+ "toml 0.9.2",
+ "windows-sys 0.60.2",
 ]
 
 [[package]]
