@@ -109,7 +109,7 @@ fn find_bevy_rlib() -> color_eyre::Result<PathBuf> {
         if let Ok(message) = serde_json::from_str::<ArtifactMessage>(line)
             // If the message passes the following conditions, it's probably the one we want.
             && message.target.name == "bevy"
-            && message.target.kind.contains(&"lib")
+            && message.target.kind.iter().any(|s| s == "lib")
         {
             messages.push(message);
         }
