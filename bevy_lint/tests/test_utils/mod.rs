@@ -65,21 +65,16 @@ pub fn base_config(test_dir: &str) -> color_eyre::Result<Config> {
 /// information on the exact format.
 #[derive(Deserialize, Debug)]
 #[serde(rename = "compiler-artifact", tag = "reason")]
-struct ArtifactMessage<'a> {
-    #[serde(borrow)]
-    target: ArtifactTarget<'a>,
-
-    #[serde(borrow)]
-    filenames: Vec<&'a Path>,
+struct ArtifactMessage {
+    target: ArtifactTarget,
+    filenames: Vec<PathBuf>,
 }
 
 /// The `"target"` field of an [`ArtifactMessage`].
 #[derive(Deserialize, Debug)]
-struct ArtifactTarget<'a> {
-    name: &'a str,
-
-    #[serde(borrow)]
-    kind: Vec<&'a str>,
+struct ArtifactTarget {
+    name: String,
+    kind: Vec<String>,
 }
 
 /// Tries to find the path to `libbevy.rlib` that UI tests import.
