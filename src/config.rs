@@ -201,9 +201,6 @@ impl CliConfig {
         target: Option<String>,
         config: &cargo_config2::Config,
     ) -> anyhow::Result<()> {
-        let mut rustflags = Vec::new();
-        rustflags.extend(self.rustflags.iter().cloned());
-
         // Use the explicitly provided target, or fall back to the system's host triple.
         let target = {
             match target {
