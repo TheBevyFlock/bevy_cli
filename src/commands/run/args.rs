@@ -125,10 +125,8 @@ impl RunArgs {
             }
 
             web_args.headers.extend(config.headers());
-        }
 
-        #[cfg(all(feature = "web", feature = "unstable"))]
-        if let Some(RunSubcommands::Web(web_args)) = self.subcommand.as_mut() {
+            #[cfg(feature = "unstable")]
             web_args.unstable.apply_config(config);
         }
     }
