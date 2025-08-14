@@ -44,7 +44,7 @@ pub fn base_config(test_dir: &str) -> color_eyre::Result<Config> {
                 // These two lines tell `rustc` to search in `target/debug/deps` for dependencies.
                 // This is required for UI tests to import `bevy`.
                 "-L".into(),
-                "all=../target/debug/deps".into(),
+                "all=..\\target\\debug\\deps".into(),
                 // Make the `bevy` crate directly importable from the UI tests.
                 format!("--extern=bevy={}", find_bevy_rlib()?.display()).into(),
             ],
