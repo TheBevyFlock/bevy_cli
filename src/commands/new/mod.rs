@@ -98,7 +98,13 @@ fn fetch_template_repositories(org: &str, prefix: &str) -> anyhow::Result<Vec<Re
     let client = Client::new();
     let repos: Vec<Repository> = client
         .get(&url)
-        .header("User-Agent", "bevy_cli")
+        .header(
+            "User-Agent",
+            format!(
+                "bevy_cli/{} (https://thebevyflock.github.io/bevy_cli)",
+                env!("CARGO_PKG_VERSION")
+            ),
+        )
         .send()?
         .json()?;
 
