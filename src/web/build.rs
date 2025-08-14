@@ -9,6 +9,7 @@ use crate::{
     external_cli::{cargo, wasm_bindgen, wasm_opt},
     web::{
         bundle::{PackedBundle, create_web_bundle},
+        getrandom::apply_getrandom_backend,
         profiles::configure_default_web_profiles,
     },
 };
@@ -27,16 +28,18 @@ pub fn build_web(
     metadata: &Metadata,
     bin_target: &BinTarget,
 ) -> anyhow::Result<WebBundle> {
-    let web_args = args
-        .subcommand
-        .as_ref()
-        .map(|BuildSubcommands::Web(web_args)| web_args);
-
     let mut profile_args = configure_default_web_profiles(metadata)?;
     // `--config` args are resolved from left to right,
     // so the default configuration needs to come before the user args
     profile_args.append(&mut args.cargo_args.common_args.config);
     args.cargo_args.common_args.config = profile_args;
+
+    // Apply the `getrandom` web backend if necessary
+    if let Some(target) = args.target()
+        && apply_getrandom_backend(args, &target).context("failed to apply getrandom backend")?
+    {
+        info!("automatically configuring `getrandom` web backend");
+    }
 
     let cargo_args = args.cargo_args_builder();
 
@@ -52,6 +55,11 @@ pub fn build_web(
     info!("bundling JavaScript bindings...");
     wasm_bindgen::bundle(metadata, bin_target, args.auto_install())?;
     wasm_opt::optimize_path(bin_target, args.auto_install(), &args.wasm_opt_args())?;
+
+    let web_args = args
+        .subcommand
+        .as_ref()
+        .map(|BuildSubcommands::Web(web_args)| web_args);
 
     let web_bundle = create_web_bundle(
         metadata,
