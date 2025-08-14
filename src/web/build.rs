@@ -76,15 +76,10 @@ pub fn build_web(
 /// Requires nightly Rust and the `unstable` feature to be enabled.
 #[cfg(feature = "unstable")]
 fn support_multi_threading(args: &mut BuildArgs) {
-    let multi_threading = if let Some(BuildSubcommands::Web(web_args)) = &args.subcommand
-        && web_args.unstable.web_multi_threading()
-    {
-        true
-    } else {
-        false
-    };
-
-    if !multi_threading {
+    if !matches!(
+        &args.subcommand,
+        Some(BuildSubcommands::Web(web_args)) if web_args.unstable.web_multi_threading()
+    ) {
         return;
     }
 
