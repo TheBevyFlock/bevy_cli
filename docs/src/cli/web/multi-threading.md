@@ -4,7 +4,7 @@
 
 **Warning**
 
-This feature is unstable and only available when installing the CLI with the `unstable` feature enabled.
+This feature is unstable and only available when installing the CLI with the `unstable` feature (enabled by default).
 A **nightly Rust** toolchain is also required.
 
 </div>

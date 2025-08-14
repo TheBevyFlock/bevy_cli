@@ -37,7 +37,7 @@ The following fields exist and can be configured:
 ## `unstable`
 
 - Type: map
-- Note: Enable unstable CLI features. Only available when building the CLI with the `unstable` feature enabled.
+- Note: Enable unstable CLI features. Only available when building the CLI with the `unstable` feature (enabled by default).
 
 ### `unstable.web-multi-threading`
 
