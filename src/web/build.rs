@@ -96,10 +96,10 @@ fn support_multi_threading(args: &mut BuildArgs) {
 
     // The std needs to be rebuilt with Wasm multi-threading support
     // But only for targets that actually include std
-    let rebuild_std = args
+    if args
         .target()
-        .is_some_and(|target| &target == "wasm32-unknown-unknown");
-    if rebuild_std {
+        .is_some_and(|target| &target == "wasm32-unknown-unknown")
+    {
         // This requires nightly Rust
         args.cargo_args
             .common_args
