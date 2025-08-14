@@ -1,8 +1,12 @@
-use clap::{ArgAction, Args, Subcommand};
+#[cfg(feature = "web")]
+use clap::ArgAction;
+use clap::{Args, Subcommand};
 
 use super::cargo::build::{CargoBuildArgs, CargoPackageBuildArgs, CargoTargetBuildArgs};
 #[cfg(feature = "web")]
 use crate::commands::build::{BuildSubcommands, BuildWebArgs};
+#[cfg(all(feature = "unstable", feature = "web"))]
+use crate::web::unstable::UnstableWebArgs;
 use crate::{
     commands::build::BuildArgs,
     config::CliConfig,
@@ -121,6 +125,9 @@ impl RunArgs {
             }
 
             web_args.headers.extend(config.headers());
+
+            #[cfg(feature = "unstable")]
+            web_args.unstable.apply_config(config);
         }
     }
 }
@@ -132,6 +139,7 @@ pub enum RunSubcommands {
     Web(RunWebArgs),
 }
 
+#[cfg(feature = "web")]
 #[derive(Debug, Args, Clone)]
 pub struct RunWebArgs {
     /// The port to run the web server on.
@@ -163,8 +171,13 @@ pub struct RunWebArgs {
     /// You can also specify custom arguments to use.
     #[arg(long = "wasm-opt", allow_hyphen_values = true)]
     pub wasm_opt: Vec<String>,
+
+    #[cfg(feature = "unstable")]
+    #[clap(flatten)]
+    pub unstable: UnstableWebArgs,
 }
 
+#[cfg(feature = "web")]
 impl Default for RunWebArgs {
     fn default() -> Self {
         Self {
@@ -174,6 +187,8 @@ impl Default for RunWebArgs {
             create_packed_bundle: false,
             headers: Vec::new(),
             wasm_opt: Vec::new(),
+            #[cfg(feature = "unstable")]
+            unstable: UnstableWebArgs::default(),
         }
     }
 }
@@ -210,6 +225,8 @@ impl From<RunArgs> for BuildArgs {
                 RunSubcommands::Web(web_args) => BuildSubcommands::Web(BuildWebArgs {
                     create_packed_bundle: web_args.create_packed_bundle,
                     wasm_opt: web_args.wasm_opt,
+                    #[cfg(feature = "unstable")]
+                    unstable: web_args.unstable,
                 }),
             }),
         }

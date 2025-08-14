@@ -27,16 +27,14 @@ pub fn build_web(
     metadata: &Metadata,
     bin_target: &BinTarget,
 ) -> anyhow::Result<WebBundle> {
-    let web_args = args
-        .subcommand
-        .as_ref()
-        .map(|BuildSubcommands::Web(web_args)| web_args);
-
     let mut profile_args = configure_default_web_profiles(metadata)?;
     // `--config` args are resolved from left to right,
     // so the default configuration needs to come before the user args
     profile_args.append(&mut args.cargo_args.common_args.config);
     args.cargo_args.common_args.config = profile_args;
+
+    #[cfg(feature = "unstable")]
+    support_multi_threading(args);
 
     let cargo_args = args.cargo_args_builder();
 
@@ -46,12 +44,17 @@ pub fn build_web(
         // Wasm targets are not installed by default
         .maybe_require_target(args.target())
         .args(cargo_args)
-        .env("RUSTFLAGS", args.cargo_args.common_args.rustflags.clone())
+        .env("RUSTFLAGS", args.rustflags())
         .ensure_status(args.auto_install())?;
 
     info!("bundling JavaScript bindings...");
     wasm_bindgen::bundle(metadata, bin_target, args.auto_install())?;
     wasm_opt::optimize_path(bin_target, args.auto_install(), &args.wasm_opt_args())?;
+
+    let web_args = args
+        .subcommand
+        .as_ref()
+        .map(|BuildSubcommands::Web(web_args)| web_args);
 
     let web_bundle = create_web_bundle(
         metadata,
@@ -66,4 +69,41 @@ pub fn build_web(
     }
 
     Ok(web_bundle)
+}
+
+/// Add multi-threading support for the Wasm binary if enabled.
+///
+/// Requires nightly Rust and the `unstable` feature to be enabled.
+#[cfg(feature = "unstable")]
+fn support_multi_threading(args: &mut BuildArgs) {
+    if !matches!(
+        &args.subcommand,
+        Some(BuildSubcommands::Web(web_args)) if web_args.unstable.web_multi_threading()
+    ) {
+        return;
+    }
+
+    // Rust's default Wasm target does not support multi-threading primitives out of the box
+    // They need to be enabled manually
+    let multi_threading_flags = "-C target-feature=+atomics,+bulk-memory";
+
+    if let Some(rustflags) = args.cargo_args.common_args.rustflags.as_mut() {
+        *rustflags += " ";
+        *rustflags += multi_threading_flags;
+    } else {
+        args.cargo_args.common_args.rustflags = Some(multi_threading_flags.to_string());
+    }
+
+    // The std needs to be rebuilt with Wasm multi-threading support
+    // But only for targets that actually include std
+    if args
+        .target()
+        .is_some_and(|target| &target == "wasm32-unknown-unknown")
+    {
+        // This requires nightly Rust
+        args.cargo_args
+            .common_args
+            .unstable_flags
+            .push("build-std=std,panic_abort".to_string());
+    }
 }

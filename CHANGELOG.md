@@ -11,6 +11,15 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 
 **All Changes**: [`cli-v0.1.0-alpha.1...main`](https://github.com/TheBevyFlock/bevy_cli/compare/cli-v0.1.0-alpha.1...main)
 
+### Added
+
+- Unstable support for building and running web apps using **Wasm multi-threading** features
+  - Use `bevy run web --unstable multi-threading` to run an app using multi-threaded Wasm
+  - Can be configured in `Cargo.toml` by setting `package.metadata.bevy_cli.unstable.web-multi-threading = true`
+  - Only available when compiling the CLI with `unstable` feature enabled
+  - Requires a nightly Rust toolchain
+  - Bevy doesn't natively implement multi-threaded Wasm, so you have to implement it yourself or use a plugin that makes use of it
+
 ### Changed
 
 - You can now customize the flags passed to `wasm-opt` in both CLI and `Cargo.toml`. Simply pass a list of flags you want to use, e.g. `--wasm-opt=-Oz --wasm-opt=--enable-bulk-memory` in the CLI or `wasm-opt = ["-Oz", "--enable-bulk-memory"]` in the config.

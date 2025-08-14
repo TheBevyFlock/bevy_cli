@@ -1,7 +1,11 @@
-use clap::{ArgAction, Args, Subcommand};
+#[cfg(feature = "web")]
+use clap::ArgAction;
+use clap::{Args, Subcommand};
 
 #[cfg(feature = "web")]
 use crate::external_cli::external_cli_args::ExternalCliArgs;
+#[cfg(all(feature = "unstable", feature = "web"))]
+use crate::web::unstable::UnstableWebArgs;
 use crate::{
     config::CliConfig,
     external_cli::{
@@ -82,6 +86,11 @@ impl BuildArgs {
         }
     }
 
+    /// The RUSTFLAGS to pass to the `cargo` command.
+    pub(crate) fn rustflags(&self) -> Option<String> {
+        self.cargo_args.common_args.rustflags.clone()
+    }
+
     /// Apply the config on top of the CLI arguments.
     ///
     /// CLI arguments take precedence.
@@ -113,10 +122,13 @@ impl BuildArgs {
         let is_release = self.is_release();
 
         #[cfg(feature = "web")]
-        if let Some(BuildSubcommands::Web(web_args)) = self.subcommand.as_mut()
-            && web_args.wasm_opt.is_empty()
-        {
-            web_args.wasm_opt = config.wasm_opt(is_release).to_raw();
+        if let Some(BuildSubcommands::Web(web_args)) = self.subcommand.as_mut() {
+            if web_args.wasm_opt.is_empty() {
+                web_args.wasm_opt = config.wasm_opt(is_release).to_raw();
+            }
+
+            #[cfg(feature = "unstable")]
+            web_args.unstable.apply_config(config);
         }
     }
 }
@@ -130,6 +142,7 @@ pub enum BuildSubcommands {
 }
 
 /// Additional Arguments for building a Bevy web project.
+#[cfg(feature = "web")]
 #[derive(Debug, Args, Default)]
 pub struct BuildWebArgs {
     /// Bundle all web artifacts into a single folder.
@@ -142,4 +155,8 @@ pub struct BuildWebArgs {
     /// You can also specify custom arguments to use.
     #[arg(long = "wasm-opt", allow_hyphen_values = true)]
     pub wasm_opt: Vec<String>,
+
+    #[cfg(feature = "unstable")]
+    #[clap(flatten)]
+    pub unstable: UnstableWebArgs,
 }
