@@ -5,3 +5,5 @@ pub(crate) mod bundle;
 pub(crate) mod profiles;
 pub(crate) mod run;
 pub(crate) mod serve;
+#[cfg(feature = "unstable")]
+pub(crate) mod unstable;
