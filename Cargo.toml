@@ -18,7 +18,7 @@ name = "bevy"
 path = "src/bin/main.rs"
 
 [features]
-default = ["rustup", "web"]
+default = ["rustup", "web", "unstable"]
 
 # Run your Bevy app in the browser
 web = [
@@ -34,6 +34,9 @@ web = [
 # Support installing required targets with `rustup` from a prompt.
 # You can disable this feature if your system doesn't have rustup installed.
 rustup = []
+
+# Functionality that's unfinished or comes with caveats
+unstable = []
 
 [dependencies]
 # CLI argument parsing
@@ -52,6 +55,9 @@ dialoguer = { version = "0.11.0", default-features = false }
 
 # Cargo like styling for clap
 clap-cargo = "0.16.0"
+
+# Load and resolve Cargo configuration.
+cargo-config2 = "0.1"
 
 # API interaction
 serde = { features = ["derive"], version = "1.0.210" }

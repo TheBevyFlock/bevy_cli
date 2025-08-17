@@ -31,6 +31,8 @@ pub struct CliConfig {
     rustflags: Vec<String>,
     /// Use `wasm-opt` to optimize wasm binaries.
     wasm_opt: Option<ExternalCliArgs>,
+    /// EXPERIMENTAL: Enable building and running apps that use Wasm multi-threading features.
+    web_multi_threading: Option<bool>,
 }
 
 impl CliConfig {
@@ -43,6 +45,7 @@ impl CliConfig {
             default_features,
             rustflags,
             wasm_opt,
+            web_multi_threading,
             headers,
         } = self;
 
@@ -51,6 +54,7 @@ impl CliConfig {
             && default_features.is_none()
             && rustflags.is_empty()
             && wasm_opt.is_none()
+            && web_multi_threading.is_none()
             && headers.is_empty()
     }
 
@@ -64,6 +68,12 @@ impl CliConfig {
     /// Defaults to `true` if not configured otherwise.
     pub fn default_features(&self) -> bool {
         self.default_features.unwrap_or(true)
+    }
+
+    /// Whether to enable Wasm multi-threading functionality.
+    #[cfg(feature = "unstable")]
+    pub fn web_multi_threading(&self) -> Option<bool> {
+        self.web_multi_threading
     }
 
     /// The features enabled in the config.
@@ -169,12 +179,15 @@ impl CliConfig {
             bail!("Bevy CLI config must be a table");
         };
 
+        let unstable_config = extract_unstable_config(metadata)?;
+
         Ok(Self {
             target: extract_target(metadata)?,
             features: extract_features(metadata)?,
             default_features: extract_default_features(metadata)?,
             rustflags: extract_rustflags(metadata)?,
             wasm_opt: extract_wasm_opt(metadata)?,
+            web_multi_threading: extract_web_multi_threading(unstable_config)?,
             headers: extract_headers(metadata)?,
         })
     }
@@ -192,7 +205,32 @@ impl CliConfig {
             features: [self.features, with.features.clone()].concat(),
             rustflags: [self.rustflags, with.rustflags.clone()].concat(),
             headers: [self.headers, with.headers.clone()].concat(),
+            web_multi_threading: with.web_multi_threading.or(self.web_multi_threading),
         }
+    }
+
+    /// Append rustflags from a resolved cargo config to the [`CliConfig`] rustflags.
+    pub fn append_cargo_config_rustflags(
+        &mut self,
+        target: Option<String>,
+        config: &cargo_config2::Config,
+    ) -> anyhow::Result<()> {
+        // Use the explicitly provided target, or fall back to the system's host triple.
+        let target = {
+            match target {
+                Some(target_args) => target_args,
+                None => config.host_triple()?.to_owned(),
+            }
+        };
+
+        // Read the rustflags from set environment variables and merged Cargo config's for the
+        // given target and append them to the rustflags from the Cli config.
+        if let Some(cargo_config_rustflags) = config.rustflags(target)? {
+            self.rustflags
+                .extend(cargo_config_rustflags.flags.iter().cloned());
+        }
+
+        Ok(())
     }
 }
 
@@ -323,6 +361,44 @@ fn extract_wasm_opt(cli_metadata: &Map<String, Value>) -> anyhow::Result<Option<
     }
 }
 
+/// Try to extract the map containing unstable CLI features.
+fn extract_unstable_config(
+    cli_metadata: &Map<String, Value>,
+) -> anyhow::Result<Option<&Map<String, Value>>> {
+    const KEY: &str = "unstable";
+
+    if let Some(unstable) = cli_metadata.get(KEY) {
+        match unstable {
+            Value::Object(unstable) => Ok(Some(unstable)),
+            _ => bail!("{KEY} must be a map"),
+        }
+    } else {
+        Ok(None)
+    }
+}
+
+/// Try to extract whether multi-threading features for the web are enabled from a metadata map for
+/// the CLI.
+fn extract_web_multi_threading(
+    unstable_config: Option<&Map<String, Value>>,
+) -> anyhow::Result<Option<bool>> {
+    const KEY: &str = "web-multi-threading";
+
+    let Some(unstable_config) = unstable_config else {
+        return Ok(None);
+    };
+
+    if let Some(web_multi_threading) = unstable_config.get(KEY) {
+        match web_multi_threading {
+            Value::Bool(web_multi_threading) => Ok(Some(web_multi_threading).copied()),
+            Value::Null => Ok(None),
+            _ => bail!("{KEY} must be a boolean"),
+        }
+    } else {
+        Ok(None)
+    }
+}
+
 impl Display for CliConfig {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let document = toml::to_string_pretty(self).map_err(|_| std::fmt::Error)?;
@@ -386,6 +462,7 @@ mod tests {
                         "getrandom_backend=\"wasm_js\"".to_string()
                     ],
                     wasm_opt: None,
+                    web_multi_threading: None,
                     headers: Vec::new()
                 }
             );
@@ -428,6 +505,7 @@ mod tests {
                     default_features: Some(false),
                     rustflags: vec!["-C opt-level=2".to_string(), "-C debuginfo=1".to_string()],
                     wasm_opt: None,
+                    web_multi_threading: None,
                     headers: Vec::new()
                 }
             );
@@ -468,6 +546,7 @@ mod tests {
                     default_features: Some(true),
                     rustflags: Vec::new(),
                     wasm_opt: None,
+                    web_multi_threading: None,
                     headers: Vec::new()
                 }
             );
@@ -513,6 +592,7 @@ mod tests {
                     default_features: None,
                     rustflags: Vec::new(),
                     wasm_opt: None,
+                    web_multi_threading: None,
                     headers: Vec::new()
                 }
             );
@@ -685,6 +765,181 @@ mod tests {
                     "--enable-bulk-memory".to_owned()
                 ]))
             );
+            Ok(())
+        }
+    }
+
+    mod merge_rustflags {
+        use std::{collections::HashMap, fs};
+
+        use cargo_config2::{PathAndArgs, ResolveOptions};
+        use serde_json::json;
+        use tempfile::tempdir;
+
+        use crate::config::CliConfig;
+
+        fn cargo_config() -> anyhow::Result<cargo_config2::Config> {
+            let dir = tempdir()?;
+            let cargo_dir = dir.path().join(".cargo");
+            fs::create_dir_all(&cargo_dir)?;
+            fs::write(
+                cargo_dir.join("config.toml"),
+                r#"
+                [target.x86_64-unknown-linux-gnu]
+                rustflags = [
+                    "-Clink-arg=-fuse-ld=mold",
+                    "-Zshare-generics=y",
+                    "-Zthreads=8",
+                ]
+                [target.aarch64-apple-darwin]
+                rustflags = [
+                    "-Clink-arg=-fuse-ld=mold",
+                    "-Zshare-generics=y",
+                    "-Zthreads=8",
+                ]
+                [target.x86_64-pc-windows-msvc]
+                rustflags = [
+                    "-Clink-arg=-fuse-ld=mold",
+                    "-Zshare-generics=y",
+                    "-Zthreads=8",
+                ]
+                [target.wasm32-unknown-unknown]
+                rustflags = [
+                    "--cfg",
+                    "getrandom_backend=\"wasm_js\"",
+                    "-Zshare-generics=y",
+                    "-Zthreads=8",
+                ]
+                [target.armv4t-none-eabi]
+                rustflags = [
+                  "-Clink-arg=-Tgba.ld",
+                  "-Ctarget-cpu=arm7tdmi",
+                  "-Cforce-frame-pointers=yes",
+                ]
+            "#,
+            )?;
+
+            let resolve_options = ResolveOptions::default()
+                .env(HashMap::<String, String>::default())
+                .cargo_home(None)
+                .rustc(PathAndArgs::new("rustc"));
+
+            Ok(cargo_config2::Config::load_with_options(
+                cargo_dir,
+                resolve_options,
+            )?)
+        }
+
+        #[test]
+        fn merge_empty_native_cli_config() -> anyhow::Result<()> {
+            let mut cli_config = CliConfig::default();
+            let cargo_config = cargo_config()?;
+
+            cli_config.append_cargo_config_rustflags(None, &cargo_config)?;
+
+            let rustflags = [
+                "-Clink-arg=-fuse-ld=mold",
+                "-Zshare-generics=y",
+                "-Zthreads=8",
+            ]
+            .join(" ");
+
+            assert_eq!(rustflags, cli_config.rustflags().unwrap());
+            Ok(())
+        }
+
+        #[test]
+        fn merge_empty_web_config() -> anyhow::Result<()> {
+            let mut cli_config = CliConfig::default();
+            let cargo_config = cargo_config()?;
+
+            cli_config.append_cargo_config_rustflags(
+                Some("wasm32-unknown-unknown".to_owned()),
+                &cargo_config,
+            )?;
+
+            let rustflags = [
+                "--cfg",
+                "getrandom_backend=\"wasm_js\"",
+                "-Zshare-generics=y",
+                "-Zthreads=8",
+            ]
+            .join(" ");
+
+            assert_eq!(rustflags, cli_config.rustflags().unwrap());
+            Ok(())
+        }
+
+        #[test]
+        fn merge_native_cli_config() -> anyhow::Result<()> {
+            let metadata = json!({
+                "native": {
+                    "rustflags": ["-C debuginfo=1"]
+                },
+            });
+            let mut cli_config = CliConfig::merged_from_metadata(Some(&metadata), false, false)?;
+            let cargo_config = cargo_config()?;
+
+            cli_config.append_cargo_config_rustflags(None, &cargo_config)?;
+
+            let rustflags = [
+                "-C debuginfo=1",
+                "-Clink-arg=-fuse-ld=mold",
+                "-Zshare-generics=y",
+                "-Zthreads=8",
+            ]
+            .join(" ");
+
+            assert_eq!(rustflags, cli_config.rustflags().unwrap());
+            Ok(())
+        }
+
+        #[test]
+        fn merge_web_cli_config() -> anyhow::Result<()> {
+            let metadata = json!({
+                "web": {
+                    "rustflags": ["-C debuginfo=1"]
+                },
+            });
+            let mut cli_config = CliConfig::merged_from_metadata(Some(&metadata), true, false)?;
+            let cargo_config = cargo_config()?;
+
+            cli_config.append_cargo_config_rustflags(
+                Some("wasm32-unknown-unknown".to_owned()),
+                &cargo_config,
+            )?;
+
+            let rustflags = [
+                "-C debuginfo=1",
+                "--cfg",
+                "getrandom_backend=\"wasm_js\"",
+                "-Zshare-generics=y",
+                "-Zthreads=8",
+            ]
+            .join(" ");
+
+            assert_eq!(rustflags, cli_config.rustflags().unwrap());
+            Ok(())
+        }
+
+        #[test]
+        fn merge_explicit_target() -> anyhow::Result<()> {
+            let mut cli_config = CliConfig::default();
+            let cargo_config = cargo_config()?;
+
+            cli_config.append_cargo_config_rustflags(
+                Some("armv4t-none-eabi".to_owned()),
+                &cargo_config,
+            )?;
+
+            let rustflags = [
+                "-Clink-arg=-Tgba.ld",
+                "-Ctarget-cpu=arm7tdmi",
+                "-Cforce-frame-pointers=yes",
+            ]
+            .join(" ");
+
+            assert_eq!(rustflags, cli_config.rustflags().unwrap());
             Ok(())
         }
     }
