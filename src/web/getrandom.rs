@@ -92,7 +92,7 @@ pub fn apply_getrandom_backend(args: &mut BuildArgs, target: &str) -> anyhow::Re
             .clone()
             .unwrap_or_default();
 
-        if !rustflags.contains("--cfg getrandom_backend") {
+        if !rustflags.contains("getrandom_backend") {
             backend_applied = true;
             rustflags += " --cfg getrandom_backend=\"wasm_js\"";
             args.cargo_args.common_args.rustflags = Some(rustflags);
