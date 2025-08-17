@@ -92,6 +92,10 @@ pub fn apply_getrandom_backend(args: &mut BuildArgs, target: &str) -> anyhow::Re
             .clone()
             .unwrap_or_default();
 
+        // Since this is only called with the `web` commands,
+        // we can safely assume that Wasm = web in this context.
+        // Still, we allow the user to override this assumption
+        // by configuring a different backend
         if !rustflags.contains("getrandom_backend") {
             backend_applied = true;
             rustflags += " --cfg getrandom_backend=\"wasm_js\"";

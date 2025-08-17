@@ -10,8 +10,8 @@ Just because you're building for `wasm32-unknown-unknown` doesn't necessarily me
 you could also be building a standalone Wasm application.
 
 So the target cannot be used to automatically activate the web backend.
-Features are also inadequate: They are additive, so if _any_ dependency would pull in the web feature,
-the backend would be used everywhere.
+Features are also inadequate: They are additive, so if _any_ dependency pulled in the web feature,
+the backend would be used everywhere or the build would be broken.
 Considering the security-sensitive nature of random data, this was deemed unacceptable.
 
 So in addition to a feature to make the backend available,
@@ -29,7 +29,7 @@ getrandom = { version = "0.3", features = ["wasm_js"] }
 getrandom_02 = { version = "0.2", features = ["js"], package = "getrandom" }
 ```
 
-This activates the necessary feature flags for `getrandom`, accounting for both v0.2 and v0.3 (as they can both be in the dependency tree).
+This activates the necessary feature flags for `getrandom`, accounting for both v0.2 and v0.3 (as they can both be in the dependency tree, depending on the Bevy version used).
 
 Additionally, you need to add `--cfg getrandom_backend="wasm_js"` to your `RUSTFLAGS`.
 This can be done in several places:
