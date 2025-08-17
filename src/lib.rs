@@ -4,5 +4,6 @@ pub(crate) mod bin_target;
 pub mod commands;
 pub(crate) mod config;
 pub(crate) mod external_cli;
+pub mod file_size;
 #[cfg(feature = "web")]
 pub(crate) mod web;
