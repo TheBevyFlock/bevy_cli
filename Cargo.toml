@@ -51,7 +51,12 @@ anyhow = "1.0.86"
 cargo-generate = "0.23"
 
 # Better CLI user input
-dialoguer = { version = "0.11.0", default-features = false }
+dialoguer = { version = "0.11.0", default-features = false, features = [
+    "fuzzy-select",
+] }
+
+# Used to create styled table outputs.
+comfy-table = "7.1.4"
 
 # Cargo like styling for clap
 clap-cargo = "0.16.0"
