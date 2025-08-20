@@ -295,7 +295,6 @@ fn extract_headers(cli_metadata: &Map<String, Value>) -> anyhow::Result<Vec<Stri
     const KEY: &str = "headers";
 
     let Some(features) = cli_metadata.get(KEY) else {
-        tracing::debug!("no `{KEY}` found in CLI metadata, using default");
         return Ok(Vec::new());
     };
 
