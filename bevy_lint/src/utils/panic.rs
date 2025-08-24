@@ -28,6 +28,12 @@ macro_rules! panic {
 
 /// A variant of [`std::panic!`] with better error messages emitted to a specific
 /// [`Span`](rustc_span::Span).
+///
+/// # Example
+///
+/// ```ignore
+/// span_panic(span, "error message");
+/// ```
 #[macro_export]
 #[doc(hidden)]
 macro_rules! span_panic {
@@ -40,6 +46,18 @@ macro_rules! span_panic {
 }
 
 /// A variant of [`std::assert!`] with better error messages.
+///
+/// # Example
+///
+/// ```
+/// assert!(true);
+///
+/// fn cargo_lints_enabled() -> bool {
+///     true
+/// }
+///
+/// assert!(cargo_lints_enabled());
+/// ```
 #[macro_export]
 #[doc(hidden)]
 macro_rules! assert {
@@ -60,6 +78,18 @@ macro_rules! assert {
 
 /// A variant of [`std::assert!`] with better error messages emitted to a specific
 /// [`Span`](rustc_span::Span).
+///
+/// # Example
+///
+/// ```ignore
+/// span_assert!(span,true);
+///
+/// fn cargo_lints_enabled() -> bool {
+///     true
+/// }
+///
+/// span_assert!(span,cargo_lints_enabled());
+/// ```
 #[macro_export]
 #[doc(hidden)]
 macro_rules! span_assert {
@@ -79,6 +109,14 @@ macro_rules! span_assert {
 }
 
 /// A variant of [`std::assert_eq!`] with better error messages.
+///
+/// # Example
+///
+/// ```
+/// let a = 3;
+/// let b = 1 + 2;
+/// assert_eq!(a, b);
+/// ```
 #[macro_export]
 #[doc(hidden)]
 macro_rules! assert_eq {
@@ -119,6 +157,14 @@ assertion `left == right` failed: {message}
 
 /// A variant of [`std::assert_eq!`] with better error messages emitted to a specific
 /// [`Span`](rustc_span::Span).
+///
+/// # Example
+///
+/// ```ignore
+/// let a = 3;
+/// let b = 1 + 2;
+/// span_assert_eq!(span,a, b);
+/// ```
 #[macro_export]
 #[doc(hidden)]
 macro_rules! span_assert_eq {
@@ -160,6 +206,12 @@ assertion `left == right` failed: {message}
 }
 
 /// A variant of [`std::debug_assert!`] with better error messages.
+///
+/// # Example
+///
+/// ```
+/// debug_assert!(true);
+/// ```
 #[macro_export]
 #[doc(hidden)]
 macro_rules! debug_assert {
@@ -172,6 +224,12 @@ macro_rules! debug_assert {
 
 /// A variant of [`std::debug_assert!`] with better error messages emitted to a specific
 /// [`Span`](rustc_span::Span).
+///
+/// # Example
+///
+/// ```ignore
+/// debug_span_assert!(span,true);
+/// ```
 #[macro_export]
 #[doc(hidden)]
 macro_rules! debug_span_assert {
@@ -183,6 +241,14 @@ macro_rules! debug_span_assert {
 }
 
 /// A variant of [`std::debug_assert_eq!`] with better error messages.
+///
+/// # Example
+///
+/// ```
+/// let a = 3;
+/// let b = 1 + 2;
+/// debug_assert_eq!(a, b);
+/// ```
 #[macro_export]
 #[doc(hidden)]
 macro_rules! debug_assert_eq {
@@ -195,6 +261,14 @@ macro_rules! debug_assert_eq {
 
 /// A variant of [`std::debug_assert_eq!`] with better error messages emitted to a specific
 /// [`Span`](rustc_span::Span).
+///
+/// # Example
+///
+/// ```
+/// let a = 3;
+/// let b = 1 + 2;
+/// debug_span_assert_eq!(span,a, b);
+/// ```
 #[macro_export]
 #[doc(hidden)]
 macro_rules! debug_span_assert_eq {
@@ -206,6 +280,20 @@ macro_rules! debug_span_assert_eq {
 }
 
 /// A variant of [`std::unreachable!`] with better error messages.
+///
+/// # Example
+///
+/// ```
+/// # #[allow(dead_code)]
+/// fn foo(x: Option<i32>) {
+///     match x {
+///         Some(n) if n >= 0 => println!("Some(Non-negative)"),
+///         Some(n) if n <  0 => println!("Some(Negative)"),
+///         Some(_)           => unreachable!("integers must be >= 0 or < 0"), // compile error if commented out
+///         None              => println!("None")
+///     }
+/// }
+/// ```
 #[macro_export]
 #[doc(hidden)]
 macro_rules! unreachable {
@@ -223,6 +311,20 @@ macro_rules! unreachable {
 
 /// A variant of [`std::unreachable!`] with better error messages emitted to a specific
 /// [`Span`](rustc_span::Span).
+///
+/// # Example
+///
+/// ```ignore
+/// # #[allow(dead_code)]
+/// fn foo(x: Option<i32>) {
+///     match x {
+///         Some(n) if n >= 0 => println!("Some(Non-negative)"),
+///         Some(n) if n <  0 => println!("Some(Negative)"),
+///         Some(_)           => span_unreachable!(span,"integers must be >= 0 or < 0"), // compile error if commented out
+///         None              => println!("None")
+///     }
+/// }
+/// ```
 #[macro_export]
 #[doc(hidden)]
 macro_rules! span_unreachable {
