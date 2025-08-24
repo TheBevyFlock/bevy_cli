@@ -264,7 +264,7 @@ macro_rules! debug_assert_eq {
 ///
 /// # Example
 ///
-/// ```
+/// ```ignore
 /// let a = 3;
 /// let b = 1 + 2;
 /// debug_span_assert_eq!(span,a, b);
