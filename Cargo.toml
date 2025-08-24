@@ -18,7 +18,7 @@ name = "bevy"
 path = "src/bin/main.rs"
 
 [features]
-default = ["rustup", "web"]
+default = ["rustup", "web", "unstable"]
 
 # Run your Bevy app in the browser
 web = [
@@ -35,6 +35,9 @@ web = [
 # You can disable this feature if your system doesn't have rustup installed.
 rustup = []
 
+# Functionality that's unfinished or comes with caveats
+unstable = []
+
 [dependencies]
 # CLI argument parsing
 clap = { version = "4.5.16", features = ["derive"] }
@@ -48,10 +51,18 @@ anyhow = "1.0.86"
 cargo-generate = "0.23"
 
 # Better CLI user input
-dialoguer = { version = "0.11.0", default-features = false }
+dialoguer = { version = "0.11.0", default-features = false, features = [
+    "fuzzy-select",
+] }
+
+# Used to create styled table outputs.
+comfy-table = "7.1.4"
 
 # Cargo like styling for clap
 clap-cargo = "0.16.0"
+
+# Load and resolve Cargo configuration.
+cargo-config2 = "0.1"
 
 # API interaction
 serde = { features = ["derive"], version = "1.0.210" }
