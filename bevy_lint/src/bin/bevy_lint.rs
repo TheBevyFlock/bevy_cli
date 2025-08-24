@@ -165,6 +165,10 @@ fn parse_args() -> Args {
     }
 }
 
+#[expect(
+    clippy::disallowed_macros,
+    reason = "`anstream::println!` can panic, but it is out of our control"
+)]
 fn show_help() {
     use anstyle::{AnsiColor, Color, Style};
 
