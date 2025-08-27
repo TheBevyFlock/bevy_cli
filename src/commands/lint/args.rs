@@ -15,9 +15,22 @@ pub struct LintArgs {
     #[arg(long = "yes", default_value_t = false)]
     pub confirm_prompts: bool,
 
+    /// Show version information
+    #[arg(long = "version", default_value_t = false)]
+    pub version: bool,
+    /// Automatically fix lint warnings reported by bevy_lint.
+    #[arg(long = "fix", default_value_t = false)]
+    pub fix: bool,
+
     /// Arguments to forward to `cargo check`.
     #[clap(flatten)]
     pub cargo_args: CargoCheckArgs,
+
+    /// Arguments to forward to `bevy_lint`
+    ///
+    /// Specified after `--`.
+    #[clap(last = true, name = "ARGS", global = true)]
+    pub forward_args: Vec<String>,
 }
 
 impl LintArgs {
@@ -60,7 +73,7 @@ impl LintArgs {
         self.cargo_args.compilation_args.target(self.is_web())
     }
 
-    /// Generate arguments to forward to `cargo build`.
+    /// Generate arguments to forward to `cargo check`.
     pub(crate) fn cargo_args_builder(&self) -> ArgBuilder {
         self.cargo_args.args_builder(self.is_web())
     }
