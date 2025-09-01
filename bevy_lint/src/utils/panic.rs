@@ -88,7 +88,7 @@ macro_rules! assert {
 ///     true
 /// }
 ///
-/// span_assert!(span,cargo_lints_enabled());
+/// span_assert!(span, cargo_lints_enabled());
 /// ```
 #[macro_export]
 #[doc(hidden)]
@@ -163,7 +163,7 @@ assertion `left == right` failed: {message}
 /// ```ignore
 /// let a = 3;
 /// let b = 1 + 2;
-/// span_assert_eq!(span,a, b);
+/// span_assert_eq!(span, a, b);
 /// ```
 #[macro_export]
 #[doc(hidden)]
@@ -228,7 +228,7 @@ macro_rules! debug_assert {
 /// # Example
 ///
 /// ```ignore
-/// debug_span_assert!(span,true);
+/// debug_span_assert!(span, true);
 /// ```
 #[macro_export]
 #[doc(hidden)]
@@ -267,7 +267,7 @@ macro_rules! debug_assert_eq {
 /// ```ignore
 /// let a = 3;
 /// let b = 1 + 2;
-/// debug_span_assert_eq!(span,a, b);
+/// debug_span_assert_eq!(span, a, b);
 /// ```
 #[macro_export]
 #[doc(hidden)]
