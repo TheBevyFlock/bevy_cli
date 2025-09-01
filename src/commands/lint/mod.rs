@@ -7,9 +7,12 @@ use crate::{
     bin_target::select_run_binary,
     commands::lint::install::list,
     config::CliConfig,
-    external_cli::cargo::{
-        self,
-        install::{AutoInstall, is_installed},
+    external_cli::{
+        CommandExt,
+        cargo::{
+            self,
+            install::{AutoInstall, is_installed},
+        },
     },
 };
 
@@ -24,12 +27,18 @@ pub fn lint(args: &mut LintArgs) -> anyhow::Result<()> {
     const PROGRAM: &str = "bevy_lint";
     use anyhow::ensure;
 
-    if let Some(LintSubcommands::List) = args.subcommand {
+    if let Some(LintSubcommands::List) = args.subcommand
+        && !args.version
+        && !args.fix
+    {
         return list();
     }
 
     #[cfg(feature = "rustup")]
-    if let Some(LintSubcommands::Install(install_args)) = &args.subcommand {
+    if let Some(LintSubcommands::Install(install_args)) = &args.subcommand
+        && !args.version
+        && !args.fix
+    {
         return install_linter(install_args, args.auto_install());
     }
 
@@ -39,6 +48,45 @@ pub fn lint(args: &mut LintArgs) -> anyhow::Result<()> {
             PROGRAM, PROGRAM
         );
         return Ok(());
+    }
+
+    let status = build_lint_cmd(args)?
+        // We do not want to automatically install a `bevy_lint` version.
+        // The reason is that to pass the `Package`, we would need to look up the latest release on
+        // GitHub since there is no easy way of specify "latest".
+        .ensure_status(AutoInstall::Never)?;
+
+    ensure!(
+        status.success(),
+        "`bevy_lint` exited with a non-zero exit code."
+    );
+
+    Ok(())
+}
+
+fn build_lint_cmd(args: &mut LintArgs) -> anyhow::Result<CommandExt> {
+    let mut cmd = crate::external_cli::CommandExt::new("bevy_lint");
+
+    // only append `--version`
+    if args.version {
+        cmd.arg("--version");
+        return Ok(cmd);
+    }
+
+    // All additional first party `bevy_lint` arguments need to be the first arguments so
+    // the `forward_args` apply to them.
+    if args.fix {
+        cmd.arg("--fix");
+    }
+
+    // Append all forward args. These should come before the
+    // cargo check args since the forward args would target `bevy_lint` and
+    // `bevy_lint` appends all additional arguments that are not recognized
+    // to `cargo check`.
+    // The forward args are used to support `bevy_lint` arguments that do not yet have first party
+    // support in the cli.
+    if !args.forward_args.is_empty() {
+        cmd.args(args.forward_args.iter());
     }
 
     let metadata = cargo::metadata::metadata()?;
@@ -65,6 +113,7 @@ pub fn lint(args: &mut LintArgs) -> anyhow::Result<()> {
     config.append_cargo_config_rustflags(args.target(), &cargo_config)?;
 
     args.apply_config(&config);
+
     // Update the artifact directory based on the config, e.g. in case the `target` changed
     bin_target.update_artifact_directory(
         &metadata.target_directory,
@@ -86,21 +135,8 @@ pub fn lint(args: &mut LintArgs) -> anyhow::Result<()> {
 
     let cargo_args = args.cargo_args_builder();
 
-    let mut cmd = crate::external_cli::CommandExt::new("bevy_lint");
-
     cmd.args(cargo_args)
         .env("RUSTFLAGS", args.cargo_args.common_args.rustflags.clone());
 
-    let status = crate::external_cli::CommandExt::new("bevy_lint")
-        // We do not want to automatically install a `bevy_lint` version.
-        // The reason is that to pass the `Package`, we would need to look up the latest release on
-        // GitHub since there is no easy way of specify "latest".
-        .ensure_status(AutoInstall::Never)?;
-
-    ensure!(
-        status.success(),
-        "`bevy_lint` exited with a non-zero exit code."
-    );
-
-    Ok(())
+    Ok(cmd)
 }
