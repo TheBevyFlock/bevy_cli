@@ -1,0 +1,17 @@
+version: 2
+updates:
+  - package-ecosystem: cargo
+    directories:
+      - /
+      - /tests/bevy_cli_test
+      - /bevy_lint/tests/ui-cargo/**/*
+    schedule:
+      interval: weekly
+    labels:
+      - C-Dependencies
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    labels:
+      - C-Dependencies
