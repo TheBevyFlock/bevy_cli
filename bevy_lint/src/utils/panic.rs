@@ -284,13 +284,13 @@ macro_rules! debug_span_assert_eq {
 /// # Example
 ///
 /// ```
-/// # #[allow(dead_code)]
+/// # #[expect(dead_code)]
 /// fn foo(x: Option<i32>) {
 ///     match x {
 ///         Some(n) if n >= 0 => println!("Some(Non-negative)"),
-///         Some(n) if n <  0 => println!("Some(Negative)"),
-///         Some(_)           => unreachable!("integers must be >= 0 or < 0"), // compile error if commented out
-///         None              => println!("None")
+///         Some(n) if n < 0 => println!("Some(Negative)"),
+///         Some(_) => unreachable!("integers must be >= 0 or < 0"), // compile error if commented out
+///         None => println!("None")
 ///     }
 /// }
 /// ```
@@ -315,13 +315,13 @@ macro_rules! unreachable {
 /// # Example
 ///
 /// ```ignore
-/// # #[allow(dead_code)]
+/// # #[expect(dead_code)]
 /// fn foo(x: Option<i32>) {
 ///     match x {
 ///         Some(n) if n >= 0 => println!("Some(Non-negative)"),
-///         Some(n) if n <  0 => println!("Some(Negative)"),
-///         Some(_)           => span_unreachable!(span,"integers must be >= 0 or < 0"), // compile error if commented out
-///         None              => println!("None")
+///         Some(n) if n < 0 => println!("Some(Negative)"),
+///         Some(_) => span_unreachable!(span,"integers must be >= 0 or < 0"), // compile error if commented out
+///         None => println!("None")
 ///     }
 /// }
 /// ```
