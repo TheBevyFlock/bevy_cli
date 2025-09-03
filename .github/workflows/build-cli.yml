@@ -97,7 +97,7 @@ jobs:
       # with `gh attestation verify path/to/bevy --repo TheBevyFlock/bevy_cli`. A list of
       # attestations can be found at <https://github.com/TheBevyFlock/bevy_cli/attestations>.
       - name: Attest executable
-        uses: actions/attest-build-provenance@v2
+        uses: actions/attest-build-provenance@v3
         with:
           subject-name: bevy-cli-${{ matrix.target }}-v${{ needs.extract-cli-version.outputs.version }}
           subject-path: target/release/${{ env.EXECUTABLE_NAME }}
