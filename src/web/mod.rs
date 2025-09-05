@@ -2,6 +2,7 @@
 
 pub(crate) mod build;
 pub(crate) mod bundle;
+pub(crate) mod getrandom;
 pub(crate) mod profiles;
 pub(crate) mod run;
 pub(crate) mod serve;
