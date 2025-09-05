@@ -11,6 +11,8 @@ use std::{
 
 use rustc_session::config::Input;
 
+use crate::debug_assert;
+
 /// The name of the `cargo` executable.
 const CARGO: &str = "cargo";
 

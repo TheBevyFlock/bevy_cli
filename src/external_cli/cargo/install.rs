@@ -96,39 +96,10 @@ pub(crate) fn if_needed<Pr: AsRef<OsStr>>(
     }
     let mut cmd = CommandExt::new(super::program());
 
-    // If the program needs to be installed with a specific toolchain, switch to `rustup run
-    // <toolchain> cargo install`
-    if let Some(toolchain) = &package.required_toolchain {
-        cmd = CommandExt::new("rustup");
-        cmd.arg("run").arg(toolchain).arg(super::program());
-    }
+    cmd.arg("install").arg(package.name.clone());
 
-    match &package.git {
-        // Install from Git
-        Some(git_url) => {
-            cmd.arg("install").arg("--git").arg(git_url);
-
-            // Install either from tag or branch, if none are present install from main branch.
-            // If both a tag and a branch is passed, return an error.
-            match (&package.tag, &package.branch) {
-                (None, None) => cmd.arg("--branch").arg("main"),
-                (None, Some(branch)) => cmd.arg("--branch").arg(branch),
-                (Some(tag), None) => cmd.arg("--tag").arg(tag),
-                (Some(_), Some(_)) => {
-                    anyhow::bail!("cannot install from branch and tag at the same time, choose one")
-                }
-            };
-
-            cmd.arg("--locked").arg(&package.name);
-        }
-        // Install the package from crates.io
-        None => {
-            cmd.arg("install").arg(package.name.clone());
-
-            if let Some(package_version) = &package.version {
-                cmd.arg("--version").arg(package_version.to_string());
-            }
-        }
+    if let Some(package_version) = &package.version {
+        cmd.arg("--version").arg(package_version.to_string());
     }
 
     cmd.ensure_status(auto_install)?;

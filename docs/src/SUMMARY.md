@@ -50,6 +50,7 @@
   - [Setup Your Editor](contribute/linter/how-to/editor.md)
   - [Work with Types](contribute/linter/how-to/types.md)
   - [Parse Method Calls](contribute/linter/how-to/methods.md)
+  - [Panic / ICE](contribute/linter/how-to/ices.md)
   - [Release `bevy_lint`](contribute/linter/how-to/release.md)
   - [Upgrade the Rust Toolchain](contribute/linter/how-to/upgrade-rust-toolchain.md)
 - [Reference](contribute/linter/reference.md)

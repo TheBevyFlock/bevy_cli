@@ -37,7 +37,7 @@ jobs:
     needs: extract-rust-version
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@master
@@ -83,7 +83,7 @@ jobs:
           mv target/doc/* docs/book/html/api
 
       - name: Upload pages artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: docs/book/html
 

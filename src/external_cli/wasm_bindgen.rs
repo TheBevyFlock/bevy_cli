@@ -43,7 +43,6 @@ pub(crate) fn bundle(
                 pre,
             }],
         }),
-        ..Default::default()
     };
 
     CommandExt::new(PROGRAM)

@@ -1,11 +1,10 @@
 use clap::{Args, Subcommand};
 
+#[cfg(feature = "rustup")]
+use crate::external_cli::cargo::install::AutoInstall;
 use crate::{
     config::CliConfig,
-    external_cli::{
-        arg_builder::ArgBuilder,
-        cargo::{check::CargoCheckArgs, install::AutoInstall},
-    },
+    external_cli::{arg_builder::ArgBuilder, cargo::check::CargoCheckArgs},
 };
 
 #[derive(Debug, Args)]
@@ -16,24 +15,32 @@ pub struct LintArgs {
     #[arg(long = "yes", default_value_t = false)]
     pub confirm_prompts: bool,
 
+    /// Show version information
+    #[arg(long = "version", default_value_t = false)]
+    pub version: bool,
+    /// Automatically fix lint warnings reported by bevy_lint.
+    #[arg(long = "fix", default_value_t = false)]
+    pub fix: bool,
+
     /// Arguments to forward to `cargo check`.
     #[clap(flatten)]
     pub cargo_args: CargoCheckArgs,
+
+    /// Arguments to forward to `bevy_lint`
+    ///
+    /// Specified after `--`.
+    #[clap(last = true, name = "ARGS", global = true)]
+    pub forward_args: Vec<String>,
 }
 
 impl LintArgs {
     /// Whether to automatically install missing dependencies.
-    // Only needed with the `rustup` feature
+    #[cfg(feature = "rustup")]
     pub(crate) fn auto_install(&self) -> AutoInstall {
-        if cfg!(feature = "rustup") {
-            if self.confirm_prompts {
-                AutoInstall::Always
-            } else {
-                AutoInstall::AskUser
-            }
+        if self.confirm_prompts {
+            AutoInstall::Always
         } else {
-            // We cannot auto-install `bevy_lint` without Rustup.
-            AutoInstall::Never
+            AutoInstall::AskUser
         }
     }
 
@@ -66,7 +73,7 @@ impl LintArgs {
         self.cargo_args.compilation_args.target(self.is_web())
     }
 
-    /// Generate arguments to forward to `cargo build`.
+    /// Generate arguments to forward to `cargo check`.
     pub(crate) fn cargo_args_builder(&self) -> ArgBuilder {
         self.cargo_args.args_builder(self.is_web())
     }
@@ -106,4 +113,14 @@ pub enum LintSubcommands {
     /// Lint your app for the browser.
     #[cfg(feature = "web")]
     Web,
+    /// Install a `bevy_lint` version.
+    #[cfg(feature = "rustup")]
+    Install(InstallArgs),
+    /// List all available `bevy_lint` versions.
+    List,
+}
+
+#[derive(Debug, Args)]
+pub struct InstallArgs {
+    pub version: Option<String>,
 }
