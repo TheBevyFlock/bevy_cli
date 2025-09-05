@@ -9,7 +9,7 @@ use crate::{
     external_cli::{cargo, wasm_bindgen, wasm_opt},
     web::{
         bundle::{PackedBundle, create_web_bundle},
-        getrandom::apply_getrandom_backend,
+        getrandom::{apply_getrandom_backend, getrandom_web_feature_config},
         profiles::configure_default_web_profiles,
     },
 };
@@ -35,9 +35,7 @@ pub fn build_web(
     args.cargo_args.common_args.config = profile_args;
 
     // Apply the `getrandom` web backend if necessary
-    if let Some(target) = args.target()
-        && apply_getrandom_backend(args, &target).context("failed to apply getrandom backend")?
-    {
+    if apply_getrandom_backend(metadata, args).context("failed to apply getrandom backend")? {
         info!("automatically configuring `getrandom` web backend");
     }
 
@@ -53,7 +51,17 @@ pub fn build_web(
         .maybe_require_target(args.target())
         .args(cargo_args)
         .env("RUSTFLAGS", args.rustflags())
-        .ensure_status(args.auto_install())?;
+        .ensure_status(args.auto_install())
+        .inspect_err(|_| {
+            // If the build failed, check if the user has configured `getrandom` correctly
+            if let Some(target) = args.target()
+                && let Ok(Some(feature_config)) = getrandom_web_feature_config(&target)
+            {
+                tracing::warn!(
+                    "You have to enable the `getrandom` web feature in your Cargo.toml:\n\n{feature_config}"
+                );
+            }
+        })?;
 
     info!("bundling JavaScript bindings...");
     wasm_bindgen::bundle(metadata, bin_target, args.auto_install())?;
