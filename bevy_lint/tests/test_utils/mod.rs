@@ -1,4 +1,5 @@
 use std::{
+    borrow::Cow,
     ffi::OsStr,
     path::{Path, PathBuf},
     process::{Command, Stdio},
@@ -73,16 +74,17 @@ struct ArtifactMessage<'a> {
     target: ArtifactTarget<'a>,
 
     #[serde(borrow)]
-    filenames: Vec<&'a Path>,
+    filenames: Vec<Cow<'a, Path>>,
 }
 
 /// The `"target"` field of an [`ArtifactMessage`].
 #[derive(Deserialize, Debug)]
 struct ArtifactTarget<'a> {
-    name: &'a str,
+    #[serde(borrow)]
+    name: Cow<'a, str>,
 
     #[serde(borrow)]
-    kind: Vec<&'a str>,
+    kind: Vec<Cow<'a, str>>,
 }
 
 /// Tries to find the path to `libbevy.rlib` that UI tests import.
@@ -117,7 +119,7 @@ fn find_bevy_rlib() -> color_eyre::Result<PathBuf> {
         if let Ok(message) = serde_json::from_str::<ArtifactMessage>(line)
             // If the message passes the following conditions, it's probably the one we want.
             && message.target.name == "bevy"
-            && message.target.kind.contains(&"lib")
+            && message.target.kind.contains(&Cow::Borrowed("lib"))
         {
             messages.push(message);
         }
