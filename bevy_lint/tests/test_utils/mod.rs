@@ -8,7 +8,10 @@ use std::{
 use serde::Deserialize;
 use ui_test::{
     CommandBuilder, Config,
-    color_eyre::{self, eyre::ensure},
+    color_eyre::{
+        self,
+        eyre::{bail, ensure},
+    },
 };
 // This is set by `build.rs`. It is the version specified in `rust-toolchain.toml`.
 const RUST_TOOLCHAIN_CHANNEL: &str = env!("RUST_TOOLCHAIN_CHANNEL");
@@ -126,10 +129,16 @@ fn find_bevy_rlib() -> color_eyre::Result<PathBuf> {
         }
     }
 
-    ensure!(
-        messages.len() == 1,
-        "More than one `libbevy.rlib` was built for UI tests. Please ensure there is not more than 1 version of Bevy in `Cargo.lock`.",
-    );
+    match messages.len() {
+        // Exactly 1 version of Bevy was built, so continue with the program.
+        1 => {}
+
+        // Both of these are failure cases where we exit early.
+        0 => bail!("`libbevy.rlib` was not built, but is required for ui tests"),
+        len @ 2.. => {
+            bail!("`libbevy.rlib` was built {len} times, but it was only expected to be built once")
+        }
+    };
 
     // The message usually has multiple files, often `libbevy.rlib` and `libbevy.rmeta`. Filter
     // through these to find the `rlib`.
