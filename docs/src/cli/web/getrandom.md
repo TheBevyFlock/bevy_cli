@@ -38,15 +38,17 @@ This can be done in several places:
 - Setting `build.rustflags` in `Cargo.toml`
 - Setting the `RUSTFLAGS` env variable when running `cargo`
 
-However, not that the rustflags are not merged, but _overwritten_.
+However, note that the rustflags are not merged, but _overwritten_.
 So if you have e.g. `rustflags` defined in your `~/.cargo/config.toml` to optimize your compile times,
 but then have again `rustflags` defined in your workspace to set the `getrandom` backend,
 only the workspace `rustflags` will be used.
 
 ## Automated by the CLI
 
-The Bevy CLI automatically applies the web `getrandom` backend when `bevy build web` or `bevy run web` is used
+The Bevy CLI automatically sets the `RUSTFLAGS` env variable to configure the web `getrandom` backend when `bevy build web` or `bevy run web` is used
 and you haven't configured the backend yourself.
 This allows more projects to work out-of-the-box for the web and simplifies the configuration.
 
 You can still explicitly define the backend if you wish (or need to).
+
+The feature configuration is not done automatically, but the CLI will give you a snippet to set it up when needed.
