@@ -1,4 +1,5 @@
 use std::{
+    borrow::Cow,
     env::{self},
     ffi::OsStr,
     path::{Path, PathBuf},
@@ -8,7 +9,10 @@ use std::{
 use serde::Deserialize;
 use ui_test::{
     CommandBuilder, Config,
-    color_eyre::{self, eyre::ensure},
+    color_eyre::{
+        self,
+        eyre::{bail, ensure},
+    },
 };
 // This is set by `build.rs`. It is the version specified in `rust-toolchain.toml`.
 const RUST_TOOLCHAIN_CHANNEL: &str = env!("RUST_TOOLCHAIN_CHANNEL");
@@ -76,16 +80,17 @@ struct ArtifactMessage<'a> {
     target: ArtifactTarget<'a>,
 
     #[serde(borrow)]
-    filenames: Vec<&'a Path>,
+    filenames: Vec<Cow<'a, Path>>,
 }
 
 /// The `"target"` field of an [`ArtifactMessage`].
 #[derive(Deserialize, Debug)]
 struct ArtifactTarget<'a> {
-    name: &'a str,
+    #[serde(borrow)]
+    name: Cow<'a, str>,
 
     #[serde(borrow)]
-    kind: Vec<&'a str>,
+    kind: Vec<Cow<'a, str>>,
 }
 
 /// Tries to find the path to `libbevy.rlib` that UI tests import.
@@ -120,16 +125,22 @@ fn find_bevy_rlib() -> color_eyre::Result<PathBuf> {
         if let Ok(message) = serde_json::from_str::<ArtifactMessage>(line)
             // If the message passes the following conditions, it's probably the one we want.
             && message.target.name == "bevy"
-            && message.target.kind.contains(&"lib")
+            && message.target.kind.contains(&Cow::Borrowed("lib"))
         {
             messages.push(message);
         }
     }
 
-    ensure!(
-        messages.len() == 1,
-        "More than one `libbevy.rlib` was built for UI tests. Please ensure there is not more than 1 version of Bevy in `Cargo.lock`.",
-    );
+    match messages.len() {
+        // Exactly 1 version of Bevy was built, so continue with the program.
+        1 => {}
+
+        // Both of these are failure cases where we exit early.
+        0 => bail!("`libbevy.rlib` was not built, but is required for ui tests"),
+        len @ 2.. => {
+            bail!("`libbevy.rlib` was built {len} times, but it was only expected to be built once")
+        }
+    };
 
     // The message usually has multiple files, often `libbevy.rlib` and `libbevy.rmeta`. Filter
     // through these to find the `rlib`.
