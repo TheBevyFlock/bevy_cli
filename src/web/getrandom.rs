@@ -16,12 +16,12 @@ use crate::{commands::build::BuildArgs, external_cli::cargo};
 /// without modifying the user's `Cargo.toml`.
 ///
 /// When `true` is returned, the rustflag has been configured in the args.
-pub fn apply_getrandom_backend(metadata: &Metadata, args: &mut BuildArgs) -> anyhow::Result<bool> {
+pub fn apply_getrandom_backend(metadata: &Metadata, args: &mut BuildArgs) -> bool {
     let getrandom = getrandom_packages(metadata);
 
     if getrandom.v3_packages.is_empty() {
         // Nothing to do when `getrandom` isn't used
-        return Ok(false);
+        return false;
     }
 
     let mut rustflags = args
@@ -33,14 +33,14 @@ pub fn apply_getrandom_backend(metadata: &Metadata, args: &mut BuildArgs) -> any
 
     if rustflags.contains("getrandom_backend") {
         // The user has already set a backend, so we don't override it
-        return Ok(false);
+        return false;
     }
 
     // Add the backend configuration
     rustflags += " --cfg getrandom_backend=\"wasm_js\"";
     args.cargo_args.common_args.rustflags = Some(rustflags);
 
-    Ok(true)
+    true
 }
 
 /// Generate a Cargo.toml configuration snippet to set the web features for `getrandom`.
