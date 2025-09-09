@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 
 ### Added
 
+- The `bevy build web` and `bevy run web` commands will now automatically apply the web backend for `getrandom` if necessary. `getrandom` requires both a feature and a rustflag to be enabled by the user, which can quickly lead to compile errors when not set up correctly. The CLI will automatically set the rustflag if needed and provide easy instructions on how to configure the features.
 - Unstable support for building and running web apps using **Wasm multi-threading** features
   - Use `bevy run web --unstable multi-threading` to run an app using multi-threaded Wasm
   - Can be configured in `Cargo.toml` by setting `package.metadata.bevy_cli.unstable.web-multi-threading = true`
