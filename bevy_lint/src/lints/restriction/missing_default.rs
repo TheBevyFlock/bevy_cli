@@ -31,6 +31,14 @@ impl<'tcx> LateLintPass<'tcx> for MissingDefault {
         };
 
         for component in components {
+            // Skip if a types originates from a foreign crate's macro
+            if component
+                .item_span
+                .in_external_macro(cx.tcx.sess.source_map())
+            {
+                continue;
+            }
+
             let def_id = component.hir_id.owner.to_def_id();
 
             // Skip binder as we are not interested in the generics
