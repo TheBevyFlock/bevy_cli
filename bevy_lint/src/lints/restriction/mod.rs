@@ -10,6 +10,7 @@ use rustc_lint::{Level, Lint, LintStore};
 
 use crate::lint::LintGroup;
 
+pub mod missing_default;
 pub mod missing_reflect;
 pub mod panicking_methods;
 pub mod schedule;
@@ -20,6 +21,7 @@ impl LintGroup for Restriction {
     const NAME: &str = "bevy::restriction";
     const LEVEL: Level = Level::Allow;
     const LINTS: &[&Lint] = &[
+        missing_default::MISSING_DEFAULT,
         missing_reflect::MISSING_REFLECT,
         panicking_methods::PANICKING_METHODS,
         schedule::FIXED_UPDATE_SCHEDULE,
@@ -27,6 +29,7 @@ impl LintGroup for Restriction {
     ];
 
     fn register_passes(store: &mut LintStore) {
+        store.register_late_pass(|_| Box::new(missing_default::MissingDefault));
         store.register_late_pass(|_| Box::new(missing_reflect::MissingReflect));
         store.register_late_pass(|_| Box::new(panicking_methods::PanickingMethods));
         store.register_late_pass(|_| Box::new(schedule::Schedule));
