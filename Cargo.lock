@@ -567,6 +567,7 @@ dependencies = [
  "semver",
  "serde",
  "serde_json",
+ "snapbox",
  "tokio",
  "toml 0.9.5",
  "tower",
