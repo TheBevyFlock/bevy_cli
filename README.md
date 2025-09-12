@@ -8,7 +8,7 @@ A prototype [Bevy] CLI tool intended to streamline common tasks when working on 
 
 If you need assistance or want to help, reach out to the [`bevy_cli` working group channel] in the [Bevy Discord].
 
-[Bevy]: https://bevyengine.org
+[Bevy]: https://bevy.org
 [initial scope document]: https://hackmd.io/cCHAfbtaSviU_MDnbNHKxg
 [original issue]: https://github.com/bevyengine/bevy/issues/436
 [`bevy_cli` working group channel]: https://discord.com/channels/691052431525675048/1278871953721262090
