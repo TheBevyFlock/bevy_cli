@@ -5,7 +5,7 @@ This is the combined documentation for the prototype **Bevy CLI** and **Bevy Lin
 - [**Bevy CLI (Alpha)**](cli/index.md)
 - [**Bevy Linter**](linter/index.md)
 
-[Bevy game engine]: https://bevyengine.org
+[Bevy game engine]: https://bevy.org
 
 <div class="warning">
 
