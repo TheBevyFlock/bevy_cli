@@ -1,0 +1,35 @@
+#![feature(register_tool)]
+#![register_tool(bevy)]
+//~v NOTE: the lint level is defined here
+#![deny(bevy::missing_default)]
+
+use bevy::prelude::*;
+
+//~v NOTE: `Component` implemented here
+#[derive(Component)]
+//~| HELP: `Default` can be automatically derived
+//~v ERROR: defined a unit struct without a `Default` implementation
+#[derive(Default)]
+pub struct IsDefaultUiCamera;
+
+// This should not raise an ERROR, since `Default` is derived.
+#[derive(Component, Default)]
+pub struct DeriveDefault;
+
+// This should not raise an ERROR, since `Default` is derived.
+#[derive(Component)]
+pub struct ImplDefault;
+
+// This should not raise an ERROR, since `Default` is implemented.
+impl Default for ImplDefault {
+    fn default() -> Self {
+        ImplDefault
+    }
+}
+
+// This should not raise an ERROR, since this is not a unit struct.
+#[derive(Component)]
+pub struct ComponentWithFields(#[allow(dead_code)] f32);
+
+// This should not raise an ERROR, since this struct does not implement `Component`.
+pub struct Foo;
