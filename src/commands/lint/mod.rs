@@ -1,5 +1,5 @@
+use anyhow::bail;
 pub use args::*;
-use tracing::error;
 
 #[cfg(feature = "rustup")]
 use crate::commands::lint::install::install_linter;
@@ -43,11 +43,7 @@ pub fn lint(args: &mut LintArgs) -> anyhow::Result<()> {
     }
 
     if is_installed(PROGRAM).is_none() {
-        error!(
-            "{} is not present, install {} via `bevy lint install`",
-            PROGRAM, PROGRAM
-        );
-        return Ok(());
+        bail!("{PROGRAM} is not present, install {PROGRAM} via `bevy lint install`");
     }
 
     let status = build_lint_cmd(args)?
