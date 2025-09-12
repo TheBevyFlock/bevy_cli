@@ -1,0 +1,83 @@
+<svg width="860px" height="578px" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .fg { fill: #AAAAAA }
+    .bg { background: #000000 }
+    .container {
+      padding: 0 10px;
+      line-height: 18px;
+    }
+    tspan {
+      font: 14px SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace;
+      white-space: pre;
+      line-height: 18px;
+    }
+  </style>
+
+  <rect width="100%" height="100%" y="0" rx="4.5" class="bg" />
+
+  <text xml:space="preserve" class="container fg">
+    <tspan x="10px" y="28px"><tspan>Command-line interface for the Bevy Game Engine</tspan>
+</tspan>
+    <tspan x="10px" y="46px">
+</tspan>
+    <tspan x="10px" y="64px"><tspan>This CLI provides tools for Bevy project management, such as generating new projects from templates.</tspan>
+</tspan>
+    <tspan x="10px" y="82px">
+</tspan>
+    <tspan x="10px" y="100px"><tspan>Usage: bevy [OPTIONS] &lt;COMMAND&gt;</tspan>
+</tspan>
+    <tspan x="10px" y="118px">
+</tspan>
+    <tspan x="10px" y="136px"><tspan>Commands:</tspan>
+</tspan>
+    <tspan x="10px" y="154px"><tspan>  new          Create a new Bevy project from a specified template</tspan>
+</tspan>
+    <tspan x="10px" y="172px"><tspan>  build        Build your Bevy app [aliases: b]</tspan>
+</tspan>
+    <tspan x="10px" y="190px"><tspan>  run          Run your Bevy app [aliases: r]</tspan>
+</tspan>
+    <tspan x="10px" y="208px"><tspan>  lint         Check the current project using Bevy-specific lints</tspan>
+</tspan>
+    <tspan x="10px" y="226px"><tspan>  completions  Prints the auto-completion script for a specific shell</tspan>
+</tspan>
+    <tspan x="10px" y="244px"><tspan>  help         Print this message or the help of the given subcommand(s)</tspan>
+</tspan>
+    <tspan x="10px" y="262px">
+</tspan>
+    <tspan x="10px" y="280px"><tspan>Options:</tspan>
+</tspan>
+    <tspan x="10px" y="298px"><tspan>  -v, --verbose</tspan>
+</tspan>
+    <tspan x="10px" y="316px"><tspan>          Use verbose output.</tspan>
+</tspan>
+    <tspan x="10px" y="334px"><tspan>          </tspan>
+</tspan>
+    <tspan x="10px" y="352px"><tspan>          Logs commands that are executed and more information on the actions being performed.</tspan>
+</tspan>
+    <tspan x="10px" y="370px">
+</tspan>
+    <tspan x="10px" y="388px"><tspan>  -h, --help</tspan>
+</tspan>
+    <tspan x="10px" y="406px"><tspan>          Print help (see a summary with '-h')</tspan>
+</tspan>
+    <tspan x="10px" y="424px">
+</tspan>
+    <tspan x="10px" y="442px"><tspan>  -V, --version</tspan>
+</tspan>
+    <tspan x="10px" y="460px"><tspan>          Print version</tspan>
+</tspan>
+    <tspan x="10px" y="478px">
+</tspan>
+    <tspan x="10px" y="496px"><tspan>Resources:</tspan>
+</tspan>
+    <tspan x="10px" y="514px"><tspan>  Bevy Website       https://bevyengine.org</tspan>
+</tspan>
+    <tspan x="10px" y="532px"><tspan>  Bevy Repository    https://github.com/bevyengine/bevy</tspan>
+</tspan>
+    <tspan x="10px" y="550px"><tspan>  CLI Documentation  https://thebevyflock.github.io/bevy_cli</tspan>
+</tspan>
+    <tspan x="10px" y="568px">
+</tspan>
+  </text>
+
+</svg>
