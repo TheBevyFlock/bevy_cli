@@ -211,16 +211,13 @@ impl<'tcx> LateLintPass<'tcx> for PanickingMethods {
 }
 
 enum PanickingType {
-    Query,
     World,
 }
 
 impl PanickingType {
     /// Returns the corresponding variant for the given [`Ty`], if it is supported by this lint.
     fn try_from_ty<'tcx>(cx: &LateContext<'tcx>, ty: Ty<'tcx>) -> Option<Self> {
-        if crate::paths::QUERY.matches_ty(cx, ty) {
-            Some(Self::Query)
-        } else if crate::paths::WORLD.matches_ty(cx, ty) {
+        if crate::paths::WORLD.matches_ty(cx, ty) {
             Some(Self::World)
         } else {
             None
@@ -233,7 +230,6 @@ impl PanickingType {
     /// `(panicking_method, alternative_method)`.
     fn alternatives(&self) -> &'static [(&'static str, &'static str)] {
         match self {
-            Self::Query => &[("many", "get_many"), ("many_mut", "get_many_mut")],
             Self::World => &[
                 ("entity", "get_entity"),
                 ("entity_mut", "get_entity_mut"),
@@ -251,7 +247,6 @@ impl PanickingType {
     /// Returns the name of the type this variant represents.
     fn name(&self) -> &'static str {
         match self {
-            Self::Query => "Query",
             Self::World => "World",
         }
     }
