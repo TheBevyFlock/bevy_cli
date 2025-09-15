@@ -75,7 +75,7 @@ reqwest = { version = "0.12.7", default-features = false, features = [
 regex = "1.10.6"
 
 # Understanding package versions
-semver = { version = "1.0.23", features = ["serde"] }
+semver = { version = "1.0.27", features = ["serde"] }
 
 # `cargo metadata` command helpers and types
 cargo_metadata = "0.22.0"
