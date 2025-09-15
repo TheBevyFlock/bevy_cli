@@ -1515,9 +1515,9 @@ dependencies = [
 
 [[package]]
 name = "clap-cargo"
-version = "0.17.0"
+version = "0.17.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "db0bd7fba4da3bce65c1ddb068a9d632876c779d20c8b515fbce1e867fccce17"
+checksum = "ce5010f1505303ab5e680a48db64856a03161d8781e9eb1a6e553dc78f7e6b38"
 dependencies = [
  "anstyle",
  "clap",
@@ -2004,7 +2004,7 @@ dependencies = [
  "libc",
  "option-ext",
  "redox_users",
- "windows-sys 0.60.2",
+ "windows-sys 0.61.0",
 ]
 
 [[package]]
