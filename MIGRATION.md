@@ -10,6 +10,10 @@ To actually install the new version of the CLI, please see [the docs] and [the r
 
 ## v0.1.0-alpha.1 to v0.1.0-alpha.2 (Unreleased)
 
+## Move `--yes` flag from `bevy lint` to `bevy lint install`
+
+The `--yes` flag to confirm all prompts got moved from the `bevy lint` command to the `bevy lint install` subcommand.
+
 ### Make `--no-default-features` a Toggle
 
 The `--no-default-features` flag for `bevy build` and `bevy run` is now a toggle instead of an option. If you previously were using `--no-default-features true`, replace it with just `--no-default-features`. If you were using `--no-default-features false`, remove it.
