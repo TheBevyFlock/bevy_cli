@@ -4,13 +4,16 @@ updates:
     directories:
       - /
       - /tests/bevy_cli_test
-      - /bevy_lint/tests/ui-cargo/**/*
     schedule:
       interval: weekly
     labels:
       - C-Dependencies
   - package-ecosystem: github-actions
-    directory: /
+    directories:
+      # Used to check `.github/workflows`.
+      - /
+      # Used to check `bevy_lint/action.yml`.
+      - /bevy_lint
     schedule:
       interval: weekly
     labels:

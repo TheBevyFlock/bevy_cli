@@ -23,7 +23,7 @@ struct Toolchain {
 }
 
 #[cfg(feature = "rustup")]
-pub(crate) fn install_linter(arg: &InstallArgs, auto_install: AutoInstall) -> anyhow::Result<()> {
+pub(crate) fn install_linter(args: &InstallArgs) -> anyhow::Result<()> {
     use std::env;
 
     const GIT_URL: &str = "https://github.com/TheBevyFlock/bevy_cli.git";
@@ -32,7 +32,7 @@ pub(crate) fn install_linter(arg: &InstallArgs, auto_install: AutoInstall) -> an
     let available_versions = list_available_releases()?;
 
     // A specific version was passed in the `InstallArgs`
-    let (rust_toolchain, version) = if let Some(version) = &arg.version {
+    let (rust_toolchain, version) = if let Some(version) = &args.version {
         // Check if the desired version exists, if not return with an error message
         if !available_versions.contains(version) {
             anyhow::bail!(
@@ -84,7 +84,7 @@ pub(crate) fn install_linter(arg: &InstallArgs, auto_install: AutoInstall) -> an
         (required_toolchain, version.as_str())
     };
 
-    if !auto_install.confirm(format!(
+    if !args.auto_install().confirm(format!(
         "Do you want to install `bevy_lint-{version}` and the required toolchain: `{}` ?",
         rust_toolchain.toolchain.channel
     ))? {
