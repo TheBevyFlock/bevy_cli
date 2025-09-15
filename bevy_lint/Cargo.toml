@@ -29,7 +29,7 @@ anyhow = "1.0.86"
 cargo_metadata = "0.22.0"
 
 # Configuration deserialization.
-serde = { version = "1.0.210", features = ["derive"] }
+serde = { version = "1.0.224", features = ["derive"] }
 toml = { version = "0.9.0", default-features = false, features = [
     "std",
     "parse",
@@ -45,7 +45,7 @@ anstyle = "1.0.11"
 
 [build-dependencies]
 # Parse `rust-toolchain.toml` at build time.
-serde = { version = "1.0.210", features = ["derive"] }
+serde = { version = "1.0.224", features = ["derive"] }
 toml = { version = "0.9.0", default-features = false, features = [
     "std",
     "parse",
