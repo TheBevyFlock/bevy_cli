@@ -17,7 +17,7 @@
 //! struct MyMessage;
 //!
 //! fn my_system(messages: Res<Messages<MyMessage>>) {
-//!     for message in events.iter_current_update_messages() {
+//!     for message in messages.iter_current_update_messages() {
 //!         // ...
 //!     }
 //! }
