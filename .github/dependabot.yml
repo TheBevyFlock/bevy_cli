@@ -10,7 +10,11 @@ updates:
     labels:
       - C-Dependencies
   - package-ecosystem: github-actions
-    directory: /
+    directories:
+      # Used to check `.github/workflows`.
+      - /
+      # Used to check `bevy_lint/action.yml`.
+      - /bevy_lint
     schedule:
       interval: weekly
     labels:
