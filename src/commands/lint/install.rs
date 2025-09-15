@@ -1,5 +1,6 @@
 use anyhow::Context;
 use reqwest::blocking::Client;
+use semver::Version;
 use serde::Deserialize;
 #[cfg(feature = "rustup")]
 use tracing::debug;
@@ -48,7 +49,7 @@ pub(crate) fn install_linter(args: &InstallArgs) -> anyhow::Result<()> {
     // If no specific version was passed in the `InstallArgs` but the `--yes` flag was passed to
     // skip all prompts, install the latest available version or the main branch if there was no
     // release.
-    else if AutoInstall::Always == auto_install {
+    else if AutoInstall::Always == args.auto_install() {
         // Check if there is at least one release, meaning the available_versions are `<release x>,
         // main`.
         let version = if available_versions.len() > 2 {
@@ -59,7 +60,7 @@ pub(crate) fn install_linter(args: &InstallArgs) -> anyhow::Result<()> {
             "main"
         };
 
-        debug!("installing bevy_lint-{version}");
+        debug!("installing bevy_lint-v{version}");
         (lookup_toolchain_version(version)?, version)
     }
     // No version was passed in the `InstallArgs`. Open a dialog with all available versions
@@ -85,11 +86,11 @@ pub(crate) fn install_linter(args: &InstallArgs) -> anyhow::Result<()> {
     };
 
     if !args.auto_install().confirm(format!(
-        "Do you want to install `bevy_lint-{version}` and the required toolchain: `{}` ?",
+        "Do you want to install `bevy_lint-v{version}` and the required toolchain: `{}` ?",
         rust_toolchain.toolchain.channel
     ))? {
         anyhow::bail!(
-            "User does not want to install `bevy_lint-{version}` and the required toolchain: `{}`",
+            "User does not want to install `bevy_lint-v{version}` and the required toolchain: `{}`",
             rust_toolchain.toolchain.channel
         );
     }
@@ -109,13 +110,13 @@ pub(crate) fn install_linter(args: &InstallArgs) -> anyhow::Result<()> {
     if version == "main" {
         cmd.arg("--branch").arg("main");
     } else {
-        cmd.arg("--tag").arg(format!("lint-{version}"));
+        cmd.arg("--tag").arg(format!("lint-v{version}"));
     }
 
     cmd.arg("--locked")
         .arg("bevy_lint")
         .ensure_status(AutoInstall::Never)
-        .context(format!("failed to install `bevy_lint-{version}`"))?;
+        .context(format!("failed to install `bevy_lint-v{version}`"))?;
 
     Ok(())
 }
@@ -164,12 +165,22 @@ fn list_available_releases() -> anyhow::Result<Vec<String>> {
         .context("failed to query available GitHub releases")?
         .json::<Vec<Release>>()?;
 
+    // Parse the release tag name to a semver Version.
+    let mut versions: Vec<Version> = releases
+        .iter()
+        .filter_map(|release| {
+            release
+                .name
+                .strip_prefix("`bevy_lint` - v")
+                .and_then(|version| Version::parse(version).ok())
+        })
+        .collect();
+
+    // Sort descending (newest first)
+    versions.sort_by(|a, b| b.cmp(a));
+
     Ok(std::iter::once("main".to_owned())
-        .chain(
-            releases
-                .iter()
-                .filter_map(|r| r.name.strip_prefix("`bevy_lint` - ").map(str::to_owned)),
-        )
+        .chain(versions.into_iter().map(|v| v.to_string()))
         .collect())
 }
 
@@ -184,7 +195,7 @@ fn lookup_toolchain_version(linter_version: &str) -> anyhow::Result<RustToolchai
         // the releases are named <`bevy_lint`-v0.3.0> but tags are only named <lint-v0.3.0>, so
         // append `lint-`
         format!(
-            "https://raw.githubusercontent.com/TheBevyFlock/bevy_cli/lint-{linter_version}/rust-toolchain.toml"
+            "https://raw.githubusercontent.com/TheBevyFlock/bevy_cli/lint-v{linter_version}/rust-toolchain.toml"
         )
     };
 
