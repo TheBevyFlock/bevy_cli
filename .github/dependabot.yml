@@ -4,7 +4,6 @@ updates:
     directories:
       - /
       - /tests/bevy_cli_test
-      - /bevy_lint/tests/ui-cargo/**/*
     schedule:
       interval: weekly
     labels:
