@@ -9,4 +9,4 @@ edition = "2024"
 
 [dependencies]
 bevy = { version = "0.16", default-features = false }
-leafwing-input-manager = "0.13"
+leafwing-input-manager = "0.18"
