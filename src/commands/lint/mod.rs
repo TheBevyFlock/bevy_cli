@@ -39,7 +39,7 @@ pub fn lint(args: &mut LintArgs) -> anyhow::Result<()> {
         && !args.version
         && !args.fix
     {
-        return install_linter(install_args, args.auto_install());
+        return install_linter(install_args);
     }
 
     if is_installed(PROGRAM).is_none() {
