@@ -9,4 +9,4 @@ edition = "2024"
 
 [dependencies]
 bevy = "0.16"
-leafwing-input-manager = "0.17"
+leafwing-input-manager = "0.18"
