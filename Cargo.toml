@@ -59,7 +59,7 @@ dialoguer = { version = "0.12.0", default-features = false, features = [
 comfy-table = "7.1.4"
 
 # Cargo like styling for clap
-clap-cargo = "0.17.0"
+clap-cargo = "0.17.1"
 
 # Load and resolve Cargo configuration.
 cargo-config2 = "0.1"
