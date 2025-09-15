@@ -35,9 +35,8 @@ pub static COMPONENT: PathLookup = type_path!(bevy_ecs::component::Component);
 pub static DEFERRED_WORLD: PathLookup = type_path!(bevy_ecs::world::deferred_world::DeferredWorld);
 /// <https://github.com/bevyengine/bevy/blob/v0.17.0-rc.1/crates/bevy_ecs/src/system/system_param.rs#L1253>
 pub static DEFERRED: PathLookup = type_path!(bevy_ecs::system::system_param::Deferred);
-/// <https://github.com/bevyengine/bevy/blob/v0.17.0-rc.1/crates/bevy_ecs/src/system/commands/entity_command.rs#L81>
-pub static ENTITY_COMMANDS: PathLookup =
-    type_path!(bevy_ecs::system::commands::entity_command::EntityCommands);
+/// <https://github.com/bevyengine/bevy/blob/v0.17.0-rc.1/crates/bevy_ecs/src/system/commands/mod.rs#L1259>
+pub static ENTITY_COMMANDS: PathLookup = type_path!(bevy_ecs::system::EntityCommands);
 /// <https://github.com/bevyengine/bevy/blob/v0.17.0-rc.1/crates/bevy_ecs/src/world/entity_ref.rs#L450>
 pub static ENTITY_MUT: PathLookup = type_path!(bevy_ecs::world::entity_ref::EntityMut);
 /// <https://github.com/bevyengine/bevy/blob/v0.17.0-rc.1/crates/bevy_ecs/src/event/mod.rs#L88>
