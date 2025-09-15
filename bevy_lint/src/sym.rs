@@ -136,7 +136,6 @@ declare_bevy_symbols! {
     deferred_world,
     Deferred,
     DeferredWorld,
-    entity_command,
     entity_ref,
     EntityCommands,
     EntityMut,
