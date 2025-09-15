@@ -43,9 +43,26 @@ pub(crate) fn install_linter(arg: &InstallArgs, auto_install: AutoInstall) -> an
         }
         // Return the required toolchain version and the name of the linter tag or `main` that
         // corresponds to the desired version.
+        (lookup_toolchain_version(version)?, version.as_str())
+    }
+    // If no specific version was passed in the `InstallArgs` but the `--yes` flag was passed to
+    // skip all prompts, install the latest available version or the main branch if there was no
+    // release.
+    else if AutoInstall::Always == auto_install {
+        // Check if there is at least one release, meaning the available_versions are `<release x>,
+        // main`.
+        let version = if available_versions.len() > 2 {
+            available_versions
+                .get(1)
+                .expect("There is at least 2 elements, the latest release and `main`")
+        } else {
+            "main"
+        };
+
+        debug!("installing bevy_lint-{version}");
         (lookup_toolchain_version(version)?, version)
     }
-    // No version was passed in the `InstallArgs` open a dialog with all available versions
+    // No version was passed in the `InstallArgs`. Open a dialog with all available versions
     // (including the main branch) to choose from.
     else {
         let Some(selection) = dialoguer::FuzzySelect::new()
@@ -64,7 +81,7 @@ pub(crate) fn install_linter(arg: &InstallArgs, auto_install: AutoInstall) -> an
 
         // Return the required toolchain version and the name of the linter tag or `main` that
         // corresponds to the desired version.
-        (required_toolchain, version)
+        (required_toolchain, version.as_str())
     };
 
     if !auto_install.confirm(format!(
