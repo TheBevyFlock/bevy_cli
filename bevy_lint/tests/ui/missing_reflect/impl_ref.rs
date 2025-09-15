@@ -13,7 +13,10 @@
 #![deny(bevy::missing_reflect)]
 
 use bevy::{
-    ecs::component::{Mutable, StorageType},
+    ecs::{
+        component::{Mutable, StorageType},
+        event::GlobalTrigger,
+    },
     prelude::*,
 };
 
@@ -48,5 +51,5 @@ impl Component for &'static &'static &'static MyEvent {
 
 //~v NOTE: `Event` implemented here
 impl Event for &'static &'static &'static MyEvent {
-    type Traversal = ();
+    type Trigger<'a> = GlobalTrigger;
 }

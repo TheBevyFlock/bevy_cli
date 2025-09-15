@@ -7,7 +7,7 @@
 //~v NOTE: the lint level is defined here
 #![deny(bevy::missing_reflect)]
 
-use bevy::prelude::*;
+use bevy::{ecs::event::GlobalTrigger, prelude::*};
 
 struct NonReflect(u64);
 
@@ -33,5 +33,5 @@ enum MyResource {
 struct MyEvent(NonReflect);
 //~v NOTE: `Event` implemented here
 impl Event for MyEvent {
-    type Traversal = ();
+    type Trigger<'a> = GlobalTrigger;
 }

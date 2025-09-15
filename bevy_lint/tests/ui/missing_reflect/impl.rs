@@ -6,8 +6,14 @@
 #![allow(dead_code)]
 //~v NOTE: the lint level is defined here
 #![deny(bevy::missing_reflect)]
+//! Tests the `missing_reflect` lint when `Component`, `Resource`, and `Event` are manually
+//! implemented.
+
 use bevy::{
-    ecs::component::{Mutable, StorageType},
+    ecs::{
+        component::{Mutable, StorageType},
+        event::GlobalTrigger,
+    },
     prelude::*,
 };
 
@@ -42,5 +48,5 @@ impl Component for MyEvent {
 
 //~v NOTE: `Event` implemented here
 impl Event for MyEvent {
-    type Traversal = ();
+    type Trigger<'a> = GlobalTrigger;
 }

@@ -1,15 +1,15 @@
 error: defined an event without a `Reflect` implementation
-  --> tests/ui/missing_reflect/impl.rs:36:1
+  --> tests/ui/missing_reflect/impl.rs:42:1
    |
-36 | struct MyEvent(String);
+42 | struct MyEvent(String);
    | ^^^^^^^^^^^^^^^^^^^^^^^
    |
 note: `Event` implemented here
-  --> tests/ui/missing_reflect/impl.rs:44:1
+  --> tests/ui/missing_reflect/impl.rs:50:1
    |
-44 | / impl Event for MyEvent {
-45 | |     type Traversal = ();
-46 | | }
+50 | / impl Event for MyEvent {
+51 | |     type Trigger<'a> = GlobalTrigger;
+52 | | }
    | |_^
 note: the lint level is defined here
   --> tests/ui/missing_reflect/impl.rs:8:9
@@ -18,48 +18,48 @@ note: the lint level is defined here
    |         ^^^^^^^^^^^^^^^^^^^^^
 help: `Reflect` can be automatically derived
    |
-36 + #[derive(Reflect)]
-37 | struct MyEvent(String);
+42 + #[derive(Reflect)]
+43 | struct MyEvent(String);
    |
 
 error: defined a component without a `Reflect` implementation
-  --> tests/ui/missing_reflect/impl.rs:16:1
+  --> tests/ui/missing_reflect/impl.rs:22:1
    |
-16 | struct MyComponent;
+22 | struct MyComponent;
    | ^^^^^^^^^^^^^^^^^^^
    |
 note: `Component` implemented here
-  --> tests/ui/missing_reflect/impl.rs:19:1
+  --> tests/ui/missing_reflect/impl.rs:25:1
    |
-19 | / impl Component for MyComponent {
-20 | |     const STORAGE_TYPE: StorageType = StorageType::Table;
-21 | |     type Mutability = Mutable;
-22 | | }
+25 | / impl Component for MyComponent {
+26 | |     const STORAGE_TYPE: StorageType = StorageType::Table;
+27 | |     type Mutability = Mutable;
+28 | | }
    | |_^
 help: `Reflect` can be automatically derived
    |
-16 + #[derive(Reflect)]
-17 | struct MyComponent;
+22 + #[derive(Reflect)]
+23 | struct MyComponent;
    |
 
 error: defined a resource without a `Reflect` implementation
-  --> tests/ui/missing_reflect/impl.rs:26:1
+  --> tests/ui/missing_reflect/impl.rs:32:1
    |
-26 | / struct MyResource {
-27 | |     field_1: usize,
-28 | |     field_2: bool,
-29 | | }
+32 | / struct MyResource {
+33 | |     field_1: usize,
+34 | |     field_2: bool,
+35 | | }
    | |_^
    |
 note: `Resource` implemented here
-  --> tests/ui/missing_reflect/impl.rs:32:1
+  --> tests/ui/missing_reflect/impl.rs:38:1
    |
-32 | impl Resource for MyResource {}
+38 | impl Resource for MyResource {}
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 help: `Reflect` can be automatically derived
    |
-26 + #[derive(Reflect)]
-27 | struct MyResource {
+32 + #[derive(Reflect)]
+33 | struct MyResource {
    |
 
 error: aborting due to 3 previous errors

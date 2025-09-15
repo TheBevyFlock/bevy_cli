@@ -8,7 +8,7 @@ note: `Event` implemented here
   --> tests/ui/missing_reflect/none_reflect_fields.rs:35:1
    |
 35 | / impl Event for MyEvent {
-36 | |     type Traversal = ();
+36 | |     type Trigger<'a> = GlobalTrigger;
 37 | | }
    | |_^
 note: the lint level is defined here
