@@ -60,7 +60,7 @@ pub(crate) fn install_linter(args: &InstallArgs) -> anyhow::Result<()> {
             "main"
         };
 
-        debug!("installing bevy_lint-v{version}");
+        debug!("installing bevy_lint-{version}");
         (lookup_toolchain_version(version)?, version)
     }
     // No version was passed in the `InstallArgs`. Open a dialog with all available versions
@@ -86,11 +86,11 @@ pub(crate) fn install_linter(args: &InstallArgs) -> anyhow::Result<()> {
     };
 
     if !args.auto_install().confirm(format!(
-        "Do you want to install `bevy_lint-v{version}` and the required toolchain: `{}` ?",
+        "Do you want to install `bevy_lint-{version}` and the required toolchain: `{}` ?",
         rust_toolchain.toolchain.channel
     ))? {
         anyhow::bail!(
-            "User does not want to install `bevy_lint-v{version}` and the required toolchain: `{}`",
+            "User does not want to install `bevy_lint-{version}` and the required toolchain: `{}`",
             rust_toolchain.toolchain.channel
         );
     }
@@ -110,13 +110,13 @@ pub(crate) fn install_linter(args: &InstallArgs) -> anyhow::Result<()> {
     if version == "main" {
         cmd.arg("--branch").arg("main");
     } else {
-        cmd.arg("--tag").arg(format!("lint-v{version}"));
+        cmd.arg("--tag").arg(format!("lint-{version}"));
     }
 
     cmd.arg("--locked")
         .arg("bevy_lint")
         .ensure_status(AutoInstall::Never)
-        .context(format!("failed to install `bevy_lint-v{version}`"))?;
+        .context(format!("failed to install `bevy_lint-{version}`"))?;
 
     Ok(())
 }
@@ -171,16 +171,19 @@ fn list_available_releases() -> anyhow::Result<Vec<String>> {
         .filter_map(|release| {
             release
                 .name
+                // If the name doesn't start with this prefix, it's likely a CLI release and not a
+                // linter release, so we skip it.
                 .strip_prefix("`bevy_lint` - v")
                 .and_then(|version| Version::parse(version).ok())
         })
         .collect();
 
-    // Sort descending (newest first)
+    // Sort descending (newest first). We can't use plain `sort()`, as that sorts in ascending
     versions.sort_by(|a, b| b.cmp(a));
 
     Ok(std::iter::once("main".to_owned())
-        .chain(versions.into_iter().map(|v| v.to_string()))
+        // Add `v` as prefix again to be backward compatible.
+        .chain(versions.into_iter().map(|version| format!("v{version}")))
         .collect())
 }
 
@@ -195,7 +198,7 @@ fn lookup_toolchain_version(linter_version: &str) -> anyhow::Result<RustToolchai
         // the releases are named <`bevy_lint`-v0.3.0> but tags are only named <lint-v0.3.0>, so
         // append `lint-`
         format!(
-            "https://raw.githubusercontent.com/TheBevyFlock/bevy_cli/lint-v{linter_version}/rust-toolchain.toml"
+            "https://raw.githubusercontent.com/TheBevyFlock/bevy_cli/lint-{linter_version}/rust-toolchain.toml"
         )
     };
 
