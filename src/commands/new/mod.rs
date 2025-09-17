@@ -48,17 +48,13 @@ pub fn new(args: &NewArgs) -> anyhow::Result<()> {
 
     cmd.args(["--git", git.as_str()]);
 
-    if let Some(branch) = &args.branch {
-        cmd.args(["--branch", branch]);
-    }
-
-    if let Some(tag) = &args.tag {
-        cmd.args(["--tag", tag]);
-    }
-
-    if let Some(revision) = &args.revision {
-        cmd.args(["--rev", revision]);
-    }
+    match (&args.branch, &args.tag, &args.revision) {
+        (Some(branch), None, None) => cmd.args(["--branch", branch]),
+        (None, Some(tag), None) => cmd.args(["--tag", tag]),
+        (None, None, Some(rev)) => cmd.args(["--rev", rev]),
+        (None, None, None) => cmd.args(["--branch", "main"]),
+        _ => unreachable!("clap enforces, that only one of the options can be set"),
+    };
 
     if !args.forward_args.is_empty() {
         cmd.args(args.forward_args.iter());

@@ -29,7 +29,7 @@ pub struct NewArgs {
     pub template: String,
 
     /// Branch to use when installing from git
-    #[arg(short, long, conflicts_with_all = ["revision", "tag"], default_value = "main")]
+    #[arg(short, long, conflicts_with_all = ["revision", "tag"])]
     pub branch: Option<String>,
 
     /// Tag to use when installing from git
