@@ -29,15 +29,15 @@ pub struct NewArgs {
     pub template: String,
 
     /// Branch to use when installing from git
-    #[arg(short, long, conflicts_with_all = ["revision", "tag"])]
+    #[arg(long, conflicts_with_all = ["revision", "tag"])]
     pub branch: Option<String>,
 
     /// Tag to use when installing from git
-    #[arg(short, long, conflicts_with_all = ["revision", "branch"])]
+    #[arg(long, conflicts_with_all = ["revision", "branch"])]
     pub tag: Option<String>,
 
     /// Git revision to use when installing from git (e.g. a commit hash)
-    #[arg(short, long, conflicts_with_all = ["tag", "branch"], alias = "rev")]
+    #[arg(long, conflicts_with_all = ["tag", "branch"], alias = "rev")]
     pub revision: Option<String>,
 
     /// Arguments to pass to `cargo-generate`
