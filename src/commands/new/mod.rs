@@ -1,12 +1,11 @@
 //! Utilities to create a new Bevy project with `cargo-generate`
 
-use std::path::PathBuf;
-
 pub use args::*;
-use cargo_generate::{GenerateArgs, TemplatePath};
 use regex::Regex;
 use reqwest::blocking::Client;
 use serde::Deserialize;
+
+use crate::external_cli::CommandExt;
 
 mod args;
 
@@ -25,46 +24,46 @@ struct Repository {
 /// If `git` is [`None`], it will default to [TheBevyFlock/bevy_new_minimal].
 ///
 /// [TheBevyFlock/bevy_new_minimal]: https://github.com/TheBevyFlock/bevy_new_miminal
-pub fn new(args: &NewArgs) -> anyhow::Result<PathBuf> {
-    let NewArgs {
-        name,
-        template,
-        branch,
-    } = args;
-
+pub fn new(args: &NewArgs) -> anyhow::Result<()> {
+    const PROGRAM: &str = "cargo-generate";
     // Validate that the package name starts with an alphabetic character
-    if let Some(first_char) = name.chars().next() {
+    if let Some(first_char) = args.name.chars().next() {
         anyhow::ensure!(
             first_char.is_alphabetic(),
-            "invalid character `{first_char}` in package name: {name}"
+            "invalid character `{first_char}` in package name: {}",
+            args.name
         );
     }
 
-    cargo_generate::generate(GenerateArgs {
-        template_path: template_path(template, branch)?,
-        name: Some(name.to_string()),
-        // prevent conversion to kebab-case
-        force: true,
-        ..Default::default()
-    })
-}
+    let Some(git) = expand_builtin(args.template.as_str())?
+        .or(expand_github_shortform(args.template.as_str()))
+        .or(Some(args.template.clone()))
+    else {
+        return Ok(());
+    };
 
-/// Returns the [`TemplatePath`] for a given Git repository.
-///
-/// If a shortcut is provided, e.g. `2d`, we will attempt to expand it to `bevy_new_2d`. (This value
-/// defaults to `minimal`.)
-/// If an org/repo shortform is provided, we will attempt to expand it to a URL.
-/// Otherwise, we pass the value directly to `cargo-generate`, presuming it to be a URL.
-fn template_path(template: &str, branch: &str) -> anyhow::Result<TemplatePath> {
-    let git = expand_builtin(template)?
-        .or(expand_github_shortform(template))
-        .or(Some(template.into()));
+    let mut cmd = CommandExt::new(PROGRAM);
 
-    Ok(TemplatePath {
-        git,
-        branch: Some(branch.into()),
-        ..Default::default()
-    })
+    cmd.arg("generate");
+
+    cmd.args(["--git", git.as_str()]);
+
+    if let Some(branch) = &args.branch {
+        cmd.args(["--branch", branch]);
+    }
+
+    if let Some(tag) = &args.tag {
+        cmd.args(["--tag", tag]);
+    }
+
+    if let Some(revision) = &args.revision {
+        cmd.args(["--rev", revision]);
+    }
+
+    cmd.args(["--name", args.name.as_str()])
+        .ensure_status(args.auto_install())?;
+
+    Ok(())
 }
 
 /// Attempts to match one of our builtin templates by retrieving all repos from TheBevyFlock
