@@ -49,13 +49,20 @@ pub fn new(args: &NewArgs) -> anyhow::Result<()> {
     cmd.args(["--git", git.as_str()]);
 
     match (&args.branch, &args.tag, &args.revision) {
-        (Some(branch), None, None) => cmd.args(["--branch", branch]),
-        (None, Some(tag), None) => cmd.args(["--tag", tag]),
-        (None, None, Some(rev)) => cmd.args(["--rev", rev]),
-        // Use `cargo-generate`'s default behavior, which usually means installing the default branch.
-        (None, None, None) => {},
+        (Some(branch), None, None) => {
+            cmd.args(["--branch", branch]);
+        }
+        (None, Some(tag), None) => {
+            cmd.args(["--tag", tag]);
+        }
+        (None, None, Some(rev)) => {
+            cmd.args(["--rev", rev]);
+        }
+        // Use `cargo-generate`'s default behavior, which usually means installing the default
+        // branch.
+        (None, None, None) => {}
         _ => unreachable!("clap enforces, that only one of the options can be set"),
-    };
+    }
 
     cmd.args(args.forward_args.iter());
 
