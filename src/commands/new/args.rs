@@ -39,6 +39,12 @@ pub struct NewArgs {
     /// Git revision to use when installing from git (e.g. a commit hash)
     #[arg(short, long, conflicts_with_all = ["tag", "branch"], alias = "rev")]
     pub revision: Option<String>,
+
+    /// Arguments to pass to `cargo-generate`
+    ///
+    /// Specified after `--`.
+    #[clap(last = true, name = "ARGS")]
+    pub forward_args: Vec<String>,
 }
 
 impl NewArgs {

@@ -60,6 +60,10 @@ pub fn new(args: &NewArgs) -> anyhow::Result<()> {
         cmd.args(["--rev", revision]);
     }
 
+    if !args.forward_args.is_empty() {
+        cmd.args(args.forward_args.iter());
+    }
+
     cmd.args(["--name", args.name.as_str()])
         .ensure_status(args.auto_install())?;
 
