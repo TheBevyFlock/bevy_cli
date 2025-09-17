@@ -1,5 +1,19 @@
 # Troubleshooting
 
+## The `--help` flag
+
+All CLI commands support the `--help` and `-h` flags, which provides a reference to available options, subcommands, and arguments:
+
+```sh
+bevy --help
+
+# Prints a shorter, summarized version of the help screen.
+bevy -h
+
+# Prints web-specific options.
+bevy build web --help
+```
+
 ## View debug logs
 
 If you encounter issues or don't understand what the CLI is doing, try adding the `--verbose` flag. Every command that the CLI executes will be logged, making it easy to understand what's going on!
