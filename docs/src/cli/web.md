@@ -16,6 +16,7 @@ If you are missing any required tools, the CLI will ask you to install them for 
 
 Use the `bevy run web` command to run your app in the browser.
 The app will be automatically served on a local web server, use the `--open` flag to automatically open it in the browser.
+You may also customize the address the server will run on with `--host` and `--port`. By default, `bevy run web` will be available at <http://127.0.0.1:4000>, which is only accessible on your own computer.
 
 The server will provide a default `index.html` serving as entrypoint for your app.
 It features a loading screen and some other utilities.
