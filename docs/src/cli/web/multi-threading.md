@@ -1,19 +1,16 @@
-# Wasm Multi-threading (unstable)
+# Wasm Multi-Threading (Unstable)
 
 <div class="warning">
 
 **Warning**
 
-This feature is unstable and only available when installing the CLI with the `unstable` feature (enabled by default).
-A **nightly Rust** toolchain is also required.
+This feature is unstable and only available when installing the CLI with the `unstable` feature (enabled by default). Expect to encounter more bugs and a worse user interface until this is stabilized.  A **nightly Rust toolchain** is also required!
 
 </div>
 
-Did you know that Bevy doesn't natively support multi-threaded web apps?
-The Wasm binary runs all on a single thread, leaving a lot of performance on the table.
-This can be especially noticeable for audio, resulting in stutters and lag.
+Crates such as `firewheel-web-audio` and `bevy_seedling` (through its `web-audio` feature) can take advantage of multi-threading on Wasm. This can be especially beneficial for audio on the web, but requires special flags and setup in order to use. The Bevy CLI can simplify this process for you, making it easier to setup multi-threading for the web.
 
-The CLI provides an experimental option to build and run apps that use Wasm multi-threading.
+Note that this **does not enable Bevy's multi-threaded scheduler**. The Bevy engine does not yet take advantage of multi-threading on the web, only certain 3rd-party crates do.
 
 ## Configuration
 
@@ -41,7 +38,7 @@ To be able to use Wasm multi-threading features, the CLI automatically uses the 
 ## Publishing a Multi-threaded App
 
 It's important to note that your web server must be configured to use cross-origin isolation in order to use Wasm multi-threading.
-This is a security feature to prevent Spectre-like attacks.
+This is a security feature to prevent [Spectre](https://meltdownattack.com/)-like attacks.
 
 In particular, the server needs to set the `Cross-Origin-Opener-Policy: same-origin` and `Cross-Origin-Embedder-Policy: require-corp` headers.
 
