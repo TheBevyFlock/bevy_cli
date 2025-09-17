@@ -52,7 +52,8 @@ pub fn new(args: &NewArgs) -> anyhow::Result<()> {
         (Some(branch), None, None) => cmd.args(["--branch", branch]),
         (None, Some(tag), None) => cmd.args(["--tag", tag]),
         (None, None, Some(rev)) => cmd.args(["--rev", rev]),
-        (None, None, None) => cmd.args(["--branch", "main"]),
+        // Use `cargo-generate`'s default behavior, which usually means installing the default branch.
+        (None, None, None) => {},
         _ => unreachable!("clap enforces, that only one of the options can be set"),
     };
 
