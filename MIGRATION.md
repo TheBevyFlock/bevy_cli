@@ -23,23 +23,3 @@ bevy run --no-default-features false
 bevy build --no-default-features
 bevy run
 ```
-
-### `--wasm-opt` needs a value
-
-You now need to provide an explicit value to the `--wasm-opt` flag.
-If you were using `--wasm-opt` you now need to use `--wasm-opt=true`.
-
-```sh
-# v0.1.0-alpha.1
-bevy build web --wasm-opt
-
-# v0.1.0-alpha.2
-bevy build web --wasm-opt=true
-```
-
-On the flip side, you can now customize the flags that are passed to `wasm-opt`:
-
-```sh
-# v0.1.0-alpha.2
-bevy build web --wasm-opt=-Oz --wasm-opt=--enable-bulk-memory
-```
