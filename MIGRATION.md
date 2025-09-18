@@ -10,9 +10,9 @@ To actually install the new version of the CLI, please see [the docs] and [the r
 
 ## v0.1.0-alpha.1 to v0.1.0-alpha.2 (Unreleased)
 
-## Move `--yes` flag from `bevy lint` to `bevy lint install`
+### Installing `bevy_lint` with `bevy lint install --yes`
 
-The `--yes` flag to confirm all prompts got moved from the `bevy lint` command to the `bevy lint install` subcommand.
+The `--yes` flag to confirm all prompts got moved from the `bevy lint` command to the `bevy lint install` subcommand. If you were previously running `bevy lint --yes` to install and run the latest version of the linter, you now will need to run `bevy lint install --yes` and `bevy lint`.
 
 ### Make `--no-default-features` a Toggle
 
