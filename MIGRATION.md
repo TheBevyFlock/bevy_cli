@@ -27,3 +27,15 @@ bevy run --no-default-features false
 bevy build --no-default-features
 bevy run
 ```
+
+### [Support and Prioritize Crate-Level `web` Folder](https://github.com/TheBevyFlock/bevy_cli/pull/485)
+
+When building and serving for the web, the CLI supported loading web-specific assets from a workspace-level `web` folder. The CLI can now look for a crate-level `web` folder too, and will load it instead if one is found. This may cause issues if your project already had a crate-level `web` folder, as the CLI will now look there for web assets rather than the workspace-level folder.
+
+### [Support and Prioritize Crate-Level `assets` Folder](https://github.com/TheBevyFlock/bevy_cli/pull/490)
+
+Just like [with the `web` folder](#support-and-prioritize-crate-level-web-folder), this also applies to the `assets` folder, which the CLI would use when bundling a web build. The CLI will now prefer bundling a crate-specific `assets` folder, which may cause issues if you relied upon it only using the workspace-level `assets` folder.
+
+### [Merging `RUSTFLAGS`](https://github.com/TheBevyFlock/bevy_cli/pull/540)
+
+Previously, the Bevy CLI would override the flags passed to `rustc`. This is no longer the case, as the CLI now merges the `RUSTFLAGS` environmental variable and configuration from `.cargo/config.toml` with its own configuration. This may cause issues with your project setup, if you relied upon those values being ignored when using the Bevy CLI.
