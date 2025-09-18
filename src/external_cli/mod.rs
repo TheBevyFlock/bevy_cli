@@ -65,7 +65,6 @@ impl CommandExt {
     ///
     /// If the command fails and the package is missing,
     /// it can be installed automatically via `cargo install`.
-    #[cfg(any(feature = "rustup", feature = "web"))]
     pub(crate) fn require_package(&mut self, package: Package) -> &mut Self {
         self.package = Some(package);
         self
