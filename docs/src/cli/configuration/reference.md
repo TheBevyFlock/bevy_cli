@@ -34,7 +34,7 @@ The following fields exist and can be configured:
 
 - Type: string or array of strings
 - Default: none
-- Note: Extra command-line flags to pass to rustc. The value may be an array of strings or a space-separated string.
+- Note: Extra command-line flags to pass to `rustc`. The value may be an array of strings or a space-separated string. Flags defined in the `RUSTFLAGS` environmental variable or `.cargo/config.toml` will be appended to this value.
 
 ## `wasm-opt`
 
