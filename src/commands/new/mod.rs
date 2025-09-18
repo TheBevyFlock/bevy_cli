@@ -5,7 +5,7 @@ use regex::Regex;
 use reqwest::blocking::Client;
 use serde::Deserialize;
 
-use crate::external_cli::CommandExt;
+use crate::external_cli::{CommandExt, Package};
 
 mod args;
 
@@ -67,6 +67,10 @@ pub fn new(args: &NewArgs) -> anyhow::Result<()> {
     cmd.args(args.forward_args.iter());
 
     cmd.args(["--name", args.name.as_str()])
+        .require_package(Package {
+            name: PROGRAM.into(),
+            ..Default::default()
+        })
         .ensure_status(args.auto_install())?;
 
     Ok(())
