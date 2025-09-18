@@ -11,13 +11,11 @@ use crate::{
 pub struct LintArgs {
     #[clap(subcommand)]
     pub subcommand: Option<LintSubcommands>,
-    /// Confirm all prompts automatically.
-    #[arg(long = "yes", default_value_t = false)]
-    pub confirm_prompts: bool,
 
     /// Show version information
     #[arg(long = "version", default_value_t = false)]
     pub version: bool,
+
     /// Automatically fix lint warnings reported by bevy_lint.
     #[arg(long = "fix", default_value_t = false)]
     pub fix: bool,
@@ -34,16 +32,6 @@ pub struct LintArgs {
 }
 
 impl LintArgs {
-    /// Whether to automatically install missing dependencies.
-    #[cfg(feature = "rustup")]
-    pub(crate) fn auto_install(&self) -> AutoInstall {
-        if self.confirm_prompts {
-            AutoInstall::Always
-        } else {
-            AutoInstall::AskUser
-        }
-    }
-
     /// Determine if the app is being built for the web.
     #[cfg(feature = "web")]
     pub(crate) fn is_web(&self) -> bool {
@@ -123,4 +111,20 @@ pub enum LintSubcommands {
 #[derive(Debug, Args)]
 pub struct InstallArgs {
     pub version: Option<String>,
+
+    /// Confirm all prompts automatically.
+    #[arg(long = "yes", default_value_t = false)]
+    pub confirm_prompts: bool,
+}
+
+impl InstallArgs {
+    /// Whether to automatically install missing dependencies.
+    #[cfg(feature = "rustup")]
+    pub(crate) fn auto_install(&self) -> AutoInstall {
+        if self.confirm_prompts {
+            AutoInstall::Always
+        } else {
+            AutoInstall::AskUser
+        }
+    }
 }

@@ -1,11 +1,17 @@
 use clap::Args;
 
+use crate::external_cli::cargo::install::AutoInstall;
+
 /// Arguments for creating a new Bevy project.
 ///
 /// This subcommand allows you to generate a new Bevy project
 /// using a specified template and project name.
 #[derive(Args)]
 pub struct NewArgs {
+    /// Confirm all prompts automatically.
+    #[arg(long = "yes", default_value_t = false)]
+    pub confirm_prompts: bool,
+
     /// The desired name for the new project.
     ///
     /// This will be the name of the directory and will be used in the project's files
@@ -22,7 +28,32 @@ pub struct NewArgs {
     #[arg(short, long, default_value = "minimal")]
     pub template: String,
 
-    /// The git branch to use
-    #[arg(short, long, default_value = "main")]
-    pub branch: String,
+    /// Branch to use when installing from git
+    #[arg(long, conflicts_with_all = ["revision", "tag"])]
+    pub branch: Option<String>,
+
+    /// Tag to use when installing from git
+    #[arg(long, conflicts_with_all = ["revision", "branch"])]
+    pub tag: Option<String>,
+
+    /// Git revision to use when installing from git (e.g. a commit hash)
+    #[arg(long, conflicts_with_all = ["tag", "branch"], alias = "rev")]
+    pub revision: Option<String>,
+
+    /// Arguments to pass to `cargo-generate`
+    ///
+    /// Specified after `--`.
+    #[clap(last = true, name = "ARGS")]
+    pub forward_args: Vec<String>,
+}
+
+impl NewArgs {
+    /// Whether to automatically install missing dependencies.
+    pub(crate) fn auto_install(&self) -> AutoInstall {
+        if self.confirm_prompts {
+            AutoInstall::Always
+        } else {
+            AutoInstall::AskUser
+        }
+    }
 }

@@ -1,5 +1,6 @@
 use anyhow::Context;
 use reqwest::blocking::Client;
+use semver::Version;
 use serde::Deserialize;
 #[cfg(feature = "rustup")]
 use tracing::debug;
@@ -23,7 +24,7 @@ struct Toolchain {
 }
 
 #[cfg(feature = "rustup")]
-pub(crate) fn install_linter(arg: &InstallArgs, auto_install: AutoInstall) -> anyhow::Result<()> {
+pub(crate) fn install_linter(args: &InstallArgs) -> anyhow::Result<()> {
     use std::env;
 
     const GIT_URL: &str = "https://github.com/TheBevyFlock/bevy_cli.git";
@@ -32,7 +33,7 @@ pub(crate) fn install_linter(arg: &InstallArgs, auto_install: AutoInstall) -> an
     let available_versions = list_available_releases()?;
 
     // A specific version was passed in the `InstallArgs`
-    let (rust_toolchain, version) = if let Some(version) = &arg.version {
+    let (rust_toolchain, version) = if let Some(version) = &args.version {
         // Check if the desired version exists, if not return with an error message
         if !available_versions.contains(version) {
             anyhow::bail!(
@@ -43,9 +44,26 @@ pub(crate) fn install_linter(arg: &InstallArgs, auto_install: AutoInstall) -> an
         }
         // Return the required toolchain version and the name of the linter tag or `main` that
         // corresponds to the desired version.
+        (lookup_toolchain_version(version)?, version.as_str())
+    }
+    // If no specific version was passed in the `InstallArgs` but the `--yes` flag was passed to
+    // skip all prompts, install the latest available version or the main branch if there was no
+    // release.
+    else if AutoInstall::Always == args.auto_install() {
+        // Check if there is at least one release, meaning the available_versions are `<release x>,
+        // main`.
+        let version = if available_versions.len() > 2 {
+            available_versions
+                .get(1)
+                .expect("There is at least 2 elements, the latest release and `main`")
+        } else {
+            "main"
+        };
+
+        debug!("installing bevy_lint-{version}");
         (lookup_toolchain_version(version)?, version)
     }
-    // No version was passed in the `InstallArgs` open a dialog with all available versions
+    // No version was passed in the `InstallArgs`. Open a dialog with all available versions
     // (including the main branch) to choose from.
     else {
         let Some(selection) = dialoguer::FuzzySelect::new()
@@ -64,10 +82,10 @@ pub(crate) fn install_linter(arg: &InstallArgs, auto_install: AutoInstall) -> an
 
         // Return the required toolchain version and the name of the linter tag or `main` that
         // corresponds to the desired version.
-        (required_toolchain, version)
+        (required_toolchain, version.as_str())
     };
 
-    if !auto_install.confirm(format!(
+    if !args.auto_install().confirm(format!(
         "Do you want to install `bevy_lint-{version}` and the required toolchain: `{}` ?",
         rust_toolchain.toolchain.channel
     ))? {
@@ -147,12 +165,25 @@ fn list_available_releases() -> anyhow::Result<Vec<String>> {
         .context("failed to query available GitHub releases")?
         .json::<Vec<Release>>()?;
 
+    // Parse the release tag name to a semver Version.
+    let mut versions: Vec<Version> = releases
+        .iter()
+        .filter_map(|release| {
+            release
+                .name
+                // If the name doesn't start with this prefix, it's likely a CLI release and not a
+                // linter release, so we skip it.
+                .strip_prefix("`bevy_lint` - v")
+                .and_then(|version| Version::parse(version).ok())
+        })
+        .collect();
+
+    // Sort descending (newest first). We can't use plain `sort()`, as that sorts in ascending
+    versions.sort_by(|a, b| b.cmp(a));
+
     Ok(std::iter::once("main".to_owned())
-        .chain(
-            releases
-                .iter()
-                .filter_map(|r| r.name.strip_prefix("`bevy_lint` - ").map(str::to_owned)),
-        )
+        // Add `v` as prefix again to be backward compatible.
+        .chain(versions.into_iter().map(|version| format!("v{version}")))
         .collect())
 }
 

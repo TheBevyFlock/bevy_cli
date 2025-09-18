@@ -47,26 +47,23 @@ clap_complete = "4.5.44"
 # Easy error propagation and contexts
 anyhow = "1.0.86"
 
-# Generates new Bevy projects from templates
-cargo-generate = "0.23"
-
 # Better CLI user input
 dialoguer = { version = "0.12.0", default-features = false, features = [
     "fuzzy-select",
 ] }
 
 # Used to create styled table outputs.
-comfy-table = "7.1.4"
+comfy-table = "7.2.1"
 
 # Cargo like styling for clap
-clap-cargo = "0.17.0"
+clap-cargo = "0.17.1"
 
 # Load and resolve Cargo configuration.
 cargo-config2 = "0.1"
 
 # API interaction
-serde = { features = ["derive"], version = "1.0.210" }
-serde_json = "1.0.128"
+serde = { features = ["derive"], version = "1.0.224" }
+serde_json = "1.0.145"
 reqwest = { version = "0.12.7", default-features = false, features = [
     "default-tls",
     "blocking",
@@ -75,13 +72,13 @@ reqwest = { version = "0.12.7", default-features = false, features = [
 regex = "1.10.6"
 
 # Understanding package versions
-semver = { version = "1.0.23", features = ["serde"] }
+semver = { version = "1.0.27", features = ["serde"] }
 
 # `cargo metadata` command helpers and types
 cargo_metadata = "0.22.0"
 
 # Parsing the Cargo manifest
-toml = { version = "0.9.0", default-features = false, features = [
+toml = { version = "0.9.6", default-features = false, features = [
     "std",
     "parse",
     "display",
