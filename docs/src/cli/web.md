@@ -21,6 +21,7 @@ You may also customize the address the server will run on with `--host` and `--p
 The server will provide a default `index.html` serving as entrypoint for your app.
 It features a loading screen and some other utilities.
 If you want to customize it, simply create a `web/index.html` file to override the default behavior.
+The CLI will first look for the `web` folder next to the crate's `Cargo.toml`, but will also look next to the workspace's `Cargo.toml` if there is no crate-specific folder.
 Other files in the `web` folder will also be included in your application.
 You can view the [default `index.html` here](web/default-index-html.md).
 
