@@ -1,27 +1,20 @@
 # `getrandom`
 
-`getrandom` is a popular crate that allows retrieving random data from system resources.
-It is used by `bevy` and many other crates.
-It provides multiple backends which retrieve the random data from different sources.
+`getrandom` is a popular crate for retrieving random data from system resources. It provides multiple backends for different platforms, and is an indirect dependency of Bevy.
 
-This works great, except when targeting the web.
-Unlike most other platforms, there is no compilation target available that guarantees web APIs to exist.
-Just because you're building for `wasm32-unknown-unknown` doesn't necessarily mean you are making a web app --
-you could also be building a standalone Wasm application.
+Usually, `getrandom` is able to automatically select the best backend for the target it is compiled for. This isn't the case when compiled to Wasm, however, because no Wasm target guarantees that JavaScript is available (for the [`Crypto.getRandomValues()`](https://developer.mozilla.org/en-US/docs/Web/API/Crypto/getRandomValues) function).
 
-So the target cannot be used to automatically activate the web backend.
-Features are also inadequate: They are additive, so if _any_ dependency pulled in the web feature,
-the backend would be used everywhere or the build would be broken.
-Considering the security-sensitive nature of random data, this was deemed unacceptable.
+Because of this, `getrandom` cannot automatically activate its web backend, even if the `wasm_js` feature flag is enabled. Instead, [`getrandom` requires the developer to opt-in to the web backend](https://docs.rs/getrandom/0.3.3/getrandom/index.html#webassembly-support) by configuring the `RUSTFLAGS` environmental variable. The Bevy CLI is able to automatically configure `RUSTFLAGS` for you, so you do not need to set it yourself.
 
-So in addition to a feature to make the backend available,
-`getrandom` requires you to pass a `RUSTFLAG` to the compiler to activate the backend.
-This guarantees that the backend can only be configured once (by "outer" package).
+## What it does
 
-## Configuring the web backend
+The CLI will automatically inject `--cfg getrandom_backend="wasm_js"` into `RUSTFLAGS`, opting-in to the JavaScript backend, when:
 
-Since you are the application developer, you _know_ that you are building for the web and not just any Wasm target.
-This allows you to set up the `getrandom` backend properly, for example like this:
+1. Your dependency tree contains `getrandom`
+2. You're building your project in web mode (ex. `bevy build web`)
+3. You haven't configured a specific `getrandom` backend in `RUSTFLAGS` already
+
+This simplifies most configuration needed, however you still need to manually enable the `wasm_js` feature flag in your `Cargo.toml`:
 
 ```toml
 [target.'cfg(all(target_family = "wasm", any(target_os = "unknown", target_os = "none")))'.dependencies]
@@ -29,26 +22,4 @@ getrandom = { version = "0.3", features = ["wasm_js"] }
 getrandom_02 = { version = "0.2", features = ["js"], package = "getrandom" }
 ```
 
-This activates the necessary feature flags for `getrandom`, accounting for both v0.2 and v0.3 (as they can both be in the dependency tree, depending on the Bevy version used).
-
-Additionally, you need to add `--cfg getrandom_backend="wasm_js"` to your `RUSTFLAGS`.
-This can be done in several places:
-
-- Setting `rustflags` in `.cargo/config.toml`
-- Setting `build.rustflags` in `Cargo.toml`
-- Setting the `RUSTFLAGS` env variable when running `cargo`
-
-However, note that the rustflags are not merged, but _overwritten_.
-So if you have e.g. `rustflags` defined in your `~/.cargo/config.toml` to optimize your compile times,
-but then have again `rustflags` defined in your workspace to set the `getrandom` backend,
-only the workspace `rustflags` will be used.
-
-## Automated by the CLI
-
-The Bevy CLI automatically sets the `RUSTFLAGS` env variable to configure the web `getrandom` backend when `bevy build web` or `bevy run web` is used
-and you haven't configured the backend yourself.
-This allows more projects to work out-of-the-box for the web and simplifies the configuration.
-
-You can still explicitly define the backend if you wish (or need to).
-
-The feature configuration is not done automatically, but the CLI will give you a snippet to set it up when needed.
+This includes the JavaScript backend when compiling to Wasm for `getrandom` v0.2 and v0.3 (both may be in your dependency tree, depending on what version of Bevy you are using). If you forget to enable the backend, your project will not compile for web and the Bevy CLI will recommend you add the snippet above.
