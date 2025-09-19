@@ -10,13 +10,13 @@ To actually install the new version of the CLI, please see [the docs] and [the r
 
 ## v0.1.0-alpha.1 to v0.1.0-alpha.2 (Unreleased)
 
-### Installing `bevy_lint` with `bevy lint install --yes`
+### [Merging `RUSTFLAGS`](https://github.com/TheBevyFlock/bevy_cli/pull/540)
 
-The `--yes` flag to confirm all prompts got moved from the `bevy lint` command to the `bevy lint install` subcommand. If you were previously running `bevy lint --yes` to install and run the latest version of the linter, you now will need to run `bevy lint install --yes` and `bevy lint`.
+Previously, the Bevy CLI would override the flags passed to `rustc`. This is no longer the case, as the CLI now merges the `RUSTFLAGS` environmental variable and configuration from `.cargo/config.toml` with its own configuration. This may cause issues with your project setup, if you relied upon those values being ignored when using the Bevy CLI.
 
-### Make `--no-default-features` a Toggle
+### [Make `--no-default-features` a Toggle](https://github.com/TheBevyFlock/bevy_cli/pull/473)
 
-The `--no-default-features` flag for `bevy build` and `bevy run` is now a toggle instead of an option. If you previously were using `--no-default-features true`, replace it with just `--no-default-features`. If you were using `--no-default-features false`, remove it.
+The `--no-default-features` flag for `bevy build` and `bevy run` is now a toggle instead of an option. If you previously were using `--no-default-features=true`, replace it with just `--no-default-features`. If you were using `--no-default-features=false`, remove it.
 
 ```sh
 # v0.1.0-alpha.1
@@ -28,30 +28,14 @@ bevy build --no-default-features
 bevy run
 ```
 
-### `--wasm-opt` needs a value
+### [Support and Prioritize Crate-Level `web` Folder](https://github.com/TheBevyFlock/bevy_cli/pull/485)
 
-You now need to provide an explicit value to the `--wasm-opt` flag.
-If you were using `--wasm-opt` you now need to use `--wasm-opt=true`.
+When building and serving for the web, the CLI supported loading web-specific assets from a workspace-level `web` folder. The CLI can now look for a crate-level `web` folder too, and will load it instead if one is found. This may cause issues if your project already had a crate-level `web` folder, as the CLI will now look there for web assets rather than the workspace-level folder.
 
-```sh
-# v0.1.0-alpha.1
-bevy build web --wasm-opt
+### [Support and Prioritize Crate-Level `assets` Folder](https://github.com/TheBevyFlock/bevy_cli/pull/490)
 
-# v0.1.0-alpha.2
-bevy build web --wasm-opt=true
-```
+Just like [with the `web` folder](#support-and-prioritize-crate-level-web-folder), this also applies to the `assets` folder, which the CLI would use when bundling a web build. The CLI will now prefer bundling a crate-specific `assets` folder, which may cause issues if you relied upon it only using the workspace-level `assets` folder.
 
-On the flip side, you can now customize the flags that are passed to `wasm-opt`:
+### [Installing `bevy_lint` with `bevy lint install --yes`](https://github.com/TheBevyFlock/bevy_cli/pull/583)
 
-```sh
-# v0.1.0-alpha.2
-bevy build web --wasm-opt=-Oz --wasm-opt=--enable-bulk-memory
-```
-
-### Reorganized commands
-
-If you are using the Bevy CLI as a library, a couple of import paths will have changed.
-All commands have been moved to the `commands` module and need to be imported from there.
-
-Note also that the `template` module has been renamed to `new` and also moved to `commands`.
-The `generate_template` function within has been renamed to `new` and now takes `NewArgs` as parameter.
+The `--yes` flag to confirm all prompts got moved from the `bevy lint` command to the `bevy lint install` subcommand. If you were previously running `bevy lint --yes` to install and run the latest version of the linter, you now will need to run `bevy lint install --yes` and `bevy lint`.
