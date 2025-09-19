@@ -50,3 +50,15 @@ impl Component for MyEvent {
 impl Event for MyEvent {
     type Trigger<'a> = GlobalTrigger;
 }
+
+//~| HELP: `Reflect` can be automatically derived
+//~v ERROR: defined a message without a `Reflect` implementation
+struct MyMessage(String);
+
+impl Component for MyMessage {
+    const STORAGE_TYPE: StorageType = StorageType::Table;
+    type Mutability = Mutable;
+}
+
+//~v NOTE: `Message` implemented here
+impl Message for MyMessage {}

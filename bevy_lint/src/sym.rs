@@ -148,6 +148,7 @@ declare_bevy_symbols! {
     insert_resource,
     iter_current_update_messages,
     main_schedule,
+    Message,
     Messages,
     Mut,
     MutUntyped,

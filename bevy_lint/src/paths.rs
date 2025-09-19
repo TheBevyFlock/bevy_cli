@@ -48,6 +48,11 @@ pub static FILTERED_ENTITY_MUT: PathLookup =
     type_path!(bevy_ecs::world::entity_ref::FilteredEntityMut);
 /// <https://github.com/bevyengine/bevy/blob/v0.17.0-rc.1/crates/bevy_app/src/main_schedule.rs#L132>
 pub static FIXED_UPDATE: PathLookup = type_path!(bevy_app::main_schedule::FixedUpdate);
+/// <https://github.com/bevyengine/bevy/blob/v0.17.0-rc.1/crates/bevy_ecs/src/message/mod.rs#L96>
+pub static MESSAGE: PathLookup = PathLookup::new(
+    PathNS::Type,
+    &[sym::bevy_ecs, rustc_span::sym::message, sym::Message],
+);
 /// <https://github.com/bevyengine/bevy/blob/v0.17.0-rc.1/crates/bevy_ecs/src/message/messages.rs#L95>
 pub static MESSAGES: PathLookup = PathLookup::new(
     PathNS::Type,

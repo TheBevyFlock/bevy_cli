@@ -22,6 +22,23 @@ help: `Reflect` can be automatically derived
 43 | struct MyEvent(String);
    |
 
+error: defined a message without a `Reflect` implementation
+  --> tests/ui/missing_reflect/impl.rs:56:1
+   |
+56 | struct MyMessage(String);
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: `Message` implemented here
+  --> tests/ui/missing_reflect/impl.rs:64:1
+   |
+64 | impl Message for MyMessage {}
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+help: `Reflect` can be automatically derived
+   |
+56 + #[derive(Reflect)]
+57 | struct MyMessage(String);
+   |
+
 error: defined a component without a `Reflect` implementation
   --> tests/ui/missing_reflect/impl.rs:22:1
    |
@@ -62,5 +79,5 @@ help: `Reflect` can be automatically derived
 33 | struct MyResource {
    |
 
-error: aborting due to 3 previous errors
+error: aborting due to 4 previous errors
 

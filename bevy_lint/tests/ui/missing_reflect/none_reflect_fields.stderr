@@ -22,6 +22,26 @@ help: `Reflect` can be automatically derived
 34 | struct MyEvent(NonReflect);
    |
 
+error: defined a message without a `Reflect` implementation
+  --> tests/ui/missing_reflect/none_reflect_fields.rs:41:1
+   |
+41 | / struct MyMessage {
+42 | |     reflect: u64,
+43 | |     non_reflect: NonReflect,
+44 | | }
+   | |_^
+   |
+note: `Message` implemented here
+  --> tests/ui/missing_reflect/none_reflect_fields.rs:47:1
+   |
+47 | impl Message for MyMessage {}
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+help: `Reflect` can be automatically derived
+   |
+41 + #[derive(Reflect)]
+42 | struct MyMessage {
+   |
+
 error: defined a component without a `Reflect` implementation
   --> tests/ui/missing_reflect/none_reflect_fields.rs:18:1
    |
@@ -64,5 +84,5 @@ help: `Reflect` can be automatically derived
 28 | enum MyResource {
    |
 
-error: aborting due to 3 previous errors
+error: aborting due to 4 previous errors
 

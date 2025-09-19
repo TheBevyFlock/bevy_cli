@@ -35,3 +35,13 @@ struct MyEvent(NonReflect);
 impl Event for MyEvent {
     type Trigger<'a> = GlobalTrigger;
 }
+
+//~| HELP: `Reflect` can be automatically derived
+//~v ERROR: defined a message without a `Reflect` implementation
+struct MyMessage {
+    reflect: u64,
+    non_reflect: NonReflect,
+}
+
+//~v NOTE: `Message` implemented here
+impl Message for MyMessage {}

@@ -56,3 +56,16 @@ impl Component for &'static &'static &'static MyEvent {
 impl Event for &'static &'static &'static MyEvent {
     type Trigger<'a> = GlobalTrigger;
 }
+
+//~| HELP: `Reflect` can be automatically derived
+//~v ERROR: defined a message without a `Reflect` implementation
+#[derive(Reflect)]
+struct MyMessage(String);
+
+impl Component for MyMessage {
+    const STORAGE_TYPE: StorageType = StorageType::Table;
+    type Mutability = Mutable;
+}
+
+//~v NOTE: `Message` implemented here
+impl Message for &'static &'static &'static MyMessage {}
