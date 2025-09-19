@@ -7,7 +7,7 @@ use semver::Version;
 use crate::external_cli::{CommandExt, Package};
 
 /// Whether to automatically install packages.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum AutoInstall {
     /// Show a prompt to the user and ask them first before installing.
     AskUser,

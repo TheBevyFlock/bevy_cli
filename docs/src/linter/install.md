@@ -13,7 +13,7 @@ Do you want to install `bevy_lint-v0.4.0` and the required toolchain: `nightly-2
 If you want to auto-confirm the prompt, you may pass `--yes` to the command. Note that if you are installing the linter in CI, you may wish to use the [dedicated Github Action instead](github-actions.md):
 
 ```sh
-bevy lint --yes install v0.4.0
+bevy lint install --yes v0.4.0
 ```
 
 ## Manual with Rustup
