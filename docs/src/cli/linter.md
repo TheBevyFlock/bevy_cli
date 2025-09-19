@@ -1,6 +1,6 @@
 # Linter
 
-The CLI has 1st-party support for [`bevy_lint`](../linter/index.md), the static analysis tool that checks over your code for Bevy-specific issues.
+The CLI has 1st-party support for [`bevy_lint`](../linter/index.md), the static analysis tool that checks over your code for Bevy-specific mistakes.
 
 ## Installing the Linter
 
