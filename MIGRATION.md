@@ -10,9 +10,9 @@ To actually install the new version of the CLI, please see [the docs] and [the r
 
 ## v0.1.0-alpha.1 to v0.1.0-alpha.2 (Unreleased)
 
-### [Installing `bevy_lint` with `bevy lint install --yes`](https://github.com/TheBevyFlock/bevy_cli/pull/583)
+### [Merging `RUSTFLAGS`](https://github.com/TheBevyFlock/bevy_cli/pull/540)
 
-The `--yes` flag to confirm all prompts got moved from the `bevy lint` command to the `bevy lint install` subcommand. If you were previously running `bevy lint --yes` to install and run the latest version of the linter, you now will need to run `bevy lint install --yes` and `bevy lint`.
+Previously, the Bevy CLI would override the flags passed to `rustc`. This is no longer the case, as the CLI now merges the `RUSTFLAGS` environmental variable and configuration from `.cargo/config.toml` with its own configuration. This may cause issues with your project setup, if you relied upon those values being ignored when using the Bevy CLI.
 
 ### [Make `--no-default-features` a Toggle](https://github.com/TheBevyFlock/bevy_cli/pull/473)
 
@@ -36,6 +36,6 @@ When building and serving for the web, the CLI supported loading web-specific as
 
 Just like [with the `web` folder](#support-and-prioritize-crate-level-web-folder), this also applies to the `assets` folder, which the CLI would use when bundling a web build. The CLI will now prefer bundling a crate-specific `assets` folder, which may cause issues if you relied upon it only using the workspace-level `assets` folder.
 
-### [Merging `RUSTFLAGS`](https://github.com/TheBevyFlock/bevy_cli/pull/540)
+### [Installing `bevy_lint` with `bevy lint install --yes`](https://github.com/TheBevyFlock/bevy_cli/pull/583)
 
-Previously, the Bevy CLI would override the flags passed to `rustc`. This is no longer the case, as the CLI now merges the `RUSTFLAGS` environmental variable and configuration from `.cargo/config.toml` with its own configuration. This may cause issues with your project setup, if you relied upon those values being ignored when using the Bevy CLI.
+The `--yes` flag to confirm all prompts got moved from the `bevy lint` command to the `bevy lint install` subcommand. If you were previously running `bevy lint --yes` to install and run the latest version of the linter, you now will need to run `bevy lint install --yes` and `bevy lint`.
