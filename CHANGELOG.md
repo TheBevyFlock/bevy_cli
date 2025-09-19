@@ -31,6 +31,7 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 ### Changed
 
 - The CLI no longer uses `cargo-generate` as a library dependency. Instead, if you don't have the `cargo-generate` executable installed, the CLI will ask to automatically install it for you when you first run `bevy new` ([#597](https://github.com/TheBevyFlock/bevy_cli/pull/597))
+  - This makes it slightly more challenging to use `bevy new`, but it significantly decreases compilation times for the CLI (up to 3x!) and allows passing more options to `cargo-generate`.
 - When building a project, the CLI can now load the `assets` and `web` folders next to the crate `Cargo.toml`, rather than just the workspace `Cargo.toml`. Crate-specific folders will be prioritized over workspace folders ([#485](https://github.com/TheBevyFlock/bevy_cli/pull/485), [#490](https://github.com/TheBevyFlock/bevy_cli/pull/490))
 - `rustflags` specified in [`.cargo/config.toml`](https://doc.rust-lang.org/cargo/reference/config.html#configuration) and the `RUSTFLAGS` environmental variable are now respected and will be merged with those defined in the CLI's configuration ([#540](https://github.com/TheBevyFlock/bevy_cli/pull/540))
 - `bevy build web` and `bevy run web` now support [JS snippets](https://wasm-bindgen.github.io/wasm-bindgen/reference/js-snippets.html) ([#527](https://github.com/TheBevyFlock/bevy_cli/pull/527))
@@ -43,8 +44,8 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 - `bevy build web` and `bevy run web` now respect the `target` configuration option, meaning it's now possible to build for WASM targets like `wasm32v1-none` instead of just `wasm32-unknown-unknown` ([#481](https://github.com/TheBevyFlock/bevy_cli/pull/481))
 - `bevy run` now respects the `default-members` workspace field in `Cargo.toml` when selecting which crate to run ([#477](https://github.com/TheBevyFlock/bevy_cli/pull/477))
 - `bevy new` now emits an error if the name of the crate is invalid ([#480](https://github.com/TheBevyFlock/bevy_cli/pull/480))
-- Instructions in `bevy lint --help` incorrectly said `bevy_lint` needed to be installed manually ([#465](https://github.com/TheBevyFlock/bevy_cli/pull/465))
-- The example for `bevy completions` has been reworked to be clearer ([#466](https://github.com/TheBevyFlock/bevy_cli/pull/466))
+- Instructions in `bevy lint --help` no longer incorrectly says the linter needs to be installed manually ([#465](https://github.com/TheBevyFlock/bevy_cli/pull/465))
+- The example for `bevy completions` has been reworded to be clearer ([#466](https://github.com/TheBevyFlock/bevy_cli/pull/466))
 
 ## v0.1.0-alpha.1 - 2025-05-23
 
