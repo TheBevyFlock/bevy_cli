@@ -14,11 +14,11 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 ### Added
 
 - `bevy build web` and `bevy run web` commands will now automatically apply the web backend for `getrandom` if necessary. `getrandom` requires both a feature and a rustflag to be enabled by the user, which can quickly lead to compile errors when not set up correctly. The CLI will automatically set the rustflag if needed and provide easy instructions on how to configure the features ([#547](https://github.com/TheBevyFlock/bevy_cli/pull/547))
-- The CLI is now able to list and install arbitrary versions of the Bevy linter with `bevy lint list` and `bevy lint install` ([#529](https://github.com/TheBevyFlock/bevy_cli/pull/529))
+- The CLI is now able to list and install all available versions of the Bevy linter with `bevy lint list` and `bevy lint install` ([#529](https://github.com/TheBevyFlock/bevy_cli/pull/529))
 - You can now run the linter on web builds with `bevy lint web` ([#523](https://github.com/TheBevyFlock/bevy_cli/pull/523))
 - You can now specify the host address in `bevy run web` with the `--host` flag ([#472](https://github.com/TheBevyFlock/bevy_cli/pull/472))
 - It is now possible to customize the arguments passed to `wasm-opt` when optimizing a build for the web ([#486](https://github.com/TheBevyFlock/bevy_cli/pull/486))
-  - You can pass flags to the CLI like `--wasm-opt=-Oz --wasm-opt=--enable-bulk-memory`, or you can change the `wasm-opt` configuration value to an array instead of a boolean, like `wasm-opt = ["-Oz", "--enable-bulk-memory"]`
+  - You can pass flags to the CLI like `--wasm-opt=-Oz --wasm-opt=--enable-bulk-memory`, or you can change the `wasm-opt` configuration value to an array instead of a boolean, like `wasm-opt = ["-Oz", "--enable-bulk-memory"]` ([#486](https://github.com/TheBevyFlock/bevy_cli/pull/486))
 - It is now possible to specify `bevy run web` HTTP headers in `Cargo.toml` using the `headers` array ([#544](https://github.com/TheBevyFlock/bevy_cli/pull/544))
 - The Bevy CLI now has colorful `--help` output, matching Cargo's style ([#464](https://github.com/TheBevyFlock/bevy_cli/pull/464))
 - The main `--help` message now contains links to Bevy's website, Bevy's source code, and the CLI's documentation ([#457](https://github.com/TheBevyFlock/bevy_cli/pull/457), [#482](https://github.com/TheBevyFlock/bevy_cli/pull/482))
