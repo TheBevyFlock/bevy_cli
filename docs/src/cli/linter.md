@@ -4,13 +4,13 @@ The CLI has 1st-party support for [`bevy_lint`](../linter/index.md), the static 
 
 ## Installing the Linter
 
-The CLI is able to install the Bevy linter for you. (Alternatively, you may [install it yourself](../linter/install.md).) To install the latest version, run `bevy lint install`:
+The CLI is able to install the Bevy linter for you. By running `bevy lint install`, the CLI will prompt you asking which version to install:
 
 ```sh
 bevy lint install
 ```
 
-The CLI is also able to install other versions of the linter:
+You may also install a specific version by passing its name as an argument:
 
 ```sh
 # View all versions that the CLI can install for you.
@@ -19,6 +19,8 @@ bevy lint list
 # Install a specific version of the linter.
 bevy lint install v0.1.0
 ```
+
+As an alternative to using the CLI, you may also [install the linter manually](../linter/install.md#manual-with-rustup).
 
 ## Usage
 
