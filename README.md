@@ -23,7 +23,7 @@ As the CLI is currently an unofficial tool, it is not yet published to <https://
 You may compile the latest version of the CLI from scratch using `cargo install`:
 
 ```sh
-cargo install --git https://github.com/TheBevyFlock/bevy_cli --tag cli-v0.1.0-alpha.1 --locked bevy_cli
+cargo install --git https://github.com/TheBevyFlock/bevy_cli --tag cli-v0.1.0-alpha.2 --locked bevy_cli
 ```
 
 <details>
@@ -32,7 +32,7 @@ cargo install --git https://github.com/TheBevyFlock/bevy_cli --tag cli-v0.1.0-al
 The CLI is precompiled for Linux, Windows, and macOS. You may install the latest precompiled binary using [`cargo-binstall`](https://github.com/cargo-bins/cargo-binstall):
 
 ```sh
-cargo binstall --git https://github.com/TheBevyFlock/bevy_cli --version 0.1.0-alpha.1 --locked bevy_cli
+cargo binstall --git https://github.com/TheBevyFlock/bevy_cli --version 0.1.0-alpha.2 --locked bevy_cli
 ```
 
 You can manually download the precompiled binaries from the [release page](https://github.com/TheBevyFlock/bevy_cli/releases).
