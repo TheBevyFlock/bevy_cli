@@ -31,3 +31,10 @@ struct MyResource {
 //~v ERROR: defined an event without a `Reflect` implementation
 #[derive(Reflect)]
 struct MyEvent(String);
+
+//~v NOTE: `Message` implemented here
+#[derive(Message)]
+//~| HELP: `Reflect` can be automatically derived
+//~v ERROR: defined a message without a `Reflect` implementation
+#[derive(Reflect)]
+struct MyMessage(String);

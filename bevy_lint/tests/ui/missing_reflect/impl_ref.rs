@@ -13,7 +13,10 @@
 #![deny(bevy::missing_reflect)]
 
 use bevy::{
-    ecs::component::{Mutable, StorageType},
+    ecs::{
+        component::{Mutable, StorageType},
+        event::GlobalTrigger,
+    },
     prelude::*,
 };
 
@@ -48,5 +51,17 @@ impl Component for &'static &'static &'static MyEvent {
 
 //~v NOTE: `Event` implemented here
 impl Event for &'static &'static &'static MyEvent {
-    type Traversal = ();
+    type Trigger<'a> = GlobalTrigger;
 }
+
+//~| HELP: `Reflect` can be automatically derived
+//~v ERROR: defined a message without a `Reflect` implementation
+struct MyMessage(String);
+
+impl Component for MyMessage {
+    const STORAGE_TYPE: StorageType = StorageType::Table;
+    type Mutability = Mutable;
+}
+
+//~v NOTE: `Message` implemented here
+impl Message for &'static &'static &'static MyMessage {}
