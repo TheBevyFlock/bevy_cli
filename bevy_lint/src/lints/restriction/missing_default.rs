@@ -9,7 +9,7 @@ declare_bevy_lint! {
     //TODO: include unit struct here, since this lint only applies to those.
     pub(crate) MISSING_DEFAULT,
     super::Restriction,
-    "defined a unit componentwithout a `Default` implementation",
+    "defined a unit component without a `Default` implementation",
     @crate_level_only = true,
 }
 
