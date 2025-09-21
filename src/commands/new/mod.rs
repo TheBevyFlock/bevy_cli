@@ -21,9 +21,9 @@ struct Repository {
 
 /// Generates a new template to the returned [`PathBuf`] using the given name and Git repository.
 ///
-/// If `git` is [`None`], it will default to [TheBevyFlock/bevy_new_minimal].
+/// By default, this will default to [`TheBevyFlock/bevy_new_minimal`].
 ///
-/// [TheBevyFlock/bevy_new_minimal]: https://github.com/TheBevyFlock/bevy_new_miminal
+/// [`TheBevyFlock/bevy_new_minimal`]: https://github.com/TheBevyFlock/bevy_new_miminal
 pub fn new(args: &NewArgs) -> anyhow::Result<()> {
     const PROGRAM: &str = "cargo-generate";
     // Validate that the package name starts with an alphabetic character
