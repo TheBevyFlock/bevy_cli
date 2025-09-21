@@ -6,7 +6,6 @@ use rustc_lint::{LateContext, LateLintPass};
 use crate::{declare_bevy_lint, declare_bevy_lint_pass, utils::traits::TraitType};
 
 declare_bevy_lint! {
-    //TODO: include unit struct here, since this lint only applies to those.
     pub(crate) MISSING_DEFAULT,
     super::Restriction,
     "defined a unit component without a `Default` implementation",
@@ -17,7 +16,18 @@ declare_bevy_lint_pass! {
     pub(crate) MissingDefault => [MISSING_DEFAULT],
 }
 
-impl<'tcx> LateLintPass<'tcx> for MissingDefault {
+declare_bevy_lint! {
+    pub(crate) MISSING_CLONE,
+    super::Restriction,
+    "defined a unit component without a `Clone` implementation",
+    @crate_level_only = true,
+}
+
+declare_bevy_lint_pass! {
+    pub(crate) MissingTraitImpls => [MISSING_DEFAULT, MISSING_CLONE],
+}
+
+impl<'tcx> LateLintPass<'tcx> for MissingTraitImpls {
     fn check_crate(&mut self, cx: &LateContext<'tcx>) {
         // Finds all types that implement `Component` in this crate.
         let components: Vec<TraitType> =

@@ -1,16 +1,16 @@
 error: defined a unit struct without a `Default` implementation
-  --> tests/ui/missing_default/main.rs:12:1
+  --> tests/ui/missing_trait_impls/main.rs:12:1
    |
 12 | pub struct IsDefaultUiCamera;
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
 note: `Component` implemented here
-  --> tests/ui/missing_default/main.rs:9:10
+  --> tests/ui/missing_trait_impls/main.rs:9:10
    |
  9 | #[derive(Component)]
    |          ^^^^^^^^^
 note: the lint level is defined here
-  --> tests/ui/missing_default/main.rs:4:9
+  --> tests/ui/missing_trait_impls/main.rs:4:9
    |
  4 | #![deny(bevy::missing_default)]
    |         ^^^^^^^^^^^^^^^^^^^^^
