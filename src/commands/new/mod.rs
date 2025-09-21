@@ -19,7 +19,7 @@ struct Repository {
     name: String,
 }
 
-/// Generates a new template to the returned [`PathBuf`] using the given name and Git repository.
+/// Generates a new template using the given name and Git repository.
 ///
 /// By default, this will default to [`TheBevyFlock/bevy_new_minimal`].
 ///
