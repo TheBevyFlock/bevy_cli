@@ -21,7 +21,7 @@ struct Repository {
 
 /// Generates a new template using the given name and Git repository.
 ///
-/// By default, this will default to [`TheBevyFlock/bevy_new_minimal`].
+/// This will default to [`TheBevyFlock/bevy_new_minimal`] when no template is specified in the CLI.
 ///
 /// [`TheBevyFlock/bevy_new_minimal`]: https://github.com/TheBevyFlock/bevy_new_miminal
 pub fn new(args: &NewArgs) -> anyhow::Result<()> {
