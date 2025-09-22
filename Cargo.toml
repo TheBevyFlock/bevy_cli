@@ -40,7 +40,7 @@ unstable = []
 
 [dependencies]
 # CLI argument parsing
-clap = { version = "4.5.47", features = ["derive"] }
+clap = { version = "4.5.48", features = ["derive"] }
 # autocompletion auto-generation
 clap_complete = "4.5.44"
 
