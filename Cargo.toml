@@ -3,7 +3,7 @@ members = ["bevy_lint"]
 
 [package]
 name = "bevy_cli"
-version = "0.1.0-dev"
+version = "0.1.0-alpha.2"
 edition = "2024"
 description = "A prototype Bevy CLI tool"
 documentation = "https://thebevyflock.github.io/bevy_cli/cli/index.html"
@@ -121,5 +121,5 @@ tempfile = "3"
 # version from the `main` branch's `Cargo.toml`, which is usually `X.Y.Z-dev`, leading to the
 # binary not being found. See <https://github.com/cargo-bins/cargo-binstall/issues/2165> for more
 # information.
-pkg-url = "{ repo }/releases/download/cli-v0.1.0-alpha.1/bevy-{ target }-v0.1.0-alpha.1{ archive-suffix }"
+pkg-url = "{ repo }/releases/download/cli-v0.1.0-alpha.2/bevy-{ target }-v0.1.0-alpha.2{ archive-suffix }"
 pkg-fmt = "bin"

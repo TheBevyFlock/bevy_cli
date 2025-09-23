@@ -8,7 +8,7 @@ To actually install the new version of the CLI, please see [the docs] and [the r
 [the releases page]: https://github.com/TheBevyFlock/bevy_cli/releases
 [submit an issue]: https://github.com/TheBevyFlock/bevy_cli/issues
 
-## v0.1.0-alpha.1 to v0.1.0-alpha.2 (Unreleased)
+## v0.1.0-alpha.1 to v0.1.0-alpha.2
 
 ### [Merging `RUSTFLAGS`](https://github.com/TheBevyFlock/bevy_cli/pull/540)
 
