@@ -479,7 +479,7 @@ dependencies = [
 
 [[package]]
 name = "bevy_cli"
-version = "0.1.0-alpha.2"
+version = "0.1.0-dev"
 dependencies = [
  "ansi_term",
  "anyhow",
@@ -3846,7 +3846,6 @@ checksum = "cd0b0ec5f1c1ca621c432a25813d8d60c88abe6d3e08a3eb9cf37d97a0fe3d73"
 
 [[package]]
 name = "serde"
-
 version = "1.0.226"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0dca6411025b24b60bfa7ec1fe1f8e710ac09782dca409ee8237ba74b51295fd"
