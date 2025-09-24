@@ -1,12 +1,11 @@
 //! Utilities to create a new Bevy project with `cargo-generate`
 
-use std::path::PathBuf;
-
 pub use args::*;
-use cargo_generate::{GenerateArgs, TemplatePath};
 use regex::Regex;
 use reqwest::blocking::Client;
 use serde::Deserialize;
+
+use crate::external_cli::{CommandExt, Package};
 
 mod args;
 
@@ -20,51 +19,61 @@ struct Repository {
     name: String,
 }
 
-/// Generates a new template to the returned [`PathBuf`] using the given name and Git repository.
+/// Generates a new template using the given name and Git repository.
 ///
-/// If `git` is [`None`], it will default to [TheBevyFlock/bevy_new_minimal].
+/// This will default to [`TheBevyFlock/bevy_new_minimal`] when no template is specified in the CLI.
 ///
-/// [TheBevyFlock/bevy_new_minimal]: https://github.com/TheBevyFlock/bevy_new_miminal
-pub fn new(args: &NewArgs) -> anyhow::Result<PathBuf> {
-    let NewArgs {
-        name,
-        template,
-        branch,
-    } = args;
-
+/// [`TheBevyFlock/bevy_new_minimal`]: https://github.com/TheBevyFlock/bevy_new_miminal
+pub fn new(args: &NewArgs) -> anyhow::Result<()> {
+    const PROGRAM: &str = "cargo-generate";
     // Validate that the package name starts with an alphabetic character
-    if let Some(first_char) = name.chars().next() {
+    if let Some(first_char) = args.name.chars().next() {
         anyhow::ensure!(
             first_char.is_alphabetic(),
-            "invalid character `{first_char}` in package name: {name}"
+            "invalid character `{first_char}` in package name: {}",
+            args.name
         );
     }
 
-    cargo_generate::generate(GenerateArgs {
-        template_path: template_path(template, branch)?,
-        name: Some(name.to_string()),
-        // prevent conversion to kebab-case
-        force: true,
-        ..Default::default()
-    })
-}
+    let Some(git) = expand_builtin(args.template.as_str())?
+        .or(expand_github_shortform(args.template.as_str()))
+        .or(Some(args.template.clone()))
+    else {
+        return Ok(());
+    };
 
-/// Returns the [`TemplatePath`] for a given Git repository.
-///
-/// If a shortcut is provided, e.g. `2d`, we will attempt to expand it to `bevy_new_2d`. (This value
-/// defaults to `minimal`.)
-/// If an org/repo shortform is provided, we will attempt to expand it to a URL.
-/// Otherwise, we pass the value directly to `cargo-generate`, presuming it to be a URL.
-fn template_path(template: &str, branch: &str) -> anyhow::Result<TemplatePath> {
-    let git = expand_builtin(template)?
-        .or(expand_github_shortform(template))
-        .or(Some(template.into()));
+    let mut cmd = CommandExt::new(PROGRAM);
 
-    Ok(TemplatePath {
-        git,
-        branch: Some(branch.into()),
-        ..Default::default()
-    })
+    cmd.arg("generate");
+
+    cmd.args(["--git", git.as_str()]);
+
+    match (&args.branch, &args.tag, &args.revision) {
+        (Some(branch), None, None) => {
+            cmd.args(["--branch", branch]);
+        }
+        (None, Some(tag), None) => {
+            cmd.args(["--tag", tag]);
+        }
+        (None, None, Some(rev)) => {
+            cmd.args(["--rev", rev]);
+        }
+        // Use `cargo-generate`'s default behavior, which usually means installing the default
+        // branch.
+        (None, None, None) => {}
+        _ => unreachable!("clap enforces, that only one of the options can be set"),
+    }
+
+    cmd.args(args.forward_args.iter());
+
+    cmd.args(["--name", args.name.as_str()])
+        .require_package(Package {
+            name: PROGRAM.into(),
+            ..Default::default()
+        })
+        .ensure_status(args.auto_install())?;
+
+    Ok(())
 }
 
 /// Attempts to match one of our builtin templates by retrieving all repos from TheBevyFlock

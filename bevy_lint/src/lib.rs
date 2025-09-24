@@ -1,4 +1,4 @@
-//! `bevy_lint` is a custom linter for the [Bevy game engine](https://bevyengine.org), similar to
+//! `bevy_lint` is a custom linter for the [Bevy game engine](https://bevy.org), similar to
 //! [Clippy](https://doc.rust-lang.org/stable/clippy).
 //!
 //! This is the primary documentation for its lints and lint groups. `bevy_lint` is not intended to

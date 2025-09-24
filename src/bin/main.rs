@@ -90,7 +90,7 @@ fn after_help() -> String {
     _ = writeln!(message, "{header}Resources:{header:#}");
     _ = writeln!(
         message,
-        "  {literal}Bevy Website{literal:#}       {underline}https://bevyengine.org{underline:#}"
+        "  {literal}Bevy Website{literal:#}       {underline}https://bevy.org{underline:#}"
     );
     _ = writeln!(
         message,

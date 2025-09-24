@@ -10,7 +10,7 @@
 //!
 //! For more information, please see the documentation on [`App::add_event()`] and [`Events<T>`].
 //!
-//! [`Events<T>`]: https://dev-docs.bevyengine.org/bevy/ecs/event/struct.Events.html
+//! [`Events<T>`]: https://dev-docs.bevy.org/bevy/ecs/event/struct.Events.html
 //! [`App::add_event()`]: https://docs.rs/bevy/latest/bevy/app/struct.App.html#method.add_event
 //!
 //! # Example

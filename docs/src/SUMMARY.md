@@ -9,7 +9,7 @@
 - [Quick Start](cli/quick-start.md)
 - [Scaffolding](cli/scaffolding.md)
 - [Web Apps](cli/web.md)
-  - [Wasm Multi-threading (unstable)](cli/web/multi-threading.md)
+  - [Wasm Multi-Threading (Unstable)](cli/web/multi-threading.md)
   - [`getrandom`](cli/web/getrandom.md)
   - [Default `index.html`](cli/web/default-index-html.md)
 - [Linter](cli/linter.md)
