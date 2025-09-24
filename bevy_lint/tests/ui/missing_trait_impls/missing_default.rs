@@ -9,7 +9,6 @@ use bevy::prelude::*;
 #[derive(Component)]
 //~| HELP: `Default` can be automatically derived
 //~v ERROR: defined a unit struct without a `Default` implementation
-#[derive(Default)]
 pub struct IsDefaultUiCamera;
 
 // This should not raise an ERROR, since `Default` is derived.
@@ -33,3 +32,7 @@ pub struct ComponentWithFields(#[allow(dead_code)] f32);
 
 // This should not raise an ERROR, since this struct does not implement `Component`.
 pub struct Foo;
+
+#[derive(Component)]
+#[allow(bevy::missing_default)]
+pub struct AllowMissingDefault;
