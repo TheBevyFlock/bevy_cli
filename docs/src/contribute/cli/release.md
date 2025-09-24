@@ -26,24 +26,16 @@
 
 You can find the live documentation for this release [here](https://thebevyflock.github.io/bevy_cli/cli/index.html). You may also be interested in [the changelog] and [the migration guide].
 
-<!-- Make sure to update the tags in these links to point to the correct version. -->
+<!-- Make sure to update these links to point to the correct header (after the `#`). -->
 
-[the changelog]: https://github.com/TheBevyFlock/bevy_cli/blob/cli-vX.Y.Z/CHANGELOG.md
-[the migration guide]: https://github.com/TheBevyFlock/bevy_cli/blob/cli-vX.Y.Z/MIGRATION.md
+[the changelog]: https://thebevyflock.github.io/bevy_cli/cli/changelog.html#vXYZ---YYYY-MM-DD
+[the migration guide]: https://thebevyflock.github.io/bevy_cli/cli/migration.html#vXYZ-to-vXYZ
 
 > [!WARNING]
 >
 > This is an unofficial community project, hacked upon by the Bevy CLI working group until it is eventually upstreamed into the main [Bevy Engine organization](https://github.com/bevyengine). Pardon our rough edges, and please consider [submitting an issue](https://github.com/TheBevyFlock/bevy_cli/issues) if you run into trouble!
 
-You can install the precompiled CLI using `cargo-binstall`:
-
-<!-- Update `X.Y.Z` with the correct version. -->
-
-```sh
-cargo binstall --git https://github.com/TheBevyFlock/bevy_cli --version X.Y.Z --locked bevy_cli
-```
-
-You may also compile the CLI yourself with `cargo install`:
+You can install the CLI using:
 
 <!-- Update `cli-vX.Y.Z` with the correct tag. -->
 
