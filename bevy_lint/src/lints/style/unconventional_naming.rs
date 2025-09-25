@@ -70,7 +70,7 @@ declare_bevy_lint_pass! {
 impl<'tcx> LateLintPass<'tcx> for UnconventionalNaming {
     fn check_item(&mut self, cx: &LateContext<'tcx>, item: &Item<'tcx>) {
         // Find `impl` items...
-        if let ItemKind::Impl(impl_) = item.kind
+        if let ItemKind::Impl(ref impl_) = item.kind
             && let Some(conventional_name_impl) = TraitConvention::try_from_impl(cx, impl_)
         {
             // Try to resolve where this type was originally defined. This will result in a `DefId`
