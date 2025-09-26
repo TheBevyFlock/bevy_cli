@@ -70,7 +70,7 @@ declare_bevy_lint_pass! {
     pub(crate) InsertMessageResource => [INSERT_MESSAGE_RESOURCE],
 }
 
-const HELP_MESSAGE: &str = "inserting an `Messages` resource does not fully setup that event";
+const HELP_MESSAGE: &str = "inserting an `Messages` resource does not fully setup that message";
 
 impl<'tcx> LateLintPass<'tcx> for InsertMessageResource {
     fn check_expr(&mut self, cx: &LateContext<'tcx>, expr: &'tcx Expr<'tcx>) {
@@ -220,10 +220,10 @@ fn check_init_resource<'tcx>(cx: &LateContext<'tcx>, method_call: &MethodCall<'t
                     INSERT_MESSAGE_RESOURCE,
                     method_call.span,
                     format!(
-                        "called `App::init_resource{generics_snippet}({receiver_snippet})` instead of `App::add_event::<{message_ty_snippet}>({receiver_snippet})`"
+                        "called `App::init_resource{generics_snippet}({receiver_snippet})` instead of `App::add_message::<{message_ty_snippet}>({receiver_snippet})`"
                     ),
                     HELP_MESSAGE,
-                    format!("App::add_event::<{message_ty_snippet}>({receiver_snippet})"),
+                    format!("App::add_message::<{message_ty_snippet}>({receiver_snippet})"),
                     applicability,
                 );
             } else {
@@ -232,10 +232,10 @@ fn check_init_resource<'tcx>(cx: &LateContext<'tcx>, method_call: &MethodCall<'t
                     INSERT_MESSAGE_RESOURCE,
                     method_call.span,
                     format!(
-                        "called `App::init_resource{generics_snippet}({args_snippet})` instead of `App::add_event::<{message_ty_snippet}>()`"
+                        "called `App::init_resource{generics_snippet}({args_snippet})` instead of `App::add_message::<{message_ty_snippet}>()`"
                     ),
                     HELP_MESSAGE,
-                    format!("add_event::<{message_ty_snippet}>()"),
+                    format!("add_message::<{message_ty_snippet}>()"),
                     applicability,
                 );
             }
@@ -259,13 +259,14 @@ fn extract_hir_message_snippet<'tcx>(
     // This is some crazy pattern matching. Let me walk you through it:
     let message_span = match messages_hir_ty.kind {
         // There are multiple kinds of HIR types, but we're looking for a path to a type
-        // definition. This path is likely `Events`, and contains the generic argument that we're
+        // definition. This path is likely `Messages`, and contains the generic argument that we're
         // searching for.
         rustc_hir::TyKind::Path(QPath::Resolved(
             _,
             &Path {
                 // There can be multiple segments in a path, such as if it were
-                // `bevy::prelude::Events`, but in this case we just care about the last: `Events`.
+                // `bevy::prelude::Messages`, but in this case we just care about the last:
+                // `Messages`.
                 segments:
                     &[
                         ..,
