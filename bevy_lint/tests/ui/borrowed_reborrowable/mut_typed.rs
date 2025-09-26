@@ -4,8 +4,7 @@
 #![register_tool(bevy)]
 #![deny(bevy::borrowed_reborrowable)]
 
-use bevy::ecs::prelude::Mut;
-use bevy::prelude::*;
+use bevy::{ecs::prelude::Mut, prelude::*};
 
 // OK: Lint does not apply to immutable references
 fn immutable_reference(_param: &Mut<Name>) {

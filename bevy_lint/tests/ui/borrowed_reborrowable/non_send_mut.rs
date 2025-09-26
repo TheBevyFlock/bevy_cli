@@ -1,4 +1,5 @@
-//! This tests the `borrowed_reborrowable` lint, specifically when triggered on the `NonSendMut` type.
+//! This tests the `borrowed_reborrowable` lint, specifically when triggered on the `NonSendMut`
+//! type.
 
 #![feature(register_tool)]
 #![register_tool(bevy)]

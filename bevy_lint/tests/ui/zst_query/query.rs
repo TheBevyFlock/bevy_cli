@@ -4,8 +4,9 @@
 #![register_tool(bevy)]
 #![deny(bevy::zst_query)]
 
-use bevy::prelude::*;
 use std::marker::PhantomData;
+
+use bevy::prelude::*;
 
 #[derive(Component)]
 struct ZST;

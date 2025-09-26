@@ -1,11 +1,14 @@
-//! This tests the `borrowed_reborrowable` lint, specifically when triggered on the `EntityMut` type.
+//! This tests the `borrowed_reborrowable` lint, specifically when triggered on the `EntityMut`
+//! type.
 
 #![feature(register_tool)]
 #![register_tool(bevy)]
 #![deny(bevy::borrowed_reborrowable)]
 
-use bevy::ecs::prelude::{EntityMut, EntityRef};
-use bevy::prelude::*;
+use bevy::{
+    ecs::prelude::{EntityMut, EntityRef},
+    prelude::*,
+};
 
 // OK: Lint does not apply to immutable references
 fn immutable_reference(_param: &EntityMut) {
