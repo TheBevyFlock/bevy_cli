@@ -5,11 +5,11 @@ error: defined an event without a `Reflect` implementation
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
 note: `Event` implemented here
-  --> tests/ui/missing_reflect/none_reflect_fields.rs:35:1
+  --> tests/ui/missing_reflect/none_reflect_fields.rs:36:1
    |
-35 | / impl Event for MyEvent {
-36 | |     type Trigger<'a> = GlobalTrigger;
-37 | | }
+36 | / impl Event for MyEvent {
+37 | |     type Trigger<'a> = GlobalTrigger;
+38 | | }
    | |_^
 note: the lint level is defined here
   --> tests/ui/missing_reflect/none_reflect_fields.rs:8:9
@@ -23,23 +23,23 @@ help: `Reflect` can be automatically derived
    |
 
 error: defined a message without a `Reflect` implementation
-  --> tests/ui/missing_reflect/none_reflect_fields.rs:41:1
+  --> tests/ui/missing_reflect/none_reflect_fields.rs:42:1
    |
-41 | / struct MyMessage {
-42 | |     reflect: u64,
-43 | |     non_reflect: NonReflect,
-44 | | }
+42 | / struct MyMessage {
+43 | |     reflect: u64,
+44 | |     non_reflect: NonReflect,
+45 | | }
    | |_^
    |
 note: `Message` implemented here
-  --> tests/ui/missing_reflect/none_reflect_fields.rs:47:1
+  --> tests/ui/missing_reflect/none_reflect_fields.rs:48:1
    |
-47 | impl Message for MyMessage {}
+48 | impl Message for MyMessage {}
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 help: `Reflect` can be automatically derived
    |
-41 + #[derive(Reflect)]
-42 | struct MyMessage {
+42 + #[derive(Reflect)]
+43 | struct MyMessage {
    |
 
 error: defined a component without a `Reflect` implementation

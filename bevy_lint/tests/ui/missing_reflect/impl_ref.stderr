@@ -5,11 +5,11 @@ error: defined an event without a `Reflect` implementation
    | ^^^^^^^^^^^^^^^^^^^^^^^
    |
 note: `Event` implemented here
-  --> tests/ui/missing_reflect/impl_ref.rs:53:1
+  --> tests/ui/missing_reflect/impl_ref.rs:48:1
    |
-53 | / impl Event for &'static &'static &'static MyEvent {
-54 | |     type Trigger<'a> = GlobalTrigger;
-55 | | }
+48 | / impl Event for &'static &'static &'static MyEvent {
+49 | |     type Trigger<'a> = GlobalTrigger;
+50 | | }
    | |_^
 note: the lint level is defined here
   --> tests/ui/missing_reflect/impl_ref.rs:13:9
@@ -23,20 +23,20 @@ help: `Reflect` can be automatically derived
    |
 
 error: defined a message without a `Reflect` implementation
-  --> tests/ui/missing_reflect/impl_ref.rs:59:1
+  --> tests/ui/missing_reflect/impl_ref.rs:54:1
    |
-59 | struct MyMessage(String);
+54 | struct MyMessage(String);
    | ^^^^^^^^^^^^^^^^^^^^^^^^^
    |
 note: `Message` implemented here
-  --> tests/ui/missing_reflect/impl_ref.rs:67:1
+  --> tests/ui/missing_reflect/impl_ref.rs:57:1
    |
-67 | impl Message for &'static &'static &'static MyMessage {}
+57 | impl Message for &'static &'static &'static MyMessage {}
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 help: `Reflect` can be automatically derived
    |
-59 + #[derive(Reflect)]
-60 | struct MyMessage(String);
+54 + #[derive(Reflect)]
+55 | struct MyMessage(String);
    |
 
 error: defined a component without a `Reflect` implementation

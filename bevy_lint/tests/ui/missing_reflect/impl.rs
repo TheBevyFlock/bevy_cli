@@ -41,11 +41,6 @@ impl Resource for MyResource {}
 //~v ERROR: defined an event without a `Reflect` implementation
 struct MyEvent(String);
 
-impl Component for MyEvent {
-    const STORAGE_TYPE: StorageType = StorageType::Table;
-    type Mutability = Mutable;
-}
-
 //~v NOTE: `Event` implemented here
 impl Event for MyEvent {
     type Trigger<'a> = GlobalTrigger;
@@ -54,11 +49,6 @@ impl Event for MyEvent {
 //~| HELP: `Reflect` can be automatically derived
 //~v ERROR: defined a message without a `Reflect` implementation
 struct MyMessage(String);
-
-impl Component for MyMessage {
-    const STORAGE_TYPE: StorageType = StorageType::Table;
-    type Mutability = Mutable;
-}
 
 //~v NOTE: `Message` implemented here
 impl Message for MyMessage {}

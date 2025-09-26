@@ -31,6 +31,7 @@ enum MyResource {
 //~| HELP: `Reflect` can be automatically derived
 //~v ERROR: defined an event without a `Reflect` implementation
 struct MyEvent(NonReflect);
+
 //~v NOTE: `Event` implemented here
 impl Event for MyEvent {
     type Trigger<'a> = GlobalTrigger;
