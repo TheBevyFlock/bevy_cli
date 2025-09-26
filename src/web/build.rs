@@ -35,7 +35,7 @@ pub fn build_web(
     args.cargo_args.common_args.config = profile_args;
 
     // Apply the `getrandom` web backend if necessary
-    if apply_getrandom_backend(metadata, args) {
+    if apply_getrandom_backend(metadata, &mut args.cargo_args.common_args) {
         info!("automatically configuring `getrandom` web backend");
     }
 
