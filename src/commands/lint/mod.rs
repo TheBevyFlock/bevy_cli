@@ -14,6 +14,7 @@ use crate::{
             install::{AutoInstall, is_installed},
         },
     },
+    web::getrandom::getrandom_web_feature_config,
 };
 
 mod args;
@@ -54,7 +55,17 @@ pub fn lint(args: &mut LintArgs) -> anyhow::Result<()> {
         // We do not want to automatically install a `bevy_lint` version.
         // The reason is that to pass the `Package`, we would need to look up the latest release on
         // GitHub since there is no easy way of specify "latest".
-        .ensure_status(AutoInstall::Never)?;
+        .ensure_status(AutoInstall::Never)
+        .inspect_err(|_| {
+            // If the build failed, check if the user has configured `getrandom` correctly
+            if let Some(target) = args.target()
+                && let Ok(Some(feature_config)) = getrandom_web_feature_config(&target)
+            {
+                tracing::warn!(
+                    "You have to enable the `getrandom` web feature in your Cargo.toml:\n\n{feature_config}"
+                );
+            }
+        })?;
 
     ensure!(
         status.success(),
@@ -124,13 +135,21 @@ fn build_lint_cmd(args: &mut LintArgs) -> anyhow::Result<CommandExt> {
 
     #[cfg(feature = "web")]
     if matches!(args.subcommand, Some(LintSubcommands::Web)) {
-        use crate::web::profiles::configure_default_web_profiles;
+        use tracing::info;
+
+        use crate::web::{
+            getrandom::apply_getrandom_backend, profiles::configure_default_web_profiles,
+        };
 
         let mut profile_args = configure_default_web_profiles(&metadata)?;
         // `--config` args are resolved from left to right,
         // so the default configuration needs to come before the user args
         profile_args.append(&mut args.cargo_args.common_args.config);
         args.cargo_args.common_args.config = profile_args;
+
+        if apply_getrandom_backend(&metadata, &mut args.cargo_args.common_args) {
+            info!("automatically configuring `getrandom` web backend");
+        }
     }
 
     let cargo_args = args.cargo_args_builder();
