@@ -46,16 +46,12 @@ fn main() {
         let mut param: FilteredEntityMut = world.spawn_empty().into();
         immutable_reference(&param);
         mutable_reference(&mut param);
-        _ = mutable_reference_return(&mut param);
-        _ = mutable_reference_bounded_return(&mut param);
-    }
+        let _ = mutable_reference_return(&mut param);
+        let _ = mutable_reference_bounded_return(&mut param);
 
-    fn some_other_system(world: &mut World) {
         let mut param: FilteredEntityMut = world.spawn_empty().into();
-        _ = mutable_reference_bounded_return_complex(&mut param);
+        let _ = mutable_reference_bounded_return_complex(&mut param);
     }
 
-    App::new()
-        .add_systems(Update, (some_system, some_other_system))
-        .run();
+    App::new().add_systems(Update, some_system).run();
 }
