@@ -27,7 +27,7 @@ pub static APP: PathLookup = type_path!(bevy_app::app::App);
 pub static BUNDLE: PathLookup = type_path!(bevy_ecs::bundle::Bundle);
 /// <https://github.com/bevyengine/bevy/blob/v0.17.0-rc.1/crates/bevy_camera/src/camera.rs#L343>
 pub static CAMERA: PathLookup = type_path!(bevy_camera::camera::Camera);
-/// <https://github.com/bevyengine/bevy/blob/v0.17.0-rc.1/crates/bevy_ecs/src/system/commands/mod.rs#L101>
+/// <https://github.com/bevyengine/bevy/blob/v0.17.0-rc.1/crates/bevy_ecs/src/system/commands/mod.rs#L102>
 pub static COMMANDS: PathLookup = type_path!(bevy_ecs::system::commands::Commands);
 /// <https://github.com/bevyengine/bevy/blob/v0.17.0-rc.1/crates/bevy_ecs/src/component/mod.rs#L487>
 pub static COMPONENT: PathLookup = type_path!(bevy_ecs::component::Component);
@@ -43,7 +43,7 @@ pub static ENTITY_MUT: PathLookup = type_path!(bevy_ecs::world::entity_ref::Enti
 pub static EVENT: PathLookup = type_path!(bevy_ecs::event::Event);
 /// <https://github.com/bevyengine/bevy/blob/v0.17.0-rc.1/crates/bevy_ecs/src/event/mod.rs#L358>
 pub static EVENTS: PathLookup = type_path!(bevy_ecs::event::Events);
-/// <https://github.com/bevyengine/bevy/blob/v0.17.0-rc.1/crates/bevy_ecs/src/world/entity_ref.rs#L3687>
+/// <https://github.com/bevyengine/bevy/blob/v0.17.0-rc.1/crates/bevy_ecs/src/world/entity_ref.rs#L3516>
 pub static FILTERED_ENTITY_MUT: PathLookup =
     type_path!(bevy_ecs::world::entity_ref::FilteredEntityMut);
 /// <https://github.com/bevyengine/bevy/blob/v0.17.0-rc.1/crates/bevy_app/src/main_schedule.rs#L132>
