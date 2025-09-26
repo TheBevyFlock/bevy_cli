@@ -2,7 +2,7 @@
 //!
 //! # Motivation
 //!
-//! `Messages::<T>::iter_current_update_messages()` lets you read all of the current Messages since
+//! `Messages::<T>::iter_current_update_messages()` lets you read all of the current messages since
 //! `Messages::<T>::update()` was last called, similar to `MessageReader<T>`. Unlike
 //! `MessageReader<T>`, `iter_current_update_messages()` does not track which messages have already
 //! been read. As such, `iter_current_update_messages()` is highly discouraged because it may skip
@@ -68,12 +68,12 @@ impl<'tcx> LateLintPass<'tcx> for IterCurrentUpdateMessages {
             //
             // ```
             // fn plain(messages: Messages<T>) {
-            //     // Original type is `Messages<T>`, adjusted type is `messages<T>`.
+            //     // Original type is `Messages<T>`, adjusted type is `Messages<T>`.
             //     let _ = messages.iter_current_update_messages();
             // }
             //
             // fn res(messages: Res<Messages<T>>) {
-            //     // Original type is `Res<Messages<T>>`, adjusted type is `messages<T>`.
+            //     // Original type is `Res<Messages<T>>`, adjusted type is `Messages<T>`.
             //     let _ = messages.iter_current_update_messages();
             // }
             // ```
