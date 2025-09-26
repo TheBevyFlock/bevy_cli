@@ -8,6 +8,24 @@ To actually install the new version of the linter, please see [the docs] and [th
 [the releases page]: https://github.com/TheBevyFlock/bevy_cli/releases
 [submit an issue]: https://github.com/TheBevyFlock/bevy_cli/issues
 
+## v0.4.0 to v0.5.0 (Unreleased)
+
+### [Bevy 0.17 Support](https://github.com/TheBevyFlock/bevy_cli/pull/577)
+
+The linter now supports Bevy 0.17, but no longer supports Bevy 0.16.
+To migrate your code base to Bevy 0.17, please see the [release post][bevy 0.17 release post] and [migration guide][bevy 0.17 migration guide].
+
+[bevy 0.17 release post]: https://bevy.org/news/bevy-0-17/
+[bevy 0.17 migration guide]: https://bevy.org/learn/migration-guides/0-16-to-0-17/
+
+## Renaming the lints that targeted "buffered" Events
+
+- `insert_event_resource` Lint was renamed to `insert_message_resource`
+- `iter_current_update_events` Lint was renamed to `iter_current_update_messages`
+
+In Bevy 0.17, Event is now exclusively the name/trait for the concept of something that is "triggered" and "observed".
+[Message] is the name / trait of something that "buffered": it is "written" via a [MessageWriter] and "read" via a [MessageReader].
+
 ## v0.3.0 to v0.4.0
 
 ### [Bumped Nightly Toolchain to `nightly-2025-06-26`](https://github.com/TheBevyFlock/bevy_cli/pull/507)

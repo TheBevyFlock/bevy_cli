@@ -54,7 +54,7 @@ toml = { version = "0.9.6", default-features = false, features = [
 
 [dev-dependencies]
 # Used when running UI tests.
-bevy = { version = "0.16.0", default-features = false, features = [
+bevy = { version = "0.17.0-rc.1", default-features = false, features = [
     "std",
     # used for the `camera_modification_in_fixed_update` lint
     "bevy_render",

@@ -96,23 +96,23 @@ impl<'tcx> LateLintPass<'tcx> for PanickingMethods {
             // for fully qualified method calls the first argument is `Self` and represents the
             // `Ty` we are looking for:
             //
-            // Query::single(&foo, args);
-            //              ^^^^^
+            // World::entity(&world, entities);
+            //               ^^^^^^
             // for *not* fully qualified method calls:
             //
-            // foo.single();
+            // world.entity(entities);
             // ^^^^^
             //
             // We peel all references to that `Foo`, `&Foo`, `&&Foo`, etc.
             let src_ty = cx.typeck_results().expr_ty_adjusted(receiver).peel_refs();
 
-            // Check if `src_ty` is a type that has panicking methods (e.g. `Query`), else exit.
+            // Check if `src_ty` is a type that has panicking methods (e.g. `World`), else exit.
             let Some(panicking_type) = PanickingType::try_from_ty(cx, src_ty) else {
                 return;
             };
 
-            // Get a list of methods that panic and their alternatives for the specific query
-            // variant.
+            // Get a list of methods that panic and their alternatives for the specific panicking
+            // type.
             let panicking_alternatives = panicking_type.alternatives();
 
             // Here we check if the method name matches one of methods in `panicking_alternatives`.
@@ -171,7 +171,7 @@ impl<'tcx> LateLintPass<'tcx> for PanickingMethods {
             // The method was not a fully qualified call
             else {
                 // Try to find the string representation of `src`. This usually returns
-                // `my_query` without the trailing `.`, so we manually
+                // `my_world` without the trailing `.`, so we manually
                 // append it. When the snippet cannot be found, we default
                 // to the qualified `Type::` form.
                 let src_snippet = snippet_opt(cx, receiver.span).map_or_else(
@@ -201,7 +201,7 @@ impl<'tcx> LateLintPass<'tcx> for PanickingMethods {
                     panicking_type.name()
                 ),
                 None,
-                // This usually ends up looking like: `query.get_many([e1, e2])`.
+                // This usually ends up looking like: `world.entity([e1, e2])`.
                 format!(
                     "use `{src_snippet}{alternative}{generics_snippet}({args_snippet})` and handle the `Option` or `Result`"
                 ),
@@ -211,16 +211,13 @@ impl<'tcx> LateLintPass<'tcx> for PanickingMethods {
 }
 
 enum PanickingType {
-    Query,
     World,
 }
 
 impl PanickingType {
     /// Returns the corresponding variant for the given [`Ty`], if it is supported by this lint.
     fn try_from_ty<'tcx>(cx: &LateContext<'tcx>, ty: Ty<'tcx>) -> Option<Self> {
-        if crate::paths::QUERY.matches_ty(cx, ty) {
-            Some(Self::Query)
-        } else if crate::paths::WORLD.matches_ty(cx, ty) {
+        if crate::paths::WORLD.matches_ty(cx, ty) {
             Some(Self::World)
         } else {
             None
@@ -233,7 +230,6 @@ impl PanickingType {
     /// `(panicking_method, alternative_method)`.
     fn alternatives(&self) -> &'static [(&'static str, &'static str)] {
         match self {
-            Self::Query => &[("many", "get_many"), ("many_mut", "get_many_mut")],
             Self::World => &[
                 ("entity", "get_entity"),
                 ("entity_mut", "get_entity_mut"),
@@ -251,7 +247,6 @@ impl PanickingType {
     /// Returns the name of the type this variant represents.
     fn name(&self) -> &'static str {
         match self {
-            Self::Query => "Query",
             Self::World => "World",
         }
     }

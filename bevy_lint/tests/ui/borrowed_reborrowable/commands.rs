@@ -4,8 +4,7 @@
 #![register_tool(bevy)]
 #![deny(bevy::borrowed_reborrowable)]
 
-use bevy::ecs::system::EntityCommands;
-use bevy::prelude::*;
+use bevy::{ecs::system::EntityCommands, prelude::*};
 
 // OK: Lint does not apply to immutable references
 fn immutable_reference(_commands: &Commands) {
