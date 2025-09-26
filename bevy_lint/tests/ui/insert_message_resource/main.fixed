@@ -9,11 +9,11 @@ struct Foo;
 
 fn main() {
     let mut app = App::new();
-    App::new().add_event::<Foo>();
+    App::new().add_message::<Foo>();
     //~^ ERROR: called `App::init_resource::<Messages<Foo>>()` instead of
     // `App::add_message::<Foo>()`
 
-    App::add_event::<Foo>(&mut app);
+    App::add_message::<Foo>(&mut app);
     //~^ ERROR: called `App::init_resource::<Messages<Foo>>(&mut app)` instead of
     // `App::add_message::<Foo>(&mut app)`
 
