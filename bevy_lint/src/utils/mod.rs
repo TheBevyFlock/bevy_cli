@@ -4,3 +4,4 @@ pub mod cargo;
 pub mod hir_parse;
 pub mod method_call;
 mod panic;
+pub mod traits;
