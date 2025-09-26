@@ -95,15 +95,9 @@ impl<'tcx> LateLintPass<'tcx> for MissingReflect {
             .filter(|trait_type| !reflected.contains(trait_type))
             .collect();
 
-        // Finds all non-`Reflect` types that implement `Component` and *not* `Event` or `Message`
-        // in this crate. Because events and messages can also be components, we need to deduplicate
-        // the two to avoid emitting multiple diagnostics for the same type.
+        // Finds all non-`Reflect` types that implement `Component` in this crate.
         let components: Vec<TraitType> = TraitType::from_local_crate(cx, &crate::paths::COMPONENT)
-            .filter(|trait_type| {
-                !(reflected.contains(trait_type)
-                    || events.contains(trait_type)
-                    || messages.contains(trait_type))
-            })
+            .filter(|trait_type| !reflected.contains(trait_type))
             .collect();
 
         // Finds all non-`Reflect` types that implement `Resource` in this crate.
