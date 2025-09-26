@@ -14,7 +14,6 @@ use crate::{
             install::{AutoInstall, is_installed},
         },
     },
-    web::getrandom::getrandom_web_feature_config,
 };
 
 mod args;
@@ -57,7 +56,11 @@ pub fn lint(args: &mut LintArgs) -> anyhow::Result<()> {
         // GitHub since there is no easy way of specify "latest".
         .ensure_status(AutoInstall::Never)
         .inspect_err(|_| {
+            #[cfg(feature = "web")]
+            use crate::web::getrandom::getrandom_web_feature_config;
+
             // If the build failed, check if the user has configured `getrandom` correctly
+            #[cfg(feature = "web")]
             if let Some(target) = args.target()
                 && let Ok(Some(feature_config)) = getrandom_web_feature_config(&target)
             {
