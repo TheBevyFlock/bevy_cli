@@ -40,9 +40,9 @@ unstable = []
 
 [dependencies]
 # CLI argument parsing
-clap = { version = "4.5.47", features = ["derive"] }
+clap = { version = "4.5.48", features = ["derive"] }
 # autocompletion auto-generation
-clap_complete = "4.5.44"
+clap_complete = "4.5.58"
 
 # Easy error propagation and contexts
 anyhow = "1.0.86"
@@ -62,7 +62,7 @@ clap-cargo = "0.17.1"
 cargo-config2 = "0.1"
 
 # API interaction
-serde = { features = ["derive"], version = "1.0.224" }
+serde = { features = ["derive"], version = "1.0.226" }
 serde_json = "1.0.145"
 reqwest = { version = "0.12.7", default-features = false, features = [
     "default-tls",
@@ -121,5 +121,5 @@ tempfile = "3"
 # version from the `main` branch's `Cargo.toml`, which is usually `X.Y.Z-dev`, leading to the
 # binary not being found. See <https://github.com/cargo-bins/cargo-binstall/issues/2165> for more
 # information.
-pkg-url = "{ repo }/releases/download/cli-v0.1.0-alpha.1/bevy-{ target }-v0.1.0-alpha.1{ archive-suffix }"
+pkg-url = "{ repo }/releases/download/cli-v0.1.0-alpha.2/bevy-{ target }-v0.1.0-alpha.2{ archive-suffix }"
 pkg-fmt = "bin"
