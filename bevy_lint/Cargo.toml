@@ -26,7 +26,7 @@ clippy_utils = "=0.1.92"
 # Easy error propagation and contexts.
 anyhow = "1.0.86"
 # Easy structured output for `cargo metadata`, used for cargo lints
-cargo_metadata = "0.22.0"
+cargo_metadata = "0.23.0"
 
 # Configuration deserialization.
 serde = { version = "1.0.226", features = ["derive"] }
