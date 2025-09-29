@@ -37,7 +37,7 @@ jobs:
       # The CLI and linter's UI tests depend on Bevy with default features. This requires extra
       # packages, such as `alsa` and `udev`, to be installed on Linux.
       - name: Install Linux dependencies
-        uses: bevyengine/bevy/.github/actions/install-linux-deps@v0.17.0-rc.1
+        uses: bevyengine/bevy/.github/actions/install-linux-deps@v0.17.0-rc.2
 
       - name: Cache build artifacts
         uses: Swatinem/rust-cache@v2
