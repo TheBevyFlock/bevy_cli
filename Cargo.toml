@@ -62,7 +62,7 @@ clap-cargo = "0.17.1"
 cargo-config2 = "0.1"
 
 # API interaction
-serde = { features = ["derive"], version = "1.0.226" }
+serde = { features = ["derive"], version = "1.0.228" }
 serde_json = "1.0.145"
 reqwest = { version = "0.12.7", default-features = false, features = [
     "default-tls",
