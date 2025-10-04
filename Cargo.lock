@@ -521,7 +521,6 @@ dependencies = [
  "dialoguer",
  "fs_extra",
  "http",
- "regex",
  "semver",
  "serde",
  "serde_json",
