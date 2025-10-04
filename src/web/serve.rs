@@ -34,7 +34,7 @@ async fn handle_socket(mut socket: WebSocket) {
 }
 
 /// Launch a web server running the Bevy app.
-#[tokio::main]
+#[tokio::main(flavor = "current_thread")]
 pub(crate) async fn serve(
     web_bundle: WebBundle,
     addr: SocketAddr,

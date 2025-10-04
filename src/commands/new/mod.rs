@@ -1,8 +1,6 @@
 //! Utilities to create a new Bevy project with `cargo-generate`
 
 pub use args::*;
-use regex::Regex;
-use reqwest::blocking::Client;
 use serde::Deserialize;
 
 use crate::external_cli::{CommandExt, Package};
@@ -95,18 +93,31 @@ fn expand_builtin(template: &str) -> anyhow::Result<Option<String>> {
 /// If the template argument has org/repo format using GitHub's allowed characters for both,
 /// attempt to expand it into a GitHub URL.
 fn expand_github_shortform(template: &str) -> Option<String> {
-    let re = Regex::new(r"^[a-zA-Z0-9_\.\-]+/[a-zA-Z0-9_\-\.]+$").unwrap();
-    re.is_match(template)
-        .then(|| format!("https://github.com/{template}.git"))
+    is_repo_shortform(template).then(|| format!("https://github.com/{template}.git"))
+}
+
+/// Determine if the argument is a shorthand for a repository.
+/// The shorthand has the form `org/repo`.
+fn is_repo_shortform(template: &str) -> bool {
+    fn is_valid_char(c: char) -> bool {
+        c.is_ascii_alphanumeric() || c == '-' || c == '_' || c == '.'
+    }
+
+    let Some((org, repo)) = template.split_once('/') else {
+        return false;
+    };
+
+    !org.is_empty()
+        && org.chars().all(is_valid_char)
+        && !repo.is_empty()
+        && repo.chars().all(is_valid_char)
 }
 
 /// Returns a list of GitHub repositories with the prefix `bevy_new_` in the given GitHub org.
 fn fetch_template_repositories(org: &str, prefix: &str) -> anyhow::Result<Vec<Repository>> {
     let url = format!("https://api.github.com/orgs/{org}/repos");
 
-    let client = Client::new();
-    let repos: Vec<Repository> = client
-        .get(&url)
+    let repos: Vec<Repository> = ureq::get(&url)
         .header(
             "User-Agent",
             format!(
@@ -114,8 +125,10 @@ fn fetch_template_repositories(org: &str, prefix: &str) -> anyhow::Result<Vec<Re
                 env!("CARGO_PKG_VERSION")
             ),
         )
-        .send()?
-        .json()?;
+        .header("Accept", "application/json")
+        .call()?
+        .body_mut()
+        .read_json()?;
 
     let templates: Vec<Repository> = repos
         .into_iter()
@@ -123,4 +136,28 @@ fn fetch_template_repositories(org: &str, prefix: &str) -> anyhow::Result<Vec<Re
         .collect();
 
     Ok(templates)
+}
+
+#[cfg(test)]
+mod tests {
+    mod is_github_template {
+        use super::super::is_repo_shortform;
+
+        #[test]
+        fn true_for_github_template() {
+            assert!(is_repo_shortform("TheBevyFlock/bevy_new_minimal"));
+        }
+
+        #[test]
+        fn false_for_url() {
+            assert!(!is_repo_shortform(
+                "https://github.com/TheBevyFlock/bevy_new_2d"
+            ));
+        }
+
+        #[test]
+        fn false_for_name() {
+            assert!(!is_repo_shortform("2d"));
+        }
+    }
 }

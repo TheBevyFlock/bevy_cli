@@ -1,5 +1,4 @@
 use anyhow::Context;
-use reqwest::blocking::Client;
 use semver::Version;
 use serde::Deserialize;
 #[cfg(feature = "rustup")]
@@ -152,8 +151,7 @@ fn list_available_releases() -> anyhow::Result<Vec<String>> {
 
     const URL: &str = "https://api.github.com/repos/TheBevyFlock/bevy_cli/releases";
 
-    let releases = Client::new()
-        .get(URL)
+    let releases: Vec<Release> = ureq::get(URL)
         .header(
             "User-Agent",
             format!(
@@ -161,9 +159,11 @@ fn list_available_releases() -> anyhow::Result<Vec<String>> {
                 env!("CARGO_PKG_VERSION")
             ),
         )
-        .send()
+        .header("Accept", "application/json")
+        .call()
         .context("failed to query available GitHub releases")?
-        .json::<Vec<Release>>()?;
+        .body_mut()
+        .read_json()?;
 
     // Parse the release tag name to a semver Version.
     let mut versions: Vec<Version> = releases
@@ -202,8 +202,7 @@ fn lookup_toolchain_version(linter_version: &str) -> anyhow::Result<RustToolchai
         )
     };
 
-    let response = Client::new()
-        .get(url)
+    let response = ureq::get(url)
         .header(
             "User-Agent",
             format!(
@@ -211,11 +210,12 @@ fn lookup_toolchain_version(linter_version: &str) -> anyhow::Result<RustToolchai
                 env!("CARGO_PKG_VERSION")
             ),
         )
-        .send()
+        .call()
         .context(
             "failed to query `rust-toolchain.toml` from GitHub for the given `bevy_lint` version",
         )?
-        .text()?;
+        .body_mut()
+        .read_to_string()?;
 
     let rust_toolchain: RustToolchain =
         toml::from_str(&response).context("Failed to parse `rust-toolchain.toml`.")?;
