@@ -2,7 +2,6 @@
 
 pub use args::*;
 use regex::Regex;
-use reqwest::blocking::Client;
 use serde::Deserialize;
 
 use crate::external_cli::{CommandExt, Package};
@@ -104,9 +103,7 @@ fn expand_github_shortform(template: &str) -> Option<String> {
 fn fetch_template_repositories(org: &str, prefix: &str) -> anyhow::Result<Vec<Repository>> {
     let url = format!("https://api.github.com/orgs/{org}/repos");
 
-    let client = Client::new();
-    let repos: Vec<Repository> = client
-        .get(&url)
+    let repos: Vec<Repository> = ureq::get(&url)
         .header(
             "User-Agent",
             format!(
@@ -114,8 +111,10 @@ fn fetch_template_repositories(org: &str, prefix: &str) -> anyhow::Result<Vec<Re
                 env!("CARGO_PKG_VERSION")
             ),
         )
-        .send()?
-        .json()?;
+        .header("Accept", "application/json")
+        .call()?
+        .body_mut()
+        .read_json()?;
 
     let templates: Vec<Repository> = repos
         .into_iter()
