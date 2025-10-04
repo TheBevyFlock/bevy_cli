@@ -18,7 +18,7 @@ name = "bevy"
 path = "src/bin/main.rs"
 
 [features]
-default = ["rustup", "web"]
+default = ["rustup", "web", "unstable"]
 
 # Run your Bevy app in the browser
 web = [
@@ -35,27 +35,35 @@ web = [
 # You can disable this feature if your system doesn't have rustup installed.
 rustup = []
 
+# Functionality that's unfinished or comes with caveats
+unstable = []
+
 [dependencies]
 # CLI argument parsing
-clap = { version = "4.5.16", features = ["derive"] }
+clap = { version = "4.5.48", features = ["derive"] }
 # autocompletion auto-generation
-clap_complete = "4.5.44"
+clap_complete = "4.5.58"
 
 # Easy error propagation and contexts
 anyhow = "1.0.86"
 
-# Generates new Bevy projects from templates
-cargo-generate = "0.23"
-
 # Better CLI user input
-dialoguer = { version = "0.11.0", default-features = false }
+dialoguer = { version = "0.12.0", default-features = false, features = [
+    "fuzzy-select",
+] }
+
+# Used to create styled table outputs.
+comfy-table = "7.2.1"
 
 # Cargo like styling for clap
-clap-cargo = "0.16.0"
+clap-cargo = "0.17.1"
+
+# Load and resolve Cargo configuration.
+cargo-config2 = "0.1"
 
 # API interaction
-serde = { features = ["derive"], version = "1.0.210" }
-serde_json = "1.0.128"
+serde = { features = ["derive"], version = "1.0.228" }
+serde_json = "1.0.145"
 reqwest = { version = "0.12.7", default-features = false, features = [
     "default-tls",
     "blocking",
@@ -64,13 +72,13 @@ reqwest = { version = "0.12.7", default-features = false, features = [
 regex = "1.10.6"
 
 # Understanding package versions
-semver = { version = "1.0.23", features = ["serde"] }
+semver = { version = "1.0.27", features = ["serde"] }
 
 # `cargo metadata` command helpers and types
-cargo_metadata = "0.21.0"
+cargo_metadata = "0.23.0"
 
 # Parsing the Cargo manifest
-toml = { version = "0.9.0", default-features = false, features = [
+toml = { version = "0.9.6", default-features = false, features = [
     "std",
     "parse",
     "display",
@@ -89,7 +97,7 @@ webbrowser = { version = "1.0.2", optional = true }
 
 ## Serving the app for the browser
 http = { version = "1.2", optional = true }
-axum = { version = "0.8.1", default-features = false, features = [
+axum = { version = "0.8.5", default-features = false, features = [
     "ws",
     "http1",
     "tokio",
@@ -113,5 +121,5 @@ tempfile = "3"
 # version from the `main` branch's `Cargo.toml`, which is usually `X.Y.Z-dev`, leading to the
 # binary not being found. See <https://github.com/cargo-bins/cargo-binstall/issues/2165> for more
 # information.
-pkg-url = "{ repo }/releases/download/cli-v0.1.0-alpha.1/bevy-{ target }-v0.1.0-alpha.1{ archive-suffix }"
+pkg-url = "{ repo }/releases/download/cli-v0.1.0-alpha.2/bevy-{ target }-v0.1.0-alpha.2{ archive-suffix }"
 pkg-fmt = "bin"

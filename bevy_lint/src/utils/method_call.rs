@@ -7,6 +7,8 @@ use rustc_hir::{
 use rustc_lint::LateContext;
 use rustc_span::{Ident, Span, kw};
 
+use crate::span_unreachable;
+
 /// An abstraction over method calls that supports both `receiver.method(args)` and
 /// `Struct::method(&receiver, args)`.
 ///
@@ -191,10 +193,12 @@ impl<'tcx> MethodCall<'tcx> {
                                 },
                             )
                             | QPath::TypeRelative(_, method_path) => method_path,
-                            QPath::Resolved(_, path @ Path { segments: [], .. }) => unreachable!(
-                                "found a function call path with no segments at {:?}",
-                                path.span
-                            ),
+                            QPath::Resolved(_, path @ Path { segments: [], .. }) => {
+                                span_unreachable!(
+                                    path.span,
+                                    "found a function call path with no segments",
+                                )
+                            }
                             // Lang items are not supported.
                             QPath::LangItem(_, _) => return None,
                         };
@@ -205,9 +209,9 @@ impl<'tcx> MethodCall<'tcx> {
                             // This can only happen if `args == &[]`, which shouldn't be possible,
                             // since we previously ensured that the the first element to `args`
                             // existed and was `self`.
-                            unreachable!(
-                                "arguments to function call was empty, even though `self` was expected, at {:?}",
-                                expr.span
+                            span_unreachable!(
+                                expr.span,
+                                "arguments to function call was empty, even though `self` was expected",
                             );
                         };
 

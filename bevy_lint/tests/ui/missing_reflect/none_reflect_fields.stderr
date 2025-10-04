@@ -5,21 +5,41 @@ error: defined an event without a `Reflect` implementation
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
 note: `Event` implemented here
-  --> tests/ui/missing_reflect/none_reflect_fields.rs:35:1
+  --> tests/ui/missing_reflect/none_reflect_fields.rs:36:1
    |
-35 | / impl Event for MyEvent {
-36 | |     type Traversal = ();
-37 | | }
+36 | / impl Event for MyEvent {
+37 | |     type Trigger<'a> = GlobalTrigger;
+38 | | }
    | |_^
 note: the lint level is defined here
   --> tests/ui/missing_reflect/none_reflect_fields.rs:8:9
    |
-8  | #![deny(bevy::missing_reflect)]
+ 8 | #![deny(bevy::missing_reflect)]
    |         ^^^^^^^^^^^^^^^^^^^^^
 help: `Reflect` can be automatically derived
    |
 33 + #[derive(Reflect)]
 34 | struct MyEvent(NonReflect);
+   |
+
+error: defined a message without a `Reflect` implementation
+  --> tests/ui/missing_reflect/none_reflect_fields.rs:42:1
+   |
+42 | / struct MyMessage {
+43 | |     reflect: u64,
+44 | |     non_reflect: NonReflect,
+45 | | }
+   | |_^
+   |
+note: `Message` implemented here
+  --> tests/ui/missing_reflect/none_reflect_fields.rs:48:1
+   |
+48 | impl Message for MyMessage {}
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+help: `Reflect` can be automatically derived
+   |
+42 + #[derive(Reflect)]
+43 | struct MyMessage {
    |
 
 error: defined a component without a `Reflect` implementation
@@ -64,5 +84,5 @@ help: `Reflect` can be automatically derived
 28 | enum MyResource {
    |
 
-error: aborting due to 3 previous errors
+error: aborting due to 4 previous errors
 

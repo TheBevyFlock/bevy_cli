@@ -83,7 +83,7 @@ pub fn generic_args_snippet(cx: &LateContext, method_path: &PathSegment) -> Stri
 pub fn impls_trait(cx: &LateContext, impl_: &Impl, trait_path: &PathLookup) -> bool {
     impl_.of_trait.is_some_and(|of_trait| {
         matches!(
-            of_trait.path.res,
+            of_trait.trait_ref.path.res,
             // Is the trait being implemented the specified trait from Bevy?
             Res::Def(_, trait_def_id) if trait_path.matches(cx, trait_def_id)
         )

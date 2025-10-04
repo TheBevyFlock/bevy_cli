@@ -62,7 +62,7 @@
 //!         // lag!
 //!         .add_systems(
 //!             RunFixedMainLoop,
-//!             rotate_camera.in_set(RunFixedMainLoopSystem::BeforeFixedMainLoop),
+//!             rotate_camera.in_set(RunFixedMainLoopSystems::BeforeFixedMainLoop),
 //!         );
 //! }
 //! ```

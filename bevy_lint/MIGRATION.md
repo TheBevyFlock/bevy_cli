@@ -8,6 +8,42 @@ To actually install the new version of the linter, please see [the docs] and [th
 [the releases page]: https://github.com/TheBevyFlock/bevy_cli/releases
 [submit an issue]: https://github.com/TheBevyFlock/bevy_cli/issues
 
+## v0.4.0 to v0.5.0 (Unreleased)
+
+### [Bevy 0.17 Support](https://github.com/TheBevyFlock/bevy_cli/pull/577)
+
+The linter now supports Bevy 0.17, but no longer supports Bevy 0.16.
+To migrate your code base to Bevy 0.17, please see the [release post][bevy 0.17 release post] and [migration guide][bevy 0.17 migration guide].
+
+[bevy 0.17 release post]: https://bevy.org/news/bevy-0-17/
+[bevy 0.17 migration guide]: https://bevy.org/learn/migration-guides/0-16-to-0-17/
+
+## Renaming the lints that targeted "buffered" Events
+
+- `insert_event_resource` Lint was renamed to `insert_message_resource`
+- `iter_current_update_events` Lint was renamed to `iter_current_update_messages`
+
+In Bevy 0.17, Event is now exclusively the name/trait for the concept of something that is "triggered" and "observed".
+[Message] is the name / trait of something that "buffered": it is "written" via a [MessageWriter] and "read" via a [MessageReader].
+
+## v0.3.0 to v0.4.0
+
+### [Bumped Nightly Toolchain to `nightly-2025-06-26`](https://github.com/TheBevyFlock/bevy_cli/pull/507)
+
+`bevy_lint` now requires the `nightly-2025-06-26` toolchain, which supports Rust 1.90.0. You may uninstall the old `nightly-2025-04-03` toolchain and install the new toolchain using Rustup:
+
+```sh
+rustup toolchain uninstall nightly-2025-04-03
+
+rustup toolchain install nightly-2025-06-26 \
+    --component rustc-dev \
+    --component llvm-tools-preview
+```
+
+### [`insert_unit_bundle` Has Been Renamed to `unit_in_bundle`](https://github.com/TheBevyFlock/bevy_cli/pull/502)
+
+The `unit_in_bundle` lint is a much more powerful version of the older `insert_unit_bundle` lint, as it now works for many more functions instead of just `Commands::spawn()`. If you reference `insert_unit_bundle` in your project, you will need to rename it to `unit_in_bundle`.
+
 ## v0.2.0 to v0.3.0
 
 ### [Bevy 0.16 Support](https://github.com/TheBevyFlock/bevy_cli/pull/323)
@@ -16,8 +52,8 @@ The linter now supports Bevy 0.16, but no longer supports Bevy 0.15. You may sti
 
 To migrate your code base to Bevy 0.16, please see the [release post][bevy 0.16 release post] and [migration guide][bevy 0.16 migration guide].
 
-[bevy 0.16 release post]: https://bevyengine.org/news/bevy-0-16/
-[bevy 0.16 migration guide]: https://bevyengine.org/learn/migration-guides/0-15-to-0-16/
+[bevy 0.16 release post]: https://bevy.org/news/bevy-0-16/
+[bevy 0.16 migration guide]: https://bevy.org/learn/migration-guides/0-15-to-0-16/
 
 ### [Bumped Nightly Toolchain to `nightly-2025-04-03`](https://github.com/TheBevyFlock/bevy_cli/pull/278)
 
@@ -51,8 +87,8 @@ The linter now supports Bevy 0.15, but no longer supports Bevy 0.14. You may sti
 
 To migrate your code base to Bevy 0.15, please see the [release post][bevy 0.15 release post] and [migration guide][bevy 0.15 migration guide].
 
-[bevy 0.15 release post]: https://bevyengine.org/news/bevy-0-15/
-[bevy 0.15 migration guide]: https://bevyengine.org/learn/migration-guides/0-14-to-0-15/
+[bevy 0.15 release post]: https://bevy.org/news/bevy-0-15/
+[bevy 0.15 migration guide]: https://bevy.org/learn/migration-guides/0-14-to-0-15/
 
 ### [Bumped Nightly Toolchain to `nightly-2025-02-20`](https://github.com/TheBevyFlock/bevy_cli/pull/278)
 

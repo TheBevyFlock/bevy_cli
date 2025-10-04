@@ -1,0 +1,67 @@
+error: called `App::init_resource::<Messages<Foo>>()` instead of `App::add_message::<Foo>()`
+  --> tests/ui/insert_message_resource/main.rs:12:16
+   |
+12 |     App::new().init_resource::<Messages<Foo>>();
+   |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+note: the lint level is defined here
+  --> tests/ui/insert_message_resource/main.rs:3:9
+   |
+ 3 | #![deny(bevy::insert_message_resource)]
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+help: inserting an `Messages` resource does not fully setup that message
+   |
+12 -     App::new().init_resource::<Messages<Foo>>();
+12 +     App::new().add_message::<Foo>();
+   |
+
+error: called `App::init_resource::<Messages<Foo>>(&mut app)` instead of `App::add_message::<Foo>(&mut app)`
+  --> tests/ui/insert_message_resource/main.rs:16:5
+   |
+16 |     App::init_resource::<Messages<Foo>>(&mut app);
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: inserting an `Messages` resource does not fully setup that message
+   |
+16 -     App::init_resource::<Messages<Foo>>(&mut app);
+16 +     App::add_message::<Foo>(&mut app);
+   |
+
+error: called `App::insert_resource::<Messages<Foo>>(Default::default())` instead of `App::add_message::<Foo>()`
+  --> tests/ui/insert_message_resource/main.rs:20:16
+   |
+20 |     App::new().insert_resource::<Messages<Foo>>(Default::default());
+   |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: inserting an `Messages` resource does not fully setup that message
+   |
+20 -     App::new().insert_resource::<Messages<Foo>>(Default::default());
+20 +     App::new().add_message::<Foo>();
+   |
+
+error: called `App::insert_resource::<Messages<Foo>>(&mut app, Default::default())` instead of `App::add_message::<Foo>(&mut app)`
+  --> tests/ui/insert_message_resource/main.rs:24:5
+   |
+24 |     App::insert_resource::<Messages<Foo>>(&mut app, Default::default());
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: inserting an `Messages` resource does not fully setup that message
+   |
+24 -     App::insert_resource::<Messages<Foo>>(&mut app, Default::default());
+24 +     App::add_message::<Foo>(&mut app);
+   |
+
+error: called `App::insert_resource(implied_event)` instead of `App::add_message::<Foo>()`
+  --> tests/ui/insert_message_resource/main.rs:31:16
+   |
+31 |     App::new().insert_resource(implied_event);
+   |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: inserting an `Messages` resource does not fully setup that message
+   |
+31 -     App::new().insert_resource(implied_event);
+31 +     App::new().add_message::<Foo>();
+   |
+
+error: aborting due to 5 previous errors
+

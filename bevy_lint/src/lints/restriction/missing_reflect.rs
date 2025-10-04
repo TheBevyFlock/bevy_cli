@@ -63,10 +63,9 @@ use clippy_utils::{
 use rustc_errors::Applicability;
 use rustc_hir::{HirId, Item, ItemKind, Node, OwnerId, QPath, TyKind, def::DefKind};
 use rustc_lint::{LateContext, LateLintPass};
-use rustc_middle::span_bug;
 use rustc_span::Span;
 
-use crate::{declare_bevy_lint, declare_bevy_lint_pass};
+use crate::{declare_bevy_lint, declare_bevy_lint_pass, span_unreachable};
 
 declare_bevy_lint! {
     pub(crate) MISSING_REFLECT,
@@ -91,11 +90,14 @@ impl<'tcx> LateLintPass<'tcx> for MissingReflect {
             .filter(|trait_type| !reflected.contains(trait_type))
             .collect();
 
-        // Finds all non-`Reflect` types that implement `Component` and *not* `Event` in this
-        // crate. Because events are also components, we need to deduplicate the two to avoid
-        // emitting multiple diagnostics for the same type.
+        // Finds all non-`Reflect` types that implement `Message` in this crate.
+        let messages: Vec<TraitType> = TraitType::from_local_crate(cx, &crate::paths::MESSAGE)
+            .filter(|trait_type| !reflected.contains(trait_type))
+            .collect();
+
+        // Finds all non-`Reflect` types that implement `Component` in this crate.
         let components: Vec<TraitType> = TraitType::from_local_crate(cx, &crate::paths::COMPONENT)
-            .filter(|trait_type| !(reflected.contains(trait_type) || events.contains(trait_type)))
+            .filter(|trait_type| !reflected.contains(trait_type))
             .collect();
 
         // Finds all non-`Reflect` types that implement `Resource` in this crate.
@@ -108,6 +110,7 @@ impl<'tcx> LateLintPass<'tcx> for MissingReflect {
         // Emit diagnostics for each of these types.
         for (checked_trait, trait_name, message_phrase) in [
             (events, "Event", "an event"),
+            (messages, "Message", "a message"),
             (components, "Component", "a component"),
             (resources, "Resource", "a resource"),
         ] {
@@ -149,9 +152,9 @@ impl<'tcx> LateLintPass<'tcx> for MissingReflect {
                     }
                     // This shouldn't be possible, as only structs, enums, and unions can implement
                     // traits, so panic if this branch is reached.
-                    _ => span_bug!(
+                    _ => span_unreachable!(
                         without_reflect.item_span,
-                        "found a type that implements `Event`, `Component`, or `Resource` but is not a struct, enum, or union",
+                        "found a type that implements `Event`, `Component`, `Message`, or `Resource` but is not a struct, enum, or union",
                     ),
                 };
 

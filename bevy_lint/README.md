@@ -2,7 +2,7 @@
 
 # `bevy_lint`
 
-`bevy_lint` is a custom linter for the [Bevy game engine](https://bevyengine.org), similar to [Clippy](https://doc.rust-lang.org/stable/clippy).
+`bevy_lint` is a custom linter for the [Bevy game engine](https://bevy.org), similar to [Clippy](https://doc.rust-lang.org/stable/clippy).
 
 </div>
 
@@ -46,7 +46,7 @@ Once you have the toolchain installed, you can compile and install `bevy_lint` t
 ```sh
 rustup run nightly-2025-06-26 cargo install \
     --git https://github.com/TheBevyFlock/bevy_cli.git \
-    --tag lint-v0.3.0 \
+    --tag lint-v0.4.0 \
     --locked \
     bevy_lint
 ```

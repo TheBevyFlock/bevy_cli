@@ -1,0 +1,20 @@
+version: 2
+updates:
+  - package-ecosystem: cargo
+    directories:
+      - /
+      - /tests/bevy_cli_test
+    schedule:
+      interval: weekly
+    labels:
+      - C-Dependencies
+  - package-ecosystem: github-actions
+    directories:
+      # Used to check `.github/workflows`.
+      - /
+      # Used to check `bevy_lint/action.yml`.
+      - /bevy_lint
+    schedule:
+      interval: weekly
+    labels:
+      - C-Dependencies

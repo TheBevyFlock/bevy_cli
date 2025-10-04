@@ -8,7 +8,7 @@ A prototype [Bevy] CLI tool intended to streamline common tasks when working on 
 
 If you need assistance or want to help, reach out to the [`bevy_cli` working group channel] in the [Bevy Discord].
 
-[Bevy]: https://bevyengine.org
+[Bevy]: https://bevy.org
 [initial scope document]: https://hackmd.io/cCHAfbtaSviU_MDnbNHKxg
 [original issue]: https://github.com/bevyengine/bevy/issues/436
 [`bevy_cli` working group channel]: https://discord.com/channels/691052431525675048/1278871953721262090
@@ -23,7 +23,7 @@ As the CLI is currently an unofficial tool, it is not yet published to <https://
 You may compile the latest version of the CLI from scratch using `cargo install`:
 
 ```sh
-cargo install --git https://github.com/TheBevyFlock/bevy_cli --tag cli-v0.1.0-alpha.1 --locked bevy_cli
+cargo install --git https://github.com/TheBevyFlock/bevy_cli --tag cli-v0.1.0-alpha.2 --locked bevy_cli
 ```
 
 <details>
@@ -32,7 +32,7 @@ cargo install --git https://github.com/TheBevyFlock/bevy_cli --tag cli-v0.1.0-al
 The CLI is precompiled for Linux, Windows, and macOS. You may install the latest precompiled binary using [`cargo-binstall`](https://github.com/cargo-bins/cargo-binstall):
 
 ```sh
-cargo binstall --git https://github.com/TheBevyFlock/bevy_cli --version 0.1.0-alpha.1 --locked bevy_cli
+cargo binstall --git https://github.com/TheBevyFlock/bevy_cli --version 0.1.0-alpha.2 --locked bevy_cli
 ```
 
 You can manually download the precompiled binaries from the [release page](https://github.com/TheBevyFlock/bevy_cli/releases).

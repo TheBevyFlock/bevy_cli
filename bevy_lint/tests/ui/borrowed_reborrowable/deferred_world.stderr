@@ -5,9 +5,9 @@ error: parameter takes `&mut DeferredWorld` instead of a re-borrowed `DeferredWo
    |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use `DeferredWorld` instead: `mut _param: DeferredWorld`
    |
 note: the lint level is defined here
-  --> tests/ui/borrowed_reborrowable/deferred_world.rs:5:9
+  --> tests/ui/borrowed_reborrowable/deferred_world.rs:6:9
    |
-5  | #![deny(bevy::borrowed_reborrowable)]
+ 6 | #![deny(bevy::borrowed_reborrowable)]
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 error: parameter takes `&mut DeferredWorld` instead of a re-borrowed `DeferredWorld`

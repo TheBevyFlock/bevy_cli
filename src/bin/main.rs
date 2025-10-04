@@ -1,11 +1,10 @@
 use std::{fmt::Write, process::ExitCode};
 
 use ansi_term::Color::{Blue, Green, Purple, Red, Yellow};
-#[cfg(feature = "rustup")]
-use bevy_cli::commands::lint::{LintArgs, lint};
 use bevy_cli::commands::{
     build::{BuildArgs, build},
     completions::completions,
+    lint::{LintArgs, lint},
     new::{NewArgs, new},
     run::{RunArgs, run},
 };
@@ -44,8 +43,7 @@ fn main() -> ExitCode {
 
     if let Err(error) = match cli.subcommand {
         Subcommands::New(args) => new(&args).map(|_| ()),
-        #[cfg(feature = "rustup")]
-        Subcommands::Lint(args) => lint(args),
+        Subcommands::Lint(mut args) => lint(&mut args),
         Subcommands::Build(mut args) => build(&mut args),
         Subcommands::Run(mut args) => run(&mut args),
         Subcommands::Completions { shell } => {
@@ -92,7 +90,7 @@ fn after_help() -> String {
     _ = writeln!(message, "{header}Resources:{header:#}");
     _ = writeln!(
         message,
-        "  {literal}Bevy Website{literal:#}       {underline}https://bevyengine.org{underline:#}"
+        "  {literal}Bevy Website{literal:#}       {underline}https://bevy.org{underline:#}"
     );
     _ = writeln!(
         message,
@@ -121,7 +119,6 @@ pub enum Subcommands {
     /// Check the current project using Bevy-specific lints.
     ///
     /// To see the full list of options, run `bevy lint -- --help`.
-    #[cfg(feature = "rustup")]
     #[command(after_help = lint_after_help())]
     Lint(LintArgs),
     /// Prints the auto-completion script for a specific shell.
@@ -152,7 +149,6 @@ fn run_after_help() -> String {
     message
 }
 
-#[cfg(feature = "rustup")]
 fn lint_after_help() -> String {
     let mut message = String::new();
 

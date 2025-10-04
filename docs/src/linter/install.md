@@ -2,23 +2,18 @@
 
 ## CLI
 
-The CLI supports automatically installing the latest released version of the linter if you do not have it installed already. Make sure you [have the CLI first](../cli/install.md), then simply run the `lint` subcommand:
+The CLI supports automatically installing the linter. Make sure you [have the CLI first](../cli/install.md), then simply run `bevy lint install v0.4.0`.
 
-```sh
-bevy lint
-```
-
-The CLI will prompt you if you wish to install the linter. Note that it will assume you are using Rustup, and if that isn't the case you should [install the linter manually instead](#manual-without-rustup). Type `y` and press enter to accept:
+The CLI will prompt you if you wish to install the linter and the required toolchain. Note that it will assume you are using Rustup, and if that isn't the case you should [install the linter manually instead](#manual-without-rustup).
 
 ```
-warning: failed to run bevy_lint, trying to find automatic fix...
-`bevy_lint` is missing, should I install it for you? [y/n]
+Do you want to install `bevy_lint-v0.4.0` and the required toolchain: `nightly-2025-06-26` ? [y/n]
 ```
 
 If you want to auto-confirm the prompt, you may pass `--yes` to the command. Note that if you are installing the linter in CI, you may wish to use the [dedicated Github Action instead](github-actions.md):
 
 ```sh
-bevy lint --yes
+bevy lint install --yes v0.4.0
 ```
 
 ## Manual with Rustup
@@ -40,7 +35,7 @@ Once you have the toolchain installed, you can compile and install `bevy_lint` t
 ```sh
 rustup run nightly-2025-06-26 cargo install \
     --git https://github.com/TheBevyFlock/bevy_cli.git \
-    --tag lint-v0.3.0 \
+    --tag lint-v0.4.0 \
     --locked \
     bevy_lint
 ```
@@ -56,7 +51,7 @@ Once you've installed the toolchain and components, use that toolchain's `cargo`
 ```sh
 my-toolchain/bin/cargo install \
     --git https://github.com/TheBevyFlock/bevy_cli.git \
-    --tag lint-v0.3.0 \
+    --tag lint-v0.4.0 \
     --locked \
     bevy_lint
 ```

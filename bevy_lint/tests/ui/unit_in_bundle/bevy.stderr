@@ -8,7 +8,7 @@ error: created a `Bundle` containing a unit `()`
 note: the lint level is defined here
   --> tests/ui/unit_in_bundle/bevy.rs:6:9
    |
-6  | #![deny(bevy::unit_in_bundle)]
+ 6 | #![deny(bevy::unit_in_bundle)]
    |         ^^^^^^^^^^^^^^^^^^^^
 
 error: created a `Bundle` containing a unit `()`

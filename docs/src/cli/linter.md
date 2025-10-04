@@ -1,19 +1,71 @@
 # Linter
 
-The CLI has 1st-party support for [`bevy_lint`](../linter/index.md), the static analysis tool that checks over your code.
+The CLI has 1st-party support for [`bevy_lint`](../linter/index.md), the static analysis tool that checks over your code for Bevy-specific mistakes.
+
+## Installing the Linter
+
+The CLI is able to install the Bevy linter for you. By running `bevy lint install`, the CLI will prompt you asking which version to install:
 
 ```sh
-bevy lint
+bevy lint install
 ```
 
-If you do not [have the linter installed already](../linter/install.md), the CLI can install it for you when you first run the command. Calling the `lint` subcommand is equivalent to calling `bevy_lint`, and supports the same arguments as `cargo check`:
+You may also install a specific version by passing its name as an argument:
 
 ```sh
+# View all versions that the CLI can install for you.
+bevy lint list
+
+# Install a specific version of the linter.
+bevy lint install v0.1.0
+```
+
+As an alternative to using the CLI, you may also [install the linter manually](../linter/install.md#manual-with-rustup).
+
+## Usage
+
+To run the linter, simply run `bevy lint`. The subcommand supports the same arguments as `cargo check`:
+
+```sh
+# Run with default options.
+bevy lint
+
+# Lint the entire workspace with all features enabled.
 bevy lint --workspace --all-features
 ```
 
-You can view a full list of options with:
+### Web support
+
+To check the app when built with [web-specific configuration](./web.md), you may run `bevy lint web`:
 
 ```sh
-bevy lint -- --help
+# Check for the web.
+bevy lint web
+
+# Check for the web with default features disabled.
+bevy lint --no-default-features web
+```
+
+Running `bevy lint web` is a faster alternative to `bevy build web`; think of it as `cargo check` but it uses your app's web profile and configuration.
+
+### Forwarding arguments to `bevy_lint`
+
+You may pass options directly to `bevy_lint` without them being processed by the CLI first by adding them after `--`:
+
+```sh
+# Don't process `--fix`, just forward it to `bevy_lint`.
+bevy lint -- --fix
+```
+
+While the above command is equivalent to `bevy lint --fix`, argument forwarding is useful when the linter adds a new option that the CLI does not recognize.
+
+```sh
+# The CLI doesn't recognize that the linter supports `--my-cool-new-option`, so it errors.
+bevy lint --my-cool-new-option
+
+error: unexpected argument '--my-cool-new-option' found
+  tip: to pass '--my-cool-new-option' as a value, use '-- --my-cool-new-option'
+
+# The CLI will blindly pass `--my-cool-new-option` to the `bevy_lint` executable.
+bevy lint -- --my-cool-new-option
 ```

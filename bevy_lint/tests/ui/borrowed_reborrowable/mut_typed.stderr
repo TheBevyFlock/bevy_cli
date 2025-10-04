@@ -1,19 +1,19 @@
 error: parameter takes `&mut Mut` instead of a re-borrowed `Mut`
-  --> tests/ui/borrowed_reborrowable/mut_typed.rs:17:22
+  --> tests/ui/borrowed_reborrowable/mut_typed.rs:16:22
    |
-17 | fn mutable_reference(_param: &mut Mut<Name>) {
+16 | fn mutable_reference(_param: &mut Mut<Name>) {
    |                      ^^^^^^^^^^^^^^^^^^^^^^ help: use `Mut` instead: `mut _param: Mut<Name>`
    |
 note: the lint level is defined here
   --> tests/ui/borrowed_reborrowable/mut_typed.rs:5:9
    |
-5  | #![deny(bevy::borrowed_reborrowable)]
+ 5 | #![deny(bevy::borrowed_reborrowable)]
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 error: parameter takes `&mut Mut` instead of a re-borrowed `Mut`
-  --> tests/ui/borrowed_reborrowable/mut_typed.rs:23:33
+  --> tests/ui/borrowed_reborrowable/mut_typed.rs:22:33
    |
-23 | fn mutable_reference_return<'a>(_param: &'a mut Mut<Name>) -> usize {
+22 | fn mutable_reference_return<'a>(_param: &'a mut Mut<Name>) -> usize {
    |                                 ^^^^^^^^^^^^^^^^^^^^^^^^^ help: use `Mut` instead: `mut _param: Mut<Name>`
 
 error: aborting due to 2 previous errors
