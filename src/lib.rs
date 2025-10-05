@@ -1,5 +1,6 @@
 //! The library backend for the prototype Bevy CLI.
 
+#[cfg(feature = "web")]
 pub(crate) mod bin_target;
 pub mod commands;
 pub(crate) mod config;

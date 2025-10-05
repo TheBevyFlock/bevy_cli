@@ -25,7 +25,7 @@ use crate::{
 /// - Creating a bundled folder (if requested)
 pub fn build_web(args: &mut BuildArgs, metadata: &Metadata) -> anyhow::Result<WebBundle> {
     let bin_target = select_run_binary(
-        &metadata,
+        metadata,
         args.cargo_args.package_args.package.as_deref(),
         args.cargo_args.target_args.bin.as_deref(),
         args.cargo_args.target_args.example.as_deref(),
