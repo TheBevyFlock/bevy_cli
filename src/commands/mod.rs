@@ -8,7 +8,17 @@ pub mod lint;
 pub mod new;
 pub mod run;
 
-fn get_default_package<'m>(
+/// Determine the package to pass to `cargo`.
+///
+/// Either returns the [`Package`] specified in `package_arg` or tries to resolve the default
+/// package:
+///
+/// If the [`Package`] should be passed to `cargo run`: workspace_packages > default_packages >
+/// "only one binary target" > `default-run`.
+///
+/// If the [`Package`] is not passed to `cargo run` and no `package_arg` is present, just check if
+/// there is a [`Package`] in the current directory and return that if one is found.
+fn get_package<'m>(
     metadata: &'m Metadata,
     package_arg: Option<&String>,
     run_command: bool,

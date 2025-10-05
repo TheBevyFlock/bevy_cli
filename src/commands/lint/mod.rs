@@ -4,7 +4,7 @@ use tracing::error;
 #[cfg(feature = "rustup")]
 use crate::commands::lint::install::install_linter;
 use crate::{
-    commands::{get_default_package, lint::install::list},
+    commands::{get_package, lint::install::list},
     config::CliConfig,
     external_cli::{
         CommandExt,
@@ -104,7 +104,7 @@ fn build_lint_cmd(args: &mut LintArgs) -> anyhow::Result<CommandExt> {
 
     let metadata = cargo::metadata::metadata()?;
 
-    let package = get_default_package(
+    let package = get_package(
         &metadata,
         args.cargo_args.package_args.package.as_ref(),
         false,

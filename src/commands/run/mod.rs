@@ -3,7 +3,7 @@
 pub use self::args::*;
 #[cfg(feature = "web")]
 use crate::web::run::run_web;
-use crate::{commands::get_default_package, config::CliConfig, external_cli::cargo};
+use crate::{commands::get_package, config::CliConfig, external_cli::cargo};
 
 mod args;
 
@@ -15,7 +15,7 @@ mod args;
 pub fn run(args: &mut RunArgs) -> anyhow::Result<()> {
     let metadata = cargo::metadata::metadata()?;
 
-    let package = get_default_package(
+    let package = get_package(
         &metadata,
         args.cargo_args.package_args.package.as_ref(),
         true,
