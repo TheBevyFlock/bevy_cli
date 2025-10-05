@@ -13,7 +13,6 @@ fn get_default_package<'m>(
     package_arg: Option<&String>,
     run_command: bool,
 ) -> anyhow::Result<Option<&'m Package>> {
-    let workspace_packages = metadata.workspace_packages();
     // If the `--package` arg was passed, search for the given package, otherwise
     // check if the current directory contains a package.
     let package = if let Some(package_name) = package_arg {
@@ -22,8 +21,16 @@ fn get_default_package<'m>(
             .iter()
             .find(|package| package.name.as_str() == package_name)
     } else if run_command {
+        let workspace_packages = metadata.workspace_packages();
+        let default_packages = metadata.workspace_default_packages();
+        let packages = if default_packages.is_empty() {
+            workspace_packages
+        } else {
+            default_packages
+        };
+
         // If there is only one binary, pick that one
-        let bins: Vec<_> = workspace_packages
+        let bins: Vec<_> = packages
             .iter()
             .flat_map(|package| {
                 package
@@ -40,7 +47,7 @@ fn get_default_package<'m>(
             bins[0]
         } else {
             // Otherwise, check if there is a default run target defined
-            let default_runs: Vec<_> = workspace_packages
+            let default_runs: Vec<_> = packages
                 .iter()
                 .filter_map(|package| package.default_run.as_ref())
                 .collect();
