@@ -15,21 +15,22 @@ mod args;
 pub fn run(args: &mut RunArgs) -> anyhow::Result<()> {
     let metadata = cargo::metadata::metadata()?;
 
-    let mut bin_target = select_run_binary(
-        &metadata,
-        args.cargo_args.package_args.package.as_deref(),
-        args.cargo_args.target_args.bin.as_deref(),
-        args.cargo_args.target_args.example.as_deref(),
-        args.target().as_deref(),
-        args.profile(),
-    )?;
+    // If the `--package` arg was passed, search for the given package in the workspace, otherwise
+    // get the root package.
+    let package = if let Some(package_name) = &args.cargo_args.package_args.package {
+        let workspace_packages = metadata.workspace_packages();
+        workspace_packages
+            .iter()
+            .find(|package| package.name.as_str() == package_name)
+            .copied()
+            .ok_or_else(|| anyhow::anyhow!("Failed to find package {package_name}"))?
+    } else {
+        metadata
+            .root_package()
+            .ok_or_else(|| anyhow::anyhow!("Failed to determain root package to build"))?
+    };
 
-    let mut config = CliConfig::for_package(
-        &metadata,
-        bin_target.package,
-        args.is_web(),
-        args.is_release(),
-    )?;
+    let mut config = CliConfig::for_package(&metadata, package, args.is_web(), args.is_release())?;
 
     // Read config files hierarchically from the current directory, merge them,
     // apply environment variables, and resolve relative paths.
@@ -37,17 +38,10 @@ pub fn run(args: &mut RunArgs) -> anyhow::Result<()> {
     config.append_cargo_config_rustflags(args.target(), &cargo_config)?;
 
     args.apply_config(&config);
-    // Update the artifact directory based on the config, e.g. in case the `target` changed
-    bin_target.update_artifact_directory(
-        &metadata.target_directory,
-        args.target().as_deref(),
-        args.profile(),
-        args.cargo_args.target_args.example.is_some(),
-    );
 
     #[cfg(feature = "web")]
     if args.is_web() {
-        return run_web(args, &metadata, &bin_target);
+        return run_web(args, &metadata);
     }
 
     let cargo_args = args.cargo_args_builder();
