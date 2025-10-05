@@ -174,7 +174,7 @@ pub(crate) fn select_run_binary<'p>(
 }
 
 /// Determine the path to the directory which contains the compilation artifacts.
-pub(crate) fn get_artifact_directory(
+fn get_artifact_directory(
     target_directory: impl Into<PathBuf>,
     target: Option<&str>,
     profile: &str,
