@@ -23,6 +23,12 @@ Feel free to pick an issue from the [issue tracker], fork the repository, and su
 [`rust-toolchain.toml`]: rust-toolchain.toml
 [Rustup]: https://rustup.rs
 
+## Dependencies
+
+When adding new dependencies, please disable default features.
+This allows us to minimize the compile time and binary size of the CLI.
+Everything to reduce the CI time of Bevy projects counts!
+
 ## Other Resources
 
 Please familiarize yourself with [Bevy's Code of Conduct], which applies to this project as well. Additionally, take a look at [Bevy's Contributing Guide], as many of the engine's procedures transfer to the CLI.
