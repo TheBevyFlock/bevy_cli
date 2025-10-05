@@ -3,7 +3,7 @@
 pub use self::args::*;
 #[cfg(feature = "web")]
 use crate::web::run::run_web;
-use crate::{config::CliConfig, external_cli::cargo};
+use crate::{commands::get_default_package, config::CliConfig, external_cli::cargo};
 
 mod args;
 
@@ -15,22 +15,20 @@ mod args;
 pub fn run(args: &mut RunArgs) -> anyhow::Result<()> {
     let metadata = cargo::metadata::metadata()?;
 
-    // If the `--package` arg was passed, search for the given package in the workspace, otherwise
-    // get the root package.
-    let package = if let Some(package_name) = &args.cargo_args.package_args.package {
-        let workspace_packages = metadata.workspace_packages();
-        workspace_packages
-            .iter()
-            .find(|package| package.name.as_str() == package_name)
-            .copied()
-            .ok_or_else(|| anyhow::anyhow!("Failed to find package {package_name}"))?
-    } else {
-        metadata
-            .root_package()
-            .ok_or_else(|| anyhow::anyhow!("Failed to determain root package to build"))?
-    };
+    let package = get_default_package(
+        &metadata,
+        args.cargo_args.package_args.package.as_ref(),
+        true,
+    )?;
 
-    let mut config = CliConfig::for_package(&metadata, package, args.is_web(), args.is_release())?;
+    // apply the package specific config, otherwise use the default config (this happens when
+    // `bevy build` was called from a workspace root with no package selection (we do not support
+    // workspace config at the moment).
+    let mut config = if let Some(package) = package {
+        CliConfig::for_package(&metadata, package, args.is_web(), args.is_release())?
+    } else {
+        CliConfig::default()
+    };
 
     // Read config files hierarchically from the current directory, merge them,
     // apply environment variables, and resolve relative paths.
