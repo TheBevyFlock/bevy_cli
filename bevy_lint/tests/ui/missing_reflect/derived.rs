@@ -28,3 +28,9 @@ struct MyResource {
 //~| HELP: `Reflect` can be automatically derived
 //~v ERROR: defined an event without a `Reflect` implementation
 struct MyEvent(String);
+
+//~v NOTE: `Message` implemented here
+#[derive(Message)]
+//~| HELP: `Reflect` can be automatically derived
+//~v ERROR: defined a message without a `Reflect` implementation
+struct MyMessage(String);

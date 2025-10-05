@@ -6,8 +6,14 @@
 #![allow(dead_code)]
 //~v NOTE: the lint level is defined here
 #![deny(bevy::missing_reflect)]
+//! Tests the `missing_reflect` lint when `Component`, `Resource`, and `Event` are manually
+//! implemented.
+
 use bevy::{
-    ecs::component::{Mutable, StorageType},
+    ecs::{
+        component::{Mutable, StorageType},
+        event::GlobalTrigger,
+    },
     prelude::*,
 };
 
@@ -35,12 +41,14 @@ impl Resource for MyResource {}
 //~v ERROR: defined an event without a `Reflect` implementation
 struct MyEvent(String);
 
-impl Component for MyEvent {
-    const STORAGE_TYPE: StorageType = StorageType::Table;
-    type Mutability = Mutable;
-}
-
 //~v NOTE: `Event` implemented here
 impl Event for MyEvent {
-    type Traversal = ();
+    type Trigger<'a> = GlobalTrigger;
 }
+
+//~| HELP: `Reflect` can be automatically derived
+//~v ERROR: defined a message without a `Reflect` implementation
+struct MyMessage(String);
+
+//~v NOTE: `Message` implemented here
+impl Message for MyMessage {}

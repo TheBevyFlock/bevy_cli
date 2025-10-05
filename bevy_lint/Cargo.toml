@@ -21,15 +21,15 @@ harness = false
 # Contains a series of useful utilities when writing lints. The version is chosen to work with the
 # currently pinned nightly Rust version. When the Rust version changes, this too needs to be
 # updated!
-clippy_utils = "=0.1.91"
+clippy_utils = "=0.1.92"
 
 # Easy error propagation and contexts.
 anyhow = "1.0.86"
 # Easy structured output for `cargo metadata`, used for cargo lints
-cargo_metadata = "0.22.0"
+cargo_metadata = "0.23.0"
 
 # Configuration deserialization.
-serde = { version = "1.0.226", features = ["derive"] }
+serde = { version = "1.0.228", features = ["derive"] }
 toml = { version = "0.9.6", default-features = false, features = [
     "std",
     "parse",
@@ -41,11 +41,11 @@ pico-args = "0.5.0"
 
 # Colored terminal output
 anstream = "0.6.19"
-anstyle = "1.0.11"
+anstyle = "1.0.12"
 
 [build-dependencies]
 # Parse `rust-toolchain.toml` at build time.
-serde = { version = "1.0.226", features = ["derive"] }
+serde = { version = "1.0.228", features = ["derive"] }
 toml = { version = "0.9.6", default-features = false, features = [
     "std",
     "parse",
@@ -54,7 +54,7 @@ toml = { version = "0.9.6", default-features = false, features = [
 
 [dev-dependencies]
 # Used when running UI tests.
-bevy = { version = "0.16.0", default-features = false, features = [
+bevy = { version = "0.17.0-rc.1", default-features = false, features = [
     "std",
     # used for the `camera_modification_in_fixed_update` lint
     "bevy_render",

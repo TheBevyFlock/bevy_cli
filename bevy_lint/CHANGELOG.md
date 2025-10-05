@@ -11,6 +11,12 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 
 **All Changes**: [`lint-v0.4.0...main`](https://github.com/TheBevyFlock/bevy_cli/compare/lint-v0.4.0...main)
 
+### Changed
+
+- The linter now supports Bevy 0.17, but no longer supports Bevy 0.16 ([#577](https://github.com/TheBevyFlock/bevy_cli/pull/577))
+    - `insert_event_resource` lint got renamed to `insert_message_resource`.
+    - `iter_current_update_events` lint got renamed to `iter_current_update_messages`.
+
 ## v0.4.0 - 2025-08-06
 
 **All Changes**: [`lint-v0.3.0...lint-v0.4.0`](https://github.com/TheBevyFlock/bevy_cli/compare/lint-v0.3.0...lint-v0.4.0)

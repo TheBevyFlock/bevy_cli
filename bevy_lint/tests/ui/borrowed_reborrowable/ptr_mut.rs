@@ -4,8 +4,10 @@
 #![register_tool(bevy)]
 #![deny(bevy::borrowed_reborrowable)]
 
-use bevy::ecs::ptr::{Ptr, PtrMut};
-use bevy::prelude::*;
+use bevy::{
+    ecs::ptr::{Ptr, PtrMut},
+    prelude::*,
+};
 
 // OK: Lint does not apply to immutable references
 fn immutable_reference(_param: &PtrMut) {

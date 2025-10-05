@@ -1,7 +1,7 @@
 error: parameter takes `&mut Deferred` instead of a re-borrowed `Deferred`
-  --> tests/ui/borrowed_reborrowable/deferred.rs:17:22
+  --> tests/ui/borrowed_reborrowable/deferred.rs:16:22
    |
-17 | fn mutable_reference(_param: &mut Deferred<CommandQueue>) {
+16 | fn mutable_reference(_param: &mut Deferred<CommandQueue>) {
    |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use `Deferred` instead: `mut _param: Deferred<CommandQueue>`
    |
 note: the lint level is defined here
@@ -11,9 +11,9 @@ note: the lint level is defined here
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 error: parameter takes `&mut Deferred` instead of a re-borrowed `Deferred`
-  --> tests/ui/borrowed_reborrowable/deferred.rs:23:33
+  --> tests/ui/borrowed_reborrowable/deferred.rs:22:33
    |
-23 | fn mutable_reference_return<'a>(_param: &'a mut Deferred<CommandQueue>) -> usize {
+22 | fn mutable_reference_return<'a>(_param: &'a mut Deferred<CommandQueue>) -> usize {
    |                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use `Deferred` instead: `mut _param: Deferred<CommandQueue>`
 
 error: aborting due to 2 previous errors
