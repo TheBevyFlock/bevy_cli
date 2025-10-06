@@ -184,6 +184,8 @@ fn build_lint_cmd(args: &mut LintArgs) -> anyhow::Result<CommandExt> {
             .feature_args
             .features
             .push("--all-features".to_owned());
+
+        debug!("enabling `--all-features` to build all examples");
     }
 
     let cargo_args = args.cargo_args_builder();

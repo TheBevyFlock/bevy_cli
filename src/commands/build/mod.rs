@@ -78,6 +78,8 @@ pub fn build(args: &mut BuildArgs) -> anyhow::Result<()> {
             .feature_args
             .features
             .push("--all-features".to_owned());
+
+        debug!("enabling `--all-features` to build all examples");
     }
 
     #[cfg(feature = "web")]
