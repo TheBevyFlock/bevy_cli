@@ -97,7 +97,7 @@ webbrowser = { version = "1.0.2", optional = true }
 
 ## Serving the app for the browser
 http = { version = "1.2", optional = true }
-axum = { version = "0.8.5", default-features = false, features = [
+axum = { version = "0.8.6", default-features = false, features = [
     "ws",
     "http1",
     "tokio",
