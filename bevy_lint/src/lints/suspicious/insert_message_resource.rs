@@ -127,7 +127,7 @@ fn check_insert_resource(cx: &LateContext<'_>, method_call: &MethodCall) {
         let args_snippet = snippet(cx, span_args(method_call.args), "");
         let generics_snippet = generic_args_snippet(cx, method_call.method_path);
 
-        if method_call.is_fully_qulified {
+        if method_call.is_fully_qualified {
             let receiver_snippet = snippet(cx, method_call.receiver.span, "");
             span_lint_and_sugg(
                 cx,
@@ -213,7 +213,7 @@ fn check_init_resource<'tcx>(cx: &LateContext<'tcx>, method_call: &MethodCall<'t
             let args_snippet = snippet(cx, span_args(method_call.args), "");
             let generics_snippet = generic_args_snippet(cx, method_call.method_path);
 
-            if method_call.is_fully_qulified {
+            if method_call.is_fully_qualified {
                 let receiver_snippet = snippet(cx, method_call.receiver.span, "");
                 span_lint_and_sugg(
                     cx,
