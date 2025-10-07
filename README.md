@@ -73,19 +73,11 @@ With the following steps, you can create a new 2D app with Bevy and run it in yo
 
     ```sh
     # Install the latest version of the linter.
-    bevy lint install v0.4.0
+    bevy lint install
 
     # Run the linter on your project.
     bevy lint
     ```
-
-> [!NOTE]
-> If you've previously installed the bevy_cli, you may need to also update the bevy linter, which uses a nightly toolchain compatible with recent bevy releases.
-> 
-> ```
-> bevy lint install
-> ```
-
 
 4. Run the app in the browser:
 
