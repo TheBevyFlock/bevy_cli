@@ -2,7 +2,7 @@
 
 pub use args::*;
 use cargo_metadata::TargetKind;
-use tracing::debug;
+use tracing::info;
 
 #[cfg(feature = "web")]
 use crate::web::build::build_web;
@@ -62,7 +62,7 @@ pub fn build(args: &mut BuildArgs) -> anyhow::Result<()> {
     {
         let required_features = example_target.required_features;
 
-        debug!(
+        info!(
             "enabling required_features: {:?}, for example: {example}",
             required_features
         );
@@ -79,7 +79,7 @@ pub fn build(args: &mut BuildArgs) -> anyhow::Result<()> {
             .features
             .push("--all-features".to_owned());
 
-        debug!("enabling `--all-features` to build all examples");
+        info!("automatically added `--all-features` to build examples with all features enabled");
     }
 
     #[cfg(feature = "web")]

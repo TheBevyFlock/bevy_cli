@@ -1,5 +1,5 @@
 pub use args::*;
-use tracing::{debug, error};
+use tracing::{error, info};
 
 #[cfg(feature = "rustup")]
 use crate::commands::lint::install::install_linter;
@@ -168,7 +168,7 @@ fn build_lint_cmd(args: &mut LintArgs) -> anyhow::Result<CommandExt> {
     {
         let required_features = example_target.required_features;
 
-        debug!(
+        info!(
             "enabling required_features: {:?}, for example: {example}",
             required_features
         );
@@ -185,7 +185,7 @@ fn build_lint_cmd(args: &mut LintArgs) -> anyhow::Result<CommandExt> {
             .features
             .push("--all-features".to_owned());
 
-        debug!("enabling `--all-features` to build all examples");
+        info!("automatically added `--all-features` to check examples with all features enabled");
     }
 
     let cargo_args = args.cargo_args_builder();

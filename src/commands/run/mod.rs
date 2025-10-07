@@ -1,6 +1,6 @@
 //! Provides functionalities to run a Bevy app targeting either native or web platforms.
 
-use tracing::debug;
+use tracing::info;
 
 pub use self::args::*;
 #[cfg(feature = "web")]
@@ -59,7 +59,7 @@ pub fn run(args: &mut RunArgs) -> anyhow::Result<()> {
     {
         let required_features = example_target.required_features;
 
-        debug!(
+        info!(
             "enabling required_features: {:?}, for example: {example}",
             required_features
         );
