@@ -3,5 +3,5 @@
 #![deny(bevy::bevy_platform_alternative_exists)]
 
 fn main() {
-    let foo: std::time::Instant = std::time::Instant::now();
+    let _ = std::time::Instant::now();
 }
