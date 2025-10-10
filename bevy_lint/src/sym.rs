@@ -57,7 +57,10 @@
 use clippy_utils::sym::EXTRA_SYMBOLS as CLIPPY_SYMBOLS;
 /// These are symbols that we use but are already interned by either the compiler or Clippy.
 pub use clippy_utils::sym::filter;
-pub use rustc_span::sym::{bevy_ecs, bundle, message, plugin, reflect};
+pub use rustc_span::sym::{
+    HashMap, HashSet, Instant, Mutex, MutexGuard, RwLock, RwLockReadGuard, RwLockWriteGuard,
+    SyncUnsafeCell, bevy_ecs, bundle, message, plugin, reflect, std, sync,
+};
 use rustc_span::{Symbol, symbol::PREDEFINED_SYMBOLS_COUNT};
 
 /// The starting offset used for the first Bevy-specific symbol.
@@ -114,26 +117,30 @@ macro_rules! declare_bevy_symbols {
 
 // Before adding a new symbol here, check that it doesn't exist yet in `rustc_span::sym` or
 // `clippy_utils::sym`. Having duplicate symbols will cause the compiler to ICE! Also please keep
-// this list alphabetically sorted :)
+// this list alphabetically sorted :) (use `:sort i` in nvim)
 declare_bevy_symbols! {
     add_systems,
     app,
     App,
+    Barrier,
+    BarrierWaitResult,
+    bevy,
     bevy_app,
     bevy_camera,
     bevy_ptr,
     bevy_reflect,
-    bevy,
     Bundle,
     camera,
     Camera,
+    cell,
     change_detection,
+    collections,
     commands,
     Commands,
     component,
     Component,
-    deferred_world,
     Deferred,
+    deferred_world,
     DeferredWorld,
     entity_ref,
     EntityCommands,
@@ -141,11 +148,13 @@ declare_bevy_symbols! {
     event,
     Event,
     Events,
+    Exclusive,
     FilteredEntityMut,
     FixedUpdate,
     init_resource,
     insert_resource,
     iter_current_update_messages,
+    LazyLock,
     main_schedule,
     Message,
     Messages,
@@ -169,13 +178,21 @@ declare_bevy_symbols! {
     schedule,
     set,
     spawn,
-    system_param,
     system,
+    system_param,
     SystemSet,
+    time,
     Update,
     With,
     world,
     World,
+    Once,
+    OnceLock,
+    OnceState,
+    LockResult,
+    PoisonError,
+    TryLockError,
+    TryLockResult,
 }
 
 /// Returns a list of strings that should be supplied to
