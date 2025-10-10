@@ -100,8 +100,8 @@ fn toml_span(range: Range<usize>, file: &SourceFile) -> Span {
 }
 
 pub(crate) fn check(cx: &LateContext<'_>, metadata: &Metadata) {
-    // no reason to continue the check if there is only one instance of `bevy` required
-    if find_crates(cx.tcx, sym::bevy).len() == 1 {
+    // Check if there are 2 or more crates named `bevy`.
+    if find_crates(cx.tcx, sym::bevy).len() <= 1 {
         return;
     }
 
