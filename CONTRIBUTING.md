@@ -1,6 +1,11 @@
 # Contributing
 
-Thank you for your interest in the Bevy CLI! Make sure to join the [Bevy Discord] and check out the [working group channel] for the latest information on the CLI and linter. The contributing guide for the CLI is not yet written, but you can find the [linter's contributing guide here](https://thebevyflock.github.io/bevy_cli/contribute/linter/index.html).
+Thank you for your interest in the Bevy CLI! Make sure to join the [Bevy Discord] and check out the [working group channel] for the latest information on the CLI and linter.
+
+Also check our contribution guides:
+
+- [Bevy CLI contributing guide](https://thebevyflock.github.io/bevy_cli/contribute/cli/index.html)
+- [Bevy linter contributing guide](https://thebevyflock.github.io/bevy_cli/contribute/linter/index.html).
 
 [Bevy Discord]: https://discord.gg/bevy
 [working group channel]: https://discord.com/channels/691052431525675048/1278871953721262090
