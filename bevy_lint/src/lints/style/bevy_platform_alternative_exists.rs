@@ -35,20 +35,31 @@ impl<'tcx> LateLintPass<'tcx> for BevyPlatformAlternativeExists {
                 BEVY_PLATFORM_ALTERNATIVE_EXISTS.desc,
                 None,
                 format!(
-                    "the type `{}` can be replaced with the `no_std` compatible type
-                from `bevy_platform` {}",
+                    "the type `{}` can be replaced with the `no_std` compatible type {}",
                     snippet(cx.tcx.sess, hir_ty.span, ""),
-                    bevy_platform_alternative.name(),
+                    bevy_platform_alternative.full_path()
                 ),
             );
         }
     }
 }
 
+/// Creates an enum containing all the types form `bevy_platform` as variants.
+///
+/// # Example
+///
+/// ```ignore
+/// declare_bevy_platform_types! {
+///    // The variant name => [`PathLookup`] that matches the equivalent type in the std.
+///    CustomType => CUSTOMTYPE,
+///    // Optional the module path can be passed too, default is `bevy_platform::<variant_name>`.
+///    // If an additional module path is added, it will result in: `bevy_platform::custom::thread::CustomType`.
+///    CustomType("custom::thread") => BARRIER,
+/// ```
 macro_rules! declare_bevy_platform_types {
     (
     $(
-    $variant:ident => $path:ident
+        $variant:ident $(($mod_path:expr))? => $path:ident
     )
     ,+$(,)?
     ) => {
@@ -60,12 +71,7 @@ macro_rules! declare_bevy_platform_types {
         }
 
         impl BevyPlatformType{
-            pub const fn name(&self) -> &'static str {
-                match self {
-                    $(Self::$variant => stringify!($variant),)+
-                }
-            }
-
+            /// Try to create a [`BevyPlatformType`] from the given [`Ty`].
             pub fn try_from_ty(cx: &LateContext<'_>, ty: rustc_middle::ty::Ty<'_>) -> Option<Self> {
                 use crate::paths::bevy_platform_types::*;
                 $(
@@ -77,29 +83,36 @@ macro_rules! declare_bevy_platform_types {
                     None
                 }
             }
+
+            ///Returns a string identifying this [`BevyPlatformType`]. This string is suitable for user output.
+            pub const fn full_path(&self) -> &'static str {
+                match self {
+                    $(Self::$variant => concat!("bevy_platform", $("::", $mod_path,)? "::" , stringify!($variant)),)+
+                }
+            }
         }
     };
 }
 
 declare_bevy_platform_types! {
-    Barrier => BARRIER,
-    BarrierWaitResult => BARRIERWAITRESULT,
-    HashMap => HASHMAP,
-    HashSet => HASHSET,
-    Instant => INSTANT,
-    LazyLock => LAZYLOCK,
-    LockResult => LOCKRESULT,
-    Mutex => MUTEX,
-    MutexGuard => MUTEXGUARD,
-    Once => ONCE,
-    OnceLock => ONCELOCK,
-    OnceState => ONCESTATE,
-    PoisonError => POISONERROR,
-    RwLock => RWLOCK,
-    RwLockReadGuard => RWLOCKREADGUARD,
-    RwLockWriteGuard => RWLOCKWRITEGUARD,
-    SyncCell => SYNCCELL,
-    SyncUnsafeCell => SYNCUNSAFECELL,
-    TryLockError => TRYLOCKERROR,
-    TryLockResult => TRYLOCKRESULT,
+    Barrier("sync") => BARRIER,
+    BarrierWaitResult("sync") => BARRIERWAITRESULT,
+    HashMap("collection") => HASHMAP,
+    HashSet("collection") => HASHSET,
+    Instant("time") => INSTANT,
+    LazyLock("sync") => LAZYLOCK,
+    LockResult("sync") => LOCKRESULT,
+    Mutex("sync") => MUTEX,
+    MutexGuard("sync") => MUTEXGUARD,
+    Once("sync")=> ONCE,
+    OnceLock("sync") => ONCELOCK,
+    OnceState("sync") => ONCESTATE,
+    PoisonError("sync") => POISONERROR,
+    RwLock("sync") => RWLOCK,
+    RwLockReadGuard("sync") => RWLOCKREADGUARD,
+    RwLockWriteGuard("sync") => RWLOCKWRITEGUARD,
+    SyncCell("sync") => SYNCCELL,
+    SyncUnsafeCell("cell") => SYNCUNSAFECELL,
+    TryLockError("sync") => TRYLOCKERROR,
+    TryLockResult("sync") => TRYLOCKRESULT,
 }

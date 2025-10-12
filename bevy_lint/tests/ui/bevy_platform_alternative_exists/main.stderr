@@ -1,0 +1,15 @@
+error: Used type from the `std` that has an existing alternative from `bevy_platform`
+ --> tests/ui/bevy_platform_alternative_exists/main.rs:6:13
+  |
+6 |     let _ = std::time::Instant::now();
+  |             ^^^^^^^^^^^^^^^^^^
+  |
+  = help: the type `std::time::Instant` can be replaced with the `no_std` compatible type bevy_platform::time::Instant
+note: the lint level is defined here
+ --> tests/ui/bevy_platform_alternative_exists/main.rs:3:9
+  |
+3 | #![deny(bevy::bevy_platform_alternative_exists)]
+  |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: aborting due to 1 previous error
+
