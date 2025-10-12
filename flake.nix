@@ -18,12 +18,11 @@
 
         buildInputs = with pkgs; [
           openssl
-          # rustup
         ];
       in
       {
         packages.default = pkgs.rustPlatform.buildRustPackage {
-          pname = "bevy_cli";
+          pname = "bevy";
           version = "0.1.0-dev";
           src = ./.;
           cargoLock = {
