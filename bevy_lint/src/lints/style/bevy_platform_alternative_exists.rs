@@ -1,4 +1,5 @@
-use clippy_utils::{diagnostics::span_lint_and_help, source::snippet, ty::ty_from_hir_ty};
+use clippy_utils::{diagnostics::span_lint_and_sugg, source::snippet, ty::ty_from_hir_ty};
+use rustc_errors::Applicability;
 use rustc_lint::{LateContext, LateLintPass};
 
 use crate::{declare_bevy_lint, declare_bevy_lint_pass};
@@ -28,17 +29,18 @@ impl<'tcx> LateLintPass<'tcx> for BevyPlatformAlternativeExists {
 
         // Check if for the given `ty` an alternative from `bevy_platform` exists.
         if let Some(bevy_platform_alternative) = BevyPlatformType::try_from_ty(cx, ty) {
-            span_lint_and_help(
+            span_lint_and_sugg(
                 cx,
                 BEVY_PLATFORM_ALTERNATIVE_EXISTS,
                 hir_ty.span,
                 BEVY_PLATFORM_ALTERNATIVE_EXISTS.desc,
-                None,
                 format!(
                     "the type `{}` can be replaced with the `no_std` compatible type {}",
                     snippet(cx.tcx.sess, hir_ty.span, ""),
                     bevy_platform_alternative.full_path()
                 ),
+                bevy_platform_alternative.full_path().to_string(),
+                Applicability::MachineApplicable,
             );
         }
     }
@@ -52,8 +54,8 @@ impl<'tcx> LateLintPass<'tcx> for BevyPlatformAlternativeExists {
 /// declare_bevy_platform_types! {
 ///    // The variant name => [`PathLookup`] that matches the equivalent type in the std.
 ///    CustomType => CUSTOMTYPE,
-///    // Optional the module path can be passed too, default is `bevy_platform::<variant_name>`.
-///    // If an additional module path is added, it will result in: `bevy_platform::custom::thread::CustomType`.
+///    // Optional the module path can be passed too, default is `bevy::platform::<variant_name>`.
+///    // If an additional module path is added, it will result in: `bevy::platform::custom::thread::CustomType`.
 ///    CustomType("custom::thread") => BARRIER,
 /// ```
 macro_rules! declare_bevy_platform_types {
@@ -87,7 +89,7 @@ macro_rules! declare_bevy_platform_types {
             ///Returns a string identifying this [`BevyPlatformType`]. This string is suitable for user output.
             pub const fn full_path(&self) -> &'static str {
                 match self {
-                    $(Self::$variant => concat!("bevy_platform", $("::", $mod_path,)? "::" , stringify!($variant)),)+
+                    $(Self::$variant => concat!("bevy::platform", $("::", $mod_path,)? "::" , stringify!($variant)),)+
                 }
             }
         }
@@ -97,8 +99,8 @@ macro_rules! declare_bevy_platform_types {
 declare_bevy_platform_types! {
     Barrier("sync") => BARRIER,
     BarrierWaitResult("sync") => BARRIERWAITRESULT,
-    HashMap("collection") => HASHMAP,
-    HashSet("collection") => HASHSET,
+    HashMap("collections") => HASHMAP,
+    HashSet("collections") => HASHSET,
     Instant("time") => INSTANT,
     LazyLock("sync") => LAZYLOCK,
     LockResult("sync") => LOCKRESULT,
