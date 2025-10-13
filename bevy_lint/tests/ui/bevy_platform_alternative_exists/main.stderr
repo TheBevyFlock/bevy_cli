@@ -1,19 +1,31 @@
 error: Used type from the `std` that has an existing alternative from `bevy_platform`
- --> tests/ui/bevy_platform_alternative_exists/main.rs:6:19
-  |
-6 |     let mut bar = std::collections::HashMap::new();
-  |                   ^^^^^^^^^^^^^^^^^^^^^^^^^
-  |
+  --> tests/ui/bevy_platform_alternative_exists/main.rs:16:24
+   |
+16 |     let mut hash_map = std::collections::HashMap::new();
+   |                        ^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
 note: the lint level is defined here
- --> tests/ui/bevy_platform_alternative_exists/main.rs:3:9
-  |
-3 | #![deny(bevy::bevy_platform_alternative_exists)]
-  |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  --> tests/ui/bevy_platform_alternative_exists/main.rs:3:9
+   |
+ 3 | #![deny(bevy::bevy_platform_alternative_exists)]
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 help: the type `std::collections::HashMap` can be replaced with the `no_std` compatible type bevy::platform::collections::HashMap
-  |
-6 -     let mut bar = std::collections::HashMap::new();
-6 +     let mut bar = bevy::platform::collections::HashMap::new();
-  |
+   |
+16 -     let mut hash_map = std::collections::HashMap::new();
+16 +     let mut hash_map = bevy::platform::collections::HashMap::new();
+   |
 
-error: aborting due to 1 previous error
+error: Used type from the `std` that has an existing alternative from `bevy_platform`
+  --> tests/ui/bevy_platform_alternative_exists/main.rs:22:17
+   |
+22 |     let _time = std::time::Instant::now();
+   |                 ^^^^^^^^^^^^^^^^^^
+   |
+help: the type `std::time::Instant` can be replaced with the `no_std` compatible type bevy::platform::time::Instant
+   |
+22 -     let _time = std::time::Instant::now();
+22 +     let _time = bevy::platform::time::Instant::now();
+   |
+
+error: aborting due to 2 previous errors
 

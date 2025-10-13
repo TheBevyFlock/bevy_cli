@@ -1,5 +1,6 @@
 use clippy_utils::{diagnostics::span_lint_and_sugg, source::snippet, ty::ty_from_hir_ty};
 use rustc_errors::Applicability;
+use rustc_hir::{QPath, TyKind};
 use rustc_lint::{LateContext, LateLintPass};
 
 use crate::{declare_bevy_lint, declare_bevy_lint_pass};
@@ -24,11 +25,22 @@ impl<'tcx> LateLintPass<'tcx> for BevyPlatformAlternativeExists {
             return;
         }
 
-        // lower the [`hir::Ty`] to a [`rustc_middle::ty::Ty`]
-        let ty = ty_from_hir_ty(cx, hir_ty.as_unambig_ty());
+        let as_unambig_ty = hir_ty.as_unambig_ty();
 
-        // Check if for the given `ty` an alternative from `bevy_platform` exists.
-        if let Some(bevy_platform_alternative) = BevyPlatformType::try_from_ty(cx, ty) {
+        // lower the [`hir::Ty`] to a [`rustc_middle::ty::Ty`]
+        let ty = ty_from_hir_ty(cx, as_unambig_ty);
+
+        // Get the path to the type definition.
+        let TyKind::Path(QPath::Resolved(_, path)) = &as_unambig_ty.kind else {
+            return;
+        };
+
+        //  if for the given `ty` an alternative from `bevy_platform` exists.
+        if let Some(bevy_platform_alternative) = BevyPlatformType::try_from_ty(cx, ty)
+        // Only emit a lint if the first segment of this path is `std` thus the type originates
+        // from the standart library. This prevents linting for `bevy::platform` types that are just a reexport of the `std`.
+        && path.segments.first().is_some_and(|segment| segment.ident.name.as_str().starts_with("std"))
+        {
             span_lint_and_sugg(
                 cx,
                 BEVY_PLATFORM_ALTERNATIVE_EXISTS,
