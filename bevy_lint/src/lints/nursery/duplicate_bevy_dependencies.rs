@@ -100,7 +100,16 @@ fn toml_span(range: Range<usize>, file: &SourceFile) -> Span {
 }
 
 pub(crate) fn check(cx: &LateContext<'_>, metadata: &Metadata) {
-    // Check if there are 2 or more crates named `bevy`.
+    // Check if there are 2 or more crates named `bevy` being used. `bevy` will only be reported as
+    // used if it:
+    //
+    // 1. Is directly imported by the crate being linted. (ex. `use bevy::prelude::*;` or `extern
+    //    crate bevy;`)
+    // 2. Is transitively imported by another used crate. (ex. `use leafwing_input_manager::*;`,
+    //    which imports `bevy` internally)
+    //
+    // Simple adding `bevy = "*"` to `Cargo.toml` will not make it appear in `find_crates()`'s
+    // output.
     if find_crates(cx.tcx, sym::bevy).len() <= 1 {
         return;
     }
