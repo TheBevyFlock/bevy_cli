@@ -72,6 +72,10 @@ With the following steps, you can create a new 2D app with Bevy and run it in yo
 3. Check the code quality with the linter:
 
     ```sh
+    # Install the latest version of the linter.
+    bevy lint install
+
+    # Run the linter on your project.
     bevy lint
     ```
 
