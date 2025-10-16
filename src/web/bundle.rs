@@ -227,7 +227,12 @@ pub fn create_web_bundle(
                 ..Default::default()
             },
         )
-        .context("failed to copy custom web assets")?;
+        .with_context(|| {
+            format!(
+                "failed to copy custom web assets from file://{} to file://{base_path}",
+                web_assets.to_string_lossy(),
+            )
+        })?;
     }
 
     // Index (pre-processed)
