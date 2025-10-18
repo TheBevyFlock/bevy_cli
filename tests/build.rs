@@ -4,7 +4,7 @@ use std::{
 };
 
 use anyhow::Context;
-use assert_cmd::cargo::cargo_bin_cmd;
+use assert_cmd::{Command, cargo::cargo_bin_cmd};
 use serial_test::serial;
 
 /// The path to the test repository.
@@ -123,5 +123,35 @@ fn should_build_web_release() -> anyhow::Result<()> {
     ensure_path_exists(target_artifact_path.join("bevy_default_bg.wasm"))
         .context("Wasm bindings do not exist")?;
     ensure_path_exists(target_artifact_path.join("bevy_default.js"))
+        .context("JS bindings do not exist")
+}
+
+#[test]
+#[serial]
+fn should_copy_web_bundle() -> anyhow::Result<()> {
+    let target_artifact_path = target_path()
+        .join("wasm32-unknown-unknown")
+        .join("web-release");
+    clean_target_artifacts(&target_artifact_path)?;
+
+    let _ = fs::remove_dir_all(test_path().join("web-dir"));
+    let mut cmd = Command::cargo_bin("bevy")?;
+    cmd.current_dir(test_path()).args([
+        "build",
+        "-p=bevy_default",
+        "--release",
+        "--yes",
+        "web",
+        "--bundle",
+        "--bundle-dir=web-dir",
+    ]);
+
+    cmd.assert().success();
+
+    ensure_path_exists(test_path().join("web-dir/index.html"))
+        .context("index.html do not exist")?;
+    ensure_path_exists(test_path().join("web-dir/build/bevy_default_bg.wasm"))
+        .context("Wasm bindings do not exist")?;
+    ensure_path_exists(test_path().join("web-dir/build/bevy_default.js"))
         .context("JS bindings do not exist")
 }
