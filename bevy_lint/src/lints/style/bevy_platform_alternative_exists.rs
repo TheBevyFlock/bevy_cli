@@ -1,9 +1,12 @@
-use clippy_utils::{diagnostics::span_lint_and_sugg, source::snippet, ty::ty_from_hir_ty};
+use clippy_utils::{diagnostics::span_lint_and_sugg, is_from_proc_macro, source::snippet};
 use rustc_errors::Applicability;
-use rustc_hir::{QPath, TyKind};
+use rustc_hir::{
+    HirId, Path, PathSegment,
+    def::{DefKind, Res},
+};
 use rustc_lint::{LateContext, LateLintPass};
 
-use crate::{declare_bevy_lint, declare_bevy_lint_pass};
+use crate::{declare_bevy_lint, declare_bevy_lint_pass, sym, utils::hir_parse::generic_args_snippet};
 
 declare_bevy_lint! {
     pub(crate) BEVY_PLATFORM_ALTERNATIVE_EXISTS,
@@ -16,45 +19,67 @@ declare_bevy_lint_pass! {
 }
 
 impl<'tcx> LateLintPass<'tcx> for BevyPlatformAlternativeExists {
-    fn check_ty(
-        &mut self,
-        cx: &LateContext<'tcx>,
-        hir_ty: &'tcx rustc_hir::Ty<'tcx, rustc_hir::AmbigArg>,
-    ) {
-        if hir_ty.span.in_external_macro(cx.tcx.sess.source_map()) {
-            return;
-        }
-
-        let as_unambig_ty = hir_ty.as_unambig_ty();
-
-        // lower the [`hir::Ty`] to a [`rustc_middle::ty::Ty`]
-        let ty = ty_from_hir_ty(cx, as_unambig_ty);
-
-        // Get the path to the type definition.
-        let TyKind::Path(QPath::Resolved(_, path)) = &as_unambig_ty.kind else {
-            return;
-        };
-
-        //  if for the given `ty` an alternative from `bevy_platform` exists.
-        if let Some(bevy_platform_alternative) = BevyPlatformType::try_from_ty(cx, ty)
-        // Only emit a lint if the first segment of this path is `std` thus the type originates
-        // from the standart library. This prevents linting for `bevy::platform` types that are just a reexport of the `std`.
-        && path.segments.first().is_some_and(|segment| segment.ident.name.as_str().starts_with("std"))
+    fn check_path(&mut self, cx: &LateContext<'tcx>, path: &Path<'tcx>, _: HirId) {
+        if let Res::Def(def_kind, def_id) = path.res 
+            // Retrieve the first path segment, this could look like: `bevy`, `std`, `serde`.
+            && let Some(first_segment) = get_first_segment(path)
+            // Skip if this span originates from an external macro.
+            //  Or likely originates from a proc_macro, note this should be called after
+            // `in_external_macro`.
+            && !path.span.in_external_macro(cx.tcx.sess.source_map())
+            && !is_from_proc_macro(cx, &first_segment.ident)
+            // Skip if this Definition is not originating from `std`.
+            && first_segment.ident.name == sym::std
+            // Get the def_id of the crate from first segment.
+            && let Res::Def(DefKind::Mod,crate_def_id) = first_segment.res
+            // If the first segment is not the crate root, then this type was checked when
+            // importing.
+            && crate_def_id.is_crate_root()
+            // Get potential generic arguments.
+            && let Some(generic_args) = path.segments.last().map(|s| generic_args_snippet(cx, s))
         {
-            span_lint_and_sugg(
-                cx,
-                BEVY_PLATFORM_ALTERNATIVE_EXISTS,
-                hir_ty.span,
-                BEVY_PLATFORM_ALTERNATIVE_EXISTS.desc,
-                format!(
-                    "the type `{}` can be replaced with the `no_std` compatible type {}",
-                    snippet(cx.tcx.sess, hir_ty.span, ""),
-                    bevy_platform_alternative.full_path()
-                ),
-                bevy_platform_alternative.full_path().to_string(),
-                Applicability::MachineApplicable,
-            );
+
+            // Skip Resolutions that are modules for example: `use std::time`.
+            // This lint checks if a given Type from the `std` exists in `bevy_platform` and does not
+            // compare entire modules and getting the ty from a module DefId will result in a
+            // panic.
+            if DefKind::Mod == def_kind{
+                return;
+            }
+
+            // Get the Ty of this Definition.
+            let ty = cx.tcx.type_of(def_id).skip_binder();
+            //Check if an alternative exists in `bevy_platform`.
+            if let Some(bevy_platform_alternative) = BevyPlatformType::try_from_ty(cx, ty) {
+                span_lint_and_sugg(
+                    cx,
+                    BEVY_PLATFORM_ALTERNATIVE_EXISTS,
+                    path.span,
+                    BEVY_PLATFORM_ALTERNATIVE_EXISTS.desc,
+                    format!(
+                        "the type `{}` can be replaced with the `no_std` compatible type {}{}",
+                        snippet(cx.tcx.sess, path.span, ""),
+                        bevy_platform_alternative.full_path(),generic_args,
+                    ),
+                    format!("{}{}",bevy_platform_alternative.full_path(),generic_args),
+                    Applicability::MachineApplicable,
+                );
+            }
         }
+    }
+}
+
+/// Returns the first named segment of a [`Path`].
+///
+/// If this is a global path (such as `::std::fmt::Debug`), then the segment after [`kw::PathRoot`]
+/// is returned.
+fn get_first_segment<'tcx>(path: &Path<'tcx>) -> Option<&'tcx PathSegment<'tcx>> {
+    match path.segments {
+        // A global path will have PathRoot as the first segment. In this case, return the segment
+        // after.
+        [x, y, ..] if x.ident.name == rustc_span::symbol::kw::PathRoot => Some(y),
+        [x, ..] => Some(x),
+        _ => None,
     }
 }
 
@@ -109,6 +134,7 @@ macro_rules! declare_bevy_platform_types {
 }
 
 declare_bevy_platform_types! {
+    Arc("sync") => ARC,
     Barrier("sync") => BARRIER,
     BarrierWaitResult("sync") => BARRIERWAITRESULT,
     HashMap("collections") => HASHMAP,

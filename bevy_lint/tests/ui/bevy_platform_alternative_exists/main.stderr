@@ -1,31 +1,127 @@
 error: Used type from the `std` that has an existing alternative from `bevy_platform`
-  --> tests/ui/bevy_platform_alternative_exists/main.rs:16:24
-   |
-16 |     let mut hash_map = std::collections::HashMap::new();
-   |                        ^^^^^^^^^^^^^^^^^^^^^^^^^
-   |
+ --> tests/ui/bevy_platform_alternative_exists/main.rs:7:24
+  |
+7 |     let mut hash_map = std::collections::HashMap::new();
+  |                        ^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
 note: the lint level is defined here
-  --> tests/ui/bevy_platform_alternative_exists/main.rs:3:9
+ --> tests/ui/bevy_platform_alternative_exists/main.rs:3:9
+  |
+3 | #![deny(bevy::bevy_platform_alternative_exists)]
+  |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+help: the type `std::collections::HashMap` can be replaced with the `no_std` compatible type bevy::platform::collections::HashMap
+  |
+7 -     let mut hash_map = std::collections::HashMap::new();
+7 +     let mut hash_map = bevy::platform::collections::HashMap::new();
+  |
+
+error: Used type from the `std` that has an existing alternative from `bevy_platform`
+  --> tests/ui/bevy_platform_alternative_exists/main.rs:16:67
    |
- 3 | #![deny(bevy::bevy_platform_alternative_exists)]
-   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+16 |     let _declared_hash_map: std::collections::HashMap<u32, u32> = std::collections::HashMap::new();
+   |                                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
 help: the type `std::collections::HashMap` can be replaced with the `no_std` compatible type bevy::platform::collections::HashMap
    |
-16 -     let mut hash_map = std::collections::HashMap::new();
-16 +     let mut hash_map = bevy::platform::collections::HashMap::new();
+16 -     let _declared_hash_map: std::collections::HashMap<u32, u32> = std::collections::HashMap::new();
+16 +     let _declared_hash_map: std::collections::HashMap<u32, u32> = bevy::platform::collections::HashMap::new();
    |
 
 error: Used type from the `std` that has an existing alternative from `bevy_platform`
-  --> tests/ui/bevy_platform_alternative_exists/main.rs:22:17
+  --> tests/ui/bevy_platform_alternative_exists/main.rs:16:29
    |
-22 |     let _time = std::time::Instant::now();
-   |                 ^^^^^^^^^^^^^^^^^^
+16 |     let _declared_hash_map: std::collections::HashMap<u32, u32> = std::collections::HashMap::new();
+   |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
-help: the type `std::time::Instant` can be replaced with the `no_std` compatible type bevy::platform::time::Instant
+help: the type `std::collections::HashMap<u32, u32>` can be replaced with the `no_std` compatible type bevy::platform::collections::HashMap::<u32, u32>
    |
-22 -     let _time = std::time::Instant::now();
-22 +     let _time = bevy::platform::time::Instant::now();
+16 -     let _declared_hash_map: std::collections::HashMap<u32, u32> = std::collections::HashMap::new();
+16 +     let _declared_hash_map: bevy::platform::collections::HashMap::<u32, u32> = std::collections::HashMap::new();
    |
 
-error: aborting due to 2 previous errors
+error: Used type from the `std` that has an existing alternative from `bevy_platform`
+  --> tests/ui/bevy_platform_alternative_exists/main.rs:21:16
+   |
+21 |     let _arc = std::sync::Arc::new(10);
+   |                ^^^^^^^^^^^^^^
+   |
+help: the type `std::sync::Arc` can be replaced with the `no_std` compatible type bevy::platform::sync::Arc
+   |
+21 -     let _arc = std::sync::Arc::new(10);
+21 +     let _arc = bevy::platform::sync::Arc::new(10);
+   |
+
+error: Used type from the `std` that has an existing alternative from `bevy_platform`
+  --> tests/ui/bevy_platform_alternative_exists/main.rs:26:19
+   |
+26 |     let barrier = std::sync::Barrier::new(10);
+   |                   ^^^^^^^^^^^^^^^^^^
+   |
+help: the type `std::sync::Barrier` can be replaced with the `no_std` compatible type bevy::platform::sync::Barrier
+   |
+26 -     let barrier = std::sync::Barrier::new(10);
+26 +     let barrier = bevy::platform::sync::Barrier::new(10);
+   |
+
+error: Used type from the `std` that has an existing alternative from `bevy_platform`
+  --> tests/ui/bevy_platform_alternative_exists/main.rs:31:31
+   |
+31 |     let _barrier_wait_result: std::sync::BarrierWaitResult = barrier.wait();
+   |                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: the type `std::sync::BarrierWaitResult` can be replaced with the `no_std` compatible type bevy::platform::sync::BarrierWaitResult
+   |
+31 -     let _barrier_wait_result: std::sync::BarrierWaitResult = barrier.wait();
+31 +     let _barrier_wait_result: bevy::platform::sync::BarrierWaitResult = barrier.wait();
+   |
+
+error: Used type from the `std` that has an existing alternative from `bevy_platform`
+  --> tests/ui/bevy_platform_alternative_exists/main.rs:36:24
+   |
+36 |     let mut hash_set = std::collections::HashSet::new();
+   |                        ^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: the type `std::collections::HashSet` can be replaced with the `no_std` compatible type bevy::platform::collections::HashSet
+   |
+36 -     let mut hash_set = std::collections::HashSet::new();
+36 +     let mut hash_set = bevy::platform::collections::HashSet::new();
+   |
+
+error: Used type from the `std` that has an existing alternative from `bevy_platform`
+  --> tests/ui/bevy_platform_alternative_exists/main.rs:46:62
+   |
+46 |     let _declared_hash_map: std::collections::HashSet<u32> = std::collections::HashSet::new();
+   |                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: the type `std::collections::HashSet` can be replaced with the `no_std` compatible type bevy::platform::collections::HashSet
+   |
+46 -     let _declared_hash_map: std::collections::HashSet<u32> = std::collections::HashSet::new();
+46 +     let _declared_hash_map: std::collections::HashSet<u32> = bevy::platform::collections::HashSet::new();
+   |
+
+error: Used type from the `std` that has an existing alternative from `bevy_platform`
+  --> tests/ui/bevy_platform_alternative_exists/main.rs:46:29
+   |
+46 |     let _declared_hash_map: std::collections::HashSet<u32> = std::collections::HashSet::new();
+   |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: the type `std::collections::HashSet<u32>` can be replaced with the `no_std` compatible type bevy::platform::collections::HashSet::<u32>
+   |
+46 -     let _declared_hash_map: std::collections::HashSet<u32> = std::collections::HashSet::new();
+46 +     let _declared_hash_map: bevy::platform::collections::HashSet::<u32> = std::collections::HashSet::new();
+   |
+
+error: Used type from the `std` that has an existing alternative from `bevy_platform`
+  --> tests/ui/bevy_platform_alternative_exists/main.rs:51:17
+   |
+51 |     let _lazy = std::sync::LazyLock::new(|| "lazy");
+   |                 ^^^^^^^^^^^^^^^^^^^
+   |
+help: the type `std::sync::LazyLock` can be replaced with the `no_std` compatible type bevy::platform::sync::LazyLock
+   |
+51 -     let _lazy = std::sync::LazyLock::new(|| "lazy");
+51 +     let _lazy = bevy::platform::sync::LazyLock::new(|| "lazy");
+   |
+
+error: aborting due to 10 previous errors
 

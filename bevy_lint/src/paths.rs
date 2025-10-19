@@ -94,6 +94,7 @@ pub mod bevy_platform_types {
 
     use crate::sym;
 
+    pub static ARC: PathLookup = type_path!(std::sync::Arc);
     pub static BARRIER: PathLookup = type_path!(std::sync::Barrier);
     pub static BARRIERWAITRESULT: PathLookup = type_path!(std::sync::BarrierWaitResult);
     pub static HASHMAP: PathLookup = type_path!(std::collections::HashMap);

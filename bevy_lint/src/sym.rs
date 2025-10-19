@@ -58,7 +58,7 @@ use clippy_utils::sym::EXTRA_SYMBOLS as CLIPPY_SYMBOLS;
 /// These are symbols that we use but are already interned by either the compiler or Clippy.
 pub use clippy_utils::sym::filter;
 pub use rustc_span::sym::{
-    HashMap, HashSet, Instant, Mutex, MutexGuard, RwLock, RwLockReadGuard, RwLockWriteGuard,
+    Arc, HashMap, HashSet, Instant, Mutex, MutexGuard, RwLock, RwLockReadGuard, RwLockWriteGuard,
     SyncUnsafeCell, bevy_ecs, bundle, message, plugin, reflect, std, sync,
 };
 use rustc_span::{Symbol, symbol::PREDEFINED_SYMBOLS_COUNT};
