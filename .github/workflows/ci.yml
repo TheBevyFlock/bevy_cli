@@ -132,7 +132,7 @@ jobs:
 
       - name: Check for typos
         id: typos
-        uses: crate-ci/typos@v1.36.3
+        uses: crate-ci/typos@v1.38.1
 
       - name: Print help on failure
         if: ${{ failure() && steps.typos.conclusion == 'failure' }}
