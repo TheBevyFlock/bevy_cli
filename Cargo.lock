@@ -1415,9 +1415,9 @@ dependencies = [
 
 [[package]]
 name = "clap-cargo"
-version = "0.18.0"
+version = "0.18.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "85f1710adac227b75c1b1867b06b7a8f3e6b1b719d24605f7a0659fd65700e65"
+checksum = "e9c7f07f2b3c9fc1a21da5b4fa268083ac4d4d145a711b286055fdd70d149fcf"
 dependencies = [
  "anstyle",
  "clap",
