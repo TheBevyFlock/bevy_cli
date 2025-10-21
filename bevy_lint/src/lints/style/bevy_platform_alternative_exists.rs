@@ -1,3 +1,59 @@
+//! Checks for types from `std` that have an equivalent in `bevy_platform`.
+//!
+//! # Motivation
+//!
+//! `bevy_platform` helps with platform compatibility support by providing drop in replacements for
+//! the following types:
+//!
+//! - Arc,
+//! - Barrier,
+//! - BarrierWaitResult,
+//! - HashMap,
+//! - HashSet,
+//! - Instant,
+//! - LazyLock,
+//! - LockResult,
+//! - Mutex,
+//! - MutexGuard,
+//! - Once,
+//! - OnceLock,
+//! - OnceState,
+//! - PoisonError,
+//! - RwLock,
+//! - RwLockReadGuard,
+//! - RwLockWriteGuard,
+//! - SyncCell,
+//! - SyncUnsafeCell,
+//! - TryLockError,
+//! - TryLockResult,
+//!
+//!
+//! # Known Issues
+//!
+//! This lint does not currently support checking partial imported definitions. For example:
+//!
+//! ```
+//! use std::time;
+//!
+//! let now = time::Instant::now();
+//! ```
+//!
+//! Will not emit a lint.
+//!
+//! # Example
+//!
+//! ```
+//! use std::time::Instant;
+//! let now = Instant::now();
+//! ```
+//!
+//! Use instead:
+//!
+//! ```
+//! use bevy::platform::time::Instant;
+//! let now = Instant::now();
+//! ```
+
 use clippy_utils::{diagnostics::span_lint_and_sugg, is_from_proc_macro, source::snippet};
 use rustc_errors::Applicability;
 use rustc_hir::{
