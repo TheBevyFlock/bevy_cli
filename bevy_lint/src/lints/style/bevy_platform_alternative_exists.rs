@@ -20,7 +20,8 @@ declare_bevy_lint_pass! {
 
 impl<'tcx> LateLintPass<'tcx> for BevyPlatformAlternativeExists {
     fn check_path(&mut self, cx: &LateContext<'tcx>, path: &Path<'tcx>, _: HirId) {
-        if let Res::Def(def_kind, def_id) = path.res 
+        // Skip Resolutions that are not Structs for example: `use std::time`.
+        if let Res::Def(DefKind::Struct, def_id) = path.res 
             // Retrieve the first path segment, this could look like: `bevy`, `std`, `serde`.
             && let Some(first_segment) = get_first_segment(path)
             // Skip if this span originates from an external macro.
@@ -38,15 +39,6 @@ impl<'tcx> LateLintPass<'tcx> for BevyPlatformAlternativeExists {
             // Get potential generic arguments.
             && let Some(generic_args) = path.segments.last().map(|s| generic_args_snippet(cx, s))
         {
-
-            // Skip Resolutions that are modules for example: `use std::time`.
-            // This lint checks if a given Type from the `std` exists in `bevy_platform` and does not
-            // compare entire modules and getting the ty from a module DefId will result in a
-            // panic.
-            if DefKind::Mod == def_kind{
-                return;
-            }
-
             // Get the Ty of this Definition.
             let ty = cx.tcx.type_of(def_id).skip_binder();
             //Check if an alternative exists in `bevy_platform`.
