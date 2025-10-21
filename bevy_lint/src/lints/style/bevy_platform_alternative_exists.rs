@@ -6,7 +6,9 @@ use rustc_hir::{
 };
 use rustc_lint::{LateContext, LateLintPass};
 
-use crate::{declare_bevy_lint, declare_bevy_lint_pass, sym, utils::hir_parse::generic_args_snippet};
+use crate::{
+    declare_bevy_lint, declare_bevy_lint_pass, sym, utils::hir_parse::generic_args_snippet,
+};
 
 declare_bevy_lint! {
     pub(crate) BEVY_PLATFORM_ALTERNATIVE_EXISTS,
@@ -21,7 +23,7 @@ declare_bevy_lint_pass! {
 impl<'tcx> LateLintPass<'tcx> for BevyPlatformAlternativeExists {
     fn check_path(&mut self, cx: &LateContext<'tcx>, path: &Path<'tcx>, _: HirId) {
         // Skip Resolutions that are not Structs for example: `use std::time`.
-        if let Res::Def(DefKind::Struct, def_id) = path.res 
+        if let Res::Def(DefKind::Struct, def_id) = path.res
             // Retrieve the first path segment, this could look like: `bevy`, `std`, `serde`.
             && let Some(first_segment) = get_first_segment(path)
             // Skip if this span originates from an external macro.
@@ -41,7 +43,7 @@ impl<'tcx> LateLintPass<'tcx> for BevyPlatformAlternativeExists {
         {
             // Get the Ty of this Definition.
             let ty = cx.tcx.type_of(def_id).skip_binder();
-            //Check if an alternative exists in `bevy_platform`.
+            // Check if an alternative exists in `bevy_platform`.
             if let Some(bevy_platform_alternative) = BevyPlatformType::try_from_ty(cx, ty) {
                 span_lint_and_sugg(
                     cx,
@@ -51,9 +53,10 @@ impl<'tcx> LateLintPass<'tcx> for BevyPlatformAlternativeExists {
                     format!(
                         "the type `{}` can be replaced with the `no_std` compatible type {}{}",
                         snippet(cx.tcx.sess, path.span, ""),
-                        bevy_platform_alternative.full_path(),generic_args,
+                        bevy_platform_alternative.full_path(),
+                        generic_args,
                     ),
-                    format!("{}{}",bevy_platform_alternative.full_path(),generic_args),
+                    format!("{}{}", bevy_platform_alternative.full_path(), generic_args),
                     Applicability::MachineApplicable,
                 );
             }
