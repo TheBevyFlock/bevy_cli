@@ -1,6 +1,6 @@
 use std::{env, ffi::OsString};
 
-use clap::{ArgAction, Args};
+use clap::{ArgAction, Args, ValueEnum};
 
 use super::arg_builder::ArgBuilder;
 
@@ -146,6 +146,16 @@ impl CargoManifestArgs {
     }
 }
 
+#[derive(ValueEnum, Copy, Clone, Debug, PartialEq, Eq)]
+pub enum MessageFormat {
+    Human,
+    Short,
+    Json,
+    JsonDiagnosticShort,
+    JsonDiagnosticRenderedAnsi,
+    JsonRenderDiagnostics,
+}
+
 /// Common options available for `cargo` commands.
 #[derive(Debug, Args, Clone)]
 pub struct CargoCommonArgs {
@@ -156,6 +166,9 @@ pub struct CargoCommonArgs {
     /// This flag may be specified multiple times.
     #[clap(long = "config", value_name = "KEY=VALUE|PATH")]
     pub config: Vec<String>,
+    /// Error format
+    #[clap(long = "message-format", value_name = "FMT")]
+    pub message_format: Option<MessageFormat>,
     /// custom flags to pass to all compiler invocations
     #[arg(long = "rustflags", allow_hyphen_values = true)]
     pub rustflags: Option<String>,
@@ -168,6 +181,13 @@ impl CargoCommonArgs {
     pub(crate) fn args_builder(&self) -> ArgBuilder {
         ArgBuilder::new()
             .add_values_separately("--config", self.config.iter())
+            .add_opt_value(
+                "--message-format",
+                &self.message_format.and_then(|fmt| {
+                    fmt.to_possible_value()
+                        .map(|value| value.get_name().to_owned())
+                }),
+            )
             .add_values_separately("-Z", self.unstable_flags.iter())
     }
 }
