@@ -8,6 +8,7 @@
 //! - Arc,
 //! - Barrier,
 //! - BarrierWaitResult,
+//! - DefaultHasher,
 //! - HashMap,
 //! - HashSet,
 //! - Instant,
@@ -19,13 +20,14 @@
 //! - OnceLock,
 //! - OnceState,
 //! - PoisonError,
+//! - RandomState,
 //! - RwLock,
 //! - RwLockReadGuard,
 //! - RwLockWriteGuard,
 //! - SyncCell,
 //! - SyncUnsafeCell,
 //! - TryLockError,
-//! - TryLockResult,
+//! - TryLockResult
 //!
 //!
 //! # Known Issues
@@ -188,6 +190,7 @@ declare_bevy_platform_types! {
     Arc("sync") => ARC,
     Barrier("sync") => BARRIER,
     BarrierWaitResult("sync") => BARRIERWAITRESULT,
+    DefaultHasher("hash") => DEFAULTHASHER,
     HashMap("collections") => HASHMAP,
     HashSet("collections") => HASHSET,
     Instant("time") => INSTANT,
@@ -199,6 +202,7 @@ declare_bevy_platform_types! {
     OnceLock("sync") => ONCELOCK,
     OnceState("sync") => ONCESTATE,
     PoisonError("sync") => POISONERROR,
+    RandomState("hash") => RANDOMSTATE,
     RwLock("sync") => RWLOCK,
     RwLockReadGuard("sync") => RWLOCKREADGUARD,
     RwLockWriteGuard("sync") => RWLOCKWRITEGUARD,

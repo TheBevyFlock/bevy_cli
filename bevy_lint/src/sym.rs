@@ -59,7 +59,7 @@ use clippy_utils::sym::EXTRA_SYMBOLS as CLIPPY_SYMBOLS;
 pub use clippy_utils::sym::filter;
 pub use rustc_span::sym::{
     Arc, HashMap, HashSet, Instant, Mutex, MutexGuard, RwLock, RwLockReadGuard, RwLockWriteGuard,
-    SyncUnsafeCell, bevy_ecs, bundle, message, plugin, reflect, std, sync,
+    SyncUnsafeCell, bevy_ecs, bundle, hash, message, plugin, reflect, std, sync,
 };
 use rustc_span::{Symbol, symbol::PREDEFINED_SYMBOLS_COUNT};
 
@@ -139,6 +139,7 @@ declare_bevy_symbols! {
     Commands,
     component,
     Component,
+    DefaultHasher,
     Deferred,
     deferred_world,
     DeferredWorld,
@@ -155,17 +156,23 @@ declare_bevy_symbols! {
     insert_resource,
     iter_current_update_messages,
     LazyLock,
+    LockResult,
     main_schedule,
     Message,
     Messages,
     Mut,
     MutUntyped,
     NonSendMut,
+    Once,
+    OnceLock,
+    OnceState,
     PartialReflect,
     Plugin,
+    PoisonError,
     PtrMut,
     query,
     Query,
+    RandomState,
     Reflect,
     related_methods,
     RelatedSpawner,
@@ -182,17 +189,12 @@ declare_bevy_symbols! {
     system_param,
     SystemSet,
     time,
+    TryLockError,
+    TryLockResult,
     Update,
     With,
     world,
     World,
-    Once,
-    OnceLock,
-    OnceState,
-    LockResult,
-    PoisonError,
-    TryLockError,
-    TryLockResult,
 }
 
 /// Returns a list of strings that should be supplied to
