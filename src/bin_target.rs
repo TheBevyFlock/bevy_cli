@@ -7,30 +7,9 @@ pub struct BinTarget<'p> {
     /// The package containing the binary.
     pub package: &'p Package,
     /// The path to the directory in `target` which contains the binary.
-    // Only used with `web` feature, but cfg-ing it out adds too much boilerplate
-    #[allow(dead_code)]
     pub artifact_directory: PathBuf,
     /// The name of the binary (without any extensions).
-    // Only used with `web` feature, but cfg-ing it out adds too much boilerplate
-    #[allow(dead_code)]
     pub bin_name: String,
-}
-
-impl BinTarget<'_> {
-    pub fn update_artifact_directory(
-        &mut self,
-        target_directory: impl Into<PathBuf>,
-        compile_target: Option<&str>,
-        compile_profile: &str,
-        is_example: bool,
-    ) {
-        self.artifact_directory = get_artifact_directory(
-            target_directory,
-            compile_target,
-            compile_profile,
-            is_example,
-        );
-    }
 }
 
 /// Determine which binary target should be run.
