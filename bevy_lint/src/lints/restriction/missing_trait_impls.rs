@@ -43,12 +43,13 @@ impl<'tcx> LateLintPass<'tcx> for MissingTraitImpls {
 
             let def_id = component.hir_id.expect_owner().to_def_id();
 
-            // Skip binder as we are not interested in the generics
+            // Skip binder as unit types cannot have generics.
             let ty = cx.tcx.type_of(def_id).skip_binder();
 
             for trait_to_implement in Trait::all() {
                 // get the def_id of the trait that should be implement for unit structures.
                 if let Some(trait_def_id) = trait_to_implement.get_def_id(cx)
+                    // Unit types cannot have generic arguments, so we don't need to pass any in.
                     && !implements_trait(cx, ty, trait_def_id, &[])
                 {
                     // Find the `Item` definition of the Component missing the trait derive.
