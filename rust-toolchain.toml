@@ -9,4 +9,4 @@ channel = "nightly-2025-09-18"
 
 # These components are required to use `rustc` crates. Note that we use the Regex
 # `^components = \[(.*)\]$` to match this line, so be wary when changing its formatting.
-components = ["rustc-dev", "llvm-tools-preview"]
+components = ["rustc-dev", "llvm-tools"]
