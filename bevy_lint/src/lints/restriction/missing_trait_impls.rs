@@ -41,7 +41,7 @@ impl<'tcx> LateLintPass<'tcx> for MissingTraitImpls {
                 continue;
             }
 
-            let def_id = component.hir_id.owner.to_def_id();
+            let def_id = component.hir_id.expect_owner().to_def_id();
 
             // Skip binder as we are not interested in the generics
             let ty = cx.tcx.type_of(def_id).skip_binder();
