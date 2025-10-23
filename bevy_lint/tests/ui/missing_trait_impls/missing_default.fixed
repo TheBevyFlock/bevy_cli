@@ -34,6 +34,7 @@ pub struct ComponentWithFields(#[allow(dead_code)] f32);
 // This should not raise an ERROR, since this struct does not implement `Component`.
 pub struct Foo;
 
-#[derive(Component)]
 #[allow(bevy::missing_default)]
+// This should not raise an ERROR, since the lint is silenced.
+#[derive(Component)]
 pub struct AllowMissingDefault;
