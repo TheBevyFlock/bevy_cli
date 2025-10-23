@@ -30,8 +30,7 @@ declare_bevy_lint_pass! {
 impl<'tcx> LateLintPass<'tcx> for MissingTraitImpls {
     fn check_crate(&mut self, cx: &LateContext<'tcx>) {
         // Finds all types that implement `Component` in this crate.
-        let components: Vec<TraitType> =
-            TraitType::from_local_crate(cx, &crate::paths::COMPONENT).collect();
+        let components = TraitType::from_local_crate(cx, &crate::paths::COMPONENT);
 
         for component in components {
             // Skip if a types originates from a foreign crate's macro
