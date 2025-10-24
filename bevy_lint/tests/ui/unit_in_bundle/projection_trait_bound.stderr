@@ -1,0 +1,15 @@
+error: created a `Bundle` containing a unit `()`
+  --> tests/ui/unit_in_bundle/projection_trait_bound.rs:43:37
+   |
+43 |     take_with_bundle(FooWithBundle, ());
+   |                                     ^^
+   |
+   = note: units `()` are not `Component`s and will be skipped
+note: the lint level is defined here
+  --> tests/ui/unit_in_bundle/projection_trait_bound.rs:7:9
+   |
+ 7 | #![deny(bevy::unit_in_bundle)]
+   |         ^^^^^^^^^^^^^^^^^^^^
+
+error: aborting due to 1 previous error
+
