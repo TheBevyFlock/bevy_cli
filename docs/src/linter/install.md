@@ -18,12 +18,12 @@ bevy lint install --yes v0.4.0
 
 ## Manual with Rustup
 
-`bevy_lint` requires a specific nightly Rust toolchain with the `rustc-dev` and `llvm-tools-preview` components. You can install the toolchain required for the latest release with:
+`bevy_lint` requires a specific nightly Rust toolchain with the `rustc-dev` and `llvm-tools` components. You can install the toolchain required for the latest release with:
 
 ```sh
 rustup toolchain install nightly-2025-06-26 \
     --component rustc-dev \
-    --component llvm-tools-preview
+    --component llvm-tools
 ```
 
 If you are installing a different version of the linter, you may need to install a different nightly toolchain as specified by the [compatibility table](compatibility.md). Please be aware that you must keep this toolchain installed for `bevy_lint` to function[^keep-toolchain-installed].
@@ -44,7 +44,7 @@ If you're installing a different version of the linter, you may need to switch t
 
 ## Manual without Rustup
 
-It is possible to use the linter without Rustup, however it requires some extra steps. First, you'll need to install the required nightly Rust toolchain (check the [compatibility table](compatibility.md)) through some other means. If you're using Nix, for example, you would use a [Rust overlay](https://nixos.wiki/wiki/Rust#Unofficial_overlays) to do this. Make sure to also install the `rustc-dev` and `llvm-tools-preview` components for the toolchain.
+It is possible to use the linter without Rustup, however it requires some extra steps. First, you'll need to install the required nightly Rust toolchain (check the [compatibility table](compatibility.md)) through some other means. If you're using Nix, for example, you would use a [Rust overlay](https://nixos.wiki/wiki/Rust#Unofficial_overlays) to do this. Make sure to also install the `rustc-dev` and `llvm-tools` components for the toolchain.
 
 Once you've installed the toolchain and components, use that toolchain's `cargo` to build the linter:
 
