@@ -11,7 +11,7 @@ use rustc_lint::{Level, Lint, LintStore};
 use crate::lint::LintGroup;
 
 pub mod missing_reflect;
-pub mod missing_trait_impls;
+pub mod missing_trait_for_unit_struct;
 pub mod panicking_methods;
 pub mod schedule;
 
@@ -22,9 +22,9 @@ impl LintGroup for Restriction {
     const LEVEL: Level = Level::Allow;
     const LINTS: &[&Lint] = &[
         missing_reflect::MISSING_REFLECT,
-        missing_trait_impls::MISSING_CLONE,
-        missing_trait_impls::MISSING_COPY,
-        missing_trait_impls::MISSING_DEFAULT,
+        missing_trait_for_unit_struct::MISSING_CLONE,
+        missing_trait_for_unit_struct::MISSING_COPY,
+        missing_trait_for_unit_struct::MISSING_DEFAULT,
         panicking_methods::PANICKING_METHODS,
         schedule::FIXED_UPDATE_SCHEDULE,
         schedule::UPDATE_SCHEDULE,
@@ -32,7 +32,9 @@ impl LintGroup for Restriction {
 
     fn register_passes(store: &mut LintStore) {
         store.register_late_pass(|_| Box::new(missing_reflect::MissingReflect));
-        store.register_late_pass(|_| Box::new(missing_trait_impls::MissingTraitImpls));
+        store.register_late_pass(|_| {
+            Box::new(missing_trait_for_unit_struct::MissingTraitForUnitStruct)
+        });
         store.register_late_pass(|_| Box::new(panicking_methods::PanickingMethods));
         store.register_late_pass(|_| Box::new(schedule::Schedule));
     }

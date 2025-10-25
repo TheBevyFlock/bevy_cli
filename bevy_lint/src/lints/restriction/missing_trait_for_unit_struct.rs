@@ -24,10 +24,10 @@ declare_bevy_lint! {
 }
 
 declare_bevy_lint_pass! {
-    pub(crate) MissingTraitImpls => [MISSING_DEFAULT,MISSING_CLONE,MISSING_COPY],
+    pub(crate) MissingTraitForUnitStruct => [MISSING_DEFAULT,MISSING_CLONE,MISSING_COPY],
 }
 
-impl<'tcx> LateLintPass<'tcx> for MissingTraitImpls {
+impl<'tcx> LateLintPass<'tcx> for MissingTraitForUnitStruct {
     fn check_crate(&mut self, cx: &LateContext<'tcx>) {
         // Finds all types that implement `Component` in this crate.
         let components = TraitType::from_local_crate(cx, &crate::paths::COMPONENT);
