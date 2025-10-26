@@ -3,32 +3,24 @@
 //~v NOTE: the lint level is defined here
 #![deny(bevy::missing_copy)]
 
-use bevy::prelude::*;
-
-//~v NOTE: `Component` implemented here
-#[derive(Component, Clone)]
+#[derive(Clone)]
 //~| HELP: `Copy` can be automatically derived
 //~v ERROR: defined a unit struct without a `Copy` implementation
 pub struct IsDefaultUiCamera;
 
 // This should not raise an ERROR, since `Copy` is derived.
-#[derive(Component, Copy, Clone)]
+#[derive(Copy, Clone)]
 pub struct DeriveCopy;
 
 // This should not raise an ERROR, since `Copy` is implemented.
-#[derive(Component, Clone)]
+#[derive(Clone)]
 pub struct ImplCopy;
 
 impl Copy for ImplCopy {}
 
 // This should not raise an ERROR, since this is not a unit struct.
-#[derive(Component)]
 pub struct ComponentWithFields(#[allow(dead_code)] f32);
-
-// This should not raise an ERROR, since this struct does not implement `Component`.
-pub struct Foo;
 
 #[allow(bevy::missing_copy)]
 // This should not raise an ERROR, since the lint is silenced.
-#[derive(Component)]
 pub struct AllowMissingCopy;
