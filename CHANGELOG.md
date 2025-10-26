@@ -11,6 +11,10 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 
 **All Changes**: [`cli-v0.1.0-alpha.2...main`](https://github.com/TheBevyFlock/bevy_cli/compare/cli-v0.1.0-alpha.2...main)
 
+### Changed
+
+- In web builds, the canvas now resizes to fill the webpage. This change will not affect projects that use a custom `index.html` file.
+
 ## v0.1.0-alpha.2 - 2025-09-22
 
 **All Changes**: [`cli-v0.1.0-alpha.1...cli-v0.1.0-alpha.2`](https://github.com/TheBevyFlock/bevy_cli/compare/cli-v0.1.0-alpha.1...cli-v0.1.0-alpha.2)
@@ -34,7 +38,6 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 
 ### Changed
 
-- In web builds, the canvas now resizes to fill the webpage. This change will not affect projects that use a custom `index.html` file.
 - The CLI no longer uses `cargo-generate` as a library dependency. Instead, if you don't have the `cargo-generate` executable installed, the CLI will ask to automatically install it for you when you first run `bevy new` ([#597](https://github.com/TheBevyFlock/bevy_cli/pull/597))
   - This makes it slightly more challenging to use `bevy new`, but it significantly decreases compilation times for the CLI (up to 3x!) and allows passing more options to `cargo-generate`.
 - When building a project, the CLI can now load the `assets` and `web` folders next to the crate `Cargo.toml`, rather than just the workspace `Cargo.toml`. Crate-specific folders will be prioritized over workspace folders ([#485](https://github.com/TheBevyFlock/bevy_cli/pull/485), [#490](https://github.com/TheBevyFlock/bevy_cli/pull/490))
