@@ -1,3 +1,23 @@
+//! Checks for unit structs that do not  implement `Copy`, `Clone` or `Default`.
+//!
+//! # Motivation
+//!
+//! This is mainly useful for the Bevy engine itself to ensure a consistent API. For example
+//! in order to use a component with required components the component needs to implement
+//! `Default`.
+//!
+//! # Example
+//!
+//! ```
+//! struct UnitStruct;
+//! ```
+//!
+//! Use instead:
+//!
+//! ```
+//! #[derive(Copy,Clone,Default)]
+//! struct MyComponent;
+//! ```
 use clippy_utils::{diagnostics::span_lint_hir_and_then, sugg::DiagExt, ty::implements_trait};
 use rustc_errors::Applicability;
 use rustc_hir::{Item, ItemKind, def_id::DefId};
