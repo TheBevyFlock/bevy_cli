@@ -1,8 +1,8 @@
 //! All lints offered by `bevy_lint`, organized by lint group.
 //!
 //! Each module contains the lints for that lint group. [`suspicious`], for example, contains the
-//! documentation for [`suspicious::insert_event_resource`] and
-//! [`suspicious::iter_current_update_events`], since they are both within the `bevy::suspicious`
+//! documentation for [`suspicious::insert_message_resource`] and
+//! [`suspicious::iter_current_update_messages`], since they are both within the `bevy::suspicious`
 //! lint group.
 //!
 //! Just like lints, [lint groups that can be toggled together]. The following lint groups are
