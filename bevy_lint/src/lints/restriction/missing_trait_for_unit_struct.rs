@@ -18,9 +18,9 @@
 //! #[derive(Copy,Clone,Default)]
 //! struct MyComponent;
 //! ```
-use clippy_utils::{diagnostics::span_lint_hir_and_then, sugg::DiagExt, ty::implements_trait};
+use clippy_utils::{diagnostics::span_lint_and_then, sugg::DiagExt, ty::implements_trait};
 use rustc_errors::Applicability;
-use rustc_hir::{Item, ItemKind, def_id::DefId};
+use rustc_hir::{Item, ItemKind, VariantData, def_id::DefId};
 use rustc_lint::{LateContext, LateLintPass, Lint};
 
 use crate::{declare_bevy_lint, declare_bevy_lint_pass};
@@ -60,7 +60,7 @@ impl<'tcx> LateLintPass<'tcx> for MissingTraitForUnitStruct {
         };
 
         // Check if the struct is a unit struct (contains no fields).
-        if !data.fields().is_empty() {
+        if !matches!(data, VariantData::Unit(..)) {
             return;
         }
 
@@ -73,11 +73,10 @@ impl<'tcx> LateLintPass<'tcx> for MissingTraitForUnitStruct {
                     // Unit types cannot have generic arguments, so we don't need to pass any in.
                     && !implements_trait(cx, ty, trait_def_id, &[])
             {
-                span_lint_hir_and_then(
+                span_lint_and_then(
                     cx,
                     trait_to_implement.lint(),
                     // This tells `rustc` where to search for `#[allow(...)]` attributes.
-                    item.hir_id(),
                     item.span,
                     format!(
                         "defined a unit struct without a `{}` implementation",

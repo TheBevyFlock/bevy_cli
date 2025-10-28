@@ -25,6 +25,14 @@ impl Default for ImplDefault {
 // This should not raise an ERROR, since this is not a unit struct.
 pub struct ComponentWithFields(#[allow(dead_code)] f32);
 
+// This should not raise an ERROR, since this is not a unit struct.
+#[allow(dead_code)]
+struct Foo();
+
+// This should not raise an ERROR, since this is not a unit struct.
+#[allow(dead_code)]
+struct Bar {}
+
 #[allow(bevy::missing_default)]
 // This should not raise an ERROR, since the lint is silenced.
 pub struct AllowMissingDefault;
