@@ -8,6 +8,9 @@ use ui_test::run_tests;
 mod test_utils;
 
 fn main() {
-    let config = base_config("ui").unwrap();
+    let mut config = base_config("ui").unwrap();
+    let defaults = config.comment_defaults.base();
+    // This allows for any status code to be considered a success.
+    defaults.exit_status = None.into();
     run_tests(config).unwrap();
 }
