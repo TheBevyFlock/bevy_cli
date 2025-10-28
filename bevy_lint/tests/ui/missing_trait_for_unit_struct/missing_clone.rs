@@ -1,0 +1,36 @@
+#![feature(register_tool)]
+#![register_tool(bevy)]
+//~v NOTE: the lint level is defined here
+#![deny(bevy::missing_clone)]
+
+//~| HELP: `Clone` can be automatically derived
+//~v ERROR: defined a unit struct without a `Clone` implementation
+pub struct IsDefaultUiCamera;
+
+// This should not raise an ERROR, since `Clone` is derived.
+#[derive(Clone)]
+pub struct DeriveClone;
+
+// This should not raise an ERROR, since `Clone` is implemented.
+pub struct ImplClone;
+
+impl Clone for ImplClone {
+    fn clone(&self) -> Self {
+        ImplClone
+    }
+}
+
+// This should not raise an ERROR, since this is not a unit struct.
+pub struct ComponentWithFields(#[allow(dead_code)] f32);
+
+// This should not raise an ERROR, since this is not a unit struct.
+#[allow(dead_code)]
+struct Foo();
+
+// This should not raise an ERROR, since this is not a unit struct.
+#[allow(dead_code)]
+struct Bar {}
+
+#[allow(bevy::missing_clone)]
+// This should not raise an ERROR, since the lint is silenced.
+pub struct AllowMissingClone;
