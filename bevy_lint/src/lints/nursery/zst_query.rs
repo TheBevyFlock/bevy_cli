@@ -55,9 +55,10 @@ use rustc_abi::Size;
 use rustc_hir::AmbigArg;
 use rustc_lint::{LateContext, LateLintPass};
 use rustc_middle::ty::{
-    Ty,
+    AssocTag, Ty,
     layout::{LayoutOf, TyAndLayout},
 };
+use rustc_type_ir::fast_reject::SimplifiedType;
 
 use crate::{
     declare_bevy_lint, declare_bevy_lint_pass,
@@ -81,6 +82,7 @@ impl<'tcx> LateLintPass<'tcx> for ZstQuery {
         if hir_ty.span.in_external_macro(cx.tcx.sess.source_map()) {
             return;
         }
+
         let ty = ty_from_hir_ty(cx, hir_ty.as_unambig_ty());
 
         let Some(query_kind) = QueryKind::try_from_ty(cx, ty) else {
@@ -93,6 +95,39 @@ impl<'tcx> LateLintPass<'tcx> for ZstQuery {
 
         for hir_ty in detuple(*query_data_ty) {
             let ty = ty_from_hir_ty(cx, &hir_ty);
+
+            // Get the `DefId` of the `QueryData` trait.
+            let Some(query_data_def_id) = crate::paths::QUERYDATA.get(cx).first() else {
+                return;
+            };
+
+            // We are looking for the `DefId` that matches the impl block for `QueryData`
+            // for our `Ty`.
+            let non_blanket_impls = cx.tcx.trait_impls_of(query_data_def_id).non_blanket_impls();
+
+            let impl_def_id = non_blanket_impls.iter().find_map(|(simplified, def_id)| {
+                if let SimplifiedType::Adt(simplified_adt_def_id) = simplified
+                    && let Some(adt_def) = ty.ty_adt_def()
+                    && *simplified_adt_def_id == adt_def.did()
+                {
+                    return def_id.first();
+                }
+                None
+            });
+
+            let ty = if let Some(impl_def_id) = impl_def_id
+            // Search for the associated item: `type Item<'w, 's>`.
+                && let Some(assoc_item) = cx
+                    .tcx
+                    .associated_items(impl_def_id)
+                    .filter_by_name_unhygienic_and_kind(crate::sym::Item, AssocTag::Type)
+                    .nth(0)
+            {
+                // If the item exists, replace the generic placeholders.
+                cx.tcx.type_of(assoc_item.def_id).instantiate_identity()
+            } else {
+                ty.peel_refs()
+            };
 
             // We want to make sure we're evaluating `Foo` and not `&Foo`/`&mut Foo`
             let peeled = ty.peel_refs();

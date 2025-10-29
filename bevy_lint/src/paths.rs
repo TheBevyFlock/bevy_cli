@@ -66,6 +66,8 @@ pub static PLUGIN: PathLookup = type_path!(bevy_app::plugin::Plugin);
 pub static PTR_MUT: PathLookup = type_path!(bevy_ptr::PtrMut);
 /// <https://github.com/bevyengine/bevy/blob/v0.17.0-rc.1/crates/bevy_ecs/src/system/query.rs#L485>
 pub static QUERY: PathLookup = type_path!(bevy_ecs::system::query::Query);
+/// <https://github.com/bevyengine/bevy/blob/v0.17.2/crates/bevy_ecs/src/query/fetch.rs#L283>
+pub static QUERYDATA: PathLookup = type_path!(bevy_ecs::query::QueryData);
 /// <https://github.com/bevyengine/bevy/blob/v0.17.0-rc.1/crates/bevy_reflect/src/reflect.rs#L415>
 pub static REFLECT: PathLookup = type_path!(bevy_reflect::reflect::Reflect);
 /// <https://github.com/bevyengine/bevy/blob/v0.17.0-rc.1/crates/bevy_ecs/src/relationship/related_methods.rs#L565>
