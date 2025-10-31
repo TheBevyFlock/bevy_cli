@@ -190,3 +190,43 @@ pub fn extra_symbols() -> Vec<&'static str> {
 
     symbols
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn check_for_duplicate_symbols() {
+        rustc_span::create_session_globals_then(
+            rustc_lint_defs::Edition::Edition2024,
+            CLIPPY_SYMBOLS,
+            None,
+            || {
+                const UNIQUE_STRING: &str = "\
+This is a string that we can be reasonably confident will not be in the interner ahead of time.
+The interner allocates symbol IDs from 0 upwards. By interning a new string that the interner
+hasn't seen before, we can find the largest symbol ID. For example, if there are 10 symbols in the
+interner with IDs `0..=9`, inserting this string will return a symbol with ID 10. This lets us loop
+through all symbols pre-interned by the Rust compiler and Clippy linter! :)";
+
+                let upper_symbol = Symbol::intern(UNIQUE_STRING);
+
+                let mut duplicate_symbols = Vec::new();
+
+                for i in 0..upper_symbol.as_u32() {
+                    let symbol = Symbol::new(i);
+                    let symbol_str = symbol.as_str();
+
+                    if BEVY_SYMBOLS.contains(&symbol_str) {
+                        duplicate_symbols.push(symbol_str.to_string());
+                    }
+                }
+
+                assert!(
+                    duplicate_symbols.is_empty(),
+                    "`BEVY_SYMBOLS` should not introduce symbols already added by the Rust compiler or Clippy. The following duplicate symbols were found: {duplicate_symbols:?}",
+                );
+            },
+        );
+    }
+}
