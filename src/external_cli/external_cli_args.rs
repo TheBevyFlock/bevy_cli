@@ -38,8 +38,8 @@ impl ExternalCliArgs {
     #[cfg(feature = "web")]
     pub fn to_raw(&self) -> Vec<String> {
         match self {
-            Self::Enabled(true) => vec!["true".to_string()],
-            Self::Enabled(false) => vec!["false".to_string()],
+            Self::Enabled(true) => vec!["true".to_owned()],
+            Self::Enabled(false) => vec!["false".to_owned()],
             Self::Args(args) => args.clone(),
         }
     }
@@ -52,25 +52,25 @@ mod tests {
 
     #[test]
     fn should_parse_true() {
-        let args = vec!["true".to_string()];
+        let args = vec!["true".to_owned()];
         let parsed = ExternalCliArgs::from_raw_args(args);
         assert!(matches!(parsed, ExternalCliArgs::Enabled(true)));
     }
 
     #[test]
     fn should_parse_false() {
-        let args = vec!["false".to_string()];
+        let args = vec!["false".to_owned()];
         let parsed = ExternalCliArgs::from_raw_args(args);
         assert!(matches!(parsed, ExternalCliArgs::Enabled(false)));
     }
 
     #[test]
     fn should_parse_args() {
-        let args = vec!["arg1".to_string(), "arg2".to_string()];
+        let args = vec!["arg1".to_owned(), "arg2".to_owned()];
         let parsed = ExternalCliArgs::from_raw_args(args);
         assert!(matches!(
             parsed,
-            ExternalCliArgs::Args(ref args) if args == &["arg1".to_string(), "arg2".to_string()]
+            ExternalCliArgs::Args(ref args) if args == &["arg1".to_owned(), "arg2".to_owned()]
         ));
     }
 }

@@ -259,7 +259,7 @@ fn extract_features(cli_metadata: &Map<String, Value>) -> anyhow::Result<Vec<Str
             .map(|value| {
                 value
                     .as_str()
-                    .map(|str| str.to_string())
+                    .map(|str| str.to_owned())
                     .ok_or_else(|| anyhow::anyhow!("each feature must be a string"))
             })
             .collect(),
@@ -304,7 +304,7 @@ fn extract_headers(cli_metadata: &Map<String, Value>) -> anyhow::Result<Vec<Stri
             .map(|value| {
                 value
                     .as_str()
-                    .map(|str| str.to_string())
+                    .map(|str| str.to_owned())
                     .ok_or_else(|| anyhow::anyhow!("each header must be a string"))
             })
             .collect(),
@@ -405,7 +405,6 @@ impl Display for CliConfig {
             f,
             "{}",
             document
-                .to_string()
                 // Remove trailing newline
                 .trim_end()
                 .lines()
@@ -456,9 +455,9 @@ mod tests {
                     ],
                     default_features: Some(false),
                     rustflags: vec![
-                        "-C opt-level=2".to_string(),
-                        "--cfg".to_string(),
-                        "getrandom_backend=\"wasm_js\"".to_string()
+                        "-C opt-level=2".to_owned(),
+                        "--cfg".to_owned(),
+                        "getrandom_backend=\"wasm_js\"".to_owned()
                     ],
                     wasm_opt: None,
                     web_multi_threading: None,
@@ -502,7 +501,7 @@ mod tests {
                         "native-release".to_owned()
                     ],
                     default_features: Some(false),
-                    rustflags: vec!["-C opt-level=2".to_string(), "-C debuginfo=1".to_string()],
+                    rustflags: vec!["-C opt-level=2".to_owned(), "-C debuginfo=1".to_owned()],
                     wasm_opt: None,
                     web_multi_threading: None,
                     headers: Vec::new()
@@ -617,7 +616,7 @@ mod tests {
             cli_metadata.insert("target".to_owned(), "wasm32v1-none".into());
             assert_eq!(
                 extract_target(&cli_metadata)?,
-                Some("wasm32v1-none".to_string())
+                Some("wasm32v1-none".to_owned())
             );
             Ok(())
         }
@@ -625,7 +624,7 @@ mod tests {
         #[test]
         fn should_return_error_if_target_is_not_a_string() {
             let mut cli_metadata = Map::new();
-            cli_metadata.insert("target".to_string(), 32.into());
+            cli_metadata.insert("target".to_owned(), 32.into());
             assert!(extract_target(&cli_metadata).is_err());
         }
     }
@@ -657,7 +656,7 @@ mod tests {
         fn should_return_error_if_one_feature_is_not_a_string() {
             let mut cli_metadata = Map::new();
             cli_metadata.insert(
-                "features".to_string(),
+                "features".to_owned(),
                 vec![
                     Value::String("dev".to_owned()),
                     Value::Bool(false),
@@ -706,7 +705,7 @@ mod tests {
         fn should_return_error_if_one_feature_is_not_a_string() {
             let mut cli_metadata = Map::new();
             cli_metadata.insert(
-                "headers".to_string(),
+                "headers".to_owned(),
                 vec![
                     Value::String("Cross-Origin-Opener-Policy:same-origin".to_owned()),
                     Value::Bool(false),
