@@ -3,7 +3,7 @@ use std::{
     process::{Command, Stdio},
 };
 
-use ui_test::{CommandBuilder, Config, run_tests};
+use ui_test::{CommandBuilder, Config, dependencies::DependencyBuilder, run_tests};
 
 // This is set by Cargo to the absolute path of `bevy_lint_driver`.
 const DRIVER_PATH: &str = env!("CARGO_BIN_EXE_bevy_lint_driver");
@@ -17,7 +17,7 @@ fn main() {
         driver_path.display(),
     );
 
-    let config = Config {
+    let mut config = Config {
         // We need to specify the host tuple manually, because if we don't then `ui_test` will try
         // running `bevy_lint_driver -vV` to discover the host and promptly error because it
         // doesn't realize `bevy_lint_driver` expects its first argument to be the path to `rustc`.
@@ -33,7 +33,6 @@ fn main() {
                 "rustc".into(),
                 // This is required so that `ui_test` can parse warnings and errors.
                 "--error-format=json".into(),
-                todo!("include bevy dependencies"),
             ],
             out_dir_flag: Some("--out-dir".into()),
             input_file_flag: None,
@@ -43,6 +42,14 @@ fn main() {
         out_dir: PathBuf::from("../target/ui"),
         ..Config::rustc(Path::new("tests/ui"))
     };
+
+    // Give UI tests access to all crate dependencies in the `dependencies` folder. This lets UI
+    // tests import `bevy`.
+    let revisioned = config.comment_defaults.base();
+    revisioned.set_custom("dependencies", DependencyBuilder {
+        crate_manifest_path: PathBuf::from("tests/dependencies/Cargo.toml"),
+        ..Default::default()
+    });
 
     run_tests(config).unwrap();
 }

@@ -53,13 +53,6 @@ toml = { version = "0.9.8", default-features = false, features = [
 ] }
 
 [dev-dependencies]
-# Used when running UI tests.
-bevy = { version = "0.17.2", default-features = false, features = [
-    "std",
-    # used for the `camera_modification_in_fixed_update` lint
-    "bevy_render",
-] }
-
 # Used to deserialize `--message-format=json` messages from Cargo.
 serde_json = "1.0.145"
 
