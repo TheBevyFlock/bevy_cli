@@ -4,7 +4,7 @@ use std::{
     process::{Command, Stdio},
 };
 
-use ui_test::{CommandBuilder, Config, status_emitter};
+use ui_test::{CommandBuilder, Config, OptWithLine, status_emitter};
 
 // This is set by Cargo to the absolute paths of `bevy_lint` and `bevy_lint_driver`.
 const LINTER_PATH: &str = env!("CARGO_BIN_EXE_bevy_lint");
@@ -36,11 +36,20 @@ fn main() {
     };
 
     let defaults = config.comment_defaults.base();
-    // The driver returns a '101' on error.
-    // This allows for any status code to be considered a success.
-    defaults.exit_status = None.into();
-
     defaults.require_annotations = None.into();
+
+    // Create the `#@exit-status: CODE` annotation. This can be used to ensure a UI test exits with
+    // a specific exit code (e.g. `bevy_lint` exits with code 101 when a denied lint is found).
+    config
+        .custom_comments
+        .insert("exit-status", |parser, args, _span| {
+            parser.exit_status = OptWithLine::new(
+                args.content
+                    .parse()
+                    .expect("expected `i32` as input for `exit-status`"),
+                args.span,
+            );
+        });
 
     // Run this `Config` for all paths that end with `Cargo.toml` resulting
     // only in the `Cargo` lints.

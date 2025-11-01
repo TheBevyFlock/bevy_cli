@@ -1,3 +1,5 @@
+#@exit-status: 101
+
 [package]
 name = "multiple-bevy-versions"
 publish = false
