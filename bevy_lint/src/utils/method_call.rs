@@ -199,8 +199,6 @@ impl<'tcx> MethodCall<'tcx> {
                                     "found a function call path with no segments",
                                 )
                             }
-                            // Lang items are not supported.
-                            QPath::LangItem(_, _) => return None,
                         };
 
                         // Match the first argument as `receiver`, then group the rest into the
