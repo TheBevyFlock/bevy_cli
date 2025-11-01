@@ -226,7 +226,7 @@ through all symbols pre-interned by the Rust compiler and Clippy linter! :)";
                     // binary search for it, as `BEVY_SYMBOLS` is guaranteed to be sorted.
                     if BEVY_SYMBOLS.binary_search(&symbol_str).is_ok() {
                         // `BEVY_SYMBOLS` contains a duplicate, keep track of that.
-                        duplicate_symbols.push(symbol_str.to_string());
+                        duplicate_symbols.push(symbol_str.to_owned());
                     }
                 }
 
