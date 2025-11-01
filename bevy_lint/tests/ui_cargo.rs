@@ -2,12 +2,14 @@
 // statements together with `&&`. This feature flag is needed in all integration tests that use the
 // test_utils module, since each integration test is compiled independently.
 
-use std::env;
+use std::{env, path::{Path, PathBuf}};
 
-use test_utils::base_config;
-use ui_test::{CommandBuilder, status_emitter};
+use ui_test::{CommandBuilder, Config, status_emitter};
 
-mod test_utils;
+// This is set by Cargo to the absolute paths of `bevy_lint` and `bevy_lint_driver`.
+const LINTER_PATH: &str = env!("CARGO_BIN_EXE_bevy_lint");
+const DRIVER_PATH: &str = env!("CARGO_BIN_EXE_bevy_lint_driver");
+
 /// This [`Config`] will run the `bevy_lint` command for all paths that end in `Cargo.toml`
 /// # Example:
 /// ```sh
@@ -15,7 +17,44 @@ mod test_utils;
 /// "../target/ui/0/tests/ui-cargo/duplicate_bevy_dependencies/fail" "--manifest-path"
 /// "tests/ui-cargo/duplicate_bevy_dependencies/fail/Cargo.toml"```
 fn main() {
-    let mut config = base_config("ui-cargo").unwrap();
+    let linter_path = Path::new(LINTER_PATH);
+    let driver_path = Path::new(DRIVER_PATH);
+
+    assert!(
+        linter_path.is_file(),
+        "`bevy_lint` could not be found at {}, make sure to build it with `cargo build -p bevy_lint --bin bevy_lint`",
+        linter_path.display(),
+    );
+    assert!(
+        driver_path.is_file(),
+        "`bevy_lint_driver` could not be found at {}, make sure to build it with `cargo build -p bevy_lint --bin bevy_lint_driver`",
+        driver_path.display(),
+    );
+
+    let mut config = Config {
+        // When `host` is `None`, `ui_test` will attempt to auto-discover the host by calling
+        // `program -vV`. Unfortunately, `bevy_lint_driver` does not yet support the version flag,
+        // so we manually specify the host as an empty string. This means that, for now, host-
+        // specific configuration in UI tests will not work.
+        host: Some(String::new()),
+        program: CommandBuilder {
+            // We don't need `rustup run` here because we're already using the correct toolchain
+            // due to `rust-toolchain.toml`.
+            program: driver_path.into(),
+            args: vec![
+                // `bevy_lint_driver` expects the first argument to be the path to `rustc`.
+                "rustc".into(),
+                // This is required so that `ui_test` can parse warnings and errors.
+                "--error-format=json".into(),
+            ],
+            out_dir_flag: Some("--out-dir".into()),
+            input_file_flag: None,
+            envs: Vec::new(),
+            cfg_flag: Some("--print=cfg".into()),
+        },
+        out_dir: PathBuf::from("../target/ui"),
+        ..Config::rustc(Path::new("tests/ui-cargo"))
+    };
 
     let defaults = config.comment_defaults.base();
     // The driver returns a '101' on error.
