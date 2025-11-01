@@ -35,8 +35,9 @@ fn main() {
         ..Config::cargo(Path::new("tests/ui-cargo"))
     };
 
-    let defaults = config.comment_defaults.base();
-    defaults.require_annotations = None.into();
+    // We haven't found a way to get error annotations like `#~v ERROR: msg` to work, so we disable
+    // the requirement for them.
+    config.comment_defaults.base().require_annotations = None.into();
 
     // Create the `#@exit-status: CODE` annotation. This can be used to ensure a UI test exits with
     // a specific exit code (e.g. `bevy_lint` exits with code 101 when a denied lint is found).
