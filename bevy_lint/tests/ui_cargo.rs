@@ -4,7 +4,7 @@ use std::{
     process::{Command, Stdio},
 };
 
-use ui_test::{CommandBuilder, Config, OptWithLine, status_emitter};
+use ui_test::{Args, CommandBuilder, Config, Format, OptWithLine, status_emitter::{self, StatusEmitter}};
 
 // This is set by Cargo to the absolute paths of `bevy_lint` and `bevy_lint_driver`.
 const LINTER_PATH: &str = env!("CARGO_BIN_EXE_bevy_lint");
@@ -52,6 +52,21 @@ fn main() {
             );
         });
 
+    let args = Args::test().unwrap();
+
+    if let Format::Pretty = args.format {
+        println!(
+            "Compiler: {}",
+            config.program.display().to_string().replace('\\', "/")
+        );
+    }
+
+    let name = config.root_dir.display().to_string().replace('\\', "/");
+
+    let emitter: Box<dyn StatusEmitter> = args.format.into();
+
+    config.with_args(&args);
+
     // Run this `Config` for all paths that end with `Cargo.toml` resulting
     // only in the `Cargo` lints.
     ui_test::run_tests_generic(
@@ -61,7 +76,7 @@ fn main() {
                 .then(|| ui_test::default_any_file_filter(path, config))
         },
         |_config, _file_contents| {},
-        status_emitter::Text::verbose(),
+        (emitter, status_emitter::Gha { name, group: true }),
     )
     .unwrap();
 }
