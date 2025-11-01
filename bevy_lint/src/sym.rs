@@ -116,36 +116,19 @@ macro_rules! declare_bevy_symbols {
 // `clippy_utils::sym`. Having duplicate symbols will cause the compiler to ICE! Also please keep
 // this list alphabetically sorted :)
 declare_bevy_symbols! {
-    add_systems,
     App,
-    bevy_app,
-    bevy_camera,
-    bevy_ptr,
-    bevy_reflect,
-    bevy,
     Bundle,
-    camera,
     Camera,
-    change_detection,
-    commands,
     Commands,
-    component,
     Component,
-    deferred_world,
     Deferred,
     DeferredWorld,
-    entity_ref,
     EntityCommands,
     EntityMut,
-    event,
     Event,
     Events,
     FilteredEntityMut,
     FixedUpdate,
-    init_resource,
-    insert_resource,
-    iter_current_update_messages,
-    main_schedule,
     Message,
     Messages,
     Mut,
@@ -154,27 +137,44 @@ declare_bevy_symbols! {
     PartialReflect,
     Plugin,
     PtrMut,
-    query,
     Query,
     Reflect,
-    related_methods,
     RelatedSpawner,
     RelatedSpawnerCommands,
-    relationship,
     ResMut,
-    resource,
     Resource,
+    SystemSet,
+    Update,
+    With,
+    World,
+    add_systems,
+    bevy,
+    bevy_app,
+    bevy_camera,
+    bevy_ptr,
+    bevy_reflect,
+    camera,
+    change_detection,
+    commands,
+    component,
+    deferred_world,
+    entity_ref,
+    event,
+    init_resource,
+    insert_resource,
+    iter_current_update_messages,
+    main_schedule,
+    query,
+    related_methods,
+    relationship,
+    resource,
     run,
     schedule,
     set,
     spawn,
-    system_param,
     system,
-    SystemSet,
-    Update,
-    With,
+    system_param,
     world,
-    World,
 }
 
 /// Returns a list of strings that should be supplied to
@@ -227,5 +227,21 @@ through all symbols pre-interned by the Rust compiler and Clippy linter! :)";
                 );
             },
         );
+    }
+
+    #[test]
+    fn bevy_symbols_are_sorted() {
+        if !BEVY_SYMBOLS.is_sorted() {
+            let mut sorted = Vec::from(BEVY_SYMBOLS);
+            sorted.sort();
+
+            let sorted_string = sorted.join(",\n    ");
+
+            panic!("`declare_bevy_symbols!` is not sorted, it should be:
+
+declare_bevy_symbols! {{
+    {sorted_string},
+}}");
+        }
     }
 }
