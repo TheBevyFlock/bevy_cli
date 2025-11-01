@@ -1,4 +1,7 @@
-use std::path::{Path, PathBuf};
+use std::{
+    path::{Path, PathBuf},
+    process::{Command, Stdio},
+};
 
 use ui_test::{CommandBuilder, Config, run_tests};
 
@@ -15,11 +18,12 @@ fn main() {
     );
 
     let config = Config {
-        // When `host` is `None`, `ui_test` will attempt to auto-discover the host by calling
-        // `program -vV`. Unfortunately, `bevy_lint_driver` does not yet support the version flag,
-        // so we manually specify the host as an empty string. This means that, for now, host-
-        // specific configuration in UI tests will not work.
-        host: Some(String::new()),
+        // We need to specify the host tuple manually, because if we don't then `ui_test` will try
+        // running `bevy_lint_driver -vV` to discover the host and promptly error because it
+        // doesn't realize `bevy_lint_driver` expects its first argument to be the path to `rustc`.
+        // If `ui_test` ran `bevy_lint_driver rustc -vV` everything would work, but it's not smart
+        // enough to do that.
+        host: Some(host_tuple()),
         program: CommandBuilder {
             // We don't need `rustup run` here because we're already using the correct toolchain
             // due to `rust-toolchain.toml`.
@@ -41,4 +45,21 @@ fn main() {
     };
 
     run_tests(config).unwrap();
+}
+
+/// Queries the host tuple from `rustc` and returns it as a string.
+fn host_tuple() -> String {
+    let output = Command::new("rustc")
+        .arg("--print=host-tuple")
+        // Show errors directly to the user, rather than capturing them.
+        .stderr(Stdio::inherit())
+        .output()
+        .expect("failed to run `rustc --print=host-tuple`");
+
+    // `rustc` only works with UTF-8, so it's safe to error if invalid UTF-8 is found.
+    str::from_utf8(&output.stdout)
+        .expect("`rustc --print=host-tuple` did not emit valid UTF-8")
+        // Remove the trailing `\n`.
+        .trim_end()
+        .to_string()
 }
