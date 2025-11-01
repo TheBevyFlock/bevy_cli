@@ -1,0 +1,14 @@
+[package]
+name = "lint-ui-dependencies"
+edition = "2024"
+publish = false
+
+[dependencies]
+bevy = { version = "0.17.0-rc.1", default-features = false, features = [
+    "std",
+    # used for the `camera_modification_in_fixed_update` lint
+    "bevy_render",
+] }
+
+bevy_ecs = "*"
+bevy_reflect = "*"
