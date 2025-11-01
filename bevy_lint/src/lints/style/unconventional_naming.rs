@@ -49,7 +49,7 @@
 //! struct MyAudioSystems;
 //! ```
 
-use clippy_utils::{diagnostics::span_lint_hir_and_then, path_res};
+use clippy_utils::{diagnostics::span_lint_hir_and_then, res::MaybeQPath};
 use rustc_errors::Applicability;
 use rustc_hir::{HirId, Impl, Item, ItemKind, OwnerId};
 use rustc_lint::{LateContext, LateLintPass};
@@ -76,8 +76,9 @@ impl<'tcx> LateLintPass<'tcx> for UnconventionalNaming {
             // Try to resolve where this type was originally defined. This will result in a `DefId`
             // pointing to the original `struct Foo` definition, or `impl <T>` if it's a generic
             // parameter.
-            let Some(struct_def_id) = path_res(cx, impl_.self_ty).opt_def_id() else {
-                return;
+            let struct_def_id = match impl_.self_ty.opt_qpath() {
+                Some((qpath, hir_id)) => cx.qpath_res(qpath, hir_id).def_id(),
+                None => return,
             };
 
             // If this type is a generic parameter, exit. Their names, such as `T`, cannot be
