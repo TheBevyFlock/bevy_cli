@@ -823,7 +823,6 @@ dependencies = [
  "clippy_utils",
  "pico-args",
  "serde",
- "serde_json",
  "toml",
  "ui_test",
 ]
