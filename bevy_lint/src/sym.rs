@@ -196,15 +196,21 @@ mod tests {
 
     #[test]
     fn check_for_duplicate_symbols() {
+        // Create the thread-local variables necessary to intern strings. These thread-locals only
+        // live as long as the closure, and are unset at the end of this test.
         rustc_span::create_session_globals_then(
             rustc_lint_defs::Edition::Edition2024,
+            // Also intern Clippy's symbols, as well as the Rust compiler's symbols. While the
+            // interner has its own check for duplicate symbols, it doesn't display what those
+            // duplicates are, so we purposefully avoid pre-interning `BEVY_SYMBOLS` and check for
+            // duplicate symbols manually instead.
             CLIPPY_SYMBOLS,
             None,
             || {
                 const UNIQUE_STRING: &str = "\
-This is a string that we can be reasonably confident will not be in the interner ahead of time.
-The interner allocates symbol IDs from 0 upwards. By interning a new string that the interner
-hasn't seen before, we can find the largest symbol ID. For example, if there are 10 symbols in the
+This is a string that we can be reasonably confident will not be in the interner ahead of time. The
+interner allocates symbol IDs from 0 upwards. By interning a new string that the interner hasn't
+seen before, we can find the largest symbol ID. For example, if there are 10 symbols in the
 interner with IDs `0..=9`, inserting this string will return a symbol with ID 10. This lets us loop
 through all symbols pre-interned by the Rust compiler and Clippy linter! :)";
 
@@ -216,7 +222,10 @@ through all symbols pre-interned by the Rust compiler and Clippy linter! :)";
                     let symbol = Symbol::new(i);
                     let symbol_str = symbol.as_str();
 
-                    if BEVY_SYMBOLS.contains(&symbol_str) {
+                    // Check if `BEVY_SYMBOLS` contains a string that is already interened. We can
+                    // binary search for it, as `BEVY_SYMBOLS` is guaranteed to be sorted.
+                    if BEVY_SYMBOLS.binary_search(&symbol_str).is_ok() {
+                        // `BEVY_SYMBOLS` contains a duplicate, keep track of that.
                         duplicate_symbols.push(symbol_str.to_string());
                     }
                 }
@@ -237,11 +246,13 @@ through all symbols pre-interned by the Rust compiler and Clippy linter! :)";
 
             let sorted_string = sorted.join(",\n    ");
 
-            panic!("`declare_bevy_symbols!` is not sorted, it should be:
+            panic!(
+                "`declare_bevy_symbols!` is not sorted, it should be:
 
 declare_bevy_symbols! {{
     {sorted_string},
-}}");
+}}"
+            );
         }
     }
 }
