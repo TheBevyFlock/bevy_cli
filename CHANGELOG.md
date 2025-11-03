@@ -11,6 +11,10 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 
 **All Changes**: [`cli-v0.1.0-alpha.2...main`](https://github.com/TheBevyFlock/bevy_cli/compare/cli-v0.1.0-alpha.2...main)
 
+### Changed
+
+- In web builds, the canvas now resizes to fill the webpage. This change will not affect projects that use a custom `index.html` file.
+
 ## v0.1.0-alpha.2 - 2025-09-22
 
 **All Changes**: [`cli-v0.1.0-alpha.1...cli-v0.1.0-alpha.2`](https://github.com/TheBevyFlock/bevy_cli/compare/cli-v0.1.0-alpha.1...cli-v0.1.0-alpha.2)

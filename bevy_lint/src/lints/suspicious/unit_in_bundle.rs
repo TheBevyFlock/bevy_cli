@@ -214,7 +214,8 @@ fn fn_arg_types<'tcx>(cx: &LateContext<'tcx>, fn_id: DefId) -> &'tcx [Ty<'tcx>] 
 
 /// Returns a list of a generic parameters of a function that must implement `Bundle`.
 ///
-/// Each returned [`Ty`] is guaranteed to be a [`ty::TyKind::Param`].
+/// Each returned [`Ty`] is guaranteed to be a generic parameter ([`ty::TyKind::Param`]) or a
+/// projection ([`ty::TyKind::Alias`] containing [`ty::AliasTyKind::Projection`]).
 ///
 /// # Example
 ///
@@ -225,6 +226,21 @@ fn fn_arg_types<'tcx>(cx: &LateContext<'tcx>, fn_id: DefId) -> &'tcx [Ty<'tcx>] 
 /// # use bevy::ecs::bundle::Bundle;
 /// #
 /// fn my_function<A: Bundle, B: Clone, C: Bundle + Clone>(_: A, _: B, _: C) {
+///     // ...
+/// }
+/// ```
+///
+/// Additionally, this supports projection types as well. If run on the following function, this
+/// function would return `I::Item` because it implements `Bundle`:
+///
+/// ```
+/// # use bevy::ecs::bundle::Bundle;
+/// #
+/// fn my_function<I>(bundle: I::Item)
+/// where
+///     I: IntoIterator,
+///     I::Item: Bundle,
+/// {
 ///     // ...
 /// }
 /// ```
@@ -255,8 +271,14 @@ fn bundle_bounded_generics<'tcx>(cx: &LateContext<'tcx>, fn_id: DefId) -> Vec<Ty
 
             span_assert!(
                 cx.tcx.def_span(fn_id),
-                matches!(self_ty.kind(), ty::TyKind::Param(_)),
-                "type {self_ty} from trait bound {trait_ref} was expected to be a type parameter",
+                matches!(
+                    self_ty.kind(),
+                    // It must either be a generic parameter `B`, or a projection
+                    // `B::AssociatedType`.
+                    ty::TyKind::Param(_) | ty::TyKind::Alias(ty::AliasTyKind::Projection, _),
+                ),
+                "type {self_ty} from trait bound {trait_ref} was expected to be a type parameter, but instead was a {self_ty_kind:?}",
+                self_ty_kind = self_ty.kind(),
             );
 
             // At this point, we've confirmed the predicate is `T: Bundle`! Add it to the list to

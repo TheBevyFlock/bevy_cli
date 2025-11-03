@@ -40,7 +40,7 @@ unstable = []
 
 [dependencies]
 # CLI argument parsing
-clap = { version = "4.5.48", default-features = false, features = [
+clap = { version = "4.5.51", default-features = false, features = [
     "color",
     "error-context",
     "help",
@@ -50,7 +50,7 @@ clap = { version = "4.5.48", default-features = false, features = [
     "derive",
 ] }
 # autocompletion auto-generation
-clap_complete = { version = "4.5.58", default-features = false }
+clap_complete = { version = "4.5.60", default-features = false }
 
 # Easy error propagation and contexts
 anyhow = { version = "1.0.86", default-features = false, features = ["std"] }
@@ -64,7 +64,7 @@ dialoguer = { version = "0.12.0", default-features = false, features = [
 comfy-table = { version = "7.2.1", default-features = false }
 
 # Cargo like styling for clap
-clap-cargo = { version = "0.18.0", default-features = false, features = [
+clap-cargo = { version = "0.18.3", default-features = false, features = [
     "clap",
 ] }
 
@@ -111,7 +111,7 @@ ansi_term = { version = "0.12.1", default-features = false }
 # Web dependencies
 
 ## Opening the app in the browser
-webbrowser = { version = "1.0.2", default-features = false, optional = true }
+webbrowser = { version = "1.0.6", default-features = false, optional = true }
 
 ## Serving the app for the browser
 http = { version = "1.2", default-features = false, features = [
@@ -130,7 +130,7 @@ tower-http = { version = "0.6.1", default-features = false, features = [
     "fs",
     "trace",
 ], optional = true }
-tokio = { version = "1.0", default-features = false, features = [
+tokio = { version = "1.48", default-features = false, features = [
     "net",
     "rt",
     "macros",

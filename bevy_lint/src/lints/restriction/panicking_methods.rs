@@ -140,7 +140,7 @@ impl<'tcx> LateLintPass<'tcx> for PanickingMethods {
             let (src_snippet, generics_snippet, args_snippet) = if is_fully_qualified {
                 // When the method was a fully qualified method call, the beginning of the snippet
                 // is just the `PanickingType`.
-                let mut src_snippet = panicking_type.name().to_string();
+                let mut src_snippet = panicking_type.name().to_owned();
                 src_snippet.push_str("::");
 
                 // Try to find the generic arguments of the method, if any exist. This can
