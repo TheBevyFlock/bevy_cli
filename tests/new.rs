@@ -1,6 +1,6 @@
-use std::{path::Path, process::Command};
+use std::path::Path;
 
-use assert_cmd::prelude::*;
+use assert_cmd::cargo::cargo_bin_cmd;
 use tempfile::TempDir;
 
 fn temp_test_dir() -> anyhow::Result<TempDir> {
@@ -23,7 +23,7 @@ fn should_scaffold_new_default_project() -> anyhow::Result<()> {
     let project_name = "default-project";
     let project_path = temp_dir.path().join(project_name);
 
-    let mut cmd = Command::cargo_bin("bevy")?;
+    let mut cmd = cargo_bin_cmd!("bevy");
     cmd.current_dir(temp_dir.path()).args(["new", project_name]);
 
     cmd.output()?;
@@ -44,7 +44,7 @@ fn should_scaffold_new_with_minimal_template_shortcut_project() -> anyhow::Resul
     let project_name = "minimal-project-shortcut";
     let project_path = temp_dir.path().join(project_name);
 
-    let mut cmd = Command::cargo_bin("bevy")?;
+    let mut cmd = cargo_bin_cmd!("bevy");
     cmd.current_dir(temp_dir.path())
         .args(["new", project_name, "-t", "minimal"]);
 
@@ -66,7 +66,7 @@ fn should_scaffold_new_with_minimal_template_project() -> anyhow::Result<()> {
     let project_name = "minimal-project";
     let project_path = temp_dir.path().join(project_name);
 
-    let mut cmd = Command::cargo_bin("bevy")?;
+    let mut cmd = cargo_bin_cmd!("bevy");
     cmd.current_dir(temp_dir.path()).args([
         "new",
         project_name,
