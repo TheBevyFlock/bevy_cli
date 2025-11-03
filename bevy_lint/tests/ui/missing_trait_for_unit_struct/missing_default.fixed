@@ -1,0 +1,38 @@
+#![feature(register_tool)]
+#![register_tool(bevy)]
+//~v NOTE: the lint level is defined here
+#![deny(bevy::missing_default)]
+
+//~| HELP: `Default` can be automatically derived
+//~v ERROR: defined a unit struct without a `Default` implementation
+#[derive(Default)]
+pub struct IsDefaultUiCamera;
+
+// This should not raise an ERROR, since `Default` is derived.
+#[derive(Default)]
+pub struct DeriveDefault;
+
+// This should not raise an ERROR, since `Default` is derived.
+pub struct ImplDefault;
+
+// This should not raise an ERROR, since `Default` is implemented.
+impl Default for ImplDefault {
+    fn default() -> Self {
+        ImplDefault
+    }
+}
+
+// This should not raise an ERROR, since this is not a unit struct.
+pub struct ComponentWithFields(#[allow(dead_code)] f32);
+
+// This should not raise an ERROR, since this is not a unit struct.
+#[allow(dead_code)]
+struct Foo();
+
+// This should not raise an ERROR, since this is not a unit struct.
+#[allow(dead_code)]
+struct Bar {}
+
+#[allow(bevy::missing_default)]
+// This should not raise an ERROR, since the lint is silenced.
+pub struct AllowMissingDefault;

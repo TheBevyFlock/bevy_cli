@@ -122,7 +122,7 @@ pub struct MethodCall<'tcx> {
     ///
     /// This lets lints customize their suggestions to use either the receiver-based or
     /// fully-qualified forms of a method.
-    pub is_fully_qulified: bool,
+    pub is_fully_qualified: bool,
 }
 
 impl<'tcx> MethodCall<'tcx> {
@@ -136,7 +136,7 @@ impl<'tcx> MethodCall<'tcx> {
                 receiver,
                 args,
                 span,
-                is_fully_qulified: false,
+                is_fully_qualified: false,
             }),
             ExprKind::Call(
                 // We only want function calls where the function is a path, so we can use
@@ -199,8 +199,6 @@ impl<'tcx> MethodCall<'tcx> {
                                     "found a function call path with no segments",
                                 )
                             }
-                            // Lang items are not supported.
-                            QPath::LangItem(_, _) => return None,
                         };
 
                         // Match the first argument as `receiver`, then group the rest into the
@@ -220,7 +218,7 @@ impl<'tcx> MethodCall<'tcx> {
                             receiver,
                             args,
                             span: expr.span,
-                            is_fully_qulified: true,
+                            is_fully_qualified: true,
                         });
                     }
                 }

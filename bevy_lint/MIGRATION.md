@@ -37,7 +37,7 @@ rustup toolchain uninstall nightly-2025-04-03
 
 rustup toolchain install nightly-2025-06-26 \
     --component rustc-dev \
-    --component llvm-tools-preview
+    --component llvm-tools
 ```
 
 ### [`insert_unit_bundle` Has Been Renamed to `unit_in_bundle`](https://github.com/TheBevyFlock/bevy_cli/pull/502)
