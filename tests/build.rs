@@ -50,7 +50,7 @@ fn executable(binary: &str) -> String {
     if cfg!(windows) {
         format!("{binary}.exe")
     } else {
-        binary.to_string()
+        binary.to_owned()
     }
 }
 

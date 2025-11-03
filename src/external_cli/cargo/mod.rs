@@ -95,7 +95,7 @@ impl CargoCompilationArgs {
             self.target
                 .clone()
                 // Default to `wasm32-unknown-unknown`
-                .or_else(|| Some("wasm32-unknown-unknown".to_string()))
+                .or_else(|| Some("wasm32-unknown-unknown".to_owned()))
         } else {
             self.target.clone()
         }
