@@ -1,11 +1,10 @@
 use std::{
     fs,
     path::{Path, PathBuf},
-    process::Command,
 };
 
 use anyhow::Context;
-use assert_cmd::{assert::OutputAssertExt, cargo::CommandCargoExt};
+use assert_cmd::cargo::cargo_bin_cmd;
 use serial_test::serial;
 
 /// The path to the test repository.
@@ -60,7 +59,7 @@ fn should_build_native_dev() -> anyhow::Result<()> {
     let target_artifact_path = target_path().join("debug");
     clean_target_artifacts(&target_artifact_path)?;
 
-    let mut cmd = Command::cargo_bin("bevy")?;
+    let mut cmd = cargo_bin_cmd!("bevy");
     cmd.current_dir(test_path())
         .args(["build", "-p=bevy_default", "--yes"]);
 
@@ -76,7 +75,7 @@ fn should_build_native_release() -> anyhow::Result<()> {
     let target_artifact_path = target_path().join("release");
     clean_target_artifacts(&target_artifact_path)?;
 
-    let mut cmd = Command::cargo_bin("bevy")?;
+    let mut cmd = cargo_bin_cmd!("bevy");
     cmd.current_dir(test_path())
         .args(["build", "-p=bevy_default", "--yes", "--release"]);
     cmd.assert().success();
@@ -91,7 +90,7 @@ fn should_build_web_dev() -> anyhow::Result<()> {
     let target_artifact_path = target_path().join("wasm32-unknown-unknown").join("web");
     clean_target_artifacts(&target_artifact_path)?;
 
-    let mut cmd = Command::cargo_bin("bevy")?;
+    let mut cmd = cargo_bin_cmd!("bevy");
     cmd.current_dir(test_path())
         .args(["build", "-p=bevy_default", "--yes", "web"]);
 
@@ -113,7 +112,7 @@ fn should_build_web_release() -> anyhow::Result<()> {
         .join("web-release");
     clean_target_artifacts(&target_artifact_path)?;
 
-    let mut cmd = Command::cargo_bin("bevy")?;
+    let mut cmd = cargo_bin_cmd!("bevy");
     cmd.current_dir(test_path())
         .args(["build", "-p=bevy_default", "--release", "--yes", "web"]);
 
