@@ -1,6 +1,10 @@
 [workspace]
 members = ["bevy_lint"]
 
+[workspace.lints.clippy]
+# Prefer `str.to_owned()`, rather than `str.to_string()`.
+str_to_string = "warn"
+
 [package]
 name = "bevy_cli"
 version = "0.1.0-dev"
@@ -144,6 +148,9 @@ fs_extra = { version = "1.3.0", default-features = false, optional = true }
 serial_test = "3.2.0"
 assert_cmd = "2.1.1"
 tempfile = "3"
+
+[lints]
+workspace = true
 
 [package.metadata.binstall]
 # HACK: We currently hard-code the latest version in the URL. The `{ version }` template uses the
