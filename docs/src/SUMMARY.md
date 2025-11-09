@@ -41,6 +41,8 @@
 
 # CLI Contributor's Guide
 
+- [About](contribute/cli/index.md)
+- [Minimal Footprint](contribute/cli/minimal-footprint.md)
 - [How to Release the CLI](contribute/cli/release.md)
 
 # Linter Contributor's Guide

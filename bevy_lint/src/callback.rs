@@ -33,7 +33,7 @@ impl Callbacks for BevyLintCallback {
         crate::config::load_config(config);
 
         // Add `--cfg bevy_lint` so programs can conditionally configure lints.
-        config.crate_cfg.push("bevy_lint".to_string());
+        config.crate_cfg.push("bevy_lint".to_owned());
 
         // We should be the only callback, meaning nothing else should register custom lints.
         assert!(config.register_lints.is_none());

@@ -50,8 +50,8 @@ runs:
         CHANNEL=$(sed -nE "s/${CHANNEL_REGEX}/\1/p" < "${RUST_TOOLCHAIN_PATH}")
 
         # This does the same thing, but also strips out double quotes. In practice, this converts
-        # `components = ["rustc-dev", "llvm-tools-preview"]` to `"rustc-dev", "llvm-tools-preview"`
-        # to `rustc-dev, llvm-tools-preview`.
+        # `components = ["rustc-dev", "llvm-tools"]` to `"rustc-dev", "llvm-tools"`
+        # to `rustc-dev, llvm-tools`.
         COMPONENTS=$(sed -nE "s/${COMPONENTS_REGEX}/\1/p" < "${RUST_TOOLCHAIN_PATH}" | tr -d '"')
 
         echo "channel=${CHANNEL}" >> "${GITHUB_OUTPUT}"

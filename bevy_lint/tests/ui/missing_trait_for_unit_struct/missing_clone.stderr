@@ -1,0 +1,19 @@
+error: defined a unit struct without a `Clone` implementation
+ --> tests/ui/missing_trait_for_unit_struct/missing_clone.rs:8:1
+  |
+8 | pub struct IsDefaultUiCamera;
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+note: the lint level is defined here
+ --> tests/ui/missing_trait_for_unit_struct/missing_clone.rs:4:9
+  |
+4 | #![deny(bevy::missing_clone)]
+  |         ^^^^^^^^^^^^^^^^^^^
+help: `Clone` can be automatically derived
+  |
+8 + #[derive(Clone)]
+9 | pub struct IsDefaultUiCamera;
+  |
+
+error: aborting due to 1 previous error
+

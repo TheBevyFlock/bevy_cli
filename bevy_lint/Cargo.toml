@@ -21,7 +21,7 @@ harness = false
 # Contains a series of useful utilities when writing lints. The version is chosen to work with the
 # currently pinned nightly Rust version. When the Rust version changes, this too needs to be
 # updated!
-clippy_utils = "=0.1.92"
+clippy_utils = "=0.1.93"
 
 # Easy error propagation and contexts.
 anyhow = "1.0.86"
@@ -30,7 +30,7 @@ cargo_metadata = "0.23.0"
 
 # Configuration deserialization.
 serde = { version = "1.0.228", features = ["derive"] }
-toml = { version = "0.9.6", default-features = false, features = [
+toml = { version = "0.9.8", default-features = false, features = [
     "std",
     "parse",
     "serde",
@@ -46,7 +46,7 @@ anstyle = "1.0.13"
 [build-dependencies]
 # Parse `rust-toolchain.toml` at build time.
 serde = { version = "1.0.228", features = ["derive"] }
-toml = { version = "0.9.6", default-features = false, features = [
+toml = { version = "0.9.8", default-features = false, features = [
     "std",
     "parse",
     "serde",
@@ -54,7 +54,7 @@ toml = { version = "0.9.6", default-features = false, features = [
 
 [dev-dependencies]
 # Used when running UI tests.
-bevy = { version = "0.17.0-rc.1", default-features = false, features = [
+bevy = { version = "0.17.2", default-features = false, features = [
     "std",
     # used for the `camera_modification_in_fixed_update` lint
     "bevy_render",
@@ -65,6 +65,9 @@ serde_json = "1.0.145"
 
 # Ensures the error messages for lints do not regress.
 ui_test = "0.30.1"
+
+[lints]
+workspace = true
 
 [package.metadata.rust-analyzer]
 # Enables Rust-Analyzer support for `rustc` crates.

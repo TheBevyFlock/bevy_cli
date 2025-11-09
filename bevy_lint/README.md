@@ -34,7 +34,7 @@ You can install the toolchain required for the latest release with:
 ```sh
 rustup toolchain install nightly-2025-06-26 \
     --component rustc-dev \
-    --component llvm-tools-preview
+    --component llvm-tools
 ```
 
 If you are installing a different version of the linter, you may need to install a different nightly toolchain as specified by the [compatibility table](https://thebevyflock.github.io/bevy_cli/linter/compatibility.html). Please be aware that you must keep this toolchain installed for `bevy_lint` to function[^keep-toolchain-installed].
