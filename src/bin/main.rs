@@ -212,7 +212,7 @@ where
         let level = if writer.has_ansi_escapes() {
             color.bold().paint(level).to_string()
         } else {
-            level.to_string()
+            level.to_owned()
         };
 
         write!(writer, "{level}: ",)?;

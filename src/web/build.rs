@@ -107,7 +107,7 @@ fn support_multi_threading(args: &mut BuildArgs) {
         *rustflags += " ";
         *rustflags += multi_threading_flags;
     } else {
-        args.cargo_args.common_args.rustflags = Some(multi_threading_flags.to_string());
+        args.cargo_args.common_args.rustflags = Some(multi_threading_flags.to_owned());
     }
 
     // The std needs to be rebuilt with Wasm multi-threading support
@@ -120,6 +120,6 @@ fn support_multi_threading(args: &mut BuildArgs) {
         args.cargo_args
             .common_args
             .unstable_flags
-            .push("build-std=std,panic_abort".to_string());
+            .push("build-std=std,panic_abort".to_owned());
     }
 }

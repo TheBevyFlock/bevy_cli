@@ -1,6 +1,10 @@
 [workspace]
 members = ["bevy_lint"]
 
+[workspace.lints.clippy]
+# Prefer `str.to_owned()`, rather than `str.to_string()`.
+str_to_string = "warn"
+
 [package]
 name = "bevy_cli"
 version = "0.1.0-dev"
@@ -40,7 +44,7 @@ unstable = []
 
 [dependencies]
 # CLI argument parsing
-clap = { version = "4.5.50", default-features = false, features = [
+clap = { version = "4.5.51", default-features = false, features = [
     "color",
     "error-context",
     "help",
@@ -50,7 +54,7 @@ clap = { version = "4.5.50", default-features = false, features = [
     "derive",
 ] }
 # autocompletion auto-generation
-clap_complete = { version = "4.5.59", default-features = false }
+clap_complete = { version = "4.5.60", default-features = false }
 
 # Easy error propagation and contexts
 anyhow = { version = "1.0.86", default-features = false, features = ["std"] }
@@ -64,7 +68,7 @@ dialoguer = { version = "0.12.0", default-features = false, features = [
 comfy-table = { version = "7.2.1", default-features = false }
 
 # Cargo like styling for clap
-clap-cargo = { version = "0.18.2", default-features = false, features = [
+clap-cargo = { version = "0.18.3", default-features = false, features = [
     "clap",
 ] }
 
@@ -72,7 +76,7 @@ clap-cargo = { version = "0.18.2", default-features = false, features = [
 cargo-config2 = { version = "0.1", default-features = false }
 
 # API interaction
-ureq = { version = "3.1.2", default-features = false, features = [
+ureq = { version = "3.1.4", default-features = false, features = [
     "rustls",
     "json",
 ] }
@@ -142,8 +146,11 @@ fs_extra = { version = "1.3.0", default-features = false, optional = true }
 [dev-dependencies]
 # Forcing tests that can't be parallelized to be run sequentially
 serial_test = "3.2.0"
-assert_cmd = "2.0.16"
+assert_cmd = "2.1.1"
 tempfile = "3"
+
+[lints]
+workspace = true
 
 [package.metadata.binstall]
 # HACK: We currently hard-code the latest version in the URL. The `{ version }` template uses the

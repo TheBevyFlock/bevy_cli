@@ -56,7 +56,7 @@
 
 use clippy_utils::sym::EXTRA_SYMBOLS as CLIPPY_SYMBOLS;
 /// These are symbols that we use but are already interned by either the compiler or Clippy.
-pub use clippy_utils::sym::filter;
+pub use clippy_utils::sym::{app, filter};
 pub use rustc_span::sym::{
     Arc, HashMap, HashSet, Instant, Mutex, MutexGuard, RwLock, RwLockReadGuard, RwLockWriteGuard,
     SyncUnsafeCell, bevy_ecs, bundle, hash, message, plugin, reflect, std, sync,
@@ -117,47 +117,27 @@ macro_rules! declare_bevy_symbols {
 
 // Before adding a new symbol here, check that it doesn't exist yet in `rustc_span::sym` or
 // `clippy_utils::sym`. Having duplicate symbols will cause the compiler to ICE! Also please keep
-// this list alphabetically sorted :) (use `:sort i` in nvim)
+// this list alphabetically sorted :) (use `:sort` in nvim)
 declare_bevy_symbols! {
-    add_systems,
-    app,
     App,
     Barrier,
     BarrierWaitResult,
-    bevy,
-    bevy_app,
-    bevy_camera,
-    bevy_ptr,
-    bevy_reflect,
     Bundle,
-    camera,
     Camera,
-    cell,
-    change_detection,
-    collections,
-    commands,
     Commands,
-    component,
     Component,
     DefaultHasher,
     Deferred,
-    deferred_world,
     DeferredWorld,
-    entity_ref,
     EntityCommands,
     EntityMut,
-    event,
     Event,
     Events,
     Exclusive,
     FilteredEntityMut,
     FixedUpdate,
-    init_resource,
-    insert_resource,
-    iter_current_update_messages,
     LazyLock,
     LockResult,
-    main_schedule,
     Message,
     Messages,
     Mut,
@@ -170,31 +150,50 @@ declare_bevy_symbols! {
     Plugin,
     PoisonError,
     PtrMut,
-    query,
     Query,
     RandomState,
     Reflect,
-    related_methods,
     RelatedSpawner,
     RelatedSpawnerCommands,
-    relationship,
     ResMut,
-    resource,
     Resource,
+    SystemSet,
+    TryLockError,
+    TryLockResult,
+    Update,
+    With,
+    World,
+    add_systems,
+    bevy,
+    bevy_app,
+    bevy_camera,
+    bevy_ptr,
+    bevy_reflect,
+    camera,
+    cell,
+    change_detection,
+    collections,
+    commands,
+    component,
+    deferred_world,
+    entity_ref,
+    event,
+    init_resource,
+    insert_resource,
+    iter_current_update_messages,
+    main_schedule,
+    query,
+    related_methods,
+    relationship,
+    resource,
     run,
     schedule,
     set,
     spawn,
     system,
     system_param,
-    SystemSet,
     time,
-    TryLockError,
-    TryLockResult,
-    Update,
-    With,
     world,
-    World,
 }
 
 /// Returns a list of strings that should be supplied to
@@ -208,4 +207,71 @@ pub fn extra_symbols() -> Vec<&'static str> {
     symbols.extend_from_slice(BEVY_SYMBOLS);
 
     symbols
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn check_for_duplicate_symbols() {
+        // Create the thread-local variables necessary to intern strings. These thread-locals only
+        // live as long as the closure, and are unset at the end of this test.
+        rustc_span::create_session_globals_then(
+            rustc_lint_defs::Edition::Edition2024,
+            // Also intern Clippy's symbols, as well as the Rust compiler's symbols. While the
+            // interner has its own check for duplicate symbols, it doesn't display what those
+            // duplicates are, so we purposefully avoid pre-interning `BEVY_SYMBOLS` and check for
+            // duplicate symbols manually instead.
+            CLIPPY_SYMBOLS,
+            None,
+            || {
+                const UNIQUE_STRING: &str = "\
+This is a string that we can be reasonably confident will not be in the interner ahead of time. The
+interner allocates symbol IDs from 0 upwards. By interning a new string that the interner hasn't
+seen before, we can find the largest symbol ID. For example, if there are 10 symbols in the
+interner with IDs `0..=9`, inserting this string will return a symbol with ID 10. This lets us loop
+through all symbols pre-interned by the Rust compiler and Clippy linter! :)";
+
+                let upper_symbol = Symbol::intern(UNIQUE_STRING);
+
+                let mut duplicate_symbols = Vec::new();
+
+                for i in 0..upper_symbol.as_u32() {
+                    let symbol = Symbol::new(i);
+                    let symbol_str = symbol.as_str();
+
+                    // Check if `BEVY_SYMBOLS` contains a string that is already interened. We can
+                    // binary search for it, as `BEVY_SYMBOLS` is guaranteed to be sorted.
+                    if BEVY_SYMBOLS.binary_search(&symbol_str).is_ok() {
+                        // `BEVY_SYMBOLS` contains a duplicate, keep track of that.
+                        duplicate_symbols.push(symbol_str.to_owned());
+                    }
+                }
+
+                assert!(
+                    duplicate_symbols.is_empty(),
+                    "`BEVY_SYMBOLS` should not introduce symbols already added by the Rust compiler or Clippy. The following duplicate symbols were found: {duplicate_symbols:?}",
+                );
+            },
+        );
+    }
+
+    #[test]
+    fn bevy_symbols_are_sorted() {
+        if !BEVY_SYMBOLS.is_sorted() {
+            let mut sorted = Vec::from(BEVY_SYMBOLS);
+            sorted.sort();
+
+            let sorted_string = sorted.join(",\n    ");
+
+            panic!(
+                "`declare_bevy_symbols!` is not sorted, it should be:
+
+declare_bevy_symbols! {{
+    {sorted_string},
+}}"
+            );
+        }
+    }
 }

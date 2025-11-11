@@ -1,0 +1,19 @@
+error: defined a unit struct without a `Default` implementation
+ --> tests/ui/missing_trait_for_unit_struct/missing_default.rs:8:1
+  |
+8 | pub struct IsDefaultUiCamera;
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+note: the lint level is defined here
+ --> tests/ui/missing_trait_for_unit_struct/missing_default.rs:4:9
+  |
+4 | #![deny(bevy::missing_default)]
+  |         ^^^^^^^^^^^^^^^^^^^^^
+help: `Default` can be automatically derived
+  |
+8 + #[derive(Default)]
+9 | pub struct IsDefaultUiCamera;
+  |
+
+error: aborting due to 1 previous error
+
