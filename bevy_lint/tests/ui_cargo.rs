@@ -1,54 +1,80 @@
-// A convenience feature used in `find_bevy_rlib()` that lets you chain multiple `if let`
-// statements together with `&&`. This feature flag is needed in all integration tests that use the
-// test_utils module, since each integration test is compiled independently.
-
-use std::env;
-
-use test_utils::base_config;
-use ui_test::{CommandBuilder, status_emitter};
+#![expect(
+    clippy::disallowed_macros,
+    reason = "`bevy_lint`'s macros are intended for lints, not tests"
+)]
 
 mod test_utils;
-/// This [`Config`] will run the `bevy_lint` command for all paths that end in `Cargo.toml`
-/// # Example:
-/// ```sh
-/// bevy_lint" "--quiet" "--target-dir"
-/// "../target/ui/0/tests/ui-cargo/duplicate_bevy_dependencies/fail" "--manifest-path"
-/// "tests/ui-cargo/duplicate_bevy_dependencies/fail/Cargo.toml"```
+
+use std::{
+    env,
+    path::{Path, PathBuf},
+};
+
+use ui_test::{
+    Args, CommandBuilder, Config, Format, OptWithLine,
+    status_emitter::{self, StatusEmitter},
+};
+
+// This is set by Cargo to the absolute paths of `bevy_lint` and `bevy_lint_driver`.
+const LINTER_PATH: &str = env!("CARGO_BIN_EXE_bevy_lint");
+
 fn main() {
-    let mut config = base_config("ui-cargo").unwrap();
+    let linter_path = Path::new(LINTER_PATH);
 
-    let defaults = config.comment_defaults.base();
-    // The driver returns a '101' on error.
-    // This allows for any status code to be considered a success.
-    defaults.exit_status = None.into();
+    assert!(
+        linter_path.is_file(),
+        "`bevy_lint` could not be found at {}, make sure to build it with `cargo build -p bevy_lint --bin bevy_lint`",
+        linter_path.display(),
+    );
 
-    defaults.require_annotations = None.into();
+    let mut config = Config {
+        // We need to specify the host tuple manually, because if we don't then `ui_test` will try
+        // running `bevy_lint -vV` to discover the host and promptly error because `bevy_lint`
+        // doesn't recognize the `-vV` flag.
+        host: Some(test_utils::host_tuple()),
+        program: CommandBuilder {
+            program: linter_path.into(),
+            args: vec!["--color=never".into(), "--quiet".into()],
+            out_dir_flag: Some("--target-dir".into()),
+            input_file_flag: Some("--manifest-path".into()),
+            envs: Vec::new(),
+            cfg_flag: None,
+        },
+        out_dir: PathBuf::from("../target/ui"),
+        ..Config::cargo(Path::new("tests/ui-cargo"))
+    };
 
-    // This sets the '--manifest-path' flag
-    config.program.input_file_flag = CommandBuilder::cargo().input_file_flag;
-    config.program.out_dir_flag = CommandBuilder::cargo().out_dir_flag;
-    // Do not print cargo log messages
-    config.program.args = vec!["--quiet".into(), "--color".into(), "never".into()];
+    // We haven't found a way to get error annotations like `#~v ERROR: msg` to work, so we disable
+    // the requirement for them.
+    config.comment_defaults.base().require_annotations = None.into();
 
-    let current_exe_path = env::current_exe().unwrap();
-    let deps_path = current_exe_path.parent().unwrap();
-    let profile_path = deps_path.parent().unwrap();
+    // Create the `#@exit-status: CODE` annotation. This can be used to ensure a UI test exits with
+    // a specific exit code (e.g. `bevy_lint` exits with code 101 when a denied lint is found).
+    config
+        .custom_comments
+        .insert("exit-status", |parser, args, _span| {
+            parser.exit_status = OptWithLine::new(
+                args.content
+                    .parse()
+                    .expect("expected `i32` as input for `exit-status`"),
+                args.span,
+            );
+        });
 
-    // Specify the binary to use when executing tests with this `Config`
-    config.program.program = profile_path.join(if cfg!(windows) {
-        "bevy_lint_driver.exe"
-    } else {
-        "bevy_lint_driver"
-    });
+    let args = Args::test().unwrap();
 
-    config.program.program.set_file_name(if cfg!(windows) {
-        "bevy_lint.exe"
-    } else {
-        "bevy_lint"
-    });
+    if let Format::Pretty = args.format {
+        println!(
+            "Compiler: {}",
+            config.program.display().to_string().replace('\\', "/")
+        );
+    }
 
-    // this clears the default `--edition` flag
-    config.comment_defaults.base().custom.clear();
+    let name = config.root_dir.display().to_string().replace('\\', "/");
+
+    let emitter: Box<dyn StatusEmitter> = args.format.into();
+
+    config.with_args(&args);
 
     // Run this `Config` for all paths that end with `Cargo.toml` resulting
     // only in the `Cargo` lints.
@@ -59,7 +85,7 @@ fn main() {
                 .then(|| ui_test::default_any_file_filter(path, config))
         },
         |_config, _file_contents| {},
-        status_emitter::Text::verbose(),
+        (emitter, status_emitter::Gha { name, group: true }),
     )
     .unwrap();
 }

@@ -1,0 +1,19 @@
+[package]
+name = "lint-ui-dependencies"
+description = "A dummy crate that builds dependencies that `bevy_lint`'s UI tests need to import"
+edition = "2024"
+publish = false
+
+[dependencies]
+bevy = { version = "0.17.2", default-features = false, features = [
+    "std",
+    # used for the `camera_modification_in_fixed_update` lint
+    "bevy_render",
+] }
+
+# Some of Bevy's macros try to intelligently detect whether to import `bevy::ecs` or `bevy_ecs`.
+# This works in normal circumstances, but our dependency setup is too complex for the macros to
+# understand, so they default to the `bevy_ecs` form. This makes `bevy_ecs` and `bevy_reflect`
+# directly importable, and matches the crate version to whatever version `bevy` is pulling in.
+bevy_ecs = "*"
+bevy_reflect = "*"
