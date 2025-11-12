@@ -819,6 +819,7 @@ dependencies = [
  "anstream",
  "anstyle",
  "anyhow",
+ "bevy",
  "cargo_metadata 0.23.0",
  "clippy_utils",
  "pico-args",

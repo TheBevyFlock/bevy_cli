@@ -56,6 +56,13 @@ toml = { version = "0.9.8", default-features = false, features = [
 # Ensures the error messages for lints do not regress.
 ui_test = "0.30.1"
 
+# Used in doc tests.
+bevy = { version = "0.17.2", default-features = false, features = [
+    "std",
+    # used for the `camera_modification_in_fixed_update` lint
+    "bevy_render",
+] }
+
 [lints]
 workspace = true
 
