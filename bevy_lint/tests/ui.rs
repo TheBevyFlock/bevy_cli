@@ -4,6 +4,8 @@ use std::path::{Path, PathBuf};
 
 use ui_test::{CommandBuilder, Config, dependencies::DependencyBuilder, run_tests};
 
+use self::test_utils::PathExt;
+
 // This is set by Cargo to the absolute path of `bevy_lint_driver`.
 const DRIVER_PATH: &str = env!("CARGO_BIN_EXE_bevy_lint_driver");
 
@@ -38,8 +40,8 @@ fn main() {
             envs: Vec::new(),
             cfg_flag: Some("--print=cfg".into()),
         },
-        out_dir: PathBuf::from("../target/ui"),
-        ..Config::rustc(Path::new("tests/ui"))
+        out_dir: Path::new("../target/ui").unix_to_native().unwrap(),
+        ..Config::rustc(Path::new("tests/ui").unix_to_native().unwrap())
     };
 
     // Give UI tests access to all crate dependencies in the `dependencies` folder. This lets UI
@@ -48,7 +50,9 @@ fn main() {
     revisioned.set_custom(
         "dependencies",
         DependencyBuilder {
-            crate_manifest_path: PathBuf::from("tests/dependencies/Cargo.toml"),
+            crate_manifest_path: PathBuf::from("tests/dependencies/Cargo.toml")
+                .unix_to_native()
+                .unwrap(),
             ..Default::default()
         },
     );

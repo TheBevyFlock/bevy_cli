@@ -1,4 +1,7 @@
-use std::process::{Command, Stdio};
+use std::{
+    path::{Path, PathBuf},
+    process::{Command, Stdio},
+};
 
 /// Queries the host tuple from `rustc` and returns it as a string.
 pub fn host_tuple() -> String {
@@ -15,4 +18,25 @@ pub fn host_tuple() -> String {
         // Remove the trailing `\n`.
         .trim_end()
         .to_string()
+}
+
+pub trait PathExt {
+    /// Converts a UTF-8 Unix path to a native path.
+    ///
+    /// If run on Windows, this will replace all forward slashes `/` with backslashes `\`. Else,
+    /// this will do nothing.
+    ///
+    /// This will return [`None`] if the Unix path is not valid UTF-8.
+    fn unix_to_native(&self) -> Option<PathBuf>;
+}
+
+impl PathExt for Path {
+    fn unix_to_native(&self) -> Option<PathBuf> {
+        if cfg!(windows) {
+            self.to_str()
+                .map(|path| PathBuf::from(path.replace("/", "\\")))
+        } else {
+            Some(self.to_path_buf())
+        }
+    }
 }
