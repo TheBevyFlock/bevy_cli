@@ -15,8 +15,6 @@ use ui_test::{
     status_emitter::{self, StatusEmitter},
 };
 
-use self::test_utils::PathExt;
-
 // This is set by Cargo to the absolute paths of `bevy_lint` and `bevy_lint_driver`.
 const LINTER_PATH: &str = env!("CARGO_BIN_EXE_bevy_lint");
 
@@ -42,8 +40,8 @@ fn main() {
             envs: Vec::new(),
             cfg_flag: None,
         },
-        out_dir: PathBuf::from("../target/ui").unix_to_native().unwrap(),
-        ..Config::cargo(Path::new("tests/ui-cargo").unix_to_native().unwrap())
+        out_dir: PathBuf::from("../target/ui"),
+        ..Config::cargo(Path::new("tests/ui-cargo"))
     };
 
     // We haven't found a way to get error annotations like `#~v ERROR: msg` to work, so we disable
