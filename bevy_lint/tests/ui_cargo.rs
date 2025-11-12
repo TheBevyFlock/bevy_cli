@@ -4,7 +4,10 @@ use std::{
     process::{Command, Stdio},
 };
 
-use ui_test::{Args, CommandBuilder, Config, Format, OptWithLine, status_emitter::{self, StatusEmitter}};
+use ui_test::{
+    Args, CommandBuilder, Config, Format, OptWithLine,
+    status_emitter::{self, StatusEmitter},
+};
 
 // This is set by Cargo to the absolute paths of `bevy_lint` and `bevy_lint_driver`.
 const LINTER_PATH: &str = env!("CARGO_BIN_EXE_bevy_lint");

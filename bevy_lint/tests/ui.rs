@@ -46,10 +46,13 @@ fn main() {
     // Give UI tests access to all crate dependencies in the `dependencies` folder. This lets UI
     // tests import `bevy`.
     let revisioned = config.comment_defaults.base();
-    revisioned.set_custom("dependencies", DependencyBuilder {
-        crate_manifest_path: PathBuf::from("tests/dependencies/Cargo.toml"),
-        ..Default::default()
-    });
+    revisioned.set_custom(
+        "dependencies",
+        DependencyBuilder {
+            crate_manifest_path: PathBuf::from("tests/dependencies/Cargo.toml"),
+            ..Default::default()
+        },
+    );
 
     run_tests(config).unwrap();
 }
