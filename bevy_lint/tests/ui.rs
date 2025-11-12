@@ -1,7 +1,6 @@
-use std::{
-    path::{Path, PathBuf},
-    process::{Command, Stdio},
-};
+mod test_utils;
+
+use std::path::{Path, PathBuf};
 
 use ui_test::{CommandBuilder, Config, dependencies::DependencyBuilder, run_tests};
 
@@ -23,7 +22,7 @@ fn main() {
         // doesn't realize `bevy_lint_driver` expects its first argument to be the path to `rustc`.
         // If `ui_test` ran `bevy_lint_driver rustc -vV` everything would work, but it's not smart
         // enough to do that.
-        host: Some(host_tuple()),
+        host: Some(test_utils::host_tuple()),
         program: CommandBuilder {
             // We don't need `rustup run` here because we're already using the correct toolchain
             // due to `rust-toolchain.toml`.
@@ -55,21 +54,4 @@ fn main() {
     );
 
     run_tests(config).unwrap();
-}
-
-/// Queries the host tuple from `rustc` and returns it as a string.
-fn host_tuple() -> String {
-    let output = Command::new("rustc")
-        .arg("--print=host-tuple")
-        // Show errors directly to the user, rather than capturing them.
-        .stderr(Stdio::inherit())
-        .output()
-        .expect("failed to run `rustc --print=host-tuple`");
-
-    // `rustc` only works with UTF-8, so it's safe to error if invalid UTF-8 is found.
-    str::from_utf8(&output.stdout)
-        .expect("`rustc --print=host-tuple` did not emit valid UTF-8")
-        // Remove the trailing `\n`.
-        .trim_end()
-        .to_string()
 }

@@ -1,7 +1,8 @@
+mod test_utils;
+
 use std::{
     env,
     path::{Path, PathBuf},
-    process::{Command, Stdio},
 };
 
 use ui_test::{
@@ -25,7 +26,7 @@ fn main() {
         // We need to specify the host tuple manually, because if we don't then `ui_test` will try
         // running `bevy_lint -vV` to discover the host and promptly error because `bevy_lint`
         // doesn't recognize the `-vV` flag.
-        host: Some(host_tuple()),
+        host: Some(test_utils::host_tuple()),
         program: CommandBuilder {
             program: linter_path.into(),
             args: vec!["--color=never".into(), "--quiet".into()],
@@ -82,21 +83,4 @@ fn main() {
         (emitter, status_emitter::Gha { name, group: true }),
     )
     .unwrap();
-}
-
-/// Queries the host tuple from `rustc` and returns it as a string.
-fn host_tuple() -> String {
-    let output = Command::new("rustc")
-        .arg("--print=host-tuple")
-        // Show errors directly to the user, rather than capturing them.
-        .stderr(Stdio::inherit())
-        .output()
-        .expect("failed to run `rustc --print=host-tuple`");
-
-    // `rustc` only works with UTF-8, so it's safe to error if invalid UTF-8 is found.
-    str::from_utf8(&output.stdout)
-        .expect("`rustc --print=host-tuple` did not emit valid UTF-8")
-        // Remove the trailing `\n`.
-        .trim_end()
-        .to_string()
 }
