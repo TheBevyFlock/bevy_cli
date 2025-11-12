@@ -17,7 +17,7 @@ pub fn host_tuple() -> String {
         .expect("`rustc --print=host-tuple` did not emit valid UTF-8")
         // Remove the trailing `\n`.
         .trim_end()
-        .to_string()
+        .to_owned()
 }
 
 pub trait PathExt {
