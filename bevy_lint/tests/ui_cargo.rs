@@ -1,3 +1,8 @@
+#![expect(
+    clippy::disallowed_macros,
+    reason = "`bevy_lint`'s macros are intended for lints, not tests",
+)]
+
 mod test_utils;
 
 use std::{
