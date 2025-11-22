@@ -26,6 +26,10 @@ To migrate your code base to Bevy 0.17, please see the [release post][bevy 0.17 
 In Bevy 0.17, Event is now exclusively the name/trait for the concept of something that is "triggered" and "observed".
 [Message] is the name / trait of something that "buffered": it is "written" via a [MessageWriter] and "read" via a [MessageReader].
 
+[Message]: https://docs.rs/bevy/0.17.3/bevy/ecs/message/trait.Message.html
+[MessageWriter]: https://docs.rs/bevy/0.17.3/bevy/ecs/message/struct.MessageWriter.html
+[MessageReader]: https://docs.rs/bevy/0.17.3/bevy/ecs/message/struct.MessageReader.html
+
 ## v0.3.0 to v0.4.0
 
 ### [Bumped Nightly Toolchain to `nightly-2025-06-26`](https://github.com/TheBevyFlock/bevy_cli/pull/507)
