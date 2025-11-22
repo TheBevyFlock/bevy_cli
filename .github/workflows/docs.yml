@@ -55,12 +55,6 @@ jobs:
         with:
           tool: mdbook
 
-      # We cannot use `cargo-binstall` for this because the precompiled binary uses too old of an
-      # `mdbook` version, and it does't recognize the Rust 2024 edition. The installed binary will
-      # be cached, however.
-      - name: Install `mdbook-linkcheck`
-        run: cargo install mdbook-linkcheck
-
       - name: Build `mdbook` docs
         run: mdbook build
         working-directory: docs
