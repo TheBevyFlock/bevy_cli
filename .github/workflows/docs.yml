@@ -55,6 +55,9 @@ jobs:
         with:
           tool: mdbook
 
+      - name: Install `mdbook-linkcheck2`
+        run: cargo install mdbook-linkcheck2
+
       - name: Build `mdbook` docs
         run: mdbook build
         working-directory: docs
