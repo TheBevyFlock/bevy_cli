@@ -118,7 +118,7 @@ ansi_term = { version = "0.12.1", default-features = false }
 webbrowser = { version = "1.0.6", default-features = false, optional = true }
 
 ## Serving the app for the browser
-http = { version = "1.2", default-features = false, features = [
+http = { version = "1.4", default-features = false, features = [
     "std",
 ], optional = true }
 axum = { version = "0.8.7", default-features = false, features = [
