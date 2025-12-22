@@ -103,7 +103,7 @@ jobs:
           subject-path: target/release/${{ env.EXECUTABLE_NAME }}
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: bevy-cli-${{ matrix.target }}-v${{ needs.extract-cli-version.outputs.version }}
           path: target/release/${{ env.EXECUTABLE_NAME }}
