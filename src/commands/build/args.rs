@@ -60,6 +60,7 @@ impl BuildArgs {
     }
 
     /// The profile used to compile the app.
+    #[cfg(feature = "web")]
     pub(crate) fn profile(&self) -> &str {
         self.cargo_args.compilation_args.profile(self.is_web())
     }
