@@ -95,7 +95,7 @@ semver = { version = "1.0.27", default-features = false, features = ["serde"] }
 cargo_metadata = { version = "0.23.1", default-features = false }
 
 # Parsing the Cargo manifest
-toml = { version = "0.9.8", default-features = false, features = [
+toml = { version = "0.9.10", default-features = false, features = [
     "std",
     "parse",
     "display",
