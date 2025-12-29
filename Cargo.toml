@@ -54,7 +54,7 @@ clap = { version = "4.5.53", default-features = false, features = [
     "derive",
 ] }
 # autocompletion auto-generation
-clap_complete = { version = "4.5.61", default-features = false }
+clap_complete = { version = "4.5.62", default-features = false }
 
 # Easy error propagation and contexts
 anyhow = { version = "1.0.86", default-features = false, features = ["std"] }
