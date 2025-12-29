@@ -54,7 +54,7 @@ clap = { version = "4.5.53", default-features = false, features = [
     "derive",
 ] }
 # autocompletion auto-generation
-clap_complete = { version = "4.5.61", default-features = false }
+clap_complete = { version = "4.5.62", default-features = false }
 
 # Easy error propagation and contexts
 anyhow = { version = "1.0.86", default-features = false, features = ["std"] }
@@ -84,7 +84,7 @@ serde = { version = "1.0.228", default-features = false, features = [
     "std",
     "derive",
 ] }
-serde_json = { version = "1.0.145", default-features = false, features = [
+serde_json = { version = "1.0.146", default-features = false, features = [
     "std",
 ] }
 
@@ -121,7 +121,7 @@ webbrowser = { version = "1.0.6", default-features = false, optional = true }
 http = { version = "1.4", default-features = false, features = [
     "std",
 ], optional = true }
-axum = { version = "0.8.7", default-features = false, features = [
+axum = { version = "0.8.8", default-features = false, features = [
     "ws",
     "http1",
     "tokio",
