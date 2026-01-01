@@ -13,6 +13,7 @@
   - [`getrandom`](cli/web/getrandom.md)
   - [Default `index.html`](cli/web/default-index-html.md)
 - [Linter](cli/linter.md)
+- [Running Examples](cli/examples.md)
 - [Configuration](cli/configuration.md)
   - [Configuration Reference](cli/configuration/reference.md)
 - [Troubleshooting](cli/troubleshooting.md)
