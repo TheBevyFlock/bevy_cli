@@ -134,7 +134,7 @@ tower-http = { version = "0.6.8", default-features = false, features = [
     "fs",
     "trace",
 ], optional = true }
-tokio = { version = "1.48", default-features = false, features = [
+tokio = { version = "1.49", default-features = false, features = [
     "net",
     "rt",
     "macros",
