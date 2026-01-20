@@ -16,6 +16,19 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 - The linter now supports Bevy 0.17, but no longer supports Bevy 0.16 ([#577](https://github.com/TheBevyFlock/bevy_cli/pull/577))
     - `insert_event_resource` lint got renamed to `insert_message_resource`.
     - `iter_current_update_events` lint got renamed to `iter_current_update_messages`.
+- Bumped nightly toolchain to `nightly-2025-12-11` ([#697](https://github.com/TheBevyFlock/bevy_cli/pull/697))
+
+### Added
+
+- Improve linter's diagnostics when it ICEs ([#517](https://github.com/TheBevyFlock/bevy_cli/pull/517))
+- The Bevy CLI (Alpha) can now lint web Bevy apps ([#523](https://github.com/TheBevyFlock/bevy_cli/pull/523))
+- The Bevy CLI (Alpha) can now install any `bevy_lint` version ([#529](https://github.com/TheBevyFlock/bevy_cli/pull/529))
+- Added lint `missing_trait_for_unit_struct` to `restriction` ([#574](https://github.com/TheBevyFlock/bevy_cli/pull/574))
+    - This checks for unit structs that do not implement `Copy`,`Clone` or `Default`.
+
+### Fixed
+
+- The `unit_in_bundle` lint no longer ICE's on projection types ([#659](https://github.com/TheBevyFlock/bevy_cli/pull/659))
 
 ## v0.4.0 - 2025-08-06
 
