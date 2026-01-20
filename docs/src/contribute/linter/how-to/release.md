@@ -6,7 +6,7 @@
 2. Replace `Unreleased` heading with the version with the format `vX.Y.Z - YYYY-MM-DD`.
 3. Update the `**All Changes**` link to compare from `main` to the new tag `lint-vX.Y.Z`. (E.g. `lint-v0.1.0...main` to `lint-v0.1.0...lint-v0.2.0`.)
 4. Review the migration guide (`bevy_lint/MIGRATION.md`) and ensure all breaking / significant changes from the previous version are documented.
-5. Remove the `-dev` suffix from the version in `Cargo.toml` and the compatibility table in `bevy_lint/README.md`.
+5. Remove the `-dev` suffix from the version in `Cargo.toml` and the compatibility table in `bevy_cli/docs/src/linter/compatibility.md`.
     - Please ensure that `Cargo.lock` also updates!
 6. Use `grep` to replace most instances of the previous linter version and toolchain with the new ones in the `docs` folder and `README.md`.
     - Be careful not to change the wrong portions of the changelog, migration guide, and compatibility table.
