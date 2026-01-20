@@ -8,7 +8,7 @@ To actually install the new version of the linter, please see [the docs] and [th
 [the releases page]: https://github.com/TheBevyFlock/bevy_cli/releases
 [submit an issue]: https://github.com/TheBevyFlock/bevy_cli/issues
 
-## v0.4.0 to v0.5.0 (Unreleased)
+## v0.4.0 to v0.5.0
 
 ### [Bevy 0.17 Support](https://github.com/TheBevyFlock/bevy_cli/pull/577)
 
@@ -29,6 +29,18 @@ In Bevy 0.17, Event is now exclusively the name/trait for the concept of somethi
 [Message]: https://docs.rs/bevy/0.17.3/bevy/ecs/message/trait.Message.html
 [MessageWriter]: https://docs.rs/bevy/0.17.3/bevy/ecs/message/struct.MessageWriter.html
 [MessageReader]: https://docs.rs/bevy/0.17.3/bevy/ecs/message/struct.MessageReader.html
+
+### [Bumped Nightly Toolchain to `nightly-2025-12-11`](https://github.com/TheBevyFlock/bevy_cli/pull/697)
+
+`bevy_lint` now requires the `nightly-2025-12-11` toolchain, which supports Rust 1.94.0. You may uninstall the old `nightly-2025-06-26` toolchain and install the new toolchain using Rustup:
+
+```sh
+rustup toolchain uninstall nightly-2025-06-26
+
+rustup toolchain install nightly-2025-12-11 \
+    --component rustc-dev \
+    --component llvm-tools
+```
 
 ## v0.3.0 to v0.4.0
 
