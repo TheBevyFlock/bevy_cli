@@ -34,8 +34,5 @@ impl LintGroup for Suspicious {
 
     fn register_lints(store: &mut LintStore) {
         store.register_lints(Self::LINTS);
-
-        // This helps users migrate to v0.4.0, but should be removed before v0.5.0 is released.
-        store.register_renamed("bevy::insert_unit_bundle", "bevy::unit_in_bundle");
     }
 }

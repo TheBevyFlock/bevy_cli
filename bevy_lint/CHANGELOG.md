@@ -30,6 +30,11 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 
 - The `unit_in_bundle` lint no longer ICE's on projection types ([#659](https://github.com/TheBevyFlock/bevy_cli/pull/659))
 
+### Removed
+
+- Deprecated lint `insert_unit_bundle` was removed ([#724](https://github.com/TheBevyFlock/bevy_cli/pull/724))
+
+
 ## v0.4.0 - 2025-08-06
 
 **All Changes**: [`lint-v0.3.0...lint-v0.4.0`](https://github.com/TheBevyFlock/bevy_cli/compare/lint-v0.3.0...lint-v0.4.0)
