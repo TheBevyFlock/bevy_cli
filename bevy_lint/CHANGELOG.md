@@ -34,6 +34,7 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 ### Removed
 
 - Deprecated lint `insert_unit_bundle` was removed ([#724](https://github.com/TheBevyFlock/bevy_cli/pull/724))
+    - Please use the `unit_in_bundle` lint instead.
 
 ## v0.4.0 - 2025-08-06
 
