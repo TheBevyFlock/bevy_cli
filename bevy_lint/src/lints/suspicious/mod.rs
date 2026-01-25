@@ -30,6 +30,11 @@ impl LintGroup for Suspicious {
             Box::new(iter_current_update_messages::IterCurrentUpdateMessages)
         });
         store.register_late_pass(|_| Box::new(unit_in_bundle::UnitInBundle));
+
+        // These help users migrate from v0.4.0 to v0.5.0. These lines should be removed before
+        // v0.6.0 is released.
+        store.register_renamed("bevy::insert_event_resource", "bevy::insert_message_resource");
+        store.register_renamed("bevy::iter_current_update_events", "bevy::iter_current_update_messages");
     }
 
     fn register_lints(store: &mut LintStore) {
