@@ -14,8 +14,6 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 ### Added
 
 - Improve linter's diagnostics when it ICEs ([#517](https://github.com/TheBevyFlock/bevy_cli/pull/517))
-- The Bevy CLI (Alpha) can now lint web Bevy apps ([#523](https://github.com/TheBevyFlock/bevy_cli/pull/523))
-- The Bevy CLI (Alpha) can now install any `bevy_lint` version ([#529](https://github.com/TheBevyFlock/bevy_cli/pull/529))
 - Added lint `missing_trait_for_unit_struct` to `restriction` ([#574](https://github.com/TheBevyFlock/bevy_cli/pull/574))
     - This checks for unit structs that do not implement `Copy`,`Clone` or `Default`.
 
