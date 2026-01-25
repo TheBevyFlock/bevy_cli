@@ -18,7 +18,7 @@ To migrate your code base to Bevy 0.17, please see the [release post][bevy 0.17 
 [bevy 0.17 release post]: https://bevy.org/news/bevy-0-17/
 [bevy 0.17 migration guide]: https://bevy.org/learn/migration-guides/0-16-to-0-17/
 
-## Renaming the lints that targeted "buffered" Events
+### Renaming the lints that targeted "buffered" Events
 
 - `insert_event_resource` Lint was renamed to `insert_message_resource`
 - `iter_current_update_events` Lint was renamed to `iter_current_update_messages`
