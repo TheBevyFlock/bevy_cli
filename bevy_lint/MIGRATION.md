@@ -18,17 +18,16 @@ To migrate your code base to Bevy 0.17, please see the [release post][bevy 0.17 
 [bevy 0.17 release post]: https://bevy.org/news/bevy-0-17/
 [bevy 0.17 migration guide]: https://bevy.org/learn/migration-guides/0-16-to-0-17/
 
-### Renaming the lints that targeted "buffered" Events
+### [Renamed Lints that Target Buffered Events](https://github.com/TheBevyFlock/bevy_cli/pull/577)
 
-- `insert_event_resource` Lint was renamed to `insert_message_resource`
-- `iter_current_update_events` Lint was renamed to `iter_current_update_messages`
+- `insert_event_resource` lint was renamed to `insert_message_resource`
+- `iter_current_update_events` lint was renamed to `iter_current_update_messages`
 
-In Bevy 0.17, Event is now exclusively the name/trait for the concept of something that is "triggered" and "observed".
-[Message] is the name / trait of something that "buffered": it is "written" via a [MessageWriter] and "read" via a [MessageReader].
+In Bevy 0.17, `Event` now exclusively refers to observers. Buffered events, using `EventReader` and `EventWriter`, are now referred to as [`Message`]s, with [`MessageReader`] and [`MessageWriter`]. The lints related to buffered events have been renamed to reflect this change.
 
-[Message]: https://docs.rs/bevy/0.17.3/bevy/ecs/message/trait.Message.html
-[MessageWriter]: https://docs.rs/bevy/0.17.3/bevy/ecs/message/struct.MessageWriter.html
-[MessageReader]: https://docs.rs/bevy/0.17.3/bevy/ecs/message/struct.MessageReader.html
+[`Message`]: https://docs.rs/bevy/0.17.3/bevy/ecs/message/trait.Message.html
+[`MessageWriter`]: https://docs.rs/bevy/0.17.3/bevy/ecs/message/struct.MessageWriter.html
+[`MessageReader`]: https://docs.rs/bevy/0.17.3/bevy/ecs/message/struct.MessageReader.html
 
 ### [Bumped Nightly Toolchain to `nightly-2025-12-11`](https://github.com/TheBevyFlock/bevy_cli/pull/697)
 
