@@ -24,7 +24,6 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
     - `iter_current_update_events` lint got renamed to `iter_current_update_messages`.
 - Bumped nightly toolchain to `nightly-2025-12-11` ([#697](https://github.com/TheBevyFlock/bevy_cli/pull/697))
 
-
 ### Fixed
 
 - The `unit_in_bundle` lint no longer ICE's on projection types ([#659](https://github.com/TheBevyFlock/bevy_cli/pull/659))
