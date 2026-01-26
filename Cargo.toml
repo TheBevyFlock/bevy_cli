@@ -65,7 +65,7 @@ dialoguer = { version = "0.12.0", default-features = false, features = [
 ] }
 
 # Used to create styled table outputs.
-comfy-table = { version = "7.2.1", default-features = false }
+comfy-table = { version = "7.2.2", default-features = false }
 
 # Cargo like styling for clap
 clap-cargo = { version = "0.18.3", default-features = false, features = [
