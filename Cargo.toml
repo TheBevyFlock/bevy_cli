@@ -127,7 +127,7 @@ axum = { version = "0.8.8", default-features = false, features = [
     "tokio",
     "tracing",
 ], optional = true }
-tower = { version = "0.5.2", default-features = false, features = [
+tower = { version = "0.5.3", default-features = false, features = [
     "util",
 ], optional = true }
 tower-http = { version = "0.6.8", default-features = false, features = [
