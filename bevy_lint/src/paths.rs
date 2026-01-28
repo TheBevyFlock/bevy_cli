@@ -86,3 +86,35 @@ pub static UPDATE: PathLookup = type_path!(bevy_app::main_schedule::Update);
 pub static WITH: PathLookup = type_path!(bevy_ecs::query::filter::With);
 /// <https://github.com/bevyengine/bevy/blob/v0.17.2/crates/bevy_ecs/src/world/mod.rs#L90>
 pub static WORLD: PathLookup = type_path!(bevy_ecs::world::World);
+
+// All the paths that represent the `bevy_platform` types.
+// Keep the following list alphabetically sorted :) in neovim, use `:sort/\vpub static \w+/ ri`
+pub mod bevy_platform_types {
+    use clippy_utils::paths::{PathLookup, PathNS};
+
+    use crate::sym;
+
+    pub static ARC: PathLookup = type_path!(std::sync::Arc);
+    pub static BARRIER: PathLookup = type_path!(std::sync::Barrier);
+    pub static BARRIERWAITRESULT: PathLookup = type_path!(std::sync::BarrierWaitResult);
+    pub static DEFAULTHASHER: PathLookup = type_path!(std::hash::DefaultHasher);
+    pub static HASHMAP: PathLookup = type_path!(std::collections::HashMap);
+    pub static HASHSET: PathLookup = type_path!(std::collections::HashSet);
+    pub static INSTANT: PathLookup = type_path!(std::time::Instant);
+    pub static LAZYLOCK: PathLookup = type_path!(std::sync::LazyLock);
+    pub static LOCKRESULT: PathLookup = type_path!(std::sync::LockResult);
+    pub static MUTEX: PathLookup = type_path!(std::sync::Mutex);
+    pub static MUTEXGUARD: PathLookup = type_path!(std::sync::MutexGuard);
+    pub static ONCE: PathLookup = type_path!(std::sync::Once);
+    pub static ONCELOCK: PathLookup = type_path!(std::sync::OnceLock);
+    pub static ONCESTATE: PathLookup = type_path!(std::sync::OnceState);
+    pub static POISONERROR: PathLookup = type_path!(std::sync::PoisonError);
+    pub static RANDOMSTATE: PathLookup = type_path!(std::hash::RandomState);
+    pub static RWLOCK: PathLookup = type_path!(std::sync::RwLock);
+    pub static RWLOCKREADGUARD: PathLookup = type_path!(std::sync::RwLockReadGuard);
+    pub static RWLOCKWRITEGUARD: PathLookup = type_path!(std::sync::RwLockWriteGuard);
+    pub static SYNCCELL: PathLookup = type_path!(std::sync::Exclusive);
+    pub static SYNCUNSAFECELL: PathLookup = type_path!(std::cell::SyncUnsafeCell);
+    pub static TRYLOCKERROR: PathLookup = type_path!(std::sync::TryLockError);
+    pub static TRYLOCKRESULT: PathLookup = type_path!(std::sync::TryLockResult);
+}

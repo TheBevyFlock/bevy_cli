@@ -1,0 +1,63 @@
+#![feature(register_tool)]
+#![register_tool(bevy)]
+#![deny(bevy::bevy_platform_alternative_exists)]
+#![allow(dead_code)]
+
+use std::time::Instant;
+//~^ ERROR: Used type from the `std` that has an existing alternative from `bevy_platform`
+//~| HELP: the type `std::time::Instant` can be replaced with the `no_std` compatible
+// type bevy::platform::time::Instant
+
+// Ensure the lint can be muted on imports.
+#[allow(bevy::bevy_platform_alternative_exists, unused_imports)]
+use std::time::Instant as muted;
+
+struct Player {
+    attack_cd: std::time::Instant,
+    //~^ ERROR: Used type from the `std` that has an existing alternative from `bevy_platform`
+    //~| HELP: the type `std::time::Instant` can be replaced with the `no_std` compatible
+    // type bevy::platform::time::Instant
+}
+
+fn main() {
+    let _time = std::time::Instant::now();
+    //~^ ERROR: Used type from the `std` that has an existing alternative from `bevy_platform`
+    //~| HELP: the type `std::time::Instant` can be replaced with the `no_std` compatible
+    // type bevy::platform::time::Instant
+
+    // This should be fine even tho it will result in a `std::time::Instant` after full path
+    // resolution.
+    let _bevy_time = bevy::platform::time::Instant::now();
+
+    // Ensure the lint can be muted.
+    #[allow(bevy::bevy_platform_alternative_exists)]
+    let _time = std::time::Instant::now();
+
+    let _player_bevy = Player {
+        attack_cd: bevy::platform::time::Instant::now(),
+    };
+
+    let _player = Player {
+        attack_cd: std::time::Instant::now(),
+        //~^ ERROR: Used type from the `std` that has an existing alternative from `bevy_platform`
+        //~| HELP: the type `std::time::Instant` can be replaced with the `no_std` compatible
+        // type bevy::platform::time::Instant
+    };
+
+    let _time = Instant::now();
+
+    let _time: std::time::Instant = Instant::now();
+    //~^ ERROR: Used type from the `std` that has an existing alternative from `bevy_platform`
+    //~| HELP: the type `std::time::Instant` can be replaced with the `no_std` compatible
+    // type bevy::platform::time::Instant
+
+    // type bevy::platform::time::Instant
+    //~| HELP: the type `std::time::Instant` can be replaced with the `no_std` compatible
+    //~v ERROR: Used type from the `std` that has an existing alternative from `bevy_platform`
+    let _time: std::time::Instant = std::time::Instant::now();
+    //~^ ERROR: Used type from the `std` that has an existing alternative from `bevy_platform`
+    //~| HELP: the type `std::time::Instant` can be replaced with the `no_std` compatible
+    // type bevy::platform::time::Instant
+
+    let _bevy_time: bevy::platform::time::Instant = bevy::platform::time::Instant::now();
+}

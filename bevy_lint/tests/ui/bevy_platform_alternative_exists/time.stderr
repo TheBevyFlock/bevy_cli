@@ -1,0 +1,91 @@
+error: Used type from the `std` that has an existing alternative from `bevy_platform`
+ --> tests/ui/bevy_platform_alternative_exists/time.rs:6:5
+  |
+6 | use std::time::Instant;
+  |     ^^^^^^^^^^^^^^^^^^
+  |
+note: the lint level is defined here
+ --> tests/ui/bevy_platform_alternative_exists/time.rs:3:9
+  |
+3 | #![deny(bevy::bevy_platform_alternative_exists)]
+  |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+help: the type `std::time::Instant` can be replaced with the `no_std` compatible type bevy::platform::time::Instant
+  |
+6 - use std::time::Instant;
+6 + use bevy::platform::time::Instant;
+  |
+
+error: Used type from the `std` that has an existing alternative from `bevy_platform`
+  --> tests/ui/bevy_platform_alternative_exists/time.rs:16:16
+   |
+16 |     attack_cd: std::time::Instant,
+   |                ^^^^^^^^^^^^^^^^^^
+   |
+help: the type `std::time::Instant` can be replaced with the `no_std` compatible type bevy::platform::time::Instant
+   |
+16 -     attack_cd: std::time::Instant,
+16 +     attack_cd: bevy::platform::time::Instant,
+   |
+
+error: Used type from the `std` that has an existing alternative from `bevy_platform`
+  --> tests/ui/bevy_platform_alternative_exists/time.rs:23:17
+   |
+23 |     let _time = std::time::Instant::now();
+   |                 ^^^^^^^^^^^^^^^^^^
+   |
+help: the type `std::time::Instant` can be replaced with the `no_std` compatible type bevy::platform::time::Instant
+   |
+23 -     let _time = std::time::Instant::now();
+23 +     let _time = bevy::platform::time::Instant::now();
+   |
+
+error: Used type from the `std` that has an existing alternative from `bevy_platform`
+  --> tests/ui/bevy_platform_alternative_exists/time.rs:41:20
+   |
+41 |         attack_cd: std::time::Instant::now(),
+   |                    ^^^^^^^^^^^^^^^^^^
+   |
+help: the type `std::time::Instant` can be replaced with the `no_std` compatible type bevy::platform::time::Instant
+   |
+41 -         attack_cd: std::time::Instant::now(),
+41 +         attack_cd: bevy::platform::time::Instant::now(),
+   |
+
+error: Used type from the `std` that has an existing alternative from `bevy_platform`
+  --> tests/ui/bevy_platform_alternative_exists/time.rs:49:16
+   |
+49 |     let _time: std::time::Instant = Instant::now();
+   |                ^^^^^^^^^^^^^^^^^^
+   |
+help: the type `std::time::Instant` can be replaced with the `no_std` compatible type bevy::platform::time::Instant
+   |
+49 -     let _time: std::time::Instant = Instant::now();
+49 +     let _time: bevy::platform::time::Instant = Instant::now();
+   |
+
+error: Used type from the `std` that has an existing alternative from `bevy_platform`
+  --> tests/ui/bevy_platform_alternative_exists/time.rs:57:37
+   |
+57 |     let _time: std::time::Instant = std::time::Instant::now();
+   |                                     ^^^^^^^^^^^^^^^^^^
+   |
+help: the type `std::time::Instant` can be replaced with the `no_std` compatible type bevy::platform::time::Instant
+   |
+57 -     let _time: std::time::Instant = std::time::Instant::now();
+57 +     let _time: std::time::Instant = bevy::platform::time::Instant::now();
+   |
+
+error: Used type from the `std` that has an existing alternative from `bevy_platform`
+  --> tests/ui/bevy_platform_alternative_exists/time.rs:57:16
+   |
+57 |     let _time: std::time::Instant = std::time::Instant::now();
+   |                ^^^^^^^^^^^^^^^^^^
+   |
+help: the type `std::time::Instant` can be replaced with the `no_std` compatible type bevy::platform::time::Instant
+   |
+57 -     let _time: std::time::Instant = std::time::Instant::now();
+57 +     let _time: bevy::platform::time::Instant = std::time::Instant::now();
+   |
+
+error: aborting due to 7 previous errors
+

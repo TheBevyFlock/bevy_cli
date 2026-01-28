@@ -55,9 +55,12 @@
 )]
 
 use clippy_utils::sym::EXTRA_SYMBOLS as CLIPPY_SYMBOLS;
-// These are symbols that we use but are already interned by either the compiler or Clippy.
+/// These are symbols that we use but are already interned by either the compiler or Clippy.
 pub use clippy_utils::sym::{app, filter};
-pub use rustc_span::sym::{bevy_ecs, bundle, message, plugin, reflect};
+pub use rustc_span::sym::{
+    Arc, HashMap, HashSet, Instant, Mutex, MutexGuard, RwLock, RwLockReadGuard, RwLockWriteGuard,
+    SyncUnsafeCell, bevy_ecs, bundle, hash, message, plugin, reflect, std, sync,
+};
 use rustc_span::{Symbol, symbol::PREDEFINED_SYMBOLS_COUNT};
 
 /// The starting offset used for the first Bevy-specific symbol.
@@ -114,36 +117,49 @@ macro_rules! declare_bevy_symbols {
 
 // Before adding a new symbol here, check that it doesn't exist yet in `rustc_span::sym` or
 // `clippy_utils::sym`. Having duplicate symbols will cause the compiler to ICE! Also please keep
-// this list alphabetically sorted :)
+// this list alphabetically sorted :) (use `:sort` in nvim)
 declare_bevy_symbols! {
     App,
+    Barrier,
+    BarrierWaitResult,
     Bundle,
     Camera,
     Commands,
     Component,
+    DefaultHasher,
     Deferred,
     DeferredWorld,
     EntityCommands,
     EntityMut,
     Event,
     Events,
+    Exclusive,
     FilteredEntityMut,
     FixedUpdate,
+    LazyLock,
+    LockResult,
     Message,
     Messages,
     Mut,
     MutUntyped,
     NonSendMut,
+    Once,
+    OnceLock,
+    OnceState,
     PartialReflect,
     Plugin,
+    PoisonError,
     PtrMut,
     Query,
+    RandomState,
     Reflect,
     RelatedSpawner,
     RelatedSpawnerCommands,
     ResMut,
     Resource,
     SystemSet,
+    TryLockError,
+    TryLockResult,
     Update,
     With,
     World,
@@ -154,7 +170,9 @@ declare_bevy_symbols! {
     bevy_ptr,
     bevy_reflect,
     camera,
+    cell,
     change_detection,
+    collections,
     commands,
     component,
     deferred_world,
@@ -174,6 +192,7 @@ declare_bevy_symbols! {
     spawn,
     system,
     system_param,
+    time,
     world,
 }
 
