@@ -2,7 +2,7 @@
 
 |`bevy_lint` Version|Rust Version|Rustup Toolchain|Bevy Version|
 |-|-|-|-|
-|0.6.0-dev|1.94.0|`nightly-2025-12-11`|0.17|
+|0.6.0-dev|1.94.0|`nightly-2025-12-11`|0.18|
 |0.5.0|1.94.0|`nightly-2025-12-11`|0.17|
 |0.4.0|1.90.0|`nightly-2025-06-26`|0.16|
 |0.3.0|1.88.0|`nightly-2025-04-03`|0.16|

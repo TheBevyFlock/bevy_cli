@@ -11,6 +11,10 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 
 **All Changes**: [`lint-v0.5.0...main`](https://github.com/TheBevyFlock/bevy_cli/compare/lint-v0.5.0...main)
 
+### Changed
+
+- The linter now supports Bevy 0.18, but no longer supports Bevy 0.17 ([#703](https://github.com/TheBevyFlock/bevy_cli/pull/703))
+
 ## v0.5.0 - 2026-01-26
 
 **All Changes**: [`lint-v0.4.0...lint-v0.5.0`](https://github.com/TheBevyFlock/bevy_cli/compare/lint-v0.4.0...lint-v0.5.0)
