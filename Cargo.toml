@@ -44,7 +44,7 @@ unstable = []
 
 [dependencies]
 # CLI argument parsing
-clap = { version = "4.5.53", default-features = false, features = [
+clap = { version = "4.5.54", default-features = false, features = [
     "color",
     "error-context",
     "help",
@@ -54,7 +54,7 @@ clap = { version = "4.5.53", default-features = false, features = [
     "derive",
 ] }
 # autocompletion auto-generation
-clap_complete = { version = "4.5.61", default-features = false }
+clap_complete = { version = "4.5.65", default-features = false }
 
 # Easy error propagation and contexts
 anyhow = { version = "1.0.86", default-features = false, features = ["std"] }
@@ -84,7 +84,7 @@ serde = { version = "1.0.228", default-features = false, features = [
     "std",
     "derive",
 ] }
-serde_json = { version = "1.0.145", default-features = false, features = [
+serde_json = { version = "1.0.149", default-features = false, features = [
     "std",
 ] }
 
@@ -95,7 +95,7 @@ semver = { version = "1.0.27", default-features = false, features = ["serde"] }
 cargo_metadata = { version = "0.23.1", default-features = false }
 
 # Parsing the Cargo manifest
-toml = { version = "0.9.8", default-features = false, features = [
+toml = { version = "0.9.11", default-features = false, features = [
     "std",
     "parse",
     "display",
@@ -103,7 +103,7 @@ toml = { version = "0.9.8", default-features = false, features = [
 ] }
 
 # Logging crates
-tracing = { version = "0.1.43", default-features = false, features = ["std"] }
+tracing = { version = "0.1.44", default-features = false, features = ["std"] }
 tracing-subscriber = { version = "0.3.22", default-features = false, features = [
     "std",
     "ansi",
@@ -121,7 +121,7 @@ webbrowser = { version = "1.0.6", default-features = false, optional = true }
 http = { version = "1.4", default-features = false, features = [
     "std",
 ], optional = true }
-axum = { version = "0.8.7", default-features = false, features = [
+axum = { version = "0.8.8", default-features = false, features = [
     "ws",
     "http1",
     "tokio",
@@ -134,7 +134,7 @@ tower-http = { version = "0.6.8", default-features = false, features = [
     "fs",
     "trace",
 ], optional = true }
-tokio = { version = "1.48", default-features = false, features = [
+tokio = { version = "1.49", default-features = false, features = [
     "net",
     "rt",
     "macros",
@@ -145,8 +145,8 @@ fs_extra = { version = "1.3.0", default-features = false, optional = true }
 
 [dev-dependencies]
 # Forcing tests that can't be parallelized to be run sequentially
-serial_test = "3.2.0"
-assert_cmd = "2.1.1"
+serial_test = "3.3.1"
+assert_cmd = "2.1.2"
 tempfile = "3"
 
 [lints]
