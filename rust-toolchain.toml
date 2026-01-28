@@ -5,7 +5,7 @@
 # Writing custom lints requires using nightly Rust. We pin to a specific version of nightly version
 # so that builds are reproducible. Note that we use the Regex `^channel = "(.+)"$` to match this
 # line, so be wary when changing its formatting.
-channel = "nightly-2025-12-11"
+channel = "nightly-2026-01-22"
 
 # These components are required to use `rustc` crates. Note that we use the Regex
 # `^components = \[(.*)\]$` to match this line, so be wary when changing its formatting.
