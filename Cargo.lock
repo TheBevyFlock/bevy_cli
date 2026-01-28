@@ -814,7 +814,7 @@ dependencies = [
 
 [[package]]
 name = "bevy_lint"
-version = "0.5.0"
+version = "0.6.0-dev"
 dependencies = [
  "anstream",
  "anstyle",
