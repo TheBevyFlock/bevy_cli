@@ -101,7 +101,8 @@ fn support_multi_threading(args: &mut BuildArgs) {
 
     // Rust's default Wasm target does not support multi-threading primitives out of the box
     // They need to be enabled manually
-    let multi_threading_flags = crate::web::unstable::UnstableWebArgs::REQUIRED_RUSTFLAGS.join(" ");
+    let multi_threading_flags =
+        crate::web::unstable::UnstableWebArgs::MULTITHREADING_RUSTFLAGS.join(" ");
 
     if let Some(rustflags) = args.cargo_args.common_args.rustflags.as_mut() {
         *rustflags += " ";

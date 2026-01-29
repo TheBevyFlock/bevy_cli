@@ -24,7 +24,7 @@ impl UnstableWebArgs {
         }
     }
 
-    pub const REQUIRED_RUSTFLAGS: [&str; 8] = [
+    pub const MULTITHREADING_RUSTFLAGS: [&str; 8] = [
         "-Ctarget-feature=+atomics",
         "-Clink-arg=--shared-memory",
         "-Clink-arg=--max-memory=1073741824",
