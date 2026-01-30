@@ -8,6 +8,16 @@ To actually install the new version of the linter, please see [the docs] and [th
 [the releases page]: https://github.com/TheBevyFlock/bevy_cli/releases
 [submit an issue]: https://github.com/TheBevyFlock/bevy_cli/issues
 
+## v0.5.0 to v0.6.0 (Unreleased)
+
+### [Bevy 0.18 Support](https://github.com/TheBevyFlock/bevy_cli/pull/703)
+
+The linter now supports Bevy 0.18, but no longer supports Bevy 0.17.
+To migrate your code base to Bevy 0.18, please see the [release post][bevy 0.18 release post] and [migration guide][bevy 0.18 migration guide].
+
+[bevy 0.18 release post]: https://bevy.org/news/bevy-0-18/
+[bevy 0.18 migration guide]: https://bevy.org/learn/migration-guides/0-17-to-0-18/
+
 ## v0.4.0 to v0.5.0
 
 ### [Bevy 0.17 Support](https://github.com/TheBevyFlock/bevy_cli/pull/577)
