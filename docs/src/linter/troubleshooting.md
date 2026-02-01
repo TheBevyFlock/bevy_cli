@@ -6,14 +6,14 @@ If you have [`cranelift`](https://github.com/rust-lang/rustc_codegen_cranelift) 
 
 ```
 error: failed to find a `codegen-backends` folder in the sysroot candidates:
-       * ~/.rustup/toolchains/nightly-2025-12-11-unknown-linux-gnu
-       * ~/.rustup/toolchains/nightly-2025-12-11-x86_64-unknown-linux-gnu
+       * ~/.rustup/toolchains/nightly-2026-01-22-unknown-linux-gnu
+       * ~/.rustup/toolchains/nightly-2026-01-22-x86_64-unknown-linux-gnu
 ```
 
 This error occurs because you do not have `cranelift` installed for the specific nightly toolchain that the linter uses. You can fix this by installing `rustc-codegen-cranelift-preview` for the linter's toolchain:
 
 ```sh
-rustup component add rustc-codegen-cranelift-preview --toolchain nightly-2025-12-11
+rustup component add rustc-codegen-cranelift-preview --toolchain nightly-2026-01-22
 ```
 
 ## Using with `sccache`
@@ -33,7 +33,7 @@ Error: command `~/.cargo/bin/bevy_lint ` exited with status code exit status: 10
 You can fix the error by setting [the `CARGO` environmental variable](https://doc.rust-lang.org/cargo/reference/environment-variables.html#environment-variables-cargo-sets-for-crates) when running the linter. This informs `sccache` that `bevy_lint` uses Cargo:
 
 ```sh
-CARGO=$(rustup which --toolchain nightly-2025-12-11 cargo) bevy_lint
+CARGO=$(rustup which --toolchain nightly-2026-01-22 cargo) bevy_lint
 ```
 
 If you [use `BEVY_LINT_SYSROOT` instead of Rustup](environmental-variables.md), you can run this instead:
