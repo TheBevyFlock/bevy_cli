@@ -82,10 +82,7 @@ impl<'tcx> LateLintPass<'tcx> for IterCurrentUpdateMessages {
                 .expr_ty_adjusted(method_call.receiver)
                 .peel_refs();
 
-            // Events is deprecated in favor of `Messages` in bevy `0.17`
-            if !(crate::paths::EVENTS.matches_ty(cx, src_ty)
-                || crate::paths::MESSAGES.matches_ty(cx, src_ty))
-            {
+            if !crate::paths::MESSAGES.matches_ty(cx, src_ty) {
                 return;
             }
 
