@@ -82,7 +82,7 @@ impl<'tcx> LateLintPass<'tcx> for IterCurrentUpdateMessages {
                 .expr_ty_adjusted(method_call.receiver)
                 .peel_refs();
 
-            if !(crate::paths::MESSAGES.matches_ty(cx, src_ty)) {
+            if !crate::paths::MESSAGES.matches_ty(cx, src_ty) {
                 return;
             }
 
