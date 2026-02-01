@@ -12,39 +12,6 @@ git-repository-url = "https://github.com/TheBevyFlock/bevy_cli"
 edit-url-template = "https://github.com/TheBevyFlock/bevy_cli/edit/main/docs/{path}?mode=edit"
 site-url = "/bevy_cli/"
 
-# These redirects migrate users from the old `rustdoc`-based linter docs to the new
-# `mdbook`-`rustdoc` combo. These redirects may be removed before the v0.5.0 release of the linter,
-# which should give most users apt time to update their URLs.
-[output.html.redirect]
-# Those trying to find the old linter docs will be redirected to the new docs.
-"/bevy_lint/index.html" = "../linter/index.html"
-
-# Those trying to find the list of lints will be redirected to the new location.
-"/bevy_lint/lints/index.html" = "../../api/bevy_lint/lints/index.html"
-
-# Those trying to find the docs on a specific lint group will be redirected to the new location.
-"/bevy_lint/lints/complexity/index.html" = "../../../api/bevy_lint/lints/complexity/index.html"
-"/bevy_lint/lints/correctness/index.html" = "../../../api/bevy_lint/lints/correctness/index.html"
-"/bevy_lint/lints/nursery/index.html" = "../../../api/bevy_lint/lints/nursery/index.html"
-"/bevy_lint/lints/pedantic/index.html" = "../../../api/bevy_lint/lints/pedantic/index.html"
-"/bevy_lint/lints/performance/index.html" = "../../../api/bevy_lint/lints/performance/index.html"
-"/bevy_lint/lints/restriction/index.html" = "../../../api/bevy_lint/lints/restriction/index.html"
-"/bevy_lint/lints/style/index.html" = "../../../api/bevy_lint/lints/style/index.html"
-"/bevy_lint/lints/suspicious/index.html" = "../../../api/bevy_lint/lints/suspicious/index.html"
-
-# Those trying to find the docs on a specific lint will be redirected to the new location.
-"/bevy_lint/lints/nursery/duplicate_bevy_dependencies/index.html" = "../../../../api/bevy_lint/lints/nursery/duplicate_bevy_dependencies/index.html"
-"/bevy_lint/lints/nursery/zst_query/index.html" = "../../../../api/bevy_lint/lints/nursery/zst_query/index.html"
-"/bevy_lint/lints/pedantic/borrowed_reborrowable/index.html" = "../../../../api/bevy_lint/lints/pedantic/borrowed_reborrowable/index.html"
-"/bevy_lint/lints/pedantic/main_return_without_appexit/index.html" = "../../../../api/bevy_lint/lints/pedantic/main_return_without_appexit/index.html"
-"/bevy_lint/lints/restriction/missing_reflect/index.html" = "../../../../api/bevy_lint/lints/restriction/missing_reflect/index.html"
-"/bevy_lint/lints/restriction/panicking_methods/index.html" = "../../../../api/bevy_lint/lints/restriction/panicking_methods/index.html"
-"/bevy_lint/lints/style/unconventional_naming/index.html" = "../../../../api/bevy_lint/lints/style/unconventional_naming/index.html"
-"/bevy_lint/lints/suspicious/insert_event_resource/index.html" = "../../../../api/bevy_lint/lints/suspicious/insert_event_resource/index.html"
-"/bevy_lint/lints/suspicious/insert_unit_bundle/index.html" = "../../../../api/bevy_lint/lints/suspicious/insert_unit_bundle/index.html"
-"/bevy_lint/lints/suspicious/iter_current_update_events/index.html" = "../../../../api/bevy_lint/lints/suspicious/iter_current_update_events/index.html"
-
-
 # `mdbook-linkcheck2` <https://github.com/marxin/mdbook-linkcheck2> is a backend that
 # verifies links are correct.
 [output.linkcheck2]

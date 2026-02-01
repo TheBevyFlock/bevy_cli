@@ -8,11 +8,11 @@
 
 ## Latest Release
 
-The following steps will install v0.5.0 of the linter and run it for all crates in a workspace:
+The following steps will install v0.6.0 of the linter and run it for all crates in a workspace:
 
 ```yml
 - name: Install `bevy_lint`
-  uses: TheBevyFlock/bevy_cli/bevy_lint@lint-v0.5.0
+  uses: TheBevyFlock/bevy_cli/bevy_lint@lint-v0.6.0
 
 - name: Run `bevy_lint`
   run: bevy_lint --workspace
@@ -27,7 +27,7 @@ Note that this action overrides the default toolchain and configures it to be th
 
 # Overrides the default toolchain to be nightly Rust.
 - name: Install `bevy_lint`
-  uses: TheBevyFlock/bevy_cli/bevy_lint@lint-v0.5.0
+  uses: TheBevyFlock/bevy_cli/bevy_lint@lint-v0.6.0
 
 # Resets the default toolchain back to stable Rust.
 - name: Configure the default Rust toolchain
@@ -60,7 +60,7 @@ By default, using the provided action will cause the linter to be recompiled for
 
 ```yml
 - name: Install `bevy_lint`
-  uses: TheBevyFlock/bevy_cli/bevy_lint@lint-v0.5.0
+  uses: TheBevyFlock/bevy_cli/bevy_lint@lint-v0.6.0
   with:
     cache: true
 ```
@@ -69,7 +69,7 @@ You can also configure whether a new cache can be saved with the `save-cache-if`
 
 ```yml
 - name: Install `bevy_lint`
-  uses: TheBevyFlock/bevy_cli/bevy_lint@lint-v0.5.0
+  uses: TheBevyFlock/bevy_cli/bevy_lint@lint-v0.6.0
   with:
     cache: true
     save-cache-if: ${{ github.ref == 'refs/heads/main' }}

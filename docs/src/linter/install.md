@@ -2,18 +2,18 @@
 
 ## CLI
 
-The CLI supports automatically installing the linter. Make sure you [have the CLI first](../cli/install.md), then simply run `bevy lint install v0.5.0`.
+The CLI supports automatically installing the linter. Make sure you [have the CLI first](../cli/install.md), then simply run `bevy lint install v0.6.0`.
 
 The CLI will prompt you if you wish to install the linter and the required toolchain. Note that it will assume you are using Rustup, and if that isn't the case you should [install the linter manually instead](#manual-without-rustup).
 
 ```
-Do you want to install `bevy_lint-v0.5.0` and the required toolchain: `nightly-2025-12-11` ? [y/n]
+Do you want to install `bevy_lint-v0.6.0` and the required toolchain: `nightly-2026-01-22` ? [y/n]
 ```
 
 If you want to auto-confirm the prompt, you may pass `--yes` to the command. Note that if you are installing the linter in CI, you may wish to use the [dedicated Github Action instead](github-actions.md):
 
 ```sh
-bevy lint install --yes v0.5.0
+bevy lint install --yes v0.6.0
 ```
 
 ## Manual with Rustup
@@ -21,7 +21,7 @@ bevy lint install --yes v0.5.0
 `bevy_lint` requires a specific nightly Rust toolchain with the `rustc-dev` and `llvm-tools` components. You can install the toolchain required for the latest release with:
 
 ```sh
-rustup toolchain install nightly-2025-12-11 \
+rustup toolchain install nightly-2026-01-22 \
     --component rustc-dev \
     --component llvm-tools
 ```
@@ -33,9 +33,9 @@ If you are installing a different version of the linter, you may need to install
 Once you have the toolchain installed, you can compile and install `bevy_lint` through Cargo:
 
 ```sh
-rustup run nightly-2025-12-11 cargo install \
+rustup run nightly-2026-01-22 cargo install \
     --git https://github.com/TheBevyFlock/bevy_cli.git \
-    --tag lint-v0.5.0 \
+    --tag lint-v0.6.0 \
     --locked \
     bevy_lint
 ```
@@ -51,7 +51,7 @@ Once you've installed the toolchain and components, use that toolchain's `cargo`
 ```sh
 my-toolchain/bin/cargo install \
     --git https://github.com/TheBevyFlock/bevy_cli.git \
-    --tag lint-v0.5.0 \
+    --tag lint-v0.6.0 \
     --locked \
     bevy_lint
 ```

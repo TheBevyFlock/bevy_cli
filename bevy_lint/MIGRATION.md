@@ -8,7 +8,7 @@ To actually install the new version of the linter, please see [the docs] and [th
 [the releases page]: https://github.com/TheBevyFlock/bevy_cli/releases
 [submit an issue]: https://github.com/TheBevyFlock/bevy_cli/issues
 
-## v0.5.0 to v0.6.0 (Unreleased)
+## v0.5.0 to v0.6.0
 
 ### [Bevy 0.18 Support](https://github.com/TheBevyFlock/bevy_cli/pull/703)
 
@@ -17,6 +17,18 @@ To migrate your code base to Bevy 0.18, please see the [release post][bevy 0.18 
 
 [bevy 0.18 release post]: https://bevy.org/news/bevy-0-18/
 [bevy 0.18 migration guide]: https://bevy.org/learn/migration-guides/0-17-to-0-18/
+
+### [Bumped Nightly Toolchain to `nightly-2026-01-22`](https://github.com/TheBevyFlock/bevy_cli/pull/729)
+
+`bevy_lint` now requires the `nightly-2026-01-22` toolchain, which supports Rust 1.95.0. You may uninstall the old `nightly-2025-12-11` toolchain and install the new toolchain using Rustup:
+
+```sh
+rustup toolchain uninstall nightly-2025-12-11
+
+rustup toolchain install nightly-2026-01-22 \
+    --component rustc-dev \
+    --component llvm-tools
+```
 
 ## v0.4.0 to v0.5.0
 
