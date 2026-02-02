@@ -54,6 +54,14 @@ rustup run nightly-YYYY-MM-DD cargo install \
     bevy_lint
 ```
 
+Alternatively, if you have v0.1.0-alpha.2 or later of the Bevy CLI, you can install the linter with `bevy lint install`:
+
+<!-- Update `vX.Y.Z` in the following code block. -->
+
+```sh
+bevy lint install vX.Y.Z
+```
+
 <!-- Paste the changelog for this release here. Make sure to include the "All Changes" link. :) -->
 ````
 
