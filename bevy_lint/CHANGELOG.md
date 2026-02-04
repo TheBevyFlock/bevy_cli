@@ -9,13 +9,42 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 
 ## Unreleased
 
-**All Changes**: [`lint-v0.4.0...main`](https://github.com/TheBevyFlock/bevy_cli/compare/lint-v0.4.0...main)
+**All Changes**: [`lint-v0.6.0...main`](https://github.com/TheBevyFlock/bevy_cli/compare/lint-v0.6.0...main)
+
+## v0.6.0 - 2026-02-01
+
+**All Changes**: [`lint-v0.5.0...lint-v0.6.0`](https://github.com/TheBevyFlock/bevy_cli/compare/lint-v0.5.0...lint-v0.6.0)
+
+### Changed
+
+- The linter now supports Bevy 0.18, but no longer supports Bevy 0.17 ([#703](https://github.com/TheBevyFlock/bevy_cli/pull/703))
+- Bumped nightly toolchain to `nightly-2026-01-22` ([#729](https://github.com/TheBevyFlock/bevy_cli/pull/729))
+
+## v0.5.0 - 2026-01-26
+
+**All Changes**: [`lint-v0.4.0...lint-v0.5.0`](https://github.com/TheBevyFlock/bevy_cli/compare/lint-v0.4.0...lint-v0.5.0)
+
+### Added
+
+- Improve linter's diagnostics when it ICEs ([#517](https://github.com/TheBevyFlock/bevy_cli/pull/517))
+- Added lint `missing_trait_for_unit_struct` to `restriction` ([#574](https://github.com/TheBevyFlock/bevy_cli/pull/574))
+    - This checks for unit structs that do not implement `Copy`,`Clone` or `Default`.
 
 ### Changed
 
 - The linter now supports Bevy 0.17, but no longer supports Bevy 0.16 ([#577](https://github.com/TheBevyFlock/bevy_cli/pull/577))
     - `insert_event_resource` lint got renamed to `insert_message_resource`.
     - `iter_current_update_events` lint got renamed to `iter_current_update_messages`.
+- Bumped nightly toolchain to `nightly-2025-12-11` ([#697](https://github.com/TheBevyFlock/bevy_cli/pull/697))
+
+### Fixed
+
+- The `unit_in_bundle` lint no longer ICE's on projection types ([#659](https://github.com/TheBevyFlock/bevy_cli/pull/659))
+
+### Removed
+
+- Deprecated lint `insert_unit_bundle` was removed ([#724](https://github.com/TheBevyFlock/bevy_cli/pull/724))
+    - Please use the `unit_in_bundle` lint instead.
 
 ## v0.4.0 - 2025-08-06
 
