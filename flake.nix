@@ -39,17 +39,10 @@
             version = "0.1.0-dev";
             src = ./.;
             cargoLock.lockFile = ./Cargo.lock;
-            cargoBuildFlags = [ "--workspace" ];
             doCheck = false;
 
             nativeBuildInputs = nativeBuildInputs ++ (with pkgs; [ makeBinaryWrapper ]);
             inherit buildInputs;
-
-            postInstall = ''
-              for bin in $out/bin/bevy{,_lint}; do
-                wrapProgram $bin --set BEVY_LINT_SYSROOT ${toolchain}
-              done
-            '';
           };
         };
 

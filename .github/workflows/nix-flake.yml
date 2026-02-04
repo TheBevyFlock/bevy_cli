@@ -28,10 +28,3 @@ jobs:
 
       - name: Run Bevy CLI
         run: nix run . -- --version
-
-      # Due to how the flake is setup, it's not possible to run the linter using `nix run` yet.
-      # Instead, we run it manually for now.
-      - name: Run Bevy Linter
-        run: |
-          ./result/bin/bevy_lint --version
-          ./result/bin/bevy_lint_driver rustc --version
