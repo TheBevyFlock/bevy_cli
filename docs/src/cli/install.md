@@ -38,3 +38,26 @@ If you want to try out the newest unstable features, you may install the CLI fro
 ```sh
 cargo install --git https://github.com/TheBevyFlock/bevy_cli --branch main --locked bevy_cli
 ```
+
+## Nix
+
+> Please note that Nix support is maintained on a best-effort basis, and therefore should not be considered stable. Features may be unavailable or break altogether as a result of future changes.
+
+The CLI is available to [Nix](https://nixos.org/) users as a [flake](https://wiki.nixos.org/wiki/Flakes). Simply add it as an input to your project's `flake.nix` to include it in the environment:
+
+```nix
+{
+  description = "A Bevy project flake.";
+
+  inputs = {
+    # Other inputs...
+    bevy_cli.url = "github:TheBevyFlock/bevy_cli";
+  };
+
+  outputs = { self, bevy_cli }: {
+    # Your outputs...
+  };
+}
+```
+
+An [example](https://github.com/bevyengine/bevy/blob/v0.18.0/docs/linux_dependencies.md#flakenix) project flake can be found in the official Bevy docs.

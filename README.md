@@ -55,7 +55,7 @@ cargo install --git https://github.com/TheBevyFlock/bevy_cli --branch main --loc
 
 > Please note that Nix support is maintained on a best-effort basis, and therefore should not be considered stable. Features may be unavailable or break altogether as a result of future changes.
 
-The CLI and Linter are also available to Nix users as a [flake](https://wiki.nixos.org/wiki/Flakes). Simply add it as an input to your project's `flake.nix` to include it in the environment:
+The CLI is available to [Nix](https://nixos.org/) users as a [flake](https://wiki.nixos.org/wiki/Flakes). Simply add it as an input to your project's `flake.nix` to include it in the environment:
 
 ```nix
 {
@@ -72,7 +72,7 @@ The CLI and Linter are also available to Nix users as a [flake](https://wiki.nix
 }
 ```
 
-An [example](https://github.com/bevyengine/bevy/blob/2facb2572d84e9b9923edef7f35bae2c26308081/docs/linux_dependencies.md#flakenix) project flake can be found in the official Bevy docs.
+An [example](https://github.com/bevyengine/bevy/blob/v0.18.0/docs/linux_dependencies.md#flakenix) project flake can be found in the official Bevy docs.
 
 ## Quick Start
 
