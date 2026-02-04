@@ -39,7 +39,7 @@
             version = "0.1.0-dev";
             src = ./.;
             cargoLock.lockFile = ./Cargo.lock;
-            cargoBuildFlags = [ "--all" ];
+            cargoBuildFlags = [ "--workspace" ];
             doCheck = false;
 
             nativeBuildInputs = nativeBuildInputs ++ (with pkgs; [ makeBinaryWrapper ]);
