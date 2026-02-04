@@ -10,19 +10,21 @@
     };
   };
 
-  outputs = { self, flake-utils, nixpkgs, rust-overlay }:
+  outputs =
+    {
+      self,
+      flake-utils,
+      nixpkgs,
+      rust-overlay,
+    }:
     flake-utils.lib.eachDefaultSystem (
       system:
       let
         pkgs = nixpkgs.legacyPackages.${system}.extend rust-overlay.overlays.default;
 
-        nativeBuildInputs = with pkgs; [
-          pkg-config
-        ];
+        nativeBuildInputs = with pkgs; [ pkg-config ];
 
-        buildInputs = with pkgs; [
-          openssl
-        ];
+        buildInputs = with pkgs; [ openssl ];
 
         toolchain = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
 
@@ -46,9 +48,7 @@
           };
         };
 
-        devShells.default = pkgs.mkShell {
-          inherit buildInputs nativeBuildInputs;
-        };
+        devShells.default = pkgs.mkShell { inherit buildInputs nativeBuildInputs; };
       }
     );
 }

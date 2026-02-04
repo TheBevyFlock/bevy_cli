@@ -28,3 +28,6 @@ jobs:
 
       - name: Run Bevy CLI
         run: nix run . -- --version
+
+      - name: Format `flake.nix`
+        run: nix-shell -p nixfmt --run "nixfmt --check --strict --verify flake.nix"
