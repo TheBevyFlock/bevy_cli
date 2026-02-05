@@ -6,6 +6,8 @@ updates:
       - /tests/bevy_cli_test
     schedule:
       interval: weekly
+    cooldown:
+      default-days: 7
     labels:
       - C-Dependencies
   - package-ecosystem: github-actions
@@ -16,5 +18,7 @@ updates:
       - /bevy_lint
     schedule:
       interval: weekly
+    cooldown:
+      default-days: 7
     labels:
       - C-Dependencies
