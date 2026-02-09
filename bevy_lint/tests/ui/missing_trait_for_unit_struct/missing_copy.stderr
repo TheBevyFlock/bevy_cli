@@ -1,19 +1,19 @@
 error: defined a unit struct without a `Copy` implementation
- --> tests/ui/missing_trait_for_unit_struct/missing_copy.rs:9:1
-  |
-9 | pub struct IsDefaultUiCamera;
-  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  |
+  --> tests/ui/missing_trait_for_unit_struct/missing_copy.rs:9:1
+   |
+ 9 | pub struct IsDefaultUiCamera;
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
 note: the lint level is defined here
- --> tests/ui/missing_trait_for_unit_struct/missing_copy.rs:4:9
-  |
-4 | #![deny(bevy::missing_copy)]
-  |         ^^^^^^^^^^^^^^^^^^
+  --> tests/ui/missing_trait_for_unit_struct/missing_copy.rs:4:9
+   |
+ 4 | #![deny(bevy::missing_copy)]
+   |         ^^^^^^^^^^^^^^^^^^
 help: `Copy` can be automatically derived
-  |
-9 + #[derive(Copy)]
-10| pub struct IsDefaultUiCamera;
-  |
+   |
+ 9 + #[derive(Copy)]
+10 | pub struct IsDefaultUiCamera;
+   |
 
 error: aborting due to 1 previous error
 

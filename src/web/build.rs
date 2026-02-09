@@ -4,7 +4,7 @@ use tracing::info;
 
 use super::bundle::WebBundle;
 use crate::{
-    bin_target::BinTarget,
+    bin_target::select_run_binary,
     commands::build::{BuildArgs, BuildSubcommands},
     external_cli::{cargo, wasm_bindgen, wasm_opt},
     web::{
@@ -23,11 +23,16 @@ use crate::{
 /// - Optimizing the Wasm binary (in release mode)
 /// - Creating JavaScript bindings
 /// - Creating a bundled folder (if requested)
-pub fn build_web(
-    args: &mut BuildArgs,
-    metadata: &Metadata,
-    bin_target: &BinTarget,
-) -> anyhow::Result<WebBundle> {
+pub fn build_web(args: &mut BuildArgs, metadata: &Metadata) -> anyhow::Result<WebBundle> {
+    let bin_target = select_run_binary(
+        metadata,
+        args.cargo_args.package_args.package.as_deref(),
+        args.cargo_args.target_args.bin.as_deref(),
+        args.cargo_args.target_args.example.as_deref(),
+        args.target().as_deref(),
+        args.profile(),
+    )?;
+
     let mut profile_args = configure_default_web_profiles(metadata)?;
     // `--config` args are resolved from left to right,
     // so the default configuration needs to come before the user args
@@ -64,8 +69,8 @@ pub fn build_web(
         })?;
 
     info!("bundling JavaScript bindings...");
-    wasm_bindgen::bundle(metadata, bin_target, args.auto_install())?;
-    wasm_opt::optimize_path(bin_target, args.auto_install(), &args.wasm_opt_args())?;
+    wasm_bindgen::bundle(metadata, &bin_target, args.auto_install())?;
+    wasm_opt::optimize_path(&bin_target, args.auto_install(), &args.wasm_opt_args())?;
 
     let web_args = args
         .subcommand
@@ -75,7 +80,7 @@ pub fn build_web(
     let web_bundle = create_web_bundle(
         metadata,
         args.profile(),
-        bin_target,
+        &bin_target,
         web_args.is_some_and(|web_args| web_args.create_packed_bundle),
     )
     .context("failed to create web bundle")?;
@@ -101,13 +106,14 @@ fn support_multi_threading(args: &mut BuildArgs) {
 
     // Rust's default Wasm target does not support multi-threading primitives out of the box
     // They need to be enabled manually
-    let multi_threading_flags = "-C target-feature=+atomics,+bulk-memory";
+    let multi_threading_flags =
+        crate::web::unstable::UnstableWebArgs::MULTITHREADING_RUSTFLAGS.join(" ");
 
     if let Some(rustflags) = args.cargo_args.common_args.rustflags.as_mut() {
         *rustflags += " ";
-        *rustflags += multi_threading_flags;
+        *rustflags += &multi_threading_flags;
     } else {
-        args.cargo_args.common_args.rustflags = Some(multi_threading_flags.to_owned());
+        args.cargo_args.common_args.rustflags = Some(multi_threading_flags);
     }
 
     // The std needs to be rebuilt with Wasm multi-threading support
