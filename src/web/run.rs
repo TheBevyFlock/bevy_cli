@@ -9,22 +9,15 @@ use http::{HeaderMap, HeaderValue};
 use tracing::{error, info};
 
 use super::{build::build_web, serve::serve};
-use crate::{
-    bin_target::BinTarget,
-    commands::{
-        build::BuildArgs,
-        run::{RunArgs, RunSubcommands, RunWebArgs},
-    },
+use crate::commands::{
+    build::BuildArgs,
+    run::{RunArgs, RunSubcommands, RunWebArgs},
 };
 
 /// Run the app in the browser.
 ///
 /// Requires [`RunSubcommands::Web`] to be defined.
-pub(crate) fn run_web(
-    args: &mut RunArgs,
-    metadata: &Metadata,
-    bin_target: &BinTarget,
-) -> anyhow::Result<()> {
+pub(crate) fn run_web(args: &mut RunArgs, metadata: &Metadata) -> anyhow::Result<()> {
     let mut build_args: BuildArgs = args.clone().into();
 
     let web_args = match &mut args.subcommand {
@@ -45,15 +38,7 @@ pub(crate) fn run_web(
 
     let header_map = parse_headers(web_args.headers.iter())?;
 
-    // When no target is selected, search for the default-run field and append the binary name
-    // as `--bin` flag to only compile the default run target
-    if build_args.cargo_args.target_args.bin.is_none()
-        && build_args.cargo_args.target_args.example.is_none()
-    {
-        build_args.cargo_args.target_args.bin = Some(bin_target.bin_name.clone());
-    }
-
-    let web_bundle = build_web(&mut build_args, metadata, bin_target)?;
+    let web_bundle = build_web(&mut build_args, metadata)?;
 
     let port = web_args.port;
     let host = IpAddr::from_str(&web_args.host).context("failed to parse host address")?;
