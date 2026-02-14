@@ -107,6 +107,7 @@ fn build_lint_cmd(args: &mut LintArgs) -> anyhow::Result<CommandExt> {
     let package = get_package(
         &metadata,
         args.cargo_args.package_args.package.as_ref(),
+        args.cargo_args.target_args.is_examples,
         false,
     )?;
 

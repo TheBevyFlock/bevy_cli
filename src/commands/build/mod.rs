@@ -21,6 +21,7 @@ pub fn build(args: &mut BuildArgs) -> anyhow::Result<()> {
     let package = get_package(
         &metadata,
         args.cargo_args.package_args.package.as_ref(),
+        args.cargo_args.target_args.is_examples,
         false,
     )?;
 
