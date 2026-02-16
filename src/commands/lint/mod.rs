@@ -1,5 +1,5 @@
 pub use args::*;
-use tracing::error;
+use tracing::{error, info};
 
 #[cfg(feature = "rustup")]
 use crate::commands::lint::install::install_linter;
@@ -107,6 +107,7 @@ fn build_lint_cmd(args: &mut LintArgs) -> anyhow::Result<CommandExt> {
     let package = get_package(
         &metadata,
         args.cargo_args.package_args.package.as_ref(),
+        args.cargo_args.target_args.is_examples,
         false,
     )?;
 
@@ -143,6 +144,30 @@ fn build_lint_cmd(args: &mut LintArgs) -> anyhow::Result<CommandExt> {
         if apply_getrandom_backend(&metadata, &mut args.cargo_args.common_args) {
             info!("automatically configuring `getrandom` web backend");
         }
+    }
+
+    // If a specific example was passed, extend the already present features with the
+    // required_features from this example.
+    if let Some(example) = &args.cargo_args.target_args.example
+    // Search in the current workspace packages for an `example` target that matches the given
+    // example name.
+        && let Some(example_target) = metadata
+            .workspace_packages()
+            .iter()
+            .flat_map(|p| p.targets.clone())
+            .find(|t| t.name.as_str() == example && t.kind.contains(&cargo_metadata::TargetKind::Example))
+    {
+        let required_features = example_target.required_features;
+
+        info!(
+            "enabling required_features: {:?}, for example: {example}",
+            required_features
+        );
+
+        args.cargo_args
+            .feature_args
+            .features
+            .extend(required_features);
     }
 
     let cargo_args = args.cargo_args_builder();

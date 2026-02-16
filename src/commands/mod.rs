@@ -21,6 +21,7 @@ pub mod run;
 fn get_package<'m>(
     metadata: &'m Metadata,
     package_arg: Option<&String>,
+    is_example: bool,
     run_command: bool,
 ) -> anyhow::Result<Option<&'m Package>> {
     // If the `--package` arg was passed, search for the given package, otherwise
@@ -30,7 +31,7 @@ fn get_package<'m>(
             .packages
             .iter()
             .find(|package| package.name.as_str() == package_name)
-    } else if run_command {
+    } else if run_command && !is_example {
         let workspace_packages = metadata.workspace_packages();
         let default_packages = metadata.workspace_default_packages();
         let packages = if default_packages.is_empty() {

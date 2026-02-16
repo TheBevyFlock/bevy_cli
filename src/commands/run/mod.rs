@@ -1,5 +1,7 @@
 //! Provides functionalities to run a Bevy app targeting either native or web platforms.
 
+use tracing::info;
+
 pub use self::args::*;
 #[cfg(feature = "web")]
 use crate::web::run::run_web;
@@ -18,6 +20,7 @@ pub fn run(args: &mut RunArgs) -> anyhow::Result<()> {
     let package = get_package(
         &metadata,
         args.cargo_args.package_args.package.as_ref(),
+        args.cargo_args.target_args.example.is_some(),
         true,
     )?;
 
@@ -36,6 +39,29 @@ pub fn run(args: &mut RunArgs) -> anyhow::Result<()> {
     config.append_cargo_config_rustflags(args.target(), &cargo_config)?;
 
     args.apply_config(&config);
+
+    // Extend the already present features with the required_features from this example.
+    if let Some(example) = &args.cargo_args.target_args.example
+    // Search in the current workspace packages for an `example` target that matches the given
+    // example name.
+        && let Some(example_target) = metadata
+            .workspace_packages()
+            .iter()
+            .flat_map(|p| p.targets.clone())
+            .find(|t| t.name.as_str() == example && t.kind.contains(&cargo_metadata::TargetKind::Example))
+    {
+        let required_features = example_target.required_features;
+
+        info!(
+            "enabling required_features: {:?}, for example: {example}",
+            required_features
+        );
+
+        args.cargo_args
+            .feature_args
+            .features
+            .extend(required_features);
+    }
 
     #[cfg(feature = "web")]
     if args.is_web() {
