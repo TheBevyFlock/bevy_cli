@@ -57,7 +57,7 @@ clap = { version = "4.5.54", default-features = false, features = [
 clap_complete = { version = "4.5.65", default-features = false }
 
 # Easy error propagation and contexts
-anyhow = { version = "1.0.86", default-features = false, features = ["std"] }
+anyhow = { version = "1.0.101", default-features = false, features = ["std"] }
 
 # Better CLI user input
 dialoguer = { version = "0.12.0", default-features = false, features = [

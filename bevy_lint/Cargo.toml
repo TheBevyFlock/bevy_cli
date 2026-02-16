@@ -24,7 +24,7 @@ harness = false
 clippy_utils = "=0.1.95"
 
 # Easy error propagation and contexts.
-anyhow = "1.0.86"
+anyhow = "1.0.101"
 # Easy structured output for `cargo metadata`, used for cargo lints
 cargo_metadata = "0.23.1"
 
