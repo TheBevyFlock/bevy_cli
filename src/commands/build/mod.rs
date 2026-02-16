@@ -65,11 +65,6 @@ pub fn build(args: &mut BuildArgs) -> anyhow::Result<()> {
             .features
             .extend(required_features);
     }
-    // build `--examples` with all features enabled.
-    else if args.cargo_args.target_args.is_examples {
-        args.cargo_args.feature_args.is_all_features = true;
-        info!("automatically added `--all-features` to build examples with all features enabled");
-    }
 
     #[cfg(feature = "web")]
     if args.is_web() {

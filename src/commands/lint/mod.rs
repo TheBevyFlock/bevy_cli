@@ -169,15 +169,6 @@ fn build_lint_cmd(args: &mut LintArgs) -> anyhow::Result<CommandExt> {
             .features
             .extend(required_features);
     }
-    // build `--examples` with all features enabled.
-    else if args.cargo_args.target_args.is_examples {
-        args.cargo_args
-            .feature_args
-            .features
-            .push("--all-features".to_owned());
-
-        info!("automatically added `--all-features` to check examples with all features enabled");
-    }
 
     let cargo_args = args.cargo_args_builder();
 
