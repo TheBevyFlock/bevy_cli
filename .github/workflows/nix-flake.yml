@@ -1,0 +1,33 @@
+name: Test Nix flake
+
+on:
+  push:
+    branches: [main]
+  # Only run for pull requests when the flake, toolchain, or action is modified.
+  pull_request:
+    paths:
+      - flake.nix
+      - flake.lock
+      - rust-toolchain.toml
+      - .github/workflows/nix-flake.yml
+  workflow_dispatch:
+
+jobs:
+  test-flake:
+    name: Test Nix flake
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Install Nix
+        uses: DeterminateSystems/determinate-nix-action@v3.15.2
+
+      - name: Check flake
+        run: nix flake check --all-systems
+
+      - name: Run Bevy CLI
+        run: nix run . -- --version
+
+      - name: Format `flake.nix`
+        run: nix-shell -p nixfmt --run "nixfmt --check --strict --verify flake.nix"
