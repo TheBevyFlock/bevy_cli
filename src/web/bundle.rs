@@ -263,10 +263,28 @@ fn default_index(bin_target: &BinTarget) -> String {
     ));
 
     // Insert correct path to JS bindings
-    template.replace(
+    let template = template.replace(
         "./build/bevy_app.js",
         format!("./build/{}.js", bin_target.bin_name).as_str(),
-    )
+    );
+    let template = template.replace(
+        "./build/bevy_app_bg.wasm",
+        format!("./build/{}_bg.wasm", bin_target.bin_name).as_str(),
+    );
+
+    if let Ok(metadata) = std::fs::metadata(
+        bin_target
+            .artifact_directory
+            .join(format!("{}_bg.wasm", bin_target.bin_name)),
+    ) {
+        let length = metadata.len();
+        template.replace(
+            "const wasmSize = null;",
+            format!("const wasmSize = {}", length).as_str(),
+        )
+    } else {
+        template
+    }
 }
 
 /// Generate a title to display on the web page by default.

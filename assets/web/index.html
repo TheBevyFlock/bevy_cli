@@ -62,6 +62,45 @@
           transform: rotate(360deg);
         }
       }
+
+      .bar-container {
+        width: 128px;
+        height: 12px;
+        border: 3px solid #ececec;
+        border-radius: 0.375em;
+        position: relative;
+        overflow: hidden;
+        margin-top: 24px;
+        margin-bottom: 12px;
+      }
+
+      .loading-bar {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #b2b2b2;
+        transform-origin: center left;
+        transform: scaleX(0);
+      }
+
+      .progress-text {
+        font-size: 0.9rem;
+        color: #ececec;
+        font-family:
+          DejaVu Sans Mono,
+          monospace;
+      }
+
+      .error {
+        font-size: 0.9rem;
+        color: salmon;
+        font-family:
+          DejaVu Sans Mono,
+          monospace;
+        margin-top: 12px;
+      }
     </style>
   </head>
 
@@ -69,6 +108,11 @@
     <noscript>JavaScript support is required to run this app</noscript>
     <div id="loading-screen" class="center">
       <span class="spinner"></span>
+      <div hidden="hidden" class="bar-container">
+        <div class="loading-bar"></div>
+      </div>
+      <div class="progress-text"></div>
+      <div class="error"></div>
     </div>
 
     <script type="module">
@@ -134,14 +178,94 @@
     </script>
 
     <script type="module">
-      // Starting the game
-
       // When this file is used as the default `index.html`, the CLI will automatically replace
-      // `bevy_app.js` with the name of the generated JS entrypoint. If you copy this file and
-      // customize it, you will need to manually change the name. For more information, please see
+      // `bevy_app.js` and `bevy_app_bg.wasm` with the name of the generated JS entrypoint and Wasm
+      // binary. If you copy this file and customize it, you will need to manually change
+      // the names. For more information, please see
       // <https://thebevyflock.github.io/bevy_cli/cli/web/default-index-html.html>!
       import init from "./build/bevy_app.js";
-      init().catch((error) => {
+      const wasmPath = "./build/bevy_app_bg.wasm";
+      const wasmSize = null;
+
+      // Provide progress reporting when fetching the Wasm binary
+      async function fetchWithProgress(url, total, onProgress) {
+        const response = await fetch(url);
+
+        if (!response.ok) {
+          throw new Error(`request failed with status ${response.status}`);
+        }
+
+        if (total === null) {
+          // If the content length isn't provided,
+          // we'll just skip the progress reporting
+          return await response.arrayBuffer();
+        }
+
+        let receivedLength = 0;
+        const chunks = [];
+
+        for await (const chunk of response.body) {
+          chunks.push(chunk);
+          receivedLength += chunk.length;
+
+          const progress = receivedLength / total;
+
+          // Interacting with the DOM or other operations
+          // here should not cause downloading to fail
+          try {
+            onProgress({
+              loaded: receivedLength,
+              total: total,
+              progress: progress,
+            });
+          } catch (e) {
+            console.error(e);
+          }
+        }
+
+        const chunksAll = new Uint8Array(receivedLength);
+        let position = 0;
+        for (let chunk of chunks) {
+          chunksAll.set(chunk, position);
+          position += chunk.length;
+        }
+
+        return chunksAll.buffer;
+      }
+
+      function humanReadable(number) {
+        // Working with Bevy on the web, we can safely
+        // assume this scale
+        return `${(number / 1e6).toFixed(2)}MB`;
+      }
+
+      async function loadWasm(url, size) {
+        let arrayBuffer;
+        try {
+          arrayBuffer = await fetchWithProgress(url, size, (stats) => {
+            const container = document.querySelector(".bar-container");
+            container.removeAttribute("hidden");
+
+            const bar = document.querySelector(".loading-bar");
+            bar.style.transform = `scaleX(${stats.progress})`;
+
+            const text = document.querySelector(".progress-text");
+            text.innerText = `${humanReadable(stats.loaded)} / ${humanReadable(stats.total)}`;
+          });
+        } catch (e) {
+          // Here, we communicate any request failure to the user
+          const errorNode = document.querySelector(".error");
+          if (errorNode !== null) {
+            errorNode.innerText = e.toString();
+          }
+          throw e;
+        }
+
+        return await init(arrayBuffer);
+      }
+
+      // Starting the game
+      loadWasm(wasmPath, wasmSize).catch((error) => {
         if (
           !error.message.startsWith(
             "Using exceptions for control flow, don't mind me. This isn't actually an error!"
