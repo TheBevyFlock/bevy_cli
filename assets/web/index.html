@@ -236,7 +236,7 @@
       function humanReadable(number) {
         // Working with Bevy on the web, we can safely
         // assume this scale
-        return `${(number / 1e6).toFixed(2)}MB`;
+        return `${(number / 1e6).toFixed(2)} MB`;
       }
 
       async function loadWasm(url, size) {
@@ -250,7 +250,7 @@
             bar.style.transform = `scaleX(${stats.progress})`;
 
             const text = document.querySelector(".progress-text");
-            text.innerText = `${humanReadable(stats.loaded)} / ${humanReadable(stats.total)}`;
+            text.innerText = `${humanReadable(stats.loaded)}`;
           });
         } catch (e) {
           // Here, we communicate any request failure to the user
