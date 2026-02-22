@@ -250,7 +250,7 @@
             bar.style.transform = `scaleX(${stats.progress})`;
 
             const text = document.querySelector(".progress-text");
-            text.innerText = `${humanReadable(stats.loaded)}`;
+            text.innerText = humanReadable(stats.loaded);
           });
         } catch (e) {
           // Here, we communicate any request failure to the user
