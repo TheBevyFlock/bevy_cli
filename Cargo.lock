@@ -552,7 +552,7 @@ dependencies = [
  "serial_test",
  "tempfile",
  "tokio",
- "toml 0.9.11+spec-1.1.0",
+ "toml",
  "tower",
  "tower-http",
  "tracing",
@@ -760,7 +760,7 @@ dependencies = [
  "pico-args",
  "serde",
  "serde_json",
- "toml 0.9.11+spec-1.1.0",
+ "toml",
  "ui_test",
 ]
 
@@ -1237,7 +1237,7 @@ checksum = "981e75a417bda719cf2a524fda3ad504e4027cad3b375565b445626f19e6d8f6"
 dependencies = [
  "serde",
  "serde_derive",
- "toml 1.0.3+spec-1.1.0",
+ "toml",
  "windows-sys 0.61.2",
 ]
 
@@ -3859,29 +3859,16 @@ dependencies = [
 
 [[package]]
 name = "toml"
-version = "0.9.11+spec-1.1.0"
+version = "1.0.2+spec-1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f3afc9a848309fe1aaffaed6e1546a7a14de1f935dc9d89d32afd9a44bab7c46"
+checksum = "d1dfefef6a142e93f346b64c160934eb13b5594b84ab378133ac6815cb2bd57f"
 dependencies = [
  "indexmap",
  "serde_core",
  "serde_spanned",
- "toml_datetime 0.7.5+spec-1.1.0",
- "toml_parser",
- "toml_writer",
- "winnow",
-]
-
-[[package]]
-name = "toml"
-version = "1.0.3+spec-1.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c7614eaf19ad818347db24addfa201729cf2a9b6fdfd9eb0ab870fcacc606c0c"
-dependencies = [
- "serde_core",
- "serde_spanned",
  "toml_datetime 1.0.0+spec-1.1.0",
  "toml_parser",
+ "toml_writer",
  "winnow",
 ]
 
