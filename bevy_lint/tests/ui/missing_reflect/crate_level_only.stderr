@@ -1,0 +1,14 @@
+error: allow(bevy::missing_reflect) is ignored unless specified at crate level
+  --> tests/ui/missing_reflect/crate_level_only.rs:12:9
+   |
+12 | #[allow(bevy::missing_reflect)]
+   |         ^^^^^^^^^^^^^^^^^^^^^
+   |
+note: the lint level is defined here
+  --> tests/ui/missing_reflect/crate_level_only.rs:7:9
+   |
+ 7 | #![deny(unused_attributes)]
+   |         ^^^^^^^^^^^^^^^^^
+
+error: aborting due to 1 previous error
+
