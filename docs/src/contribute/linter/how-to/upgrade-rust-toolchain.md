@@ -11,7 +11,7 @@
     > ```
 
 2. Change the `channel` field in `rust-toolchain.toml` to the version specified by `clippy_utils`.
-3. Replace the toolchain version for the latest `-dev` version in the [compatibility table](../../../linter/compatibility.md).
+3. Replace the toolchain version and Rust version for the latest `-dev` version in the [compatibility table](../../../linter/compatibility.md).
     - Don't replace the toolchain version in other parts of the docs, as they should use the latest stable toolchain and not the latest development toolchain.
 4. Increase the version of `clippy_utils` in `Cargo.toml` to the latest version.
 

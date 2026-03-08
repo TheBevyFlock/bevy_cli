@@ -78,7 +78,7 @@ runs:
         ACTION_REF: ${{ github.action_ref || github.ref_name }}
 
     - name: Restore and save cached `bevy_lint`
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       id: cache
       if: ${{ inputs.cache == 'true' && inputs.save-cache-if == 'true' }}
       with:
@@ -90,7 +90,7 @@ runs:
           ~/.cargo/bin/bevy_lint_driver.exe
 
     - name: Restore cached `bevy_lint`
-      uses: actions/cache/restore@v4
+      uses: actions/cache/restore@v5
       id: restore-cache
       if: ${{ inputs.cache == 'true' && inputs.save-cache-if != 'true' }}
       with:

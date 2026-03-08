@@ -1,11 +1,10 @@
 pub use args::*;
-use tracing::error;
+use tracing::{error, info};
 
 #[cfg(feature = "rustup")]
 use crate::commands::lint::install::install_linter;
 use crate::{
-    bin_target::select_run_binary,
-    commands::lint::install::list,
+    commands::{get_package, lint::install::list},
     config::CliConfig,
     external_cli::{
         CommandExt,
@@ -105,21 +104,21 @@ fn build_lint_cmd(args: &mut LintArgs) -> anyhow::Result<CommandExt> {
 
     let metadata = cargo::metadata::metadata()?;
 
-    let mut bin_target = select_run_binary(
+    let package = get_package(
         &metadata,
-        args.cargo_args.package_args.package.as_deref(),
-        args.cargo_args.target_args.bin.as_deref(),
-        args.cargo_args.target_args.example.as_deref(),
-        args.target().as_deref(),
-        args.profile(),
+        args.cargo_args.package_args.package.as_ref(),
+        args.cargo_args.target_args.is_examples,
+        false,
     )?;
 
-    let mut config = CliConfig::for_package(
-        &metadata,
-        bin_target.package,
-        args.is_web(),
-        args.is_release(),
-    )?;
+    // apply the package specific config, otherwise use the default config (this happens when
+    // `bevy build` was called from a workspace root with no package selection (we do not support
+    // workspace config at the moment).
+    let mut config = if let Some(package) = package {
+        CliConfig::for_package(&metadata, package, args.is_web(), args.is_release())?
+    } else {
+        CliConfig::default()
+    };
 
     // Read config files hierarchically from the current directory, merge them,
     // apply environment variables, and resolve relative paths.
@@ -127,14 +126,6 @@ fn build_lint_cmd(args: &mut LintArgs) -> anyhow::Result<CommandExt> {
     config.append_cargo_config_rustflags(args.target(), &cargo_config)?;
 
     args.apply_config(&config);
-
-    // Update the artifact directory based on the config, e.g. in case the `target` changed
-    bin_target.update_artifact_directory(
-        &metadata.target_directory,
-        args.target().as_deref(),
-        args.profile(),
-        args.cargo_args.target_args.example.is_some(),
-    );
 
     #[cfg(feature = "web")]
     if matches!(args.subcommand, Some(LintSubcommands::Web)) {
@@ -153,6 +144,30 @@ fn build_lint_cmd(args: &mut LintArgs) -> anyhow::Result<CommandExt> {
         if apply_getrandom_backend(&metadata, &mut args.cargo_args.common_args) {
             info!("automatically configuring `getrandom` web backend");
         }
+    }
+
+    // If a specific example was passed, extend the already present features with the
+    // required_features from this example.
+    if let Some(example) = &args.cargo_args.target_args.example
+    // Search in the current workspace packages for an `example` target that matches the given
+    // example name.
+        && let Some(example_target) = metadata
+            .workspace_packages()
+            .iter()
+            .flat_map(|p| p.targets.clone())
+            .find(|t| t.name.as_str() == example && t.kind.contains(&cargo_metadata::TargetKind::Example))
+    {
+        let required_features = example_target.required_features;
+
+        info!(
+            "enabling required_features: {:?}, for example: {example}",
+            required_features
+        );
+
+        args.cargo_args
+            .feature_args
+            .features
+            .extend(required_features);
     }
 
     let cargo_args = args.cargo_args_builder();

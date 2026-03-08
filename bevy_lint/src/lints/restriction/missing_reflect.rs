@@ -71,8 +71,6 @@ declare_bevy_lint! {
     pub(crate) MISSING_REFLECT,
     super::Restriction,
     "defined a component, resource, or event without a `Reflect` implementation",
-    // We only override `check_crate()`.
-    @crate_level_only = true,
 }
 
 declare_bevy_lint_pass! {

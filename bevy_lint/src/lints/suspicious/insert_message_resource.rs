@@ -119,8 +119,7 @@ fn check_insert_resource(cx: &LateContext<'_>, method_call: &MethodCall) {
     let ty = cx.typeck_results().expr_ty_adjusted(arg);
 
     // If `arg` is `Messages<T>`, emit the lint.
-    // `Events<T>` got deprecated for `Messages<T>` in `0.17`.
-    if crate::paths::EVENTS.matches_ty(cx, ty) || crate::paths::MESSAGES.matches_ty(cx, ty) {
+    if crate::paths::MESSAGES.matches_ty(cx, ty) {
         let mut applicability = Applicability::MachineApplicable;
 
         let message_ty_snippet = extract_ty_message_snippet(ty, &mut applicability);
@@ -198,10 +197,7 @@ fn check_init_resource<'tcx>(cx: &LateContext<'tcx>, method_call: &MethodCall<'t
         let resource_ty = ty_from_hir_ty(cx, resource_hir_ty.as_unambig_ty());
 
         // If the resource type is `Messages<T>`, emit the lint.
-        // `Events<T>` got deprecated for `Messages<T>` in `0.17`.
-        if crate::paths::EVENTS.matches_ty(cx, resource_ty)
-            || crate::paths::MESSAGES.matches_ty(cx, resource_ty)
-        {
+        if crate::paths::MESSAGES.matches_ty(cx, resource_ty) {
             let mut applicability = Applicability::MachineApplicable;
 
             let message_ty_snippet = extract_hir_message_snippet(

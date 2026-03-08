@@ -23,7 +23,7 @@ jobs:
       components: ${{ steps.toolchain.outputs.components }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Install Taplo
         run: |

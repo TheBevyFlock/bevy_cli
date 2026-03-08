@@ -37,7 +37,7 @@ jobs:
     needs: extract-rust-version
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@master
@@ -55,11 +55,8 @@ jobs:
         with:
           tool: mdbook
 
-      # We cannot use `cargo-binstall` for this because the precompiled binary uses too old of an
-      # `mdbook` version, and it does't recognize the Rust 2024 edition. The installed binary will
-      # be cached, however.
-      - name: Install `mdbook-linkcheck`
-        run: cargo install mdbook-linkcheck
+      - name: Install `mdbook-linkcheck2`
+        run: cargo install mdbook-linkcheck2
 
       - name: Build `mdbook` docs
         run: mdbook build
