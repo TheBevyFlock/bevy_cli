@@ -132,6 +132,7 @@ declare_bevy_symbols! {
     EntityCommands,
     EntityMut,
     Event,
+    Exclusive,
     FilteredEntityMut,
     FixedUpdate,
     LazyLock,
