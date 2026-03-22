@@ -17,10 +17,10 @@ This is the default `index.html` that `bevy build web` and `bevy run web` uses t
 > The default `index.html` has the following line:
 >
 > ```js
-> import init from "{% entrypoint %}";
+> import init from "{% entrypoint %}.js";
 > ```
 >
-> The CLI automatically replaces `{% entrypoint %}` with the name of the generated JS entrypoint. Make sure to use it for your custom `index.html`
+> The CLI automatically replaces `{% entrypoint %}` with the path of the generated JS entrypoint. Make sure to use it for your custom `index.html`
 
 ```html
 {{#include ../../../../assets/web/index.html}}

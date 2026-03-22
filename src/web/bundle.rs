@@ -258,7 +258,7 @@ fn pre_process_index(mut content: String, bin_target: &BinTarget) -> String {
 
     if content.contains(ENTRYPOINT_TEMPLATE) {
         // The entrypoint is located at `build/{bin_name}.js`
-        let entrypoint = format!("./build/{}.js", bin_target.bin_name);
+        let entrypoint = format!("./build/{}", bin_target.bin_name);
         content = content.replace(ENTRYPOINT_TEMPLATE, entrypoint.as_str());
 
         tracing::debug!("replacing '{ENTRYPOINT_TEMPLATE}' with '{entrypoint}'");

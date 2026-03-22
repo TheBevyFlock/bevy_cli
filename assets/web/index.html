@@ -138,7 +138,7 @@
 
       // The CLI will automatically replace this template
       // with the name of the generated JS entrypoint.
-      import init from "{% entrypoint %}";
+      import init from "{% entrypoint %}.js";
       init().catch((error) => {
         if (
           !error.message.startsWith(
