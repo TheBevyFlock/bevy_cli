@@ -34,7 +34,7 @@
         background-color: var(--web-bg-color);
         color: var(--web-color);
       }
-      
+
       canvas {
         outline: none;
         width: 100% !important;
@@ -136,11 +136,8 @@
     <script type="module">
       // Starting the game
 
-      // When this file is used as the default `index.html`, the CLI will automatically replace
-      // `bevy_app.js` with the name of the generated JS entrypoint. If you copy this file and
-      // customize it, you will need to manually change the name. For more information, please see
-      // <https://thebevyflock.github.io/bevy_cli/cli/web/default-index-html.html>!
-      import init from "./build/bevy_app.js";
+      // The CLI will automatically replace this tempalte with the name of the generated JS entrypoint.
+      import init from "{% entrypoint %}";
       init().catch((error) => {
         if (
           !error.message.startsWith(
