@@ -257,11 +257,11 @@ fn pre_process_index(mut content: String, bin_target: &BinTarget) -> String {
     const ENTRYPOINT_TEMPLATE: &str = "{% entrypoint %}";
 
     if content.contains(ENTRYPOINT_TEMPLATE) {
-        // The entrypoint is located at build/{bin_name}.js
+        // The entrypoint is located at `build/{bin_name}.js`
         let entrypoint = format!("./build/{}.js", bin_target.bin_name);
         content = content.replace(ENTRYPOINT_TEMPLATE, entrypoint.as_str());
 
-        tracing::debug!("replacing '{ENTRYPOINT_TEMPLATE}' with {entrypoint}");
+        tracing::debug!("replacing '{ENTRYPOINT_TEMPLATE}' with '{entrypoint}'");
     } else {
         warn!(
             "index.html doesn't contain the '{ENTRYPOINT_TEMPLATE}' template, \
@@ -272,7 +272,7 @@ fn pre_process_index(mut content: String, bin_target: &BinTarget) -> String {
     content
 }
 
-/// Returns the contents of the default `index.html`,
+/// Returns the contents of the default `index.html`.
 fn default_index() -> String {
     let template = include_str!(concat!(
         env!("CARGO_MANIFEST_DIR"),
