@@ -20,7 +20,8 @@ This is the default `index.html` that `bevy build web` and `bevy run web` uses t
 > import init from "{% entrypoint %}.js";
 > ```
 >
-> The CLI automatically replaces `{% entrypoint %}` with the path of the generated JS entrypoint. Make sure to use it for your custom `index.html`
+> The CLI automatically replaces `{% entrypoint %}` with the path of the generated JS entrypoint,
+> which exports a function to initialize the game.
 
 ```html
 {{#include ../../../../assets/web/index.html}}
