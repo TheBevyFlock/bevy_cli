@@ -33,7 +33,10 @@ fn main() -> ExitCode {
     });
 
     // Run the passed closure, but catch any panics and return the respective exit code.
-    let exit_code = catch_with_exit_code(move || {
+    // We prefer returning an `ExitCode` instead of calling
+    // `std::process::exit()` because this calls `Drop` implementations, in case we need them in
+    // the future.
+    catch_with_exit_code(move || {
         // Get the arguments passed through the CLI. This is equivalent to `std::env::args()`, but
         // it returns a `Result` instead of panicking.
         let mut args = rustc_driver::args::raw_args(&early_dcx);
@@ -44,11 +47,5 @@ fn main() -> ExitCode {
 
         // Call the compiler with our custom callback.
         run_compiler(&args, &mut BevyLintCallback);
-    });
-
-    // We truncate the `i32` to a `u8`. `catch_with_exit_code()` currently only returns 1 or 0, so
-    // this should does not discard any data. We prefer returning an `ExitCode` instead of calling
-    // `std::process::exit()` because this calls `Drop` implementations, in case we need them in
-    // the future.
-    ExitCode::from(exit_code as u8)
+    })
 }
