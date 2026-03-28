@@ -104,7 +104,7 @@ toml = { version = "1.0.6", default-features = false, features = [
 
 # Logging crates
 tracing = { version = "0.1.44", default-features = false, features = ["std"] }
-tracing-subscriber = { version = "0.3.22", default-features = false, features = [
+tracing-subscriber = { version = "0.3.23", default-features = false, features = [
     "std",
     "ansi",
     "fmt",
