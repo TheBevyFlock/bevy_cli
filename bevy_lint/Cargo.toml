@@ -41,7 +41,7 @@ pico-args = "0.5.0"
 
 # Colored terminal output
 anstream = "1.0.0"
-anstyle = "1.0.13"
+anstyle = "1.0.14"
 
 [build-dependencies]
 # Parse `rust-toolchain.toml` at build time.
