@@ -42,8 +42,15 @@
             src = ./.;
             cargoLock.lockFile = ./Cargo.lock;
             doCheck = false;
+            cargoBuildFlags = [ "--all" ];
 
             nativeBuildInputs = nativeBuildInputs ++ (with pkgs; [ makeBinaryWrapper ]);
+            postInstall = ''
+              for bin in $out/bin/bevy{,_lint}; do
+                wrapProgram $bin --set BEVY_LINT_SYSROOT ${toolchain}
+              done
+            '';
+
             inherit buildInputs;
           };
         };
