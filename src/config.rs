@@ -324,7 +324,7 @@ fn extract_rustflags(cli_metadata: &Map<String, Value>) -> anyhow::Result<Vec<St
             .map(|value| {
                 value
                     .as_str()
-                    .map(std::string::ToString::to_string)
+                    .map(str::to_owned)
                     .ok_or_else(|| anyhow::anyhow!("each rustflag must be a string"))
             })
             .collect(),
@@ -342,12 +342,9 @@ fn extract_wasm_opt(cli_metadata: &Map<String, Value>) -> anyhow::Result<Option<
                 let args = arr
                     .iter()
                     .map(|value| {
-                        value
-                            .as_str()
-                            .map(std::string::ToString::to_string)
-                            .ok_or_else(|| {
-                                anyhow::anyhow!("each wasm-opt argument must be a string")
-                            })
+                        value.as_str().map(str::to_owned).ok_or_else(|| {
+                            anyhow::anyhow!("each wasm-opt argument must be a string")
+                        })
                     })
                     .collect::<Result<Vec<String>, _>>()?;
                 Ok(Some(ExternalCliArgs::Args(args)))

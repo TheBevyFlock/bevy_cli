@@ -88,8 +88,10 @@ pub trait LintGroup {
 ///     //
 ///     // Whether to report this lint, even if it is inside the expansion of an external macro.
 ///     @report_in_external_macro = false,
-///     // Whether to only run this macro for the crate root. This should be enabled for lint
-///     // passes that only override `check_crate()`.
+///     // Whether attributes toggling this lint, such as `#[allow(...)]` and `#[deny(...)]`,
+///     // should only be applied to the crate root. If this is true, using a non-root attribute
+///     // will result in a compiler warning. In general, set this to true if you only override
+///     // `check_crate()` and do not emit lints to specific `HirId`s with `span_lint_hir()`.
 ///     @crate_level_only = false,
 ///     // The compiler can sometimes skip lint passes that are guaranteed not to run. This can
 ///     // disable that behavior.

@@ -97,13 +97,13 @@ jobs:
       # with `gh attestation verify path/to/bevy --repo TheBevyFlock/bevy_cli`. A list of
       # attestations can be found at <https://github.com/TheBevyFlock/bevy_cli/attestations>.
       - name: Attest executable
-        uses: actions/attest-build-provenance@v3
+        uses: actions/attest-build-provenance@v4
         with:
           subject-name: bevy-cli-${{ matrix.target }}-v${{ needs.extract-cli-version.outputs.version }}
           subject-path: target/release/${{ env.EXECUTABLE_NAME }}
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: bevy-cli-${{ matrix.target }}-v${{ needs.extract-cli-version.outputs.version }}
           path: target/release/${{ env.EXECUTABLE_NAME }}
@@ -120,7 +120,7 @@ jobs:
     steps:
       # Each artifact will be downloaded to its own folder prefixed with `bevy-cli-`.
       - name: Download artifacts
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           path: ./
           pattern: bevy-cli-*
