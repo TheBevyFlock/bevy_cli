@@ -139,7 +139,6 @@ fn should_copy_web_bundle() -> anyhow::Result<()> {
     cmd.current_dir(test_path()).args([
         "build",
         "-p=bevy_default",
-        "--release",
         "--yes",
         "web",
         "--bundle",
