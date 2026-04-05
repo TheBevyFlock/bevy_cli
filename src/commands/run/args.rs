@@ -1,7 +1,4 @@
 #[cfg(feature = "web")]
-use std::path::PathBuf;
-
-#[cfg(feature = "web")]
 use clap::ArgAction;
 use clap::{Args, Subcommand};
 
@@ -170,10 +167,6 @@ pub struct RunWebArgs {
     #[arg(long = "wasm-opt", allow_hyphen_values = true)]
     pub wasm_opt: Vec<String>,
 
-    /// Copy packed bundle directory to this directory
-    #[arg(long = "bundle-dir", allow_hyphen_values = true)]
-    pub bundle_dir: Option<PathBuf>,
-
     #[cfg(feature = "unstable")]
     #[clap(flatten)]
     pub unstable: UnstableWebArgs,
@@ -189,7 +182,6 @@ impl Default for RunWebArgs {
             create_packed_bundle: false,
             headers: Vec::new(),
             wasm_opt: Vec::new(),
-            bundle_dir: None,
             #[cfg(feature = "unstable")]
             unstable: UnstableWebArgs::default(),
         }
@@ -231,7 +223,7 @@ impl From<RunArgs> for BuildArgs {
                     skip_post_processing: false,
                     #[cfg(feature = "unstable")]
                     unstable: web_args.unstable,
-                    bundle_dir: web_args.bundle_dir,
+                    bundle_dir: None,
                 }),
             }),
         }
