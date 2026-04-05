@@ -165,6 +165,7 @@ pub struct BuildWebArgs {
 
     /// Copy packed bundle directory to this directory
     #[arg(long = "bundle-dir", allow_hyphen_values = true)]
+    #[arg(long = "bundle-dir")]
     pub bundle_dir: Option<PathBuf>,
 
     #[cfg(feature = "unstable")]
