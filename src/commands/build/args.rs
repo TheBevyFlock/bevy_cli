@@ -163,8 +163,8 @@ pub struct BuildWebArgs {
     #[arg(long = "wasm-opt", allow_hyphen_values = true)]
     pub wasm_opt: Vec<String>,
 
-    /// Copy packed bundle directory to this directory
-    #[arg(long = "bundle-dir", allow_hyphen_values = true)]
+    /// The directory to copy final packed bundle to. Note that a copy of the Bundle can still be
+    /// found at `target/bevy_web`.
     #[arg(long = "bundle-dir")]
     pub bundle_dir: Option<PathBuf>,
 
