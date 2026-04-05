@@ -102,6 +102,7 @@ pub fn build_web(args: &mut BuildArgs, metadata: &Metadata) -> anyhow::Result<We
                 fs::create_dir_all(target).context("failed to create target directory")?;
                 dir::copy(path, target, &CopyOptions::new().content_only(true))
                     .context("failed to copy packed bundle directory to target directory")?;
+                info!("copied bundle to file://{}", target.display());
             }
         }
 
