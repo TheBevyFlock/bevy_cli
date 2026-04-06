@@ -1207,14 +1207,13 @@ dependencies = [
 
 [[package]]
 name = "cargo-config2"
-version = "0.1.43"
+version = "0.1.44"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1f7dacdd4a7586d602c2543e0217304bebc6502bde82154209cd8f09f24a7718"
+checksum = "25ada53f7339c78084fb37d7e17f34e76537541c4fbb02fa3a2baa14b8faad37"
 dependencies = [
  "serde",
  "serde_derive",
  "toml",
- "windows-sys 0.61.2",
 ]
 
 [[package]]
