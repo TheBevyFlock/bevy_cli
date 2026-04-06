@@ -68,28 +68,32 @@ pub fn build_web(args: &mut BuildArgs, metadata: &Metadata) -> anyhow::Result<We
             }
         })?;
 
-    info!("bundling JavaScript bindings...");
-    wasm_bindgen::bundle(metadata, &bin_target, args.auto_install())?;
-    wasm_opt::optimize_path(&bin_target, args.auto_install(), &args.wasm_opt_args())?;
-
     let web_args = args
         .subcommand
         .as_ref()
         .map(|BuildSubcommands::Web(web_args)| web_args);
 
-    let web_bundle = create_web_bundle(
-        metadata,
-        args.profile(),
-        &bin_target,
-        web_args.is_some_and(|web_args| web_args.create_packed_bundle),
-    )
-    .context("failed to create web bundle")?;
+    if web_args.is_some_and(|web_args| web_args.build_only) {
+        Ok(WebBundle::None)
+    } else {
+        info!("bundling JavaScript bindings...");
+        wasm_bindgen::bundle(metadata, &bin_target, args.auto_install())?;
+        wasm_opt::optimize_path(&bin_target, args.auto_install(), &args.wasm_opt_args())?;
 
-    if let WebBundle::Packed(PackedBundle { path }) = &web_bundle {
-        info!("created bundle at file://{}", path.display());
+        let web_bundle = create_web_bundle(
+            metadata,
+            args.profile(),
+            &bin_target,
+            web_args.is_some_and(|web_args| web_args.create_packed_bundle),
+        )
+        .context("failed to create web bundle")?;
+
+        if let WebBundle::Packed(PackedBundle { path }) = &web_bundle {
+            info!("created bundle at file://{}", path.display());
+        }
+
+        Ok(web_bundle)
     }
-
-    Ok(web_bundle)
 }
 
 /// Add multi-threading support for the Wasm binary if enabled.

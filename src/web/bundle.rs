@@ -58,6 +58,8 @@ pub enum WebBundle {
     Linked(LinkedBundle),
     /// A bundle packed into a single folder, ready to be deployed on a web server.
     Packed(PackedBundle),
+    /// No bundle was created.
+    None,
 }
 
 /// Create a bundle of all the files needed for serving the app in the web.

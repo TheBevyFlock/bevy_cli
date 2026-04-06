@@ -119,6 +119,11 @@ pub(crate) async fn serve(
                 router = router.fallback_service(ServeDir::new(web_assets));
             }
         }
+        WebBundle::None => {
+            return Err(anyhow::anyhow!(
+                "No web bundle was created during the build process! This should never happen, please report this bug to https://github.com/TheBevyFlock/bevy_cli"
+            ));
+        }
     }
 
     // Add middlewares
