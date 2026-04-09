@@ -150,8 +150,8 @@ pub struct BuildWebArgs {
     #[arg(short = 'b', long = "bundle", action = ArgAction::SetTrue, default_value_t = false)]
     pub create_packed_bundle: bool,
     /// Don't perform any post-build binding, optimization or bundling.
-    #[arg(long = "build-only", action = ArgAction::SetTrue, default_value_t = false, env = "BEVY_BUILD_WEB_BUILD_ONLY")]
-    pub build_only: bool,
+    #[arg(long = "skip-post-processing", action = ArgAction::SetTrue, default_value_t = false, env = "BEVY_WEB_SKIP_POST_PROCESSING")]
+    pub skip_post_processing: bool,
     /// Use `wasm-opt` to optimize the wasm binary
     ///
     /// Defaults to `true` for release builds.

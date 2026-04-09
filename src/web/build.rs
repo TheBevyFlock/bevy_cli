@@ -73,7 +73,8 @@ pub fn build_web(args: &mut BuildArgs, metadata: &Metadata) -> anyhow::Result<We
         .as_ref()
         .map(|BuildSubcommands::Web(web_args)| web_args);
 
-    if web_args.is_some_and(|web_args| web_args.build_only) {
+    if web_args.is_some_and(|web_args| web_args.skip_post_processing) {
+        info!("skipping post-processing for web build...");
         Ok(WebBundle::None)
     } else {
         info!("bundling JavaScript bindings...");
