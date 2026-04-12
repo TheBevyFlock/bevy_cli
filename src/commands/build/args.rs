@@ -149,6 +149,9 @@ pub struct BuildWebArgs {
     /// Bundle all web artifacts into a single folder.
     #[arg(short = 'b', long = "bundle", action = ArgAction::SetTrue, default_value_t = false)]
     pub create_packed_bundle: bool,
+    /// Don't perform any post-build binding, optimization or bundling.
+    #[arg(long = "skip-post-processing", action = ArgAction::SetTrue, default_value_t = false, env = "BEVY_WEB_SKIP_POST_PROCESSING")]
+    pub skip_post_processing: bool,
     /// Use `wasm-opt` to optimize the wasm binary
     ///
     /// Defaults to `true` for release builds.
