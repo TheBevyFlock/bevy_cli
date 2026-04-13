@@ -90,7 +90,7 @@ serde_json = { version = "1.0.149", default-features = false, features = [
 ] }
 
 # Understanding package versions
-semver = { version = "1.0.27", default-features = false, features = ["serde"] }
+semver = { version = "1.0.28", default-features = false, features = ["serde"] }
 
 # `cargo metadata` command helpers and types
 cargo_metadata = { version = "0.23.1", default-features = false }
