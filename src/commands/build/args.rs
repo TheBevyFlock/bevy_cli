@@ -165,7 +165,7 @@ pub struct BuildWebArgs {
 
     /// The directory to copy final packed bundle to. Note that a copy of the Bundle can still be
     /// found at `target/bevy_web`.
-    #[arg(long = "bundle-dir")]
+    #[arg(long = "bundle-dir", requires = "create_packed_bundle")]
     pub bundle_dir: Option<PathBuf>,
 
     #[cfg(feature = "unstable")]
