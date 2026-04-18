@@ -223,6 +223,7 @@ impl From<RunArgs> for BuildArgs {
                     skip_post_processing: false,
                     #[cfg(feature = "unstable")]
                     unstable: web_args.unstable,
+                    bundle_dir: None,
                 }),
             }),
         }
