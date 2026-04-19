@@ -1,4 +1,7 @@
 #[cfg(feature = "web")]
+use std::path::PathBuf;
+
+#[cfg(feature = "web")]
 use clap::ArgAction;
 use clap::{Args, Subcommand};
 
@@ -159,6 +162,11 @@ pub struct BuildWebArgs {
     /// You can also specify custom arguments to use.
     #[arg(long = "wasm-opt", allow_hyphen_values = true)]
     pub wasm_opt: Vec<String>,
+
+    /// The directory to copy final packed bundle to. Note that a copy of the Bundle can still be
+    /// found at `target/bevy_web`.
+    #[arg(long = "bundle-dir", requires = "create_packed_bundle")]
+    pub bundle_dir: Option<PathBuf>,
 
     #[cfg(feature = "unstable")]
     #[clap(flatten)]

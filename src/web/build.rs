@@ -1,11 +1,14 @@
+use std::fs;
+
 use anyhow::Context as _;
 use cargo_metadata::Metadata;
+use fs_extra::dir::{self, CopyOptions};
 use tracing::info;
 
 use super::bundle::WebBundle;
 use crate::{
     bin_target::select_run_binary,
-    commands::build::{BuildArgs, BuildSubcommands},
+    commands::build::{BuildArgs, BuildSubcommands, BuildWebArgs},
     external_cli::{cargo, wasm_bindgen, wasm_opt},
     web::{
         bundle::{PackedBundle, create_web_bundle},
@@ -91,6 +94,17 @@ pub fn build_web(args: &mut BuildArgs, metadata: &Metadata) -> anyhow::Result<We
 
         if let WebBundle::Packed(PackedBundle { path }) = &web_bundle {
             info!("created bundle at file://{}", path.display());
+            if let Some(BuildWebArgs {
+                bundle_dir: Some(destination),
+                ..
+            }) = web_args
+            {
+                fs::create_dir_all(destination)
+                    .context("failed to create destination directory")?;
+                dir::copy(path, destination, &CopyOptions::new().content_only(true))
+                    .context("failed to copy packed bundle directory to destination directory")?;
+                info!("copied bundle to file://{}", destination.display());
+            }
         }
 
         Ok(web_bundle)
