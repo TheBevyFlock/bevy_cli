@@ -95,14 +95,15 @@ pub fn build_web(args: &mut BuildArgs, metadata: &Metadata) -> anyhow::Result<We
         if let WebBundle::Packed(PackedBundle { path }) = &web_bundle {
             info!("created bundle at file://{}", path.display());
             if let Some(BuildWebArgs {
-                bundle_dir: Some(target),
+                bundle_dir: Some(destination),
                 ..
             }) = web_args
             {
-                fs::create_dir_all(target).context("failed to create target directory")?;
-                dir::copy(path, target, &CopyOptions::new().content_only(true))
-                    .context("failed to copy packed bundle directory to target directory")?;
-                info!("copied bundle to file://{}", target.display());
+                fs::create_dir_all(destination)
+                    .context("failed to create destination directory")?;
+                dir::copy(path, destination, &CopyOptions::new().content_only(true))
+                    .context("failed to copy packed bundle directory to destination directory")?;
+                info!("copied bundle to file://{}", destination.display());
             }
         }
 
