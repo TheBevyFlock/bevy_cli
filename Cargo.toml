@@ -55,7 +55,7 @@ clap = { version = "4.6.0", default-features = false, features = [
     "env"
 ] }
 # autocompletion auto-generation
-clap_complete = { version = "4.6.0", default-features = false }
+clap_complete = { version = "4.6.2", default-features = false }
 
 # Easy error propagation and contexts
 anyhow = { version = "1.0.102", default-features = false, features = ["std"] }
