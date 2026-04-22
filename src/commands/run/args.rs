@@ -220,8 +220,10 @@ impl From<RunArgs> for BuildArgs {
                 RunSubcommands::Web(web_args) => BuildSubcommands::Web(BuildWebArgs {
                     create_packed_bundle: web_args.create_packed_bundle,
                     wasm_opt: web_args.wasm_opt,
+                    skip_post_processing: false,
                     #[cfg(feature = "unstable")]
                     unstable: web_args.unstable,
+                    bundle_dir: None,
                 }),
             }),
         }

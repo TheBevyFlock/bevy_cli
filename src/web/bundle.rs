@@ -58,6 +58,8 @@ pub enum WebBundle {
     Linked(LinkedBundle),
     /// A bundle packed into a single folder, ready to be deployed on a web server.
     Packed(PackedBundle),
+    /// No bundle was created.
+    None,
 }
 
 /// Create a bundle of all the files needed for serving the app in the web.
@@ -124,10 +126,10 @@ pub fn create_web_bundle(
             Index::File(index_path)
         } else {
             warn!("custom web assets don't contain index.html, using default.");
-            Index::Content(default_index(bin_target))
+            Index::Content(default_index())
         }
     } else {
-        Index::Content(default_index(bin_target))
+        Index::Content(default_index())
     };
 
     let index = pre_process_index(index.content()?, bin_target);
@@ -240,7 +242,9 @@ pub fn create_web_bundle(
     }))
 }
 
-/// Apply pre-processing to the provided `index.html`.
+/// Apply pre-processing to the provided `index.html`:
+/// - Add a title attribute if there isn't one already
+/// - Replace {% entrypoint %} with the path of the JS file to start the game
 fn pre_process_index(mut content: String, bin_target: &BinTarget) -> String {
     if !content.contains("</title>") {
         content = content.replace(
@@ -251,22 +255,33 @@ fn pre_process_index(mut content: String, bin_target: &BinTarget) -> String {
             ),
         );
     }
+
+    const ENTRYPOINT_TEMPLATE: &str = "{% entrypoint %}";
+
+    if content.contains(ENTRYPOINT_TEMPLATE) {
+        // The entrypoint is located at `build/{bin_name}.js`
+        let entrypoint = format!("./build/{}", bin_target.bin_name);
+        content = content.replace(ENTRYPOINT_TEMPLATE, entrypoint.as_str());
+
+        tracing::debug!("replacing '{ENTRYPOINT_TEMPLATE}' with '{entrypoint}'");
+    } else {
+        warn!(
+            "index.html doesn't contain the '{ENTRYPOINT_TEMPLATE}' template, \
+            which should be used to find the JS entrypoint to the app.",
+        );
+    }
+
     content
 }
 
-/// Returns the contents of the default `index.html`,
-/// customized to use the name of the generated binary.
-fn default_index(bin_target: &BinTarget) -> String {
+/// Returns the contents of the default `index.html`.
+fn default_index() -> String {
     let template = include_str!(concat!(
         env!("CARGO_MANIFEST_DIR"),
         "/assets/web/index.html"
     ));
 
-    // Insert correct path to JS bindings
-    template.replace(
-        "./build/bevy_app.js",
-        format!("./build/{}.js", bin_target.bin_name).as_str(),
-    )
+    String::from(template)
 }
 
 /// Generate a title to display on the web page by default.

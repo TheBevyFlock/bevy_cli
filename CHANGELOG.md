@@ -35,6 +35,8 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
   - This is only available when compiling the CLI with the `unstable` feature, however it is enabled by default
   - This depends on an unstable flag in the Rust compiler, and thus requires a nightly toolchain of Rust
   - Bevy doesn't natively utilize multi-threaded WASM, so this will only benefit plugins that support it or code you write yourself
+- `bevy build web` now supports a `--skip-post-processing` flag for skipping post-build binding, optimization or bundling steps. The option can also be enabled by setting the `BEVY_WEB_SKIP_POST_PROCESSING` environment variable to `true`.
+- `bevy build web` now has an option to copy the packed bundle to a specific path using `--bundle-dir`
 
 ### Changed
 

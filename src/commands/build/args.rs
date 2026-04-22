@@ -1,4 +1,7 @@
 #[cfg(feature = "web")]
+use std::path::PathBuf;
+
+#[cfg(feature = "web")]
 use clap::ArgAction;
 use clap::{Args, Subcommand};
 
@@ -149,6 +152,9 @@ pub struct BuildWebArgs {
     /// Bundle all web artifacts into a single folder.
     #[arg(short = 'b', long = "bundle", action = ArgAction::SetTrue, default_value_t = false)]
     pub create_packed_bundle: bool,
+    /// Don't perform any post-build binding, optimization or bundling.
+    #[arg(long = "skip-post-processing", action = ArgAction::SetTrue, default_value_t = false, env = "BEVY_WEB_SKIP_POST_PROCESSING")]
+    pub skip_post_processing: bool,
     /// Use `wasm-opt` to optimize the wasm binary
     ///
     /// Defaults to `true` for release builds.
@@ -156,6 +162,11 @@ pub struct BuildWebArgs {
     /// You can also specify custom arguments to use.
     #[arg(long = "wasm-opt", allow_hyphen_values = true)]
     pub wasm_opt: Vec<String>,
+
+    /// The directory to copy final packed bundle to. Note that a copy of the Bundle can still be
+    /// found at `target/bevy_web`.
+    #[arg(long = "bundle-dir", requires = "create_packed_bundle")]
+    pub bundle_dir: Option<PathBuf>,
 
     #[cfg(feature = "unstable")]
     #[clap(flatten)]

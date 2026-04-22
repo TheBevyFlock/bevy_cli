@@ -30,6 +30,7 @@ You can view the [default `index.html` here](web/default-index-html.md).
 To deploy your app on a web server, it's often necessary to bundle the binary, assets and web files into a single folder.
 Using `bevy build web --bundle`, the CLI can create this bundle for you automatically.
 It will be available in the `target/bevy_web` folder, see the command's output for the full file path.
+You can also use `bevy build web --bundle --bundle-dir <path>` to copy the bundle directory to `<path>`.
 
 ## Compilation profiles
 
