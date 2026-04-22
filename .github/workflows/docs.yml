@@ -51,7 +51,7 @@ jobs:
           save-if: ${{ github.ref == 'refs/heads/main' }}
 
       - name: Install `mdbook`
-        uses: taiki-e/install-action@v2
+        uses: taiki-e/install-action@v2.75.10
         with:
           tool: mdbook
 
@@ -80,7 +80,7 @@ jobs:
           mv target/doc/* docs/book/html/api
 
       - name: Upload pages artifact
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v5
         with:
           path: docs/book/html
 
