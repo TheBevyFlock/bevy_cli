@@ -122,7 +122,7 @@ webbrowser = { version = "1.2.0", default-features = false, optional = true }
 http = { version = "1.4", default-features = false, features = [
     "std",
 ], optional = true }
-axum = { version = "0.8.8", default-features = false, features = [
+axum = { version = "0.8.9", default-features = false, features = [
     "ws",
     "http1",
     "tokio",
