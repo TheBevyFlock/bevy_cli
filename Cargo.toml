@@ -116,7 +116,7 @@ ansi_term = { version = "0.12.1", default-features = false }
 # Web dependencies
 
 ## Opening the app in the browser
-webbrowser = { version = "1.2.0", default-features = false, optional = true }
+webbrowser = { version = "1.2.1", default-features = false, optional = true }
 
 ## Serving the app for the browser
 http = { version = "1.4", default-features = false, features = [
