@@ -51,7 +51,7 @@ jobs:
           save-if: ${{ github.ref == 'refs/heads/main' }}
 
       - name: Install `mdbook`
-        uses: taiki-e/install-action@v2.75.18
+        uses: taiki-e/install-action@v2.75.23
         with:
           tool: mdbook
 
