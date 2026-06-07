@@ -59,12 +59,12 @@ impl Callbacks for BevyLintCallback {
         // Clone the input so we can `move` it into our custom `psess_created()`.
         let input = config.input.clone();
 
-        config.psess_created = Some(Box::new(move |psess| {
+        config.track_state = Some(Box::new(move |sess, _| {
             if !was_invoked_from_cargo() {
                 return;
             }
 
-            let file_depinfo = psess.file_depinfo.get_mut();
+            let mut file_depinfo = sess.file_depinfo.borrow_mut();
 
             for workspace in [false, true] {
                 // Get the paths to the crate or workspace `Cargo.toml`, if they exist.
