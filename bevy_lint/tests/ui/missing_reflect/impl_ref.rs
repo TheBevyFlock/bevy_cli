@@ -39,6 +39,10 @@ struct MyResource {
 
 //~v NOTE: `Resource` implemented here
 impl Resource for &'static &'static MyResource {}
+impl Component for &'static &'static MyResource {
+    const STORAGE_TYPE: StorageType = StorageType::Table;
+    type Mutability = Mutable;
+}
 
 //~| HELP: `Reflect` can be automatically derived
 //~v ERROR: defined an event without a `Reflect` implementation
