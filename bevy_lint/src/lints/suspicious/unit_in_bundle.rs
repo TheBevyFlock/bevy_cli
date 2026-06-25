@@ -275,7 +275,11 @@ fn bundle_bounded_generics<'tcx>(cx: &LateContext<'tcx>, fn_id: DefId) -> Vec<Ty
                     self_ty.kind(),
                     // It must either be a generic parameter `B`, or a projection
                     // `B::AssociatedType`.
-                    ty::TyKind::Param(_) | ty::TyKind::Alias(ty::AliasTyKind::Projection, _),
+                    ty::TyKind::Param(_)
+                        | ty::TyKind::Alias(ty::AliasTy {
+                            kind: ty::AliasTyKind::Projection { .. },
+                            ..
+                        })
                 ),
                 "type {self_ty} from trait bound {trait_ref} was expected to be a type parameter, but instead was a {self_ty_kind:?}",
                 self_ty_kind = self_ty.kind(),
