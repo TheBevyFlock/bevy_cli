@@ -23,8 +23,7 @@ updates:
     labels:
       - C-Dependencies
   - package-ecosystem: nix
-    directories:
-      - /flake.nix
+    directory: "/"
     schedule:
       interval: weekly
     cooldown:
