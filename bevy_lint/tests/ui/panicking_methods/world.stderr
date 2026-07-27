@@ -84,68 +84,68 @@ error: called a `World` method that can panic when a non-panicking alternative e
    = help: use `World::get_resource_ref::<Jeffrey>(&world)` and handle the `Option` or `Result`
 
 error: called a `World` method that can panic when a non-panicking alternative exists
-  --> tests/ui/panicking_methods/world.rs:63:11
+  --> tests/ui/panicking_methods/world.rs:67:11
    |
-63 |     world.non_send_resource::<Patrick>();
+67 |     world.non_send_resource::<Patrick>();
    |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = help: use `world.get_non_send_resource::<Patrick>()` and handle the `Option` or `Result`
 
 error: called a `World` method that can panic when a non-panicking alternative exists
-  --> tests/ui/panicking_methods/world.rs:67:5
+  --> tests/ui/panicking_methods/world.rs:75:5
    |
-67 |     World::non_send_resource::<Patrick>(&world);
+75 |     World::non_send_resource::<Patrick>(&world);
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = help: use `World::get_non_send_resource::<Patrick>(&world)` and handle the `Option` or `Result`
 
 error: called a `World` method that can panic when a non-panicking alternative exists
-  --> tests/ui/panicking_methods/world.rs:71:11
+  --> tests/ui/panicking_methods/world.rs:83:11
    |
-71 |     world.non_send_resource_mut::<Patrick>();
+83 |     world.non_send_resource_mut::<Patrick>();
    |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = help: use `world.get_non_send_resource_mut::<Patrick>()` and handle the `Option` or `Result`
 
 error: called a `World` method that can panic when a non-panicking alternative exists
-  --> tests/ui/panicking_methods/world.rs:75:5
+  --> tests/ui/panicking_methods/world.rs:91:5
    |
-75 |     World::non_send_resource_mut::<Patrick>(&mut world);
+91 |     World::non_send_resource_mut::<Patrick>(&mut world);
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = help: use `World::get_non_send_resource_mut::<Patrick>(&mut world)` and handle the `Option` or `Result`
 
 error: called a `World` method that can panic when a non-panicking alternative exists
-  --> tests/ui/panicking_methods/world.rs:79:11
+  --> tests/ui/panicking_methods/world.rs:95:11
    |
-79 |     world.run_schedule(Update);
+95 |     world.run_schedule(Update);
    |           ^^^^^^^^^^^^^^^^^^^^
    |
    = help: use `world.try_run_schedule(Update)` and handle the `Option` or `Result`
 
 error: called a `World` method that can panic when a non-panicking alternative exists
-  --> tests/ui/panicking_methods/world.rs:83:5
+  --> tests/ui/panicking_methods/world.rs:99:5
    |
-83 |     World::run_schedule(&mut world, Update);
+99 |     World::run_schedule(&mut world, Update);
    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = help: use `World::try_run_schedule(&mut world, Update)` and handle the `Option` or `Result`
 
 error: called a `World` method that can panic when a non-panicking alternative exists
-  --> tests/ui/panicking_methods/world.rs:87:11
-   |
-87 |     world.schedule_scope(Update, |_world, _schedule| {});
-   |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   |
-   = help: use `world.try_schedule_scope(Update, |_world, _schedule| {})` and handle the `Option` or `Result`
+   --> tests/ui/panicking_methods/world.rs:103:11
+    |
+103 |     world.schedule_scope(Update, |_world, _schedule| {});
+    |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = help: use `world.try_schedule_scope(Update, |_world, _schedule| {})` and handle the `Option` or `Result`
 
 error: called a `World` method that can panic when a non-panicking alternative exists
-  --> tests/ui/panicking_methods/world.rs:91:5
-   |
-91 |     World::schedule_scope(&mut world, Update, |_world, _schedule| {});
-   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   |
-   = help: use `World::try_schedule_scope(&mut world, Update, |_world, _schedule| {})` and handle the `Option` or `Result`
+   --> tests/ui/panicking_methods/world.rs:107:5
+    |
+107 |     World::schedule_scope(&mut world, Update, |_world, _schedule| {});
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = help: use `World::try_schedule_scope(&mut world, Update, |_world, _schedule| {})` and handle the `Option` or `Result`
 
 error: aborting due to 18 previous errors
 
