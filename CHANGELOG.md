@@ -11,6 +11,10 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 
 **All Changes**: [`cli-v0.1.0-alpha.2...main`](https://github.com/TheBevyFlock/bevy_cli/compare/cli-v0.1.0-alpha.2...main)
 
+### Added
+
+- The CLI now expands user-defined aliases from the `.cargo/config.toml`
+
 ### Changed
 
 - In web builds, the canvas now resizes to fill the webpage. This change will not affect projects that use a custom `index.html` file.
