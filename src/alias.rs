@@ -58,4 +58,3 @@ fn subcommand_index(argv: &[OsString]) -> Option<usize> {
 
     None
 }
-
