@@ -1,12 +1,15 @@
 use std::{fmt::Write, process::ExitCode};
 
 use ansi_term::Color::{Blue, Green, Purple, Red, Yellow};
-use bevy_cli::commands::{
-    build::{BuildArgs, build},
-    completions::completions,
-    lint::{LintArgs, lint},
-    new::{NewArgs, new},
-    run::{RunArgs, run},
+use bevy_cli::{
+    alias,
+    commands::{
+        build::{BuildArgs, build},
+        completions::completions,
+        lint::{LintArgs, lint},
+        new::{NewArgs, new},
+        run::{RunArgs, run},
+    },
 };
 use clap::{Parser, Subcommand, builder::styling::Style};
 use clap_cargo::style;
@@ -17,7 +20,7 @@ use tracing_subscriber::{
 };
 
 fn main() -> ExitCode {
-    let cli = Cli::parse();
+    let cli = Cli::parse_from(alias::expand::<Cli>(std::env::args_os().collect()));
 
     // Set default log level to info for the `bevy_cli` crate if `BEVY_LOG` is not set.
     let env = tracing_subscriber::EnvFilter::try_from_env("BEVY_LOG").map_or_else(
