@@ -127,8 +127,7 @@ pub(crate) fn list() -> anyhow::Result<()> {
     let mut table = comfy_table::Table::new();
 
     table
-        .load_preset(comfy_table::presets::UTF8_FULL)
-        .apply_modifier(comfy_table::modifiers::UTF8_ROUND_CORNERS)
+        .load_style(comfy_table::presets::UTF8_FULL.with_rounded_corners())
         .set_header(["Bevy Lint Version"]);
 
     for release in releases {
