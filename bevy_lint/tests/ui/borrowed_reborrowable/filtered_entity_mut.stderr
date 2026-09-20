@@ -13,8 +13,8 @@ note: the lint level is defined here
 error: parameter takes `&mut FilteredEntityMut` instead of a re-borrowed `FilteredEntityMut`
   --> tests/ui/borrowed_reborrowable/filtered_entity_mut.rs:26:29
    |
-26 | fn mutable_reference_return(_param: &'_ mut FilteredEntityMut) -> usize {
-   |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use `FilteredEntityMut` instead: `mut _param: FilteredEntityMut`
+26 | ...nce_return(_param: &'_ mut FilteredEntityMut) -> usize {
+   |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: use `FilteredEntityMut` instead: `mut _param: FilteredEntityMut`
 
 error: aborting due to 2 previous errors
 

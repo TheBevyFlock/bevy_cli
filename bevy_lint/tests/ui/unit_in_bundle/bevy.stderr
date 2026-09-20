@@ -35,8 +35,8 @@ error: created a `Bundle` containing a unit `()`
 error: created a `Bundle` containing a unit `()`
   --> tests/ui/unit_in_bundle/bevy.rs:37:9
    |
-37 |         Transform::from_translation(Vec3::new(0.75, 0.0, 0.0)).rotate_z(PI / 4.0),
-   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+37 | ...   Transform::from_translation(Vec3::new(0.75, 0.0, 0.0)).rotate_z(PI / 4.0),
+   |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = note: units `()` are not `Component`s and will be skipped
 
