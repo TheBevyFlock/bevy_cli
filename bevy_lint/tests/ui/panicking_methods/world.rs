@@ -60,18 +60,34 @@ fn main() {
     //~^ ERROR: called a `World` method that can panic when a non-panicking alternative exists
     //~| HELP: use `World::get_resource_ref::<Jeffrey>(&world)`
 
+    #[expect(
+        deprecated,
+        reason = "While this method is deprecated, we should still check for it while it exists."
+    )]
     world.non_send_resource::<Patrick>();
     //~^ ERROR: called a `World` method that can panic when a non-panicking alternative exists
     //~| HELP: use `world.get_non_send_resource::<Patrick>()`
 
+    #[expect(
+        deprecated,
+        reason = "While this method is deprecated, we should still check for it while it exists."
+    )]
     World::non_send_resource::<Patrick>(&world);
     //~^ ERROR: called a `World` method that can panic when a non-panicking alternative exists
     //~| HELP: use `World::get_non_send_resource::<Patrick>(&world)`
 
+    #[expect(
+        deprecated,
+        reason = "While this method is deprecated, we should still check for it while it exists."
+    )]
     world.non_send_resource_mut::<Patrick>();
     //~^ ERROR: called a `World` method that can panic when a non-panicking alternative exists
     //~| HELP: use `world.get_non_send_resource_mut::<Patrick>()`
 
+    #[expect(
+        deprecated,
+        reason = "While this method is deprecated, we should still check for it while it exists."
+    )]
     World::non_send_resource_mut::<Patrick>(&mut world);
     //~^ ERROR: called a `World` method that can panic when a non-panicking alternative exists
     //~| HELP: use `World::get_non_send_resource_mut::<Patrick>(&mut world)`
