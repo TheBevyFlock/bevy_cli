@@ -208,7 +208,7 @@ fn fn_arg_types<'tcx>(cx: &LateContext<'tcx>, fn_id: DefId) -> &'tcx [Ty<'tcx>] 
     cx.tcx
         .fn_sig(fn_id)
         .instantiate_identity()
-        .skip_norm_wip()
+        .skip_normalization()
         .inputs()
         .skip_binder()
 }

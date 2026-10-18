@@ -140,7 +140,7 @@ impl<'tcx> LateLintPass<'tcx> for BorrowedReborrowable {
             FnKind::Closure => cx.tcx.closure_user_provided_sig(def_id).value,
             // We use `instantiate_identity` to discharge the binder since we don't
             // mind using placeholders for any bound arguments
-            _ => cx.tcx.fn_sig(def_id).instantiate_identity().skip_norm_wip(),
+            _ => cx.tcx.fn_sig(def_id).instantiate_identity().skip_normalization(),
         };
 
         // A list of argument types, used in the actual lint check.
