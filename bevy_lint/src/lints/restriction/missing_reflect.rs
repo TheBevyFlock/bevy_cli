@@ -93,14 +93,14 @@ impl<'tcx> LateLintPass<'tcx> for MissingReflect {
             .filter(|trait_type| !reflected.contains(trait_type))
             .collect();
 
-        // Finds all non-`Reflect` types that implement `Component` in this crate.
-        let components: Vec<TraitType> = TraitType::from_local_crate(cx, &crate::paths::COMPONENT)
-            .filter(|trait_type| !reflected.contains(trait_type))
-            .collect();
-
         // Finds all non-`Reflect` types that implement `Resource` in this crate.
         let resources: Vec<TraitType> = TraitType::from_local_crate(cx, &crate::paths::RESOURCE)
             .filter(|trait_type| !reflected.contains(trait_type))
+            .collect();
+
+        // Finds all non-`Reflect` types that implement `Component` but not `Resource`.
+        let components: Vec<TraitType> = TraitType::from_local_crate(cx, &crate::paths::COMPONENT)
+            .filter(|trait_type| !reflected.contains(trait_type) && !resources.contains(trait_type))
             .collect();
 
         let reflect_trait_def_ids = crate::paths::PARTIAL_REFLECT.get(cx);
