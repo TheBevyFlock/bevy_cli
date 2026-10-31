@@ -59,7 +59,7 @@ impl Callbacks for BevyLintCallback {
         // Clone the input so we can `move` it into our custom `psess_created()`.
         let input = config.input.clone();
 
-        config.track_state = Some(Box::new(move |sess, _| {
+        config.track_state = Some(Box::new(move |sess| {
             if !was_invoked_from_cargo() {
                 return;
             }
